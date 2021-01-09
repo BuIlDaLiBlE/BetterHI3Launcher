@@ -6,4 +6,6 @@ A much better Honkai Impact 3rd launcher. Here's its key points:
 * Has useful features such as fixing subtitles, setting custom FPS, resetting game settings and even downloading cache files (useful for those folks that can't do it via the game)
 * Automatically updates itself
 
+System requirements: 64-bit version of Windows 10 (should run on 7 and 8.1 too if .NET Framework 4.6 or newer is installed).
+
 I made this with hope to help people have a better experience with the game. I will actively support this project, but you are welcome to [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues) if something's wrong or improve upon my code via [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/compare).
