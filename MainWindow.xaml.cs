@@ -2166,56 +2166,13 @@ namespace BetterHI3Launcher
             {
                 return path;
             }
-            else if(File.Exists(Path.Combine(pathVariants[0], gameExeName)))
-            {
-                return pathVariants[0];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[1], gameExeName)))
-            {
-                return pathVariants[1];
-            }
-            else if(File.Exists(Path.Combine(Path.Combine(pathVariants[2]), gameExeName)))
-            {
-                return pathVariants[2];
-            }
-            else if(File.Exists(Path.Combine(Path.Combine(pathVariants[3]), gameExeName)))
-            {
-                return pathVariants[3];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[4], gameExeName)))
-            {
-                return pathVariants[4];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[5], gameExeName)))
-            {
-                return pathVariants[5];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[6], gameExeName)))
-            {
-                return pathVariants[6];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[7], gameExeName)))
-            {
-                return pathVariants[7];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[8], gameExeName)))
-            {
-                return pathVariants[8];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[8], gameExeName)))
-            {
-                return pathVariants[8];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[9], gameExeName)))
-            {
-                return pathVariants[9];
-            }
-            else if(File.Exists(Path.Combine(pathVariants[10], gameExeName)))
-            {
-                return pathVariants[10];
-            }
             else
             {
+                for(int i = 0; i < pathVariants.Length; i++)
+                {
+                    if(File.Exists(Path.Combine(pathVariants[i], gameExeName)))
+                        return pathVariants[i];
+                }
                 return String.Empty;
             }
         }
