@@ -1,0 +1,191 @@
+﻿<Window x:Class="BetterHI3Launcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BetterHI3Launcher"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="Transparent"
+		WindowStartupLocation="CenterScreen"
+		ContentRendered="Window_ContentRendered"
+        Closing="MainWindow_Closing"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        Title="Better HI3 Launcher" Width="1362" Height="698">
+    <Window.Resources>
+        <FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
+        <ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
+        <ImageBrush x:Key="ButtonPressed" ImageSource="/Assets/Images/Button_Pressed.png"/>
+        <ImageBrush x:Key="ButtonDisabled" ImageSource="/Assets/Images/Button_Disabled.png"/>
+        <ImageBrush x:Key="ButtonUninstall" ImageSource="/Assets/Images/Button_Uninstall.png"/>
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="0" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
+        <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+        <Style x:Key="LaunchButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource Button}"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="#313131"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonPressed}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDisabled}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#333333"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CloseButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="#7FA9A9A9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#7FD3D3D3"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="#55FFFFFF"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="Gray"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border Width="1362" Height="698">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="50" Direction="-90" ShadowDepth="8" RenderingBias="Quality"/>
+        </Border.Effect>
+        <Grid Name="Grid" Width="1280" Height="590">
+            <Rectangle Fill="Magenta"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="48" Foreground="Black" Text="NO IMAGE :^(" FontFamily="{DynamicResource Font}"/>
+            <Image Name="BackgroundImage" Stretch="Fill"/>
+            <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
+            <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="275" Height="174" Margin="0,7,26,0"/>
+            <ProgressBar Name="ProgressBar" Minimum="0" Maximum="100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="181" Height="5" Margin="0,0,72,213" Visibility="Hidden"/>
+            <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="12" Foreground="White" Margin="950,0,0,223" MinWidth="214" FontFamily="{DynamicResource Font}" TextAlignment="Center"/>
+            <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="12" Foreground="#C8FFFFFF" Margin="1033,0,0,27" Text="Version:" FontFamily="{DynamicResource Font}"/>
+            <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="10" Foreground="#C8FFFFFF" Margin="1033,0,0,7" Text="Launcher Version:" FontFamily="{DynamicResource Font}"/>
+            <Button Style="{DynamicResource CloseButtonStyle}" Name="CloseButton" Content="⨉" Click="CloseButton_Click" Width="32" Height="32" MaxWidth="32" MaxHeight="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            <Button Style="{DynamicResource LaunchButtonStyle}" Name="LaunchButton" Content="Download" Click="LaunchButton_Click" Width="214" Height="42" MaxWidth="214" MaxHeight="42" Margin="0,0,58,51" FontFamily="{DynamicResource Font}" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="0,1,0,1" IsEnabled="False"/>
+            <Button Style="{DynamicResource LaunchButtonStyle}" Name="OptionsButton" Content="Options" Click="OptionsButton_Click" Width="214" Height="42" MaxWidth="214" MaxHeight="42" Margin="0,0,58,110" FontFamily="{DynamicResource Font}" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="0,1,0,1" IsEnabled="False">
+                <Button.ContextMenu>
+                    <ContextMenu Name="OptionsContextMenu"/>
+                </Button.ContextMenu>
+            </Button>
+            <TextBlock Name="ServerLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,189" Text="Server:" FontFamily="{DynamicResource Font}">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            <ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{DynamicResource Font}" SelectedIndex="0" SelectionChanged="ServerDropdown_Changed">
+                <ComboBoxItem Content="Global"></ComboBoxItem>
+                <ComboBoxItem Content="SEA"></ComboBoxItem>
+            </ComboBox>
+            <TextBlock Name="MirrorLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,164" Text="Mirror:" FontFamily="{DynamicResource Font}">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{DynamicResource Font}" SelectedIndex="0" SelectionChanged="MirrorDropdown_Changed">
+                <ComboBoxItem Content="miHoYo"></ComboBoxItem>
+                <ComboBoxItem Content="Google Drive"></ComboBoxItem>
+            </ComboBox>
+            <Grid Name="InputBox" Visibility="Collapsed">
+                <Grid Background="#80000000"/>
+                <Border MinWidth="250" Background="#C8FFFFFF" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Name="InputBoxTitleTextBlock" Margin="5" FontWeight="Bold" TextAlignment="Center" FontFamily="{DynamicResource Font}"/>
+                        <TextBox Name="InputBoxTextBox" MinWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" MaxLength="3" FontFamily="{DynamicResource Font}" PreviewTextInput="InputBoxTextBox_OnPreview" DataObject.Pasting="InputBoxTextBox_OnPaste"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="InputBoxOKButton" Margin="5" MinWidth="50" Content="OK" FontFamily="{DynamicResource Font}" Background="White" Click="InputBoxOKButton_Click"/>
+                            <Button Name="InputBoxCancelButton" Margin="5" MinWidth="50" Content="Cancel" FontFamily="{DynamicResource Font}" Background="White" Click="InputBoxCancelButton_Click" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <Grid Name="LogBox" Visibility="Collapsed">
+                <Grid Background="#80000000"/>
+                <Border Width="844" Height="390" Background="#C8FFFFFF" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Name="LogBoxTitleTextBlock" Margin="5" Text="Log" FontWeight="Bold" FontSize="15" TextAlignment="Center" FontFamily="{DynamicResource Font}"/>
+                        <ScrollViewer Margin="14,0,13,0" Width="800" Height="325" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <TextBox Name="LogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas" Background="#19000000" IsReadOnly="True"/>
+                        </ScrollViewer>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="LogBoxOKButton" Margin="10" MinWidth="50" Content="OK" FontFamily="{DynamicResource Font}" Background="White" Click="LogBoxOKButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <Grid Name="ChangelogBox" Visibility="Collapsed">
+                <Grid Background="#80000000"/>
+                <Border Width="844" Height="390" Background="#C8FFFFFF" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Name="ChangelogBoxTitleTextBlock" Margin="5" Text="Changelog" FontWeight="Bold" FontSize="15" TextAlignment="Center" FontFamily="{DynamicResource Font}"/>
+                        <TextBlock Name="ChangelogBoxMessageTextBlock" Margin="22,0,0,5" Text="Better HI3 Launcher has just become even better. Here's what happened:" FontFamily="Segoe UI" Visibility="Collapsed"/>
+                        <ScrollViewer Name="ChangelogBoxScrollViewer" Margin="14,0,13,0" Width="800" Height="325" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <TextBox Name="ChangelogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas" Background="#19000000" IsReadOnly="True" TextWrapping="Wrap"/>
+                        </ScrollViewer>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="ChangelogBoxOKButton" Margin="10" MinWidth="50" Content="OK" FontFamily="{DynamicResource Font}" Background="White" Click="ChangelogBoxOKButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
