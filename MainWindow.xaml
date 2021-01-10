@@ -144,6 +144,27 @@
                 <ComboBoxItem Content="miHoYo"></ComboBoxItem>
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
+              <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
+                <CheckBox.LayoutTransform>
+                  <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                </CheckBox.LayoutTransform>
+              </CheckBox>
+              <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontSize="20" Foreground="White" Text="Show Log" FontFamily="{DynamicResource Font}">
+                <TextBlock.Effect>
+                  <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
+                </TextBlock.Effect>
+              </TextBlock>
+            </StackPanel>
+            <Grid Name="LogBox" Visibility="Collapsed">
+                <Border Margin="0,0,250,0" Width="844" Height="394" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel>
+                        <ScrollViewer Name="LogBoxScrollViewer" Width="844" Height="394" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <TextBox Name="LogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas" Background="#C8000000" Foreground="White" IsReadOnly="True"/>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+            </Grid>
             <Grid Name="InputBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
                 <Border MinWidth="250" Background="#C8FFFFFF" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -153,20 +174,6 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button Name="InputBoxOKButton" Margin="5" MinWidth="50" Content="OK" FontFamily="{DynamicResource Font}" Background="White" Click="InputBoxOKButton_Click"/>
                             <Button Name="InputBoxCancelButton" Margin="5" MinWidth="50" Content="Cancel" FontFamily="{DynamicResource Font}" Background="White" Click="InputBoxCancelButton_Click" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Grid>
-            <Grid Name="LogBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Border Width="844" Height="390" Background="#C8FFFFFF" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <StackPanel>
-                        <TextBlock Name="LogBoxTitleTextBlock" Margin="5" Text="Log" FontWeight="Bold" FontSize="15" TextAlignment="Center" FontFamily="{DynamicResource Font}"/>
-                        <ScrollViewer Margin="14,0,13,0" Width="800" Height="325" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <TextBox Name="LogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas" Background="#19000000" IsReadOnly="True"/>
-                        </ScrollViewer>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Name="LogBoxOKButton" Margin="10" MinWidth="50" Content="OK" FontFamily="{DynamicResource Font}" Background="White" Click="LogBoxOKButton_Click"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
