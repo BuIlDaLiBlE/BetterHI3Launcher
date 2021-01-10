@@ -1725,13 +1725,13 @@ namespace BetterHI3Launcher
                                             if(File.Exists(entryPath))
                                                 File.SetAttributes(entryPath, File.GetAttributes(entryPath) & ~FileAttributes.ReadOnly);
                                             reader.WriteEntryToDirectory(GameVideoDirectory, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
-                                            Log($"Unpack OK: {SubtitleArchive}\n");
+                                            Log($"Unpack OK: {SubtitleArchive}");
                                         }
                                         catch
                                         {
                                             skippedFiles.Add($"[{Path.GetFileName(SubtitleArchive)}] {reader.Entry}");
                                             skippedFilePaths.Add(SubtitleArchive);
-                                            Log($"Unpack ERROR: {SubtitleArchive}\n");
+                                            Log($"Unpack ERROR: {SubtitleArchive}");
                                         }
                                     }
                                 }
@@ -1800,7 +1800,7 @@ namespace BetterHI3Launcher
                         });
                         Log($"Parsed {subtitlesParsed} subtitles, fixed {subsFixed.Count} of them");
                     }
-                    LogBox.Visibility = Visibility.Visible;
+
                     if(SubtitleArchives.Count > 0 && subsFixed.Count == 0)
                         MessageBox.Show(string.Format(textStrings["msgbox_fixsubs_4_msg"], SubtitleArchives.Count), textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
                     else if(SubtitleArchives.Count == 0 && subsFixed.Count > 0)
@@ -1809,7 +1809,6 @@ namespace BetterHI3Launcher
                         MessageBox.Show($"{string.Format(textStrings["msgbox_fixsubs_4_msg"], SubtitleArchives.Count)}\n{string.Format(textStrings["msgbox_fixsubs_5_msg"], subsFixed.Count)}", textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
                     else
                     {
-                        LogBox.Visibility = Visibility.Collapsed;
                         MessageBox.Show(string.Format(textStrings["msgbox_fixsubs_6_msg"]), textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     /*

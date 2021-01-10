@@ -156,10 +156,10 @@
                 </TextBlock.Effect>
               </TextBlock>
             </StackPanel>
-            <Grid Name="LogBox" Visibility="Collapsed">
-                <Border Margin="0,0,250,0" Width="844" Height="394" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Name="LogBox" Visibility="Visible">
+                <Border Margin="0,0,316,25" Width="944" Height="520" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel>
-                        <ScrollViewer Name="LogBoxScrollViewer" Width="844" Height="394" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Name="LogBoxScrollViewer" Width="944" Height="520" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <TextBox Name="LogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas" Background="#C8000000" Foreground="White" IsReadOnly="True"/>
                         </ScrollViewer>
                     </StackPanel>
