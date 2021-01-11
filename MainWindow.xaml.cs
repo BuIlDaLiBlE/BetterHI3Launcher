@@ -35,7 +35,7 @@ namespace BetterHI3Launcher
     }
     enum HI3Mirror
     {
-        miHoYo, GoogleDrive
+        miHoYo, MediaFire, GoogleDrive
     }
 
     public partial class MainWindow : Window
@@ -288,7 +288,7 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_cleaningup", "Cleaning up...");
             textStrings.Add("progresstext_checkingupdate", "Checking for update...");
             textStrings.Add("progresstext_expectedsize", "Expected download size");
-            textStrings.Add("progresstext_downloaded", "Downloaded");
+            textStrings.Add("progresstext_downloaded", "Downloaded {0}/{1} ({2})");
             textStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
             textStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1}");
             textStrings.Add("progresstext_writinginfo", "Writing version info...");
@@ -323,7 +323,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry:\n{0}");
             textStrings.Add("msgbox_registryerror_title", "Registry error");
             textStrings.Add("msgbox_registryempty_msg", "No value to be tweaked in registry exists. Did you already run the game?");
-            textStrings.Add("msgbox_downloadcache_msg", "This will download cache needed for the game login. Please note that there is currently no way to automatically retrieve latest cache and it has to be uploaded manually to a mirror.\nCurrent mirror maintainer is art-serious#8505.\nCache last updated: {0}.\nContinue?");
+            textStrings.Add("msgbox_downloadcache_msg", "This will download cache needed for the game login. Please note that there is currently no way to automatically retrieve latest cache and it has to be uploaded manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is art-serious#8505.\nContinue?");
             textStrings.Add("msgbox_uninstall_1_msg", "Are you sure you want to uninstall the game?");
             textStrings.Add("msgbox_uninstall_2_msg", "Are you really sure you want to uninstall the game? :^(");
             textStrings.Add("msgbox_uninstall_3_msg", "Remove game cache files as well?");
@@ -399,7 +399,7 @@ namespace BetterHI3Launcher
                     textStrings["progresstext_cleaningup"] = "Убираюсь за собой...";
                     textStrings["progresstext_checkingupdate"] = "Проверка на наличие обновления...";
                     textStrings["progresstext_expectedsize"] = "Ожидаемый размер загрузки";
-                    textStrings["progresstext_downloaded"] = "Загружено";
+                    textStrings["progresstext_downloaded"] = "Загружено {0}/{1} ({2})";
                     textStrings["progresstext_unpacking_1"] = "Распаковка игровых файлов...";
                     textStrings["progresstext_unpacking_2"] = "Распаковка игрового файла {0}/{1}";
                     textStrings["progresstext_writinginfo"] = "Запись информации о версии...";
@@ -434,7 +434,7 @@ namespace BetterHI3Launcher
                     textStrings["msgbox_registryerror_msg"] = "Произошла ошибка доступа к реестру:\n{0}";
                     textStrings["msgbox_registryerror_title"] = "Ошибка реестра";
                     textStrings["msgbox_registryempty_msg"] = "Нужное значение в реестре отсутствует. Вы уже запускали игру?";
-                    textStrings["msgbox_downloadcache_msg"] = "Будет загружен кэш, который необходим для входа в игру. Учтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому его нужно загружать вручную с зеркала.\nОтветственный за зеркало: art-serious#8505.\nДата обновления кэша: {0}.\nПродолжить?";
+                    textStrings["msgbox_downloadcache_msg"] = "Будет загружен кэш, который необходим для входа в игру. Учтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому его нужно загружать вручную с зеркала.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}.\nОтветственный за зеркало: art-serious#8505.\nПродолжить?";
                     textStrings["msgbox_uninstall_1_msg"] = "Вы уверены, что хотите удалить игру?";
                     textStrings["msgbox_uninstall_2_msg"] = "Вы точно уверены, что хотите удалить игру? :^(";
                     textStrings["msgbox_uninstall_3_msg"] = "Удалить также и игровой кэш?";
@@ -650,13 +650,14 @@ namespace BetterHI3Launcher
             */
             try
             {
-                if(versionInfoKey.GetValue("LastSelectedServer") != null)
+                var LastSelectedServerKey = versionInfoKey.GetValue("LastSelectedServer");
+                if(LastSelectedServerKey != null)
                 {
                     if(versionInfoKey.GetValueKind("LastSelectedServer") == RegistryValueKind.DWord)
                     {
-                        if((int)versionInfoKey.GetValue("LastSelectedServer") == 0)
+                        if((int)LastSelectedServerKey == 0)
                             Server = HI3Server.Global;
-                        else
+                        else if((int)LastSelectedServerKey == 1)
                             Server = HI3Server.SEA;
                     }
                 }
@@ -665,13 +666,16 @@ namespace BetterHI3Launcher
                     Server = HI3Server.Global;
                 }
                 ServerDropdown.SelectedIndex = (int)Server;
-                if(versionInfoKey.GetValue("LastSelectedMirror") != null)
+                var LastSelectedMirrorKey = versionInfoKey.GetValue("LastSelectedMirror");
+                if(LastSelectedMirrorKey != null)
                 {
                     if(versionInfoKey.GetValueKind("LastSelectedMirror") == RegistryValueKind.DWord)
                     {
-                        if((int)versionInfoKey.GetValue("LastSelectedMirror") == 0)
+                        if((int)LastSelectedMirrorKey == 0)
                             Mirror = HI3Mirror.miHoYo;
-                        else
+                        else if((int)LastSelectedMirrorKey == 1)
+                            Mirror = HI3Mirror.MediaFire;
+                        else if((int)LastSelectedMirrorKey == 2)
                             Mirror = HI3Mirror.GoogleDrive;
                     }
                 }
@@ -680,17 +684,21 @@ namespace BetterHI3Launcher
                     Mirror = HI3Mirror.miHoYo;
                 }
                 MirrorDropdown.SelectedIndex = (int)Mirror;
-                if(versionInfoKey.GetValue("ShowLog") != null)
+                var ShowLogKey = versionInfoKey.GetValue("ShowLog");
+                if(ShowLogKey != null)
                 {
                     if(versionInfoKey.GetValueKind("ShowLog") == RegistryValueKind.DWord)
                     {
-                        if((int)versionInfoKey.GetValue("ShowLog") == 1)
+                        if((int)ShowLogKey == 1)
                             ShowLogCheckBox.IsChecked = true;
                     }
                 }
+                Log($"Using server: {((ComboBoxItem)ServerDropdown.SelectedItem).Content as string}");
+                Log($"Using mirror: {((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string}");
 
                 string backgroundImageName = miHoYoVersionInfo.bg_file_name.ToString();
-                if(versionInfoKey.GetValue("BackgroundImageName") != null && File.Exists(Path.Combine(backgroundImagePath, backgroundImageName)) && backgroundImageName == versionInfoKey.GetValue("BackgroundImageName").ToString())
+                var BackgroundImageNameKey = versionInfoKey.GetValue("BackgroundImageName");
+                if(BackgroundImageNameKey != null && File.Exists(Path.Combine(backgroundImagePath, backgroundImageName)) && backgroundImageName == BackgroundImageNameKey.ToString())
                 {
                     Log($"Background image {backgroundImageName} exists, using it");
                     BackgroundImage.Source = new BitmapImage(new Uri(Path.Combine(backgroundImagePath, backgroundImageName)));
@@ -733,16 +741,12 @@ namespace BetterHI3Launcher
 
         private void FetchmiHoYoVersionInfo()
         {
-            string version_info_url;
+            string url;
             if(Server == HI3Server.Global)
-            {
-                version_info_url = onlineVersionInfo.game_info.mirror.mihoyo.version_info.global.ToString();
-            }
+                url = onlineVersionInfo.game_info.mirror.mihoyo.version_info.global.ToString();
             else
-            {
-                version_info_url = onlineVersionInfo.game_info.mirror.mihoyo.version_info.os.ToString();
-            }
-            var webRequest = (HttpWebRequest)WebRequest.Create(version_info_url);
+                url = onlineVersionInfo.game_info.mirror.mihoyo.version_info.os.ToString();
+            var webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.UserAgent = userAgent;
             using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
             { 
@@ -767,14 +771,50 @@ namespace BetterHI3Launcher
             });
         }
 
+        private DateTime FetchmiHoYoResourceVersionDateModified()
+        {
+            var url = new string[2];
+            var time = new DateTime[2];
+            if(Server == HI3Server.Global)
+            {
+                url[0] = onlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[0].ToString();
+                url[1] = onlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[1].ToString();
+            }
+            else
+            {
+                url[0] = onlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[0].ToString();
+                url[1] = onlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[1].ToString();
+            }
+            try
+            {
+                for(int i = 0; i < url.Length; i++)
+                {
+                    var webRequest = (HttpWebRequest)WebRequest.Create(url[i]);
+                    webRequest.UserAgent = userAgent;
+                    using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
+                    {
+                        time[i] = webResponse.LastModified;
+                    }
+                }
+                if(DateTime.Compare(time[0], time[1]) >= 0)
+                    return time[0];
+                else
+                    return time[1];
+            }
+            catch
+            {
+                return new DateTime(0);
+            }
+        }
+
         private dynamic FetchGDFileMetadata(string id)
         {
             string key = "AIzaSyBM8587dCDzMYAN0Y5LcGS-NiZ2TTRZelA";
-            string version_info_url = $"https://www.googleapis.com/drive/v2/files/{id}?key={key}";
+            string url = $"https://www.googleapis.com/drive/v2/files/{id}?key={key}";
 
             try
             {
-                var webRequest = (HttpWebRequest)WebRequest.Create(version_info_url);
+                var webRequest = (HttpWebRequest)WebRequest.Create(url);
                 webRequest.UserAgent = userAgent;
                 using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
                 {
@@ -798,6 +838,37 @@ namespace BetterHI3Launcher
                     else
                         message = ex.Message;
                     Log($"ERROR: Failed to fetch Google Drive file metadata:\n{message}");
+                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                    Status = LauncherStatus.Ready;
+                }
+                return null;
+            }
+        }
+
+        private dynamic FetchMediaFireFileMetadata(string id)
+        {
+            string url = $"https://www.mediafire.com/file/{id}";
+
+            try
+            {
+                var webRequest = (HttpWebRequest)WebRequest.Create(url);
+                webRequest.UserAgent = userAgent;
+                using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
+                {
+                    dynamic metadata = new ExpandoObject();
+                    metadata.title = webResponse.Headers["Content-Disposition"].Replace("attachment; filename=", String.Empty).Replace("\"", String.Empty);
+                    metadata.downloadUrl = url;
+                    metadata.fileSize = webResponse.ContentLength;
+                    return metadata;
+                }
+            }
+            catch(WebException ex)
+            {
+                Status = LauncherStatus.Error;
+                if(ex.Response != null)
+                {
+                    string message = ex.Message;
+                    Log($"ERROR: Failed to fetch MediaFire file metadata:\n{message}");
                     MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                     Status = LauncherStatus.Ready;
                 }
@@ -830,7 +901,20 @@ namespace BetterHI3Launcher
                     bool game_needs_update = false;
                     long download_size = 0;
                     if(Mirror == HI3Mirror.miHoYo)
+                    {
                         download_size = miHoYoVersionInfo.space_usage;
+                    }
+                    else if(Mirror == HI3Mirror.MediaFire)
+                    {
+                        dynamic mediafire_metadata;
+                        if(Server == HI3Server.Global)
+                            mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
+                        else
+                            mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+                        if(mediafire_metadata == null)
+                            return;
+                        download_size = mediafire_metadata.fileSize;
+                    }
                     else if(Mirror == HI3Mirror.GoogleDrive)
                     {
                         dynamic gd_metadata;
@@ -1005,6 +1089,45 @@ namespace BetterHI3Launcher
                     download_url = $"{miHoYoVersionInfo.download_url.ToString()}/{gameArchiveName}";
                     md5 = miHoYoVersionInfo.full_version_file.md5.ToString();
                 }
+                else if(Mirror == HI3Mirror.MediaFire)
+                {
+                    dynamic mediafire_metadata;
+                    if(Server == HI3Server.Global)
+                    {
+                        mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
+                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.md5.ToString();
+                    }
+                    else
+                    {
+                        mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.md5.ToString();
+                    }
+                    if(mediafire_metadata == null)
+                        return;
+                    download_url = mediafire_metadata.downloadUrl.ToString();
+                    if(!mediafire_metadata.title.Contains(miHoYoVersionInfo.cur_version.ToString().Substring(0, 5)))
+                    {
+                        Status = LauncherStatus.Error;
+                        Log($"ERROR: Mirror is outdated!");
+                        MessageBox.Show(textStrings["msgbox_gamedownloadmirrorold_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                        Status = LauncherStatus.Ready;
+                        return;
+                    }
+                    try
+                    {
+                        var webRequest = (HttpWebRequest)WebRequest.Create(download_url);
+                        webRequest.UserAgent = userAgent;
+                        var webResponse = (HttpWebResponse)webRequest.GetResponse();
+                    }
+                    catch(WebException ex)
+                    {
+                        Status = LauncherStatus.Error;
+                        Log($"ERROR: Failed to download from MediaFire:\n{ex}");
+                        MessageBox.Show(string.Format(textStrings["msgbox_gamedownloadmirrorerror_msg"], ex), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                        Status = LauncherStatus.Ready;
+                        return;
+                    }
+                }
                 else
                 {
                     dynamic gd_metadata;
@@ -1044,7 +1167,7 @@ namespace BetterHI3Launcher
                 await Task.Run(() =>
                 {
                     tracker.NewFile();
-                    if(Mirror == HI3Mirror.miHoYo || (Mirror == HI3Mirror.GoogleDrive && !useGDDownloader))
+                    if(Mirror == HI3Mirror.miHoYo || Mirror == HI3Mirror.MediaFire || (Mirror == HI3Mirror.GoogleDrive && !useGDDownloader))
                     {
                         download = new DownloadPauseable(download_url, gameArchivePath);
                         download.Start();
@@ -1054,7 +1177,7 @@ namespace BetterHI3Launcher
                             Dispatcher.Invoke(() =>
                             {
                                 ProgressBar.Value = tracker.GetProgress() * 100;
-                                ProgressText.Text = $"{textStrings["progresstext_downloaded"]} {ToBytesCount(download.BytesWritten)}/{ToBytesCount(download.ContentLength)} ({tracker.GetBytesPerSecondString()})";
+                                ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(download.BytesWritten), ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString());
                             });
                             Thread.Sleep(100);
                         }
@@ -1074,7 +1197,7 @@ namespace BetterHI3Launcher
                             Dispatcher.Invoke(() =>
                             {
                                 ProgressBar.Value = tracker.GetProgress() * 100;
-                                ProgressText.Text = $"{textStrings["progresstext_downloaded"]} {ToBytesCount(e.BytesReceived)}/{ToBytesCount(e.TotalBytesToReceive)} ({tracker.GetBytesPerSecondString()})";
+                                ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(e.BytesReceived), ToBytesCount(e.TotalBytesToReceive), tracker.GetBytesPerSecondString());
                             });
                         };
                         download.DownloadFile($"https://drive.google.com/uc?id={gd_id}", gameArchivePath);
@@ -1143,6 +1266,7 @@ namespace BetterHI3Launcher
                                     {
                                         skippedFiles.Add(reader.Entry.ToString());
                                         fileCount--;
+                                        Log($"Unpack ERROR: {reader.Entry.ToString()}");
                                     }
                                 }
                             }
@@ -1437,25 +1561,45 @@ namespace BetterHI3Launcher
                 string download_url;
                 string md5;
                 string cachePath;
-                string gameCachePath = miHoYoPath; // TEMP
-                dynamic gd_metadata;
+                string gameCachePath = miHoYoPath;
+                dynamic metadata;
                 if(Server == HI3Server.Global)
                 {
-                    gd_metadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
-                    //gameCachePath = Path.Combine(miHoYoPath, "Honkai Impact 3rd");
+                    if(Mirror == HI3Mirror.MediaFire)
+                    {
+                        metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString());
+                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
+                    }
+                    else
+                    {
+                        metadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
+                        md5 = metadata.md5Checksum.ToString();
+                    }
                 }
                 else
                 {
-                    gd_metadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
-                    //gameCachePath = Path.Combine(miHoYoPath, "Honkai Impact 3");
+                    if(Mirror == HI3Mirror.MediaFire)
+                    {
+                        metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString());
+                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
+                    }
+                    else
+                    {
+                        metadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
+                        md5 = metadata.md5Checksum.ToString();
+                    }
                 }
-                if(gd_metadata == null)
+                if(metadata == null)
                     return;
-                download_url = gd_metadata.downloadUrl.ToString();
-                md5 = gd_metadata.md5Checksum.ToString();
-                title = gd_metadata.title.ToString();
+                download_url = metadata.downloadUrl.ToString();
+                title = metadata.title.ToString();
                 cachePath = Path.Combine(gameInstallPath, title);
-                if(MessageBox.Show(string.Format(textStrings["msgbox_downloadcache_msg"],DateTime.Parse(gd_metadata.modifiedDate.ToString()).ToLocalTime()), textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                MessageBoxResult msgbox;
+                if(Mirror == HI3Mirror.MediaFire)
+                    msgbox = MessageBox.Show(string.Format(textStrings["msgbox_downloadcache_msg"], "N/A"), textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                else
+                    msgbox = MessageBox.Show(string.Format(textStrings["msgbox_downloadcache_msg"], DateTime.Parse(metadata.modifiedDate.ToString()).ToLocalTime()), textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if(msgbox == MessageBoxResult.No)
                     return;
                 try
                 {
@@ -1485,7 +1629,7 @@ namespace BetterHI3Launcher
                         Dispatcher.Invoke(() =>
                         {
                             ProgressBar.Value = tracker.GetProgress() * 100;
-                            ProgressText.Text = $"{textStrings["progresstext_downloaded"]} {ToBytesCount(download.BytesWritten)}/{ToBytesCount(download.ContentLength)} ({tracker.GetBytesPerSecondString()})";
+                            ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(download.BytesWritten), ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString());
                         });
                         Thread.Sleep(100);
                     }
@@ -1550,6 +1694,7 @@ namespace BetterHI3Launcher
                                     {
                                         skippedFiles.Add(reader.Entry.ToString());
                                         fileCount--;
+                                        Log($"Unpack ERROR: {reader.Entry.ToString()}");
                                     }
                                 }
                             }
@@ -2012,6 +2157,9 @@ namespace BetterHI3Launcher
                     Mirror = HI3Mirror.miHoYo;
                     break;
                 case 1:
+                    Mirror = HI3Mirror.MediaFire;
+                    break;
+                case 2:
                     Mirror = HI3Mirror.GoogleDrive;
                     break;
             }

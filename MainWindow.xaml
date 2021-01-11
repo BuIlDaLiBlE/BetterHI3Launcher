@@ -142,6 +142,7 @@
             </TextBlock>
             <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{DynamicResource Font}" SelectedIndex="0" SelectionChanged="MirrorDropdown_Changed">
                 <ComboBoxItem Content="miHoYo"></ComboBoxItem>
+                <ComboBoxItem Content="MediaFire"></ComboBoxItem>
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
