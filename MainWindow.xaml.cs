@@ -47,10 +47,11 @@ namespace BetterHI3Launcher
         static readonly string miHoYoPath = Path.Combine(localLowPath, "miHoYo");
         static readonly string gameExeName = "BH3.exe";
         static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
-        static readonly string userAgent = $"BetterHI3Launcher {localLauncherVersion}";
+        static readonly string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
         static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, launcherExeName, launcherPath, launcherArchivePath;
         static string ChangelogLanguage = "en";
         static string GameRegistryPath;
+        static string RegistryVersionInfo;
         static bool DownloadPaused = false;
         dynamic localVersionInfo, onlineVersionInfo, miHoYoVersionInfo, gameGraphicSettings;
         LauncherStatus _status;
@@ -170,6 +171,7 @@ namespace BetterHI3Launcher
                     OptionsButton.IsEnabled = val;
                     ServerDropdown.IsEnabled = val;
                     MirrorDropdown.IsEnabled = val;
+                    ToggleContextMenuItems(val);
                 }
                 void ToggleProgressBar(dynamic val)
                 {
@@ -215,6 +217,7 @@ namespace BetterHI3Launcher
                     case LauncherStatus.UpdateAvailable:
                         ToggleUI(true);
                         ToggleProgressBar(Visibility.Hidden);
+                        ToggleContextMenuItems(false);
                         break;
                     case LauncherStatus.Uninstalling:
                         ProgressText.Text = textStrings["progresstext_uninstalling"];
@@ -233,9 +236,11 @@ namespace BetterHI3Launcher
                 {
                     case HI3Server.Global:
                         GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3rd";
+                        RegistryVersionInfo = "VersionInfoGlobal";
                         break;
                     case HI3Server.SEA:
                         GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3";
+                        RegistryVersionInfo = "VersionInfoSEA";
                         break;
                 }
             }
@@ -255,10 +260,10 @@ namespace BetterHI3Launcher
                 WinConsole.Initialize();
             #endif
             InitializeComponent();
-            Log($"BetterHI3Launcher {localLauncherVersion}");
+            Log($"BetterHI3Launcher v{localLauncherVersion}");
+            Log($"Launcher exe name: {Process.GetCurrentProcess().MainModule.ModuleName}");
+            Log($"Launcher exe MD5: {CalculateMD5(Path.Combine(rootPath, Process.GetCurrentProcess().MainModule.ModuleName))}");
             Log($"Working directory: {rootPath}");
-            Log($"Current exe name: {Process.GetCurrentProcess().MainModule.ModuleName}");
-            Log($"Current exe MD5: {CalculateMD5(Path.Combine(rootPath, Process.GetCurrentProcess().MainModule.ModuleName))}");
             Log($"OS language: {OSLanguage}");
             textStrings.Add("version", "Version");
             textStrings.Add("launcher_version", "Launcher version");
@@ -291,7 +296,7 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_downloaded", "Downloaded {0}/{1} ({2})");
             textStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
             textStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1}");
-            textStrings.Add("progresstext_writinginfo", "Writing version info...");
+            textStrings.Add("progresstext_writinginfo", "Writing version information...");
             textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
             textStrings.Add("inputbox_customfps_title", "Enter max FPS cap");
             textStrings.Add("changelogbox_title", "Changelog");
@@ -327,6 +332,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_uninstall_1_msg", "Are you sure you want to uninstall the game?");
             textStrings.Add("msgbox_uninstall_2_msg", "Are you really sure you want to uninstall the game? :^(");
             textStrings.Add("msgbox_uninstall_3_msg", "Remove game cache files as well?");
+            textStrings.Add("msgbox_uninstall_4_msg", "Cannot uninstall the game while the launcher is inside game directory. Move launcher outside the directory and try again.");
             textStrings.Add("msgbox_uninstall_title", "Uninstall");
             textStrings.Add("msgbox_uninstallerror_msg", "An error occurred while uninstalling the game:\n{0}");
             textStrings.Add("msgbox_uninstallerror_title", "Uninstallation error");
@@ -346,9 +352,8 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_resetgamesettings_2_msg", "This action is irreversible. Are you sure you want to do this?");
             textStrings.Add("msgbox_resetgamesettings_3_msg", "Game settings have been wiped from registry.");
             textStrings.Add("msgbox_about_msg", "Better Honkai Impact 3rd Launcher :^)\nWell it is much more advanced, isn't it?\nAny feedback is greatly appreciated.\n\nMade by Bp (BuIlDaLiBlE production).\nDiscord: BuIlDaLiBlE#3202");
-            textStrings.Add("msgbox_notinstalled_msg", "Game is not installed.");
             textStrings.Add("msgbox_extractskip_title", "File skip notice");
-            textStrings.Add("msgbox_extractskip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFile list:\n{0}");
+            textStrings.Add("msgbox_extractskip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_noexe_title", "No game executable");
             textStrings.Add("msgbox_noexe_msg", "Game executable cannot be found :^(\nTry reinstalling the game.");
             textStrings.Add("msgbox_installexisting_msg", "The game appears to have already been installed to:\n{0}.\nUse this directory?");
@@ -438,6 +443,7 @@ namespace BetterHI3Launcher
                     textStrings["msgbox_uninstall_1_msg"] = "Вы уверены, что хотите удалить игру?";
                     textStrings["msgbox_uninstall_2_msg"] = "Вы точно уверены, что хотите удалить игру? :^(";
                     textStrings["msgbox_uninstall_3_msg"] = "Удалить также и игровой кэш?";
+                    textStrings["msgbox_uninstall_4_msg"] = "Нельзя удалить игру, пока лаунчер находится внутри игровой папки. Переместите лаунчер из папки и попробуйте снова.";
                     textStrings["msgbox_uninstall_title"] = "Удаление";
                     textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";
                     textStrings["msgbox_uninstallerror_title"] = "Ошибка удаления";
@@ -457,9 +463,8 @@ namespace BetterHI3Launcher
                     textStrings["msgbox_resetgamesettings_2_msg"] = "Эта операция необратима. Вы уверены, что хотите продолжить?";
                     textStrings["msgbox_resetgamesettings_3_msg"] = "Настройки игры были сброшены.";
                     textStrings["msgbox_about_msg"] = "Better Honkai Impact 3rd Launcher :^)\nНу он и правда лучше же, да?\nЛюбой отзыв глубоко приветствуется.\n\nMade by Bp (BuIlDaLiBlE production).\nDiscord: BuIlDaLiBlE#3202";
-                    textStrings["msgbox_notinstalled_msg"] = "Игра не установлена.";
                     textStrings["msgbox_extractskip_title"] = "Уведомление о пропущенных файлах";
-                    textStrings["msgbox_extractskip_msg"] = "Распаковка завершена, однако некоторые файлы не получилось распаковать. Возможно, придётся сделать это вручную.\nСписок файлов:\n{0}";
+                    textStrings["msgbox_extractskip_msg"] = "Распаковка завершена, однако некоторые файлы не получилось распаковать. Возможно, придётся сделать это вручную.\nДля дополнительной информации посмотрите лог.";
                     textStrings["msgbox_noexe_title"] = "Нет исполняемого файла игры";
                     textStrings["msgbox_noexe_msg"] = "Исполняемый файл игры не может быть найден :^(\nПопробуйте переустановить игру.";
                     textStrings["msgbox_installexisting_msg"] = "Похоже, что игра уже была установлена по пути:\n{0}.\nИспользовать этот путь?";
@@ -515,7 +520,7 @@ namespace BetterHI3Launcher
                     launcherExeName = onlineVersionInfo.launcher_info.name.ToString();
                     launcherPath = Path.Combine(rootPath, launcherExeName);
                     launcherArchivePath = Path.Combine(rootPath, "BetterHI3Launcher.7z");
-                    LauncherVersionText.Text = $"{textStrings["launcher_version"]}: {localLauncherVersion}";
+                    LauncherVersionText.Text = $"{textStrings["launcher_version"]}: v{localLauncherVersion}";
                     ChangelogBoxTextBox.Text += onlineVersionInfo.launcher_info.changelog[ChangelogLanguage];
                 }
                 else
@@ -642,12 +647,7 @@ namespace BetterHI3Launcher
             var CMAbout = new MenuItem{Header = textStrings["contextmenu_about"]};
             CMAbout.Click += (sender, e) => CM_About_Click(sender, e);
             OptionsContextMenu.Items.Add(CMAbout);
-            /*
-            for(int i = 0; i < onlineVersionInfo.game_info.mirror.list.Count; i++)
-            {
-                MirrorDropdown.Items.Add(new ComboBoxItem{Content = onlineVersionInfo.game_info.mirror.list[i]});
-            }
-            */
+            ToggleContextMenuItems(false);
             try
             {
                 var LastSelectedServerKey = versionInfoKey.GetValue("LastSelectedServer");
@@ -926,12 +926,9 @@ namespace BetterHI3Launcher
                             return;
                         download_size = gd_metadata.fileSize;
                     }
-                    if((Server == HI3Server.Global && versionInfoKey.GetValue("VersionInfoGlobal") != null) || (Server == HI3Server.SEA && versionInfoKey.GetValue("VersionInfoSEA") != null))
+                    if(versionInfoKey.GetValue(RegistryVersionInfo) != null)
                     {
-                        if(Server == HI3Server.Global)
-                            localVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])versionInfoKey.GetValue("VersionInfoGlobal")));
-                        else
-                            localVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])versionInfoKey.GetValue("VersionInfoSEA")));
+                        localVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])versionInfoKey.GetValue(RegistryVersionInfo)));
                         GameVersion localGameVersion = new GameVersion(localVersionInfo.game_info.version.ToString());
                         gameInstallPath = localVersionInfo.game_info.install_path.ToString();
                         gameArchivePath = Path.Combine(gameInstallPath, gameArchiveName);
@@ -955,6 +952,7 @@ namespace BetterHI3Launcher
                             {
                                 Status = LauncherStatus.Ready;
                                 LaunchButton.Content = textStrings["button_launch"];
+                                ToggleContextMenuItems(true);
                             });
                         }
                         if(File.Exists(gameArchivePath))
@@ -994,7 +992,7 @@ namespace BetterHI3Launcher
                                     var server = CheckForExistingGameClientServer();
                                     if(server >= 0)
                                     {
-                                        WriteVersionInfo(server);
+                                        WriteVersionInfo();
                                         if((int)Server == server)
                                             GameUpdateCheck(false);
                                         else
@@ -1273,14 +1271,14 @@ namespace BetterHI3Launcher
                         }
                         if(skippedFiles.Count > 0)
                         {
-                            MessageBox.Show(string.Format(textStrings["msgbox_extractskip_msg"], String.Join("\n", skippedFiles.ToArray())), textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                            MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
                     });
                     Log("Game archive unpack OK");
                     File.Delete(gameArchivePath);
                     Dispatcher.Invoke(() => 
                     {
-                        WriteVersionInfo((int)Server);
+                        WriteVersionInfo();
                         GameUpdateCheck(false);
                     });
                     Log("Game install OK");
@@ -1307,7 +1305,7 @@ namespace BetterHI3Launcher
                 }
             }
         }
-        private void WriteVersionInfo(int server)
+        private void WriteVersionInfo()
         {
             try
             {
@@ -1315,20 +1313,24 @@ namespace BetterHI3Launcher
                 versionInfo.game_info = new ExpandoObject();
                 versionInfo.game_info.version = miHoYoVersionInfo.cur_version.ToString();
                 versionInfo.game_info.install_path = gameInstallPath;
+                RegistryKey key;
+                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                string value = "USD_V2_201880924_LocalVersion_h3429574199";
+                if(versionInfoKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(value) != null && key.GetValueKind(value) == RegistryValueKind.Binary))
+                {
+                    versionInfo.game_info.version = Encoding.UTF8.GetString((byte[])key.GetValue(value)).TrimEnd('\u0000');
+                }
 
                 Log("Writing game version info to registry...");
                 ProgressText.Text = textStrings["progresstext_writinginfo"];
-                if(server == 0)
-                    versionInfoKey.SetValue("VersionInfoGlobal", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(versionInfo)), RegistryValueKind.Binary);
-                else
-                    versionInfoKey.SetValue("VersionInfoSEA", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(versionInfo)), RegistryValueKind.Binary);
+                versionInfoKey.SetValue(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(versionInfo)), RegistryValueKind.Binary);
                 versionInfoKey.Close();
                 versionInfoKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
             }
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to write to registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}");
                 if(MessageBox.Show(string.Format(textStrings["msgbox_registryerror_msg"], ex), textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Application.Current.Shutdown();
@@ -1343,10 +1345,7 @@ namespace BetterHI3Launcher
                 Directory.Delete(gameInstallPath, true);
             if(Registry.CurrentUser.OpenSubKey(GameRegistryPath) != null)
                 Registry.CurrentUser.DeleteSubKeyTree(GameRegistryPath, true);
-            if(Server == HI3Server.Global)
-                versionInfoKey.DeleteValue("VersionInfoGlobal");
-            else if(Server == HI3Server.SEA)
-                versionInfoKey.DeleteValue("VersionInfoSEA");
+            versionInfoKey.DeleteValue(RegistryVersionInfo);
             LaunchButton.Content = textStrings["button_download"];
         }
 
@@ -1475,7 +1474,7 @@ namespace BetterHI3Launcher
                                         var server = CheckForExistingGameClientServer();
                                         if(server >= 0)
                                         {
-                                            WriteVersionInfo(server);
+                                            WriteVersionInfo();
                                             if((int)Server == server)
                                                 GameUpdateCheck(false);
                                             else
@@ -1549,11 +1548,6 @@ namespace BetterHI3Launcher
         {
             if(Status != LauncherStatus.Ready)
                 return;
-            else if(localVersionInfo == null)
-            {
-                MessageBox.Show(textStrings["msgbox_notinstalled_msg"], textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
 
             try
             {
@@ -1701,7 +1695,7 @@ namespace BetterHI3Launcher
                         }
                         if(skippedFiles.Count > 0)
                         {
-                            MessageBox.Show(string.Format(textStrings["msgbox_extractskip_msg"], String.Join("\n", skippedFiles.ToArray())), textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                            MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
                     });
                     Log("Game cache unpack OK");
@@ -1735,6 +1729,11 @@ namespace BetterHI3Launcher
         {
             if((Status == LauncherStatus.Ready || Status == LauncherStatus.Error) && !String.IsNullOrEmpty(gameInstallPath))
             {
+                if(rootPath.Contains(gameInstallPath))
+                {
+                    MessageBox.Show(textStrings["msgbox_uninstall_4_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 if(MessageBox.Show(textStrings["msgbox_uninstall_1_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                     return;
                 if(MessageBox.Show(textStrings["msgbox_uninstall_2_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
@@ -1768,23 +1767,14 @@ namespace BetterHI3Launcher
                     return;
                 }
             }
-            else
-            {
-                // TODO: MAKE BUTTON UNPRESSABLE INSTEAD OF THIS
-                MessageBox.Show(textStrings["msgbox_notinstalled_msg"], textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
-            }
         }
 
         private void CM_FixUpdateLoop_Click(object sender, RoutedEventArgs e)
         {
             if(Status != LauncherStatus.Ready)
                 return;
-            else if(localVersionInfo == null)
-            {
-                MessageBox.Show(textStrings["msgbox_notinstalled_msg"], textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            else if(MessageBox.Show(textStrings["msgbox_fixupdateloop_1_msg"], textStrings["contextmenu_fixupdateloop"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+
+            if(MessageBox.Show(textStrings["msgbox_fixupdateloop_1_msg"], textStrings["contextmenu_fixupdateloop"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
 
             try
@@ -1811,12 +1801,13 @@ namespace BetterHI3Launcher
                     valueAfter = 3;
                 key.SetValue(value, valueAfter, RegistryValueKind.DWord);
                 key.Close();
+                Log($"Changed ResourceDownloadType from {valueBefore} to {valueAfter}");
                 MessageBox.Show(string.Format(textStrings["msgbox_fixupdateloop_2_msg"], valueBefore, valueAfter), textStrings["contextmenu_fixupdateloop"], MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to write to registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}");
                 if(MessageBox.Show(string.Format(textStrings["msgbox_registryerror_msg"], ex), textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -1829,12 +1820,8 @@ namespace BetterHI3Launcher
         {
             if(Status != LauncherStatus.Ready)
                 return;
-            else if(localVersionInfo == null)
-            {
-                MessageBox.Show(textStrings["msgbox_notinstalled_msg"], textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            else if(MessageBox.Show(textStrings["msgbox_fixsubs_1_msg"], textStrings["contextmenu_fixsubs"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+
+            if(MessageBox.Show(textStrings["msgbox_fixsubs_1_msg"], textStrings["contextmenu_fixsubs"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
 
             try
@@ -1888,7 +1875,7 @@ namespace BetterHI3Launcher
                             Dispatcher.Invoke(() =>
                             { 
                                 if(skippedFiles.Count > 0)
-                                    MessageBox.Show(string.Format(textStrings["msgbox_extractskip_msg"], String.Join("\n", skippedFiles.ToArray())), textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
                             });
                             Log($"Unpacked {filesUnpacked} archives");
                         });
@@ -1991,11 +1978,6 @@ namespace BetterHI3Launcher
         {
             if(Status != LauncherStatus.Ready)
                 return;
-            else if(localVersionInfo == null)
-            {
-                MessageBox.Show(textStrings["msgbox_notinstalled_msg"], textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
 
             try
             {
@@ -2027,7 +2009,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to write to registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}");
                 if(MessageBox.Show(string.Format(textStrings["msgbox_registryerror_msg"], ex), textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -2040,11 +2022,7 @@ namespace BetterHI3Launcher
         {
             if(Status != LauncherStatus.Ready)
                 return;
-            else if(localVersionInfo == null)
-            {
-                MessageBox.Show(textStrings["msgbox_notinstalled_msg"], textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
+
             if(MessageBox.Show(textStrings["msgbox_resetgamesettings_1_msg"], textStrings["contextmenu_resetgamesettings"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
             if(MessageBox.Show(textStrings["msgbox_resetgamesettings_2_msg"], textStrings["contextmenu_resetgamesettings"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
@@ -2068,7 +2046,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to write to registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}");
                 if(MessageBox.Show(string.Format(textStrings["msgbox_registryerror_msg"], ex), textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -2079,17 +2057,11 @@ namespace BetterHI3Launcher
 
         private void CM_Changelog_Click(object sender, RoutedEventArgs e)
         {
-            if(Status != LauncherStatus.Ready)
-                return;
-
             ChangelogBox.Visibility = Visibility.Visible;
         }
 
         private void CM_About_Click(object sender, RoutedEventArgs e)
         {
-            if(Status != LauncherStatus.Ready)
-                return;
-
             MessageBox.Show(textStrings["msgbox_about_msg"], textStrings["contextmenu_about"], MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2315,7 +2287,7 @@ namespace BetterHI3Launcher
                         if(MessageBox.Show($"{textStrings["msgbox_abort_1_msg"]}\n{textStrings["msgbox_abort_3_msg"]}", textStrings["msgbox_abort_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                         {
                             download.Pause();
-                            WriteVersionInfo((int)Server);
+                            WriteVersionInfo();
                         }
                         else
                         {
@@ -2387,6 +2359,16 @@ namespace BetterHI3Launcher
                 }
             }
             return -1;
+        }
+
+        private void ToggleContextMenuItems(bool val)
+        {
+            foreach(dynamic item in OptionsContextMenu.Items)
+            {
+                if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_about"]))
+                    continue;
+                item.IsEnabled = val;
+            }
         }
 
         // https://stackoverflow.com/a/10520086/7570821
