@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        static readonly Version localLauncherVersion = new Version("1.0.20210110.0");
+        static readonly Version localLauncherVersion = new Version("1.0.20210113.0");
         static readonly string rootPath = Directory.GetCurrentDirectory();
         static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -563,6 +563,7 @@ namespace BetterHI3Launcher
                 url = onlineVersionInfo.game_info.mirror.mihoyo.version_info.os.ToString();
             var webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.UserAgent = userAgent;
+            webRequest.Timeout = 30000;
             using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
             { 
                 var data = new MemoryStream();
@@ -574,6 +575,7 @@ namespace BetterHI3Launcher
             webRequest = (HttpWebRequest)WebRequest.Create($"{miHoYoVersionInfo.download_url}/{gameArchiveName}");
             webRequest.Method = "HEAD";
             webRequest.UserAgent = userAgent;
+            webRequest.Timeout = 30000;
             using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
             {
                 miHoYoVersionInfo.size = webResponse.ContentLength;
@@ -614,6 +616,7 @@ namespace BetterHI3Launcher
                     var webRequest = (HttpWebRequest)WebRequest.Create(url[i]);
                     webRequest.Method = "HEAD";
                     webRequest.UserAgent = userAgent;
+                    webRequest.Timeout = 30000;
                     using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
                     {
                         time[i] = webResponse.LastModified;
@@ -639,6 +642,7 @@ namespace BetterHI3Launcher
             {
                 var webRequest = (HttpWebRequest)WebRequest.Create(url);
                 webRequest.UserAgent = userAgent;
+                webRequest.Timeout = 30000;
                 using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
                 {
                     var data = new MemoryStream();
@@ -668,27 +672,38 @@ namespace BetterHI3Launcher
             }
         }
 
-        private dynamic FetchMediaFireFileMetadata(string id)
+        private dynamic FetchMediaFireFileMetadata(string id, bool numeric)
         {
             string url = $"https://www.mediafire.com/file/{id}";
 
             if(String.IsNullOrEmpty(id))
-                return null;
+                throw new ArgumentNullException();
             try
             {
                 var webRequest = (HttpWebRequest)WebRequest.Create(url);
                 webRequest.Method = "HEAD";
                 webRequest.UserAgent = userAgent;
+                webRequest.Timeout = 30000;
                 using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
                 {
                     dynamic metadata = new ExpandoObject();
                     metadata.title = webResponse.Headers["Content-Disposition"].Replace("attachment; filename=", String.Empty).Replace("\"", String.Empty);
                     metadata.downloadUrl = url;
                     metadata.fileSize = webResponse.ContentLength;
-                    if(Server == HI3Server.Global)
-                        metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
+                    if(!numeric)
+                    {
+                        if(Server == HI3Server.Global)
+                            metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
+                        else
+                            metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
+                    }
                     else
-                        metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
+                    {
+                        if(Server == HI3Server.Global)
+                            metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.md5.ToString();
+                        else
+                            metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.md5.ToString();
+                    }
                     return metadata;
                 }
             }
@@ -741,9 +756,9 @@ namespace BetterHI3Launcher
                     {
                         dynamic mediafire_metadata;
                         if(Server == HI3Server.Global)
-                            mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
+                            mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString(), false);
                         else
-                            mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+                            mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString(), false);
                         if(mediafire_metadata == null)
                             return;
                         download_size = mediafire_metadata.fileSize;
@@ -925,9 +940,9 @@ namespace BetterHI3Launcher
                 {
                     dynamic mediafire_metadata;
                     if(Server == HI3Server.Global)
-                        mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
+                        mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString(), false);
                     else
-                        mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+                        mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString(), false);
                     if(mediafire_metadata == null)
                         return;
                     download_url = mediafire_metadata.downloadUrl.ToString();
@@ -944,6 +959,7 @@ namespace BetterHI3Launcher
                     {
                         var webRequest = (HttpWebRequest)WebRequest.Create(download_url);
                         webRequest.UserAgent = userAgent;
+                        webRequest.Timeout = 30000;
                         var webResponse = (HttpWebResponse)webRequest.GetResponse();
                     }
                     catch(WebException ex)
@@ -978,6 +994,7 @@ namespace BetterHI3Launcher
                     {
                         var webRequest = (HttpWebRequest)WebRequest.Create(download_url);
                         webRequest.UserAgent = userAgent;
+                        webRequest.Timeout = 30000;
                         var webResponse = (HttpWebResponse)webRequest.GetResponse();
                     }
                     catch(WebException ex)
@@ -1222,6 +1239,7 @@ namespace BetterHI3Launcher
                 {
                     var webRequest = (HttpWebRequest)WebRequest.Create(download_url);
                     webRequest.UserAgent = userAgent;
+                    webRequest.Timeout = 30000;
                     var webResponse = (HttpWebResponse)webRequest.GetResponse();
                 }
                 catch(WebException ex)
@@ -1267,11 +1285,12 @@ namespace BetterHI3Launcher
                         {
                             Status = LauncherStatus.Error;
                             Log("ERROR: Validation failed. MD5 checksum is incorrect!");
-                            MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                            Dispatcher.Invoke(() => {MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                             if(File.Exists(cacheArchivePath))
                                 File.Delete(cacheArchivePath);
                             return;
                         }
+
                         Log("Validation OK");
                         var skippedFiles = new List<string>();
                         using(var archive = ArchiveFactory.Open(cacheArchivePath))
@@ -1319,9 +1338,9 @@ namespace BetterHI3Launcher
                         {
                             MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
+                        Log("Game cache unpack OK");
+                        File.Delete(cacheArchivePath);
                     });
-                    Log("Game cache unpack OK");
-                    File.Delete(cacheArchivePath);
                     Status = LauncherStatus.Ready;
                 }
                 catch(Exception ex)
@@ -1547,19 +1566,21 @@ namespace BetterHI3Launcher
             if(Status != LauncherStatus.Ready)
                 return;
 
-            Status = LauncherStatus.Working;
+            Status = LauncherStatus.CheckingUpdates;
             Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_mirrorconnect"];});
             Log("Fetching mirror metadata...");
-            await Task.Run(() =>
+            
+            try
             {
-                try
+                await Task.Run(async () =>
                 {
+                    await FetchOnlineVersionInfoAsync();
                     if(Server == HI3Server.Global)
                     {
                         if(Mirror == HI3Mirror.MediaFire)
                         {
-                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString());
-                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString());
+                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), false);
+                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), true);
                         }
                         else
                         {
@@ -1571,8 +1592,8 @@ namespace BetterHI3Launcher
                     {
                         if(Mirror == HI3Mirror.MediaFire)
                         {
-                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString());
-                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString());
+                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), false);
+                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), true);
                         }
                         else
                         {
@@ -1580,15 +1601,23 @@ namespace BetterHI3Launcher
                             gameCacheMetadataNumeric = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
                         }
                     }
-                }
-                catch(Exception ex)
-                {
-                    Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to fetch cache file metadata:\n{ex}");
-                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                    Status = LauncherStatus.Ready;
-                    return;
-                }
+                });
+            }
+            catch(Exception ex)
+            {
+                Status = LauncherStatus.Error;
+                Log($"ERROR: Failed to fetch cache file metadata:\n{ex}");
+                Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
+                Status = LauncherStatus.Ready;
+                return;
+            }
+            if(gameCacheMetadata == null || gameCacheMetadataNumeric == null)
+            {
+                Status = LauncherStatus.Ready;
+                return;
+            }
+            Dispatcher.Invoke(() =>
+            {
                 DownloadCacheBox.Visibility = Visibility.Visible;
                 if(Mirror == HI3Mirror.MediaFire)
                     DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], ((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string, textStrings["shrug"], onlineVersionInfo.game_info.mirror.maintainer.ToString());
@@ -2149,7 +2178,7 @@ namespace BetterHI3Launcher
 
         private void DownloadCacheBoxNumericFilesButton_Click(object sender, RoutedEventArgs e)
         {
-            if(MessageBox.Show($"{textStrings["msgbox_download_cache_2_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], ToBytesCount(gameCacheMetadata.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+            if(MessageBox.Show($"{textStrings["msgbox_download_cache_2_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], ToBytesCount(gameCacheMetadataNumeric.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
             DownloadCacheBox.Visibility = Visibility.Collapsed;
             DownloadGameCache(false);

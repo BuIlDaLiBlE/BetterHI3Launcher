@@ -241,7 +241,7 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource CloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Content="⨉" Click="DownloadCacheBoxCloseButton_Click"/>
+                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Content="⨉" Click="DownloadCacheBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
         </Grid>
