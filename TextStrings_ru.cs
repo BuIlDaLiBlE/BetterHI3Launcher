@@ -79,7 +79,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_registryempty_msg"] = "Нужное значение в реестре отсутствует. Вы уже запускали игру?";
             textStrings["msgbox_uninstall_1_msg"] = "Вы уверены, что хотите удалить игру?";
             textStrings["msgbox_uninstall_2_msg"] = "Вы точно уверены, что хотите удалить игру? :^(";
-            textStrings["msgbox_uninstall_3_msg"] = "Удалить также и игровой кэш?";
+            textStrings["msgbox_uninstall_3_msg"] = "Удалить также и настройки игры с кэшем?";
             textStrings["msgbox_uninstall_4_msg"] = "Нельзя удалить игру, пока лаунчер находится внутри игровой папки. Переместите лаунчер из папки и попробуйте снова.";
             textStrings["msgbox_uninstall_title"] = "Удаление";
             textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";

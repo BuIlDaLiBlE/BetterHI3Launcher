@@ -80,7 +80,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
             textStrings.Add("msgbox_uninstall_1_msg", "Are you sure you want to uninstall the game?");
             textStrings.Add("msgbox_uninstall_2_msg", "Are you really sure you want to uninstall the game? :^(");
-            textStrings.Add("msgbox_uninstall_3_msg", "Remove game cache files as well?");
+            textStrings.Add("msgbox_uninstall_3_msg", "Remove game cache files and settings as well?");
             textStrings.Add("msgbox_uninstall_4_msg", "Cannot uninstall the game while the launcher is inside game directory. Move launcher outside the directory and try again.");
             textStrings.Add("msgbox_uninstall_title", "Uninstall");
             textStrings.Add("msgbox_uninstallerror_msg", "An error occurred while uninstalling the game:\n{0}");

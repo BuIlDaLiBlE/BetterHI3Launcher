@@ -392,7 +392,7 @@ namespace BetterHI3Launcher
             CMDownloadCache.Click += async (sender, e) => await CM_DownloadCache_Click(sender, e);
             OptionsContextMenu.Items.Add(CMDownloadCache);
             var CMUninstall = new MenuItem{Header = textStrings["contextmenu_uninstall"]};
-            CMUninstall.Click += (sender, e) => CM_Uninstall_Click(sender, e);
+            CMUninstall.Click += async (sender, e) => await CM_Uninstall_Click(sender, e);
             OptionsContextMenu.Items.Add(CMUninstall);
             OptionsContextMenu.Items.Add(new Separator());
             var CMFixUpdateLoop = new MenuItem{Header = textStrings["contextmenu_fixupdateloop"]};
@@ -1171,14 +1171,12 @@ namespace BetterHI3Launcher
             }
         }
 
-        private void DeleteGameFiles(bool deleteAll)
+        private void DeleteGameFiles(bool DeleteGame)
         {
-            if(deleteAll)
+            if(DeleteGame)
             {
                 if(Directory.Exists(gameInstallPath))
                     Directory.Delete(gameInstallPath, true);
-                if(Registry.CurrentUser.OpenSubKey(GameRegistryPath) != null)
-                    Registry.CurrentUser.DeleteSubKeyTree(GameRegistryPath, true);
             }
             versionInfoKey.DeleteValue(RegistryVersionInfo);
             LaunchButton.Content = textStrings["button_download"];
@@ -1607,7 +1605,7 @@ namespace BetterHI3Launcher
             });
         }
 
-        private void CM_Uninstall_Click(object sender, RoutedEventArgs e)
+        private async Task CM_Uninstall_Click(object sender, RoutedEventArgs e)
         {
             if((Status == LauncherStatus.Ready || Status == LauncherStatus.Error) && !String.IsNullOrEmpty(gameInstallPath))
             {
@@ -1622,32 +1620,37 @@ namespace BetterHI3Launcher
                     return;
 
                 Status = LauncherStatus.Uninstalling;
-                Log("Deleting game files and version info from registry");
-                try
+                Log($"Deleting game files...");
+                await Task.Run(() =>
                 {
-                    DeleteGameFiles(true);
-                    if(MessageBox.Show(textStrings["msgbox_uninstall_3_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    try
                     {
-                        string path;
-                        if(Server == HI3Server.Global)
-                            path = Path.Combine(miHoYoPath, "Honkai Impact 3rd");
-                        else
-                            path = Path.Combine(miHoYoPath, "Honkai Impact 3");
-                        if(Directory.Exists(path))
-                            Directory.Delete(path, true);
-                        Log($"Deleting game cache from {path}");
+                        DeleteGameFiles(true);
+                        if(MessageBox.Show(textStrings["msgbox_uninstall_3_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                        {
+                            string path;
+                            if(Server == HI3Server.Global)
+                                path = Path.Combine(miHoYoPath, "Honkai Impact 3rd");
+                            else
+                                path = Path.Combine(miHoYoPath, "Honkai Impact 3");
+                            Log("Deleting game cache and registry settings...");
+                            if(Directory.Exists(path))
+                                Directory.Delete(path, true);
+                            if(Registry.CurrentUser.OpenSubKey(GameRegistryPath) != null)
+                                Registry.CurrentUser.DeleteSubKeyTree(GameRegistryPath, true);
+                        }
+                        Log("Game uninstall OK");
+                        GameUpdateCheck(false);
                     }
-                    Log("Game uninstall OK");
-                    GameUpdateCheck(false);
-                }
-                catch(Exception ex)
-                {
-                    Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to uninstall the game:\n{ex}");
-                    MessageBox.Show(string.Format(textStrings["msgbox_uninstallerror_msg"], ex), textStrings["msgbox_uninstallerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                    Status = LauncherStatus.Ready;
-                    return;
-                }
+                    catch(Exception ex)
+                    {
+                        Status = LauncherStatus.Error;
+                        Log($"ERROR: Failed to uninstall the game:\n{ex}");
+                        MessageBox.Show(string.Format(textStrings["msgbox_uninstallerror_msg"], ex), textStrings["msgbox_uninstallerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                        Status = LauncherStatus.Ready;
+                        return;
+                    }
+                });
             }
         }
 
