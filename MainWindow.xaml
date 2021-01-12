@@ -104,6 +104,40 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="BoxCloseButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#C8222222"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="#55000000"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="DimGray"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="Gray"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Border Width="1362" Height="698">
         <Border.Effect>
@@ -111,22 +145,22 @@
         </Border.Effect>
         <Grid Name="Grid" Width="1280" Height="590">
             <Rectangle Fill="Magenta"/>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="48" Foreground="Black" Text="NO IMAGE :^(" FontFamily="{DynamicResource Font}"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" Text="NO IMAGE :^(" FontFamily="{DynamicResource Font}" FontSize="48"/>
             <Image Name="BackgroundImage" Stretch="Fill"/>
             <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
-            <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="275" Height="174" Margin="0,7,26,0"/>
-            <ProgressBar Name="ProgressBar" Minimum="0" Maximum="100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="181" Height="5" Margin="0,0,72,213" Visibility="Hidden"/>
-            <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="12" Foreground="White" Margin="950,0,0,223" MinWidth="214" FontFamily="{DynamicResource Font}" TextAlignment="Center"/>
-            <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="12" Foreground="#C8FFFFFF" Margin="1033,0,0,27" Text="Version:" FontFamily="{DynamicResource Font}"/>
-            <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="10" Foreground="#C8FFFFFF" Margin="1033,0,0,7" Text="Launcher Version:" FontFamily="{DynamicResource Font}"/>
-            <Button Style="{DynamicResource CloseButtonStyle}" Name="CloseButton" Content="⨉" Click="CloseButton_Click" Width="32" Height="32" MaxWidth="32" MaxHeight="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-            <Button Style="{DynamicResource LaunchButtonStyle}" Name="LaunchButton" Content="Download" Click="LaunchButton_Click" Width="214" Height="42" MaxWidth="214" MaxHeight="42" Margin="0,0,58,51" FontFamily="{DynamicResource Font}" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="0,1,0,1" IsEnabled="False"/>
-            <Button Style="{DynamicResource LaunchButtonStyle}" Name="OptionsButton" Content="Options" Click="OptionsButton_Click" Width="214" Height="42" MaxWidth="214" MaxHeight="42" Margin="0,0,58,110" FontFamily="{DynamicResource Font}" FontSize="24" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="0,1,0,1" IsEnabled="False">
+            <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
+            <ProgressBar Name="ProgressBar" Minimum="0" Maximum="100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
+            <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" MinWidth="214" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
+            <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" Text="Version:" FontSize="12" FontFamily="{DynamicResource Font}"/>
+            <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,7" Foreground="#C8FFFFFF" Text="Launcher Version:" FontSize="10" FontFamily="{DynamicResource Font}"/>
+            <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" Content="⨉" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="CloseButton_Click"/>
+            <Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,51" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Content="Download" Click="LaunchButton_Click"  IsEnabled="False"/>
+            <Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,110" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Content="Options" Click="OptionsButton_Click" IsEnabled="False">
                 <Button.ContextMenu>
                     <ContextMenu Name="OptionsContextMenu"/>
                 </Button.ContextMenu>
             </Button>
-            <TextBlock Name="ServerLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,189" Text="Server:" FontFamily="{DynamicResource Font}">
+            <TextBlock Name="ServerLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,197,189" Foreground="White" Text="Server:" FontFamily="{DynamicResource Font}" FontSize="16">
                 <TextBlock.Effect>
                     <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
@@ -146,53 +180,69 @@
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-              <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
+            <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
                 <CheckBox.LayoutTransform>
-                  <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                    <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
                 </CheckBox.LayoutTransform>
-              </CheckBox>
-              <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontSize="20" Foreground="White" Text="Show Log" FontFamily="{DynamicResource Font}">
+            </CheckBox>
+            <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White" Text="Show Log">
                 <TextBlock.Effect>
-                  <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
+                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
-              </TextBlock>
+            </TextBlock>
             </StackPanel>
-            <Grid Name="LogBox" Visibility="Visible">
+            <Grid Name="LogBox" Visibility="Collapsed">
                 <Border Margin="0,0,316,25" Width="944" Height="520" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <StackPanel>
                         <ScrollViewer Name="LogBoxScrollViewer" Width="944" Height="520" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <TextBox Name="LogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas" Background="#C8000000" Foreground="White" IsReadOnly="True"/>
+                            <TextBox Name="LogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#C8000000" Foreground="White" FontFamily="Consolas" IsReadOnly="True"/>
                         </ScrollViewer>
                     </StackPanel>
                 </Border>
             </Grid>
             <Grid Name="InputBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
-                <Border MinWidth="250" Background="#C8FFFFFF" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="250" BorderBrush="Black" Background="#C8FFFFFF">
                     <StackPanel>
                         <TextBlock Name="InputBoxTitleTextBlock" Margin="5" FontWeight="Bold" TextAlignment="Center" FontFamily="{DynamicResource Font}"/>
-                        <TextBox Name="InputBoxTextBox" MinWidth="150" HorizontalAlignment="Center" VerticalAlignment="Center" MaxLength="3" FontFamily="{DynamicResource Font}" PreviewTextInput="InputBoxTextBox_OnPreview" DataObject.Pasting="InputBoxTextBox_OnPaste"/>
+                        <TextBox Name="InputBoxTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="150" FontFamily="{DynamicResource Font}" MaxLength="3" PreviewTextInput="InputBoxTextBox_OnPreview" DataObject.Pasting="InputBoxTextBox_OnPaste"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Name="InputBoxOKButton" Margin="5" MinWidth="50" Content="OK" FontFamily="{DynamicResource Font}" Background="White" Click="InputBoxOKButton_Click"/>
-                            <Button Name="InputBoxCancelButton" Margin="5" MinWidth="50" Content="Cancel" FontFamily="{DynamicResource Font}" Background="White" Click="InputBoxCancelButton_Click" />
+                            <Button Name="InputBoxOKButton" Margin="5" MinWidth="50" Background="White" FontFamily="{DynamicResource Font}" Content="OK" Click="InputBoxOKButton_Click"/>
+                            <Button Name="InputBoxCancelButton" Margin="5" MinWidth="50" Background="White" FontFamily="{DynamicResource Font}" Content="Cancel" Click="InputBoxCancelButton_Click" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>
             <Grid Name="ChangelogBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
-                <Border Width="844" Height="390" Background="#C8FFFFFF" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <StackPanel>
-                        <TextBlock Name="ChangelogBoxTitleTextBlock" Margin="5" Text="Changelog" FontWeight="Bold" FontSize="15" TextAlignment="Center" FontFamily="{DynamicResource Font}"/>
-                        <TextBlock Name="ChangelogBoxMessageTextBlock" Margin="22,0,0,5" Text="Better HI3 Launcher has just become even better. Here's what happened:" FontFamily="Segoe UI" Visibility="Collapsed"/>
-                        <ScrollViewer Name="ChangelogBoxScrollViewer" Margin="14,0,13,0" Width="800" Height="325" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <TextBox Name="ChangelogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontFamily="Consolas" Background="#19000000" IsReadOnly="True" TextWrapping="Wrap"/>
-                        </ScrollViewer>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button Name="ChangelogBoxOKButton" Margin="10" MinWidth="50" Content="OK" FontFamily="{DynamicResource Font}" Background="White" Click="ChangelogBoxOKButton_Click"/>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="844" Height="390">
+                    <Border Width="844" Height="390" BorderBrush="Black" Background="#C8FFFFFF">
+                        <StackPanel>
+                            <TextBlock Name="ChangelogBoxTitleTextBlock" Margin="5" Text="Changelog" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBlock Name="ChangelogBoxMessageTextBlock" Margin="22,0,22,5" Text="Better HI3 Launcher has just become even better. Here's what happened:" FontFamily="Segoe UI" Visibility="Collapsed"/>
+                            <ScrollViewer Name="ChangelogBoxScrollViewer" Margin="14,0,14,0" Width="800" Height="339" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <TextBox Name="ChangelogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#19000000" FontFamily="Consolas" IsReadOnly="True" TextWrapping="Wrap"/>
+                            </ScrollViewer>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
+                    <Button Name="ChangelogBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Content="⨉" Click="ChangelogBoxCloseButton_Click"/>
+                </Grid>
+            </Grid>
+            <Grid Name="DownloadCacheBox" Visibility="Collapsed">
+                <Grid Background="#80000000"/>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="200">
+                    <Border Width="600" Height="200" BorderBrush="Black" Background="#C8FFFFFF">
+                        <StackPanel>
+                            <TextBlock Name="DownloadCacheBoxTitleTextBlock" Margin="5" Text="Download cache" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" TextWrapping="Wrap" FontFamily="Segoe UI"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Name="DownloadCacheBoxFullCacheButton" Margin="10" MinWidth="50" Content="Full Cache" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxFullCacheButton_Click"/>
+                                <Button Name="DownloadCacheBoxNumericFilesButton" Margin="10" MinWidth="50" Content="Numeric Files" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxNumericFilesButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource CloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Content="⨉" Click="DownloadCacheBoxCloseButton_Click"/>
+                </Grid>
             </Grid>
         </Grid>
     </Border>

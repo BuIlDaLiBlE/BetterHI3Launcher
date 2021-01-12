@@ -53,7 +53,7 @@ namespace BetterHI3Launcher
         static string GameRegistryPath;
         static string RegistryVersionInfo;
         static bool DownloadPaused = false;
-        dynamic localVersionInfo, onlineVersionInfo, miHoYoVersionInfo, gameGraphicSettings;
+        dynamic localVersionInfo, onlineVersionInfo, miHoYoVersionInfo, gameGraphicSettings, gameCacheMetadata, gameCacheMetadataNumeric;
         LauncherStatus _status;
         HI3Server _gameserver;
         HI3Mirror _downloadmirror;
@@ -165,67 +165,70 @@ namespace BetterHI3Launcher
             get => _status;
             set
             {
-                void ToggleUI(bool val)
+                Dispatcher.Invoke(() =>
                 {
-                    LaunchButton.IsEnabled = val;
-                    OptionsButton.IsEnabled = val;
-                    ServerDropdown.IsEnabled = val;
-                    MirrorDropdown.IsEnabled = val;
-                    ToggleContextMenuItems(val);
-                }
-                void ToggleProgressBar(dynamic val)
-                {
-                    ProgressBar.Visibility = val;
-                    ProgressBar.IsIndeterminate = true;
-                }
+                    void ToggleUI(bool val)
+                    {
+                        LaunchButton.IsEnabled = val;
+                        OptionsButton.IsEnabled = val;
+                        ServerDropdown.IsEnabled = val;
+                        MirrorDropdown.IsEnabled = val;
+                        ToggleContextMenuItems(val);
+                    }
+                    void ToggleProgressBar(dynamic val)
+                    {
+                        ProgressBar.Visibility = val;
+                        ProgressBar.IsIndeterminate = true;
+                    }
 
-                _status = value;
-                switch(_status)
-                {
-                    case LauncherStatus.Ready:
-                        ProgressText.Text = String.Empty;
-                        ToggleUI(true);
-                        ToggleProgressBar(Visibility.Hidden);
-                        break;
-                    case LauncherStatus.Error:
-                        ProgressText.Text = textStrings["progresstext_error"];
-                        ToggleUI(false);
-                        ToggleProgressBar(Visibility.Hidden);
-                        ShowLogCheckBox.IsChecked = true;
-                        break;
-                    case LauncherStatus.CheckingUpdates:
-                        ProgressText.Text = textStrings["progresstext_checkingupdate"];
-                        ToggleUI(false);
-                        ToggleProgressBar(Visibility.Visible);
-                        break;
-                    case LauncherStatus.Downloading:
-                    case LauncherStatus.Updating:
-                    case LauncherStatus.Working:
-                        ToggleUI(false);
-                        ToggleProgressBar(Visibility.Visible);
-                        break;
-                    case LauncherStatus.Verifying:
-                        ProgressText.Text = textStrings["progresstext_verifying"];
-                        ToggleProgressBar(Visibility.Visible);
-                        break;
-                    case LauncherStatus.Unpacking:
-                        ProgressText.Text = textStrings["progresstext_unpacking_1"];
-                        ToggleProgressBar(Visibility.Visible);
-                        break;
-                    case LauncherStatus.CleaningUp:
-                        ProgressText.Text = textStrings["progresstext_cleaningup"];
-                        break;
-                    case LauncherStatus.UpdateAvailable:
-                        ToggleUI(true);
-                        ToggleProgressBar(Visibility.Hidden);
-                        ToggleContextMenuItems(false);
-                        break;
-                    case LauncherStatus.Uninstalling:
-                        ProgressText.Text = textStrings["progresstext_uninstalling"];
-                        ToggleUI(false);
-                        ToggleProgressBar(Visibility.Visible);
-                        break;
-                }
+                    _status = value;
+                    switch(_status)
+                    {
+                        case LauncherStatus.Ready:
+                            ProgressText.Text = String.Empty;
+                            ToggleUI(true);
+                            ToggleProgressBar(Visibility.Hidden);
+                            break;
+                        case LauncherStatus.Error:
+                            ProgressText.Text = textStrings["progresstext_error"];
+                            ToggleUI(false);
+                            ToggleProgressBar(Visibility.Hidden);
+                            ShowLogCheckBox.IsChecked = true;
+                            break;
+                        case LauncherStatus.CheckingUpdates:
+                            ProgressText.Text = textStrings["progresstext_checkingupdate"];
+                            ToggleUI(false);
+                            ToggleProgressBar(Visibility.Visible);
+                            break;
+                        case LauncherStatus.Downloading:
+                        case LauncherStatus.Updating:
+                        case LauncherStatus.Working:
+                            ToggleUI(false);
+                            ToggleProgressBar(Visibility.Visible);
+                            break;
+                        case LauncherStatus.Verifying:
+                            ProgressText.Text = textStrings["progresstext_verifying"];
+                            ToggleProgressBar(Visibility.Visible);
+                            break;
+                        case LauncherStatus.Unpacking:
+                            ProgressText.Text = textStrings["progresstext_unpacking_1"];
+                            ToggleProgressBar(Visibility.Visible);
+                            break;
+                        case LauncherStatus.CleaningUp:
+                            ProgressText.Text = textStrings["progresstext_cleaningup"];
+                            break;
+                        case LauncherStatus.UpdateAvailable:
+                            ToggleUI(true);
+                            ToggleProgressBar(Visibility.Hidden);
+                            ToggleContextMenuItems(false);
+                            break;
+                        case LauncherStatus.Uninstalling:
+                            ProgressText.Text = textStrings["progresstext_uninstalling"];
+                            ToggleUI(false);
+                            ToggleProgressBar(Visibility.Visible);
+                            break;
+                    }
+                });
             }
         }
         internal HI3Server Server
@@ -267,110 +270,7 @@ namespace BetterHI3Launcher
             Log($"Launcher exe MD5: {CalculateMD5(Path.Combine(rootPath, Process.GetCurrentProcess().MainModule.ModuleName))}");
             Log($"Working directory: {rootPath}");
             Log($"OS language: {OSLanguage}");
-            textStrings.Add("version", "Version");
-            textStrings.Add("launcher_version", "Launcher version");
-            textStrings.Add("binary_prefixes", "KMGTPEZY");
-            textStrings.Add("binary_prefix_byte", "b");
-            textStrings.Add("bytes_per_second", "B/s");
-            textStrings.Add("button_download", "Download");
-            textStrings.Add("button_update", "Update");
-            textStrings.Add("button_launch", "Start");
-            textStrings.Add("button_options", "Options");
-            textStrings.Add("button_resume", "Resume");
-            textStrings.Add("button_ok", "OK");
-            textStrings.Add("button_cancel", "Cancel");
-            textStrings.Add("label_server", "Server");
-            textStrings.Add("label_mirror", "Mirror");
-            textStrings.Add("label_log", "Show log");
-            textStrings.Add("contextmenu_downloadcache", "Download cache");
-            textStrings.Add("contextmenu_uninstall", "Uninstall the game");
-            textStrings.Add("contextmenu_fixupdateloop", "Fix update loop");
-            textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
-            textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
-            textStrings.Add("contextmenu_resetgamesettings", "Reset game settings");
-            textStrings.Add("contextmenu_changelog", "Show changelog");
-            textStrings.Add("contextmenu_about", "About");
-            textStrings.Add("progresstext_error", "Mistakes were made :^(");
-            textStrings.Add("progresstext_verifying", "Verifying game files...");
-            textStrings.Add("progresstext_cleaningup", "Cleaning up...");
-            textStrings.Add("progresstext_checkingupdate", "Checking for update...");
-            textStrings.Add("progresstext_expectedsize", "Expected download size");
-            textStrings.Add("progresstext_downloaded", "Downloaded {0}/{1} ({2})");
-            textStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
-            textStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1}");
-            textStrings.Add("progresstext_writinginfo", "Writing version information...");
-            textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
-            textStrings.Add("inputbox_customfps_title", "Enter max FPS cap");
-            textStrings.Add("changelogbox_title", "Changelog");
-            textStrings.Add("changelogbox_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
-            textStrings.Add("msgbox_genericerror_title", "Error");
-            textStrings.Add("msgbox_genericerror_msg", "An error occurred:\n{0}");
-            textStrings.Add("msgbox_neterror_title", "Network error");
-            textStrings.Add("msgbox_neterror_msg", "An error occurred while connecting to server");
-            textStrings.Add("msgbox_verifyerror_title", "File validation error");
-            textStrings.Add("msgbox_verifyerror_msg", "An error occurred while downloading. Please try again.");
-            textStrings.Add("msgbox_starterror_title", "Startup error");
-            textStrings.Add("msgbox_starterror_msg", "An error occurred while starting the launcher:\n{0}");
-            textStrings.Add("msgbox_launcherdownloaderror_msg", "An error occurred while downloading the launcher:\n{0}");
-            textStrings.Add("msgbox_gamedownloaderror_title", "Error downloading game files");
-            textStrings.Add("msgbox_gamedownloaderror_msg", "An error occurred while downloading game files:\n{0}");
-            textStrings.Add("msgbox_installerror_msg", "An error occurred while installing game files:\n{0}");
-            textStrings.Add("msgbox_installerror_title", "Installation error");
-            textStrings.Add("msgbox_startgameerror_msg", "An error occurred while starting the game:\n{0}");
-            textStrings.Add("msgbox_update_msg", "A newer version has become available. An update is required.");
-            textStrings.Add("msgbox_update_title", "Update notice");
-            textStrings.Add("msgbox_install_msg", "The game is going to be installed to:\n{0}\nContinue installation?");
-            textStrings.Add("msgbox_install_title", "Installation notice");
-            textStrings.Add("msgbox_installdirerror_msg", "An error occurred while selecting game installation directory:\n{0}");
-            textStrings.Add("msgbox_installdirerror_title", "Invalid directory");
-            textStrings.Add("msgbox_abort_1_msg", "Are you sure you want to cancel the download and close the launcher?");
-            textStrings.Add("msgbox_abort_2_msg", "Progress will not be saved.");
-            textStrings.Add("msgbox_abort_3_msg", "Progress will be saved.");
-            textStrings.Add("msgbox_abort_title", "Abort request");
-            textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry:\n{0}");
-            textStrings.Add("msgbox_registryerror_title", "Registry error");
-            textStrings.Add("msgbox_registryempty_msg", "No value to be tweaked in registry exists. Did you already run the game?");
-            textStrings.Add("msgbox_downloadcache_msg", "This will download cache needed for the game login. Please note that there is currently no way to automatically retrieve latest cache and it has to be uploaded manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is art-serious#8505.\nContinue?");
-            textStrings.Add("msgbox_uninstall_1_msg", "Are you sure you want to uninstall the game?");
-            textStrings.Add("msgbox_uninstall_2_msg", "Are you really sure you want to uninstall the game? :^(");
-            textStrings.Add("msgbox_uninstall_3_msg", "Remove game cache files as well?");
-            textStrings.Add("msgbox_uninstall_4_msg", "Cannot uninstall the game while the launcher is inside game directory. Move launcher outside the directory and try again.");
-            textStrings.Add("msgbox_uninstall_title", "Uninstall");
-            textStrings.Add("msgbox_uninstallerror_msg", "An error occurred while uninstalling the game:\n{0}");
-            textStrings.Add("msgbox_uninstallerror_title", "Uninstallation error");
-            textStrings.Add("msgbox_fixupdateloop_1_msg", "This will attempt to fix the infamous update loop which doesn't let you enter the game.\nIf this doesn't fix the problem, try again.\nContinue?");
-            textStrings.Add("msgbox_fixupdateloop_2_msg", "ResourceDownloadType value before: {0}.\nResourceDownloadType value after: {1}.");
-            textStrings.Add("msgbox_fixsubs_1_msg", "This will attempt to fix CG subtitles (and gacha banners). Make sure you have already downloaded all CGs in the game.\nContinue?");
-            textStrings.Add("msgbox_fixsubs_2_msg", "Unpacking subtitle file {0}/{1}...");
-            textStrings.Add("msgbox_fixsubs_3_msg", "Checking subtitle file {0}/{1}...");
-            textStrings.Add("msgbox_fixsubs_4_msg", "Unpacked subtitles for {0} CGs.");
-            textStrings.Add("msgbox_fixsubs_5_msg", "Fixed {0} wrong subtitle files.");
-            textStrings.Add("msgbox_fixsubs_6_msg", "No subtitle files were fixed. They are either not downloaded yet or already fixed.");
-            textStrings.Add("msgbox_customfps_1_msg", "Value must not be empty.");
-            textStrings.Add("msgbox_customfps_2_msg", "Value must not be zero or negative.");
-            textStrings.Add("msgbox_customfps_3_msg", "Values lower than 30 are not recommended. Continue?");
-            textStrings.Add("msgbox_customfps_4_msg", "FPS cap successfully set to {0}.");
-            textStrings.Add("msgbox_resetgamesettings_1_msg", "This will wipe all game settings stored in registry.\nOnly use this if you are having problems with the game!\nContinue?");
-            textStrings.Add("msgbox_resetgamesettings_2_msg", "This action is irreversible. Are you sure you want to do this?");
-            textStrings.Add("msgbox_resetgamesettings_3_msg", "Game settings have been wiped from registry.");
-            textStrings.Add("msgbox_about_msg", "Better Honkai Impact 3rd Launcher :^)\nWell it is much more advanced, isn't it?\nAny feedback is greatly appreciated.\n\nMade by Bp (BuIlDaLiBlE production).\nDiscord: BuIlDaLiBlE#3202");
-            textStrings.Add("msgbox_extractskip_title", "File skip notice");
-            textStrings.Add("msgbox_extractskip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
-            textStrings.Add("msgbox_noexe_title", "No game executable");
-            textStrings.Add("msgbox_noexe_msg", "Game executable cannot be found :^(\nTry reinstalling the game.");
-            textStrings.Add("msgbox_installexisting_msg", "The game appears to have already been installed to:\n{0}\nUse this directory?");
-            textStrings.Add("msgbox_installexistinginvalid_msg", "The selected directory doesn't contain a valid installation of the game. This launcher only supports Global and SEA clients.");
-            textStrings.Add("msgbox_notice_title", "Notice");
-            textStrings.Add("msgbox_novideodir_msg", "Video folder cannot be found.\nTry reinstalling the game.");
-            textStrings.Add("msgbox_mirrorinfo_msg", "Use this mirror only if you cannot download the game via official miHoYo servers.\nPlease note that it is updated manually.\nContinue?");
-            textStrings.Add("msgbox_updatecheckerror_msg", "An error occurred while checking for update:\n{0}");
-            textStrings.Add("msgbox_updatecheckerror_title", "Update check error");
-            textStrings.Add("msgbox_gamedownloadmirrorold_msg", "It seems like the game version on miHoYo servers is newer than the one on the mirror.\nThere is no reason to download an outdated version, ask the mirror maintainer to upload a new version.");
-            textStrings.Add("msgbox_gamedownloadpaused_msg", "The game was not downloaded entirely last time. Changing server or mirror will reset the download progress.\nContinue?");
-            textStrings.Add("msgbox_gamedownloadmirrorerror_msg", "An error occurred while downloading from the mirror. The quota might have been exceeded.\n{0}");
-            textStrings.Add("msgbox_install_little_space_msg", "Free space on device by given path is less than 12 GB, it is highly recommended to free up some space.\nContinue?");
-            textStrings.Add("msgbox_install_wrong_drive_type_msg", "Cannot install on selected device.");
-            textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
+            TextStrings_English();
             switch(OSLanguage)
             {
                 case "ru-RU":
@@ -378,125 +278,23 @@ namespace BetterHI3Launcher
                 case "be-BY":
                     ChangelogLanguage = "ru";
                     Resources["Font"] = new FontFamily("Arial Bold");
-                    textStrings["version"] = "Версия";
-                    textStrings["launcher_version"] = "Версия лаунчера";
-                    textStrings["binary_prefixes"] = "КМГТПЭЗЙ";
-                    textStrings["binary_prefix_byte"] = "б";
-                    textStrings["bytes_per_second"] = "Б/с";
-                    textStrings["button_download"] = "Загрузить";
-                    textStrings["button_update"] = "Обновить";
-                    textStrings["button_launch"] = "Запустить";
-                    textStrings["button_options"] = "Опции";
-                    textStrings["button_resume"] = "Возобновить";
-                    textStrings["button_ok"] = "ОК";
-                    textStrings["button_cancel"] = "Отмена";
-                    textStrings["label_server"] = "Сервер";
-                    textStrings["label_mirror"] = "Зеркало";
-                    textStrings["label_log"] = "Показать лог";
-                    textStrings["contextmenu_downloadcache"] = "Загрузить кэш";
-                    textStrings["contextmenu_uninstall"] = "Удалить игру";
-                    textStrings["contextmenu_fixupdateloop"] = "Исправить цикл загрузки";
-                    textStrings["contextmenu_fixsubs"] = "Исправить субтитры";
-                    textStrings["contextmenu_customfps"] = "Своё ограничение FPS";
-                    textStrings["contextmenu_resetgamesettings"] = "Сбросить настройки игры";
-                    textStrings["contextmenu_changelog"] = "Показать историю изменений";
-                    textStrings["contextmenu_about"] = "О лаунчере";
-                    textStrings["progresstext_error"] = "Ошибочка вышла :^(";
-                    textStrings["progresstext_verifying"] = "Проверка игровых файлов...";
-                    textStrings["progresstext_cleaningup"] = "Убираюсь за собой...";
-                    textStrings["progresstext_checkingupdate"] = "Проверка на наличие обновления...";
-                    textStrings["progresstext_expectedsize"] = "Ожидаемый размер загрузки";
-                    textStrings["progresstext_downloaded"] = "Загружено {0}/{1} ({2})";
-                    textStrings["progresstext_unpacking_1"] = "Распаковка игровых файлов...";
-                    textStrings["progresstext_unpacking_2"] = "Распаковка игрового файла {0}/{1}";
-                    textStrings["progresstext_writinginfo"] = "Запись информации о версии...";
-                    textStrings["progresstext_uninstalling"] = "Удаление игры...";
-                    textStrings["inputbox_customfps_title"] = "Введите максимальное значение FPS";
-                    textStrings["changelogbox_title"] = "История изменений";
-                    textStrings["changelogbox_msg"] = "Better HI3 Launcher только что стал ещё лучше. Вот что произошло:";
-                    textStrings["msgbox_genericerror_title"] = "Ошибка";
-                    textStrings["msgbox_genericerror_msg"] = "Произошла ошибка:\n{0}";
-                    textStrings["msgbox_neterror_title"] = "Сетевая ошибка";
-                    textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу";
-                    textStrings["msgbox_verifyerror_title"] = "Ошибка проверки целостности файла";
-                    textStrings["msgbox_verifyerror_msg"] = "Произошла ошибка при загрузке, попробуйте снова.";
-                    textStrings["msgbox_starterror_title"] = "Ошибка запуска";
-                    textStrings["msgbox_starterror_msg"] = "Произошла ошибка запуска лаунчера:\n{0}";
-                    textStrings["msgbox_launcherdownloaderror_msg"] = "Произошла ошибка загрузки лаунчера:\n{0}";
-                    textStrings["msgbox_gamedownloaderror_title"] = "Ошибка загрузки игровых файлов";
-                    textStrings["msgbox_gamedownloaderror_msg"] = "Произошла ошибка загрузки игровых файлов:\n{0}";
-                    textStrings["msgbox_installerror_msg"] = "Произошла ошибка установки игровых файлов:\n{0}";
-                    textStrings["msgbox_installerror_title"] = "Ошибка установки";
-                    textStrings["msgbox_startgameerror_msg"] = "Произошла ошибка запуска игры:\n{0}";
-                    textStrings["msgbox_update_msg"] = "Доступна версия новее, необходимо обновиться.";
-                    textStrings["msgbox_update_title"] = "Уведомление об обновлении";
-                    textStrings["msgbox_install_msg"] = "Игра будет установлена по пути:\n{0}\nПродолжить установку?";
-                    textStrings["msgbox_install_title"] = "Уведомление об установке";
-                    textStrings["msgbox_installdirerror_msg"] = "Произошла ошибка выбора игрового пути:\n{0}";
-                    textStrings["msgbox_installdirerror_title"] = "Неверный путь установки";
-                    textStrings["msgbox_abort_1_msg"] = "Вы точно уверены, что хотите отменить загрузку и выйти?";
-                    textStrings["msgbox_abort_2_msg"] = "Прогресс не будет сохранён.";
-                    textStrings["msgbox_abort_3_msg"] = "Прогресс будет сохранён.";
-                    textStrings["msgbox_abort_title"] = "Запрос на отмену";
-                    textStrings["msgbox_registryerror_msg"] = "Произошла ошибка доступа к реестру:\n{0}";
-                    textStrings["msgbox_registryerror_title"] = "Ошибка реестра";
-                    textStrings["msgbox_registryempty_msg"] = "Нужное значение в реестре отсутствует. Вы уже запускали игру?";
-                    textStrings["msgbox_downloadcache_msg"] = "Будет загружен кэш, который необходим для входа в игру. Учтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому его нужно загружать вручную с зеркала.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}.\nОтветственный за зеркало: art-serious#8505.\nПродолжить?";
-                    textStrings["msgbox_uninstall_1_msg"] = "Вы уверены, что хотите удалить игру?";
-                    textStrings["msgbox_uninstall_2_msg"] = "Вы точно уверены, что хотите удалить игру? :^(";
-                    textStrings["msgbox_uninstall_3_msg"] = "Удалить также и игровой кэш?";
-                    textStrings["msgbox_uninstall_4_msg"] = "Нельзя удалить игру, пока лаунчер находится внутри игровой папки. Переместите лаунчер из папки и попробуйте снова.";
-                    textStrings["msgbox_uninstall_title"] = "Удаление";
-                    textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";
-                    textStrings["msgbox_uninstallerror_title"] = "Ошибка удаления";
-                    textStrings["msgbox_fixupdateloop_1_msg"] = "Будет произведена попытка исправить печально известную проблему с бесконечной загрузкой в игре.\nЕсли с первого раза не помогает, попробуйте ещё раз.\nПродолжить?";
-                    textStrings["msgbox_fixupdateloop_2_msg"] = "Значение ResourceDownloadType до: {0}.\nЗначение ResourceDownloadType после: {1}.";
-                    textStrings["msgbox_fixsubs_1_msg"] = "Будет произведена попытка исправить субтитры к видео (и гача баннер). Убедитесь, что все видеофайлы были загружены в игре.\nПродолжить?";
-                    textStrings["msgbox_fixsubs_2_msg"] = "Распаковка субтитров к видео {0}/{1}...";
-                    textStrings["msgbox_fixsubs_3_msg"] = "Проверка файла субтитров {0}/{1}...";
-                    textStrings["msgbox_fixsubs_4_msg"] = "Субтитры распакованы к {0} файлам видео.";
-                    textStrings["msgbox_fixsubs_5_msg"] = "Исправлено {0} неправильных файлов субтитров.";
-                    textStrings["msgbox_fixsubs_6_msg"] = "Не был исправлен ни один файл субтитров. Субтитры либо ещё не загружены, либо уже исправлены.";
-                    textStrings["msgbox_customfps_1_msg"] = "Значение не должно быть пустым.";
-                    textStrings["msgbox_customfps_2_msg"] = "Значение не должно равняться нулю или быть отрицательным.";
-                    textStrings["msgbox_customfps_3_msg"] = "Значения ниже 30 не рекомендуются. Продолжить?";
-                    textStrings["msgbox_customfps_4_msg"] = "Максимальное значение FPS установлено на {0}.";
-                    textStrings["msgbox_resetgamesettings_1_msg"] = "Будут сброшены все настройки игры, сохранённые в реестре.\nИспользуйте это только в том случае, если возникли проблемы с игрой!\nПродолжить?";
-                    textStrings["msgbox_resetgamesettings_2_msg"] = "Эта операция необратима. Вы уверены, что хотите продолжить?";
-                    textStrings["msgbox_resetgamesettings_3_msg"] = "Настройки игры были сброшены.";
-                    textStrings["msgbox_about_msg"] = "Better Honkai Impact 3rd Launcher :^)\nНу он и правда лучше же, да?\nЛюбой отзыв глубоко приветствуется.\n\nMade by Bp (BuIlDaLiBlE production).\nDiscord: BuIlDaLiBlE#3202";
-                    textStrings["msgbox_extractskip_title"] = "Уведомление о пропущенных файлах";
-                    textStrings["msgbox_extractskip_msg"] = "Распаковка завершена, однако некоторые файлы не получилось распаковать. Возможно, придётся сделать это вручную.\nДля дополнительной информации посмотрите лог.";
-                    textStrings["msgbox_noexe_title"] = "Нет исполняемого файла игры";
-                    textStrings["msgbox_noexe_msg"] = "Исполняемый файл игры не может быть найден :^(\nПопробуйте переустановить игру.";
-                    textStrings["msgbox_installexisting_msg"] = "Похоже, что игра уже была установлена по пути:\n{0}\nИспользовать этот путь?";
-                    textStrings["msgbox_installexistinginvalid_msg"] = "По данному пути не найдено верного клиента игры. Этот лаунчер поддерживает только клиенты Global и SEA серверов.";
-                    textStrings["msgbox_notice_title"] = "Уведомление";
-                    textStrings["msgbox_novideodir_msg"] = "Папка с видео не может быть найдена.\nПопробуйте переустановить игру.";
-                    textStrings["msgbox_mirrorinfo_msg"] = "Используйте зеркало только в том случае, если не получается загрузить игру с официальных серверов miHoYo.\nЗаметьте, что зеркало обновляется вручную.\nПродолжить?";
-                    textStrings["msgbox_updatecheckerror_msg"] = "Произошла ошибка проверки обновления:\n{0}";
-                    textStrings["msgbox_updatecheckerror_title"] = "Ошибка проверки обновления";
-                    textStrings["msgbox_gamedownloadmirrorold_msg"] = "Похоже, что версия игры на серверах miHoYo новее той, что загружена на зеркало.\nЗагружать старую версию нет смысла, попросите автора загрузить новую версию на зеркало.";
-                    textStrings["msgbox_gamedownloadpaused_msg"] = "Игра не была до конца загружена с предыдущего раза. Изменение сервера или зеркала приведёт к сбросу прогресса загрузки.\nПродолжить?";
-                    textStrings["msgbox_gamedownloadmirrorerror_msg"] = "Произошла ошибка загрузки с зеркала. Вероятно, квота на скачивание была превышена.";
-                    textStrings["msgbox_install_little_space_msg"] = "Свободное место на устройстве по данному пути меньше 12 ГБ, крайне рекомендуется освободить место.\nПродолжить?";
-                    textStrings["msgbox_install_wrong_drive_type_msg"] = "На данное устройство установить нельзя.";
-                    textStrings["msgbox_mirror_error_msg"] = "Ошибка зеркала. Попросите ответственного за зеркало разобраться с этим.\nСообщение: {0}";
+                    TextStrings_Russian();
                     break;
             }
             LaunchButton.Content = textStrings["button_download"];
             OptionsButton.Content = textStrings["button_options"];
             ServerLabel.Text = $"{textStrings["label_server"]}:";
             MirrorLabel.Text = $"{textStrings["label_mirror"]}:";
-            InputBoxOKButton.Content = textStrings["button_ok"];
+            InputBoxOKButton.Content = textStrings["button_confirm"];
             InputBoxCancelButton.Content = textStrings["button_cancel"];
             ChangelogBoxTitleTextBlock.Text = textStrings["changelogbox_title"];
             ChangelogBoxMessageTextBlock.Text = textStrings["changelogbox_msg"];
-            ChangelogBoxOKButton.Content = textStrings["button_ok"];
+            DownloadCacheBoxTitleTextBlock.Text = textStrings["contextmenu_downloadcache"];
+            DownloadCacheBoxFullCacheButton.Content = textStrings["downloadcachebox_button_full_cache"];
+            DownloadCacheBoxNumericFilesButton.Content = textStrings["downloadcachebox_button_numeric_files"];
             ShowLogLabel.Text = textStrings["label_log"];
 
             Grid.MouseLeftButtonDown += delegate{DragMove();};
-            webClient.Headers.Add(HttpRequestHeader.UserAgent, userAgent);
 
             try
             {
@@ -591,7 +389,7 @@ namespace BetterHI3Launcher
 
             OptionsContextMenu.Items.Clear();
             var CMDownloadCache = new MenuItem{Header = textStrings["contextmenu_downloadcache"]};
-            CMDownloadCache.Click += (sender, e) => CM_DownloadCache_Click(sender, e);
+            CMDownloadCache.Click += async (sender, e) => await CM_DownloadCache_Click(sender, e);
             OptionsContextMenu.Items.Add(CMDownloadCache);
             var CMUninstall = new MenuItem{Header = textStrings["contextmenu_uninstall"]};
             CMUninstall.Click += (sender, e) => CM_Uninstall_Click(sender, e);
@@ -716,6 +514,7 @@ namespace BetterHI3Launcher
                 var version_info_url = new[]{"https://bpnet.host/bh3?launcherstatus", "https://serioussam.ucoz.ru/bbh3l_prod.json"};
             #endif
             string version_info;
+            webClient.Headers.Add(HttpRequestHeader.UserAgent, userAgent);
             try
             {
                 version_info = webClient.DownloadString(version_info_url[0]);
@@ -850,7 +649,7 @@ namespace BetterHI3Launcher
             }
             catch(WebException ex)
             {
-                Dispatcher.Invoke(() => {Status = LauncherStatus.Error;});
+                Status = LauncherStatus.Error;
                 if(ex.Response != null)
                 {
                     var data = new MemoryStream();
@@ -862,8 +661,8 @@ namespace BetterHI3Launcher
                     else
                         message = ex.Message;
                     Log($"ERROR: Failed to fetch Google Drive file metadata:\n{message}");
-                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                    Dispatcher.Invoke(() => {Status = LauncherStatus.Ready;});
+                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                    Status = LauncherStatus.Ready;
                 }
                 return null;
             }
@@ -873,6 +672,8 @@ namespace BetterHI3Launcher
         {
             string url = $"https://www.mediafire.com/file/{id}";
 
+            if(String.IsNullOrEmpty(id))
+                return null;
             try
             {
                 var webRequest = (HttpWebRequest)WebRequest.Create(url);
@@ -884,18 +685,22 @@ namespace BetterHI3Launcher
                     metadata.title = webResponse.Headers["Content-Disposition"].Replace("attachment; filename=", String.Empty).Replace("\"", String.Empty);
                     metadata.downloadUrl = url;
                     metadata.fileSize = webResponse.ContentLength;
+                    if(Server == HI3Server.Global)
+                        metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
+                    else
+                        metadata.md5Checksum = onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
                     return metadata;
                 }
             }
             catch(WebException ex)
             {
-                Dispatcher.Invoke(() => {Status = LauncherStatus.Error;});
+                Status = LauncherStatus.Error;
                 if(ex.Response != null)
                 {
                     string message = ex.Message;
                     Log($"ERROR: Failed to fetch MediaFire file metadata:\n{message}");
-                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                    Dispatcher.Invoke(() => {Status = LauncherStatus.Ready;});
+                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                    Status = LauncherStatus.Ready;
                 }
                 return null;
             }
@@ -967,18 +772,18 @@ namespace BetterHI3Launcher
                         if(game_needs_update)
                         {
                             Log("Game requires an update!");
+                            Status = LauncherStatus.UpdateAvailable;
                             Dispatcher.Invoke(() =>
                             {
-                                Status = LauncherStatus.UpdateAvailable;
                                 LaunchButton.Content = textStrings["button_update"];
-                                ProgressText.Text = $"{textStrings["progresstext_expectedsize"]}: {ToBytesCount(download_size)}";
+                                ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {ToBytesCount(download_size)}";
                             });
                         }
                         else
                         {
+                            Status = LauncherStatus.Ready;
                             Dispatcher.Invoke(() =>
                             {
-                                Status = LauncherStatus.Ready;
                                 LaunchButton.Content = textStrings["button_launch"];
                                 ToggleContextMenuItems(true);
                             });
@@ -996,7 +801,7 @@ namespace BetterHI3Launcher
                                 else
                                 {
                                     LaunchButton.Content = textStrings["button_resume"];
-                                    ProgressText.Text = $"{textStrings["progresstext_expectedsize"]}: {ToBytesCount(remaining_size)}";
+                                    ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {ToBytesCount(remaining_size)}";
                                 }
                             });
                         }
@@ -1006,11 +811,11 @@ namespace BetterHI3Launcher
                         Log("No game version info :^(");
                         if(serverChanged)
                             await FetchmiHoYoVersionInfoAsync();
+                        Status = LauncherStatus.Ready;
                         Dispatcher.Invoke(() =>
                         {
-                            Status = LauncherStatus.Ready;
                             LaunchButton.Content = textStrings["button_download"];
-                            ProgressText.Text = $"{textStrings["progresstext_expectedsize"]}: {ToBytesCount(download_size)}";
+                            ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {ToBytesCount(download_size)}";
                             var path = CheckForExistingGameDirectory(rootPath);
                             if(!String.IsNullOrEmpty(path))
                             {
@@ -1044,10 +849,10 @@ namespace BetterHI3Launcher
                 }
                 catch(Exception ex)
                 {
+                    Status = LauncherStatus.Error;
+                    Log($"ERROR: Checking for game update failed:\n{ex}");
                     Dispatcher.Invoke(() =>
                     {
-                        Status = LauncherStatus.Error;
-                        Log($"ERROR: Checking for game update failed:\n{ex}");
                         if(MessageBox.Show(string.Format(textStrings["msgbox_updatecheckerror_msg"], ex), textStrings["msgbox_updatecheckerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                         {
                             Application.Current.Shutdown();
@@ -1103,13 +908,10 @@ namespace BetterHI3Launcher
         {
             try
             {
-                Dispatcher.Invoke(() =>
-                {
-                    if(IsUpdate)
-                        Status = LauncherStatus.Updating;
-                    else
-                        Status = LauncherStatus.Downloading;
-                });
+                if(IsUpdate)
+                    Status = LauncherStatus.Updating;
+                else
+                    Status = LauncherStatus.Downloading;
 
                 string download_url;
                 string md5;
@@ -1123,18 +925,13 @@ namespace BetterHI3Launcher
                 {
                     dynamic mediafire_metadata;
                     if(Server == HI3Server.Global)
-                    {
                         mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
-                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_archive.global.md5.ToString();
-                    }
                     else
-                    {
                         mediafire_metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
-                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_archive.os.md5.ToString();
-                    }
                     if(mediafire_metadata == null)
                         return;
                     download_url = mediafire_metadata.downloadUrl.ToString();
+                    md5 = mediafire_metadata.md5Checksum.ToString();
                     if(!mediafire_metadata.title.Contains(miHoYoVersionInfo.cur_version.ToString().Substring(0, 5)))
                     {
                         Status = LauncherStatus.Error;
@@ -1247,13 +1044,13 @@ namespace BetterHI3Launcher
                     Log("Validating game archive");
                     await Task.Run(() =>
                     {
-                        Dispatcher.Invoke(() => {Status = LauncherStatus.Verifying;});
+                        Status = LauncherStatus.Verifying;
                         if(CalculateMD5(gameArchivePath) != md5.ToUpper())
                         {
+                            Status = LauncherStatus.Error;
+                            Log("ERROR: Validation failed. MD5 checksum is incorrect!");
                             Dispatcher.Invoke(() =>
                             {
-                                Status = LauncherStatus.Error;
-                                Log("ERROR: Validation failed. MD5 checksum is incorrect!");
                                 MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                             });
                             if(File.Exists(gameArchivePath))
@@ -1269,11 +1066,8 @@ namespace BetterHI3Launcher
                             int fileCount = 0;
 
                             Log("Unpacking game archive...");
-                            Dispatcher.Invoke(() =>
-                            {
-                                Status = LauncherStatus.Unpacking;
-                                ProgressBar.IsIndeterminate = false;
-                            });
+                            Status = LauncherStatus.Unpacking;
+                            Dispatcher.Invoke(() =>{ProgressBar.IsIndeterminate = false;});
                             foreach(var entry in archive.Entries)
                             {
                                 if(!entry.IsDirectory)
@@ -1340,6 +1134,7 @@ namespace BetterHI3Launcher
                 }
             }
         }
+
         private void WriteVersionInfo()
         {
             try
@@ -1389,6 +1184,171 @@ namespace BetterHI3Launcher
             LaunchButton.Content = textStrings["button_download"];
         }
 
+        private async void DownloadGameCache(bool FullCache)
+        {
+            try
+            {
+                string title;
+                string download_url;
+                string md5;
+                if(FullCache)
+                {
+                    title = gameCacheMetadata.title.ToString();
+                    download_url = gameCacheMetadata.downloadUrl.ToString();
+                    md5 = gameCacheMetadata.md5Checksum.ToString();
+                }
+                else
+                {
+                    title = gameCacheMetadataNumeric.title.ToString();
+                    download_url = gameCacheMetadataNumeric.downloadUrl.ToString();
+                    md5 = gameCacheMetadataNumeric.md5Checksum.ToString();
+                }
+                string cacheArchivePath;
+                cacheArchivePath = Path.Combine(miHoYoPath, title);
+
+                var gameInstallDrive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(cacheArchivePath) && x.IsReady).FirstOrDefault();
+                if(gameInstallDrive == null)
+                {
+                    Dispatcher.Invoke(() => {MessageBox.Show(textStrings["msgbox_install_wrong_drive_type_msg"], textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
+                    return;
+                }
+                else if(gameInstallDrive.TotalFreeSpace < 1073741824)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        if(MessageBox.Show(textStrings["msgbox_install_little_space_msg"], textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                            return;
+                    });
+                }
+                try
+                {
+                    var webRequest = (HttpWebRequest)WebRequest.Create(download_url);
+                    webRequest.UserAgent = userAgent;
+                    var webResponse = (HttpWebResponse)webRequest.GetResponse();
+                }
+                catch(WebException ex)
+                {
+                    Status = LauncherStatus.Error;
+                    Log($"ERROR: Failed to download cache from mirror:\n{ex}");
+                    MessageBox.Show(string.Format(textStrings["msgbox_gamedownloadmirrorerror_msg"], ex.Message), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                    Status = LauncherStatus.Ready;
+                    return;
+                }
+
+                Log($"Starting to download game cache {title}");
+                Status = LauncherStatus.Downloading;
+                Dispatcher.Invoke(() => {ProgressBar.IsIndeterminate = false;});
+                await Task.Run(() =>
+                {
+                    tracker.NewFile();
+                    var download = new DownloadPauseable(download_url, cacheArchivePath);
+                    download.Start();
+                    while(!download.Done)
+                    {
+                        tracker.SetProgress(download.BytesWritten, download.ContentLength);
+                        Dispatcher.Invoke(() =>
+                        {
+                            ProgressBar.Value = tracker.GetProgress() * 100;
+                            ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(download.BytesWritten), ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString());
+                        });
+                        Thread.Sleep(100);
+                    }
+                });
+                Log("Game cache download OK");
+                while(IsFileLocked(new FileInfo(cacheArchivePath)))
+                    Thread.Sleep(10);
+                Dispatcher.Invoke(() => {ProgressText.Text = String.Empty;});
+                try
+                {
+                    Log("Validating game cache");
+                    await Task.Run(() =>
+                    {
+                        Status = LauncherStatus.Verifying;
+                        Dispatcher.Invoke(() => {ProgressBar.IsIndeterminate = false;});
+                        if(CalculateMD5(cacheArchivePath) != md5.ToUpper())
+                        {
+                            Status = LauncherStatus.Error;
+                            Log("ERROR: Validation failed. MD5 checksum is incorrect!");
+                            MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                            if(File.Exists(cacheArchivePath))
+                                File.Delete(cacheArchivePath);
+                            return;
+                        }
+                        Log("Validation OK");
+                        var skippedFiles = new List<string>();
+                        using(var archive = ArchiveFactory.Open(cacheArchivePath))
+                        {
+                            int unpackedFiles = 0;
+                            int fileCount = 0;
+
+                            Log("Unpacking game cache...");
+                            Status = LauncherStatus.Unpacking;
+                            foreach(var entry in archive.Entries)
+                            {
+                                if(!entry.IsDirectory)
+                                    fileCount++;
+                            }
+                            if(!Directory.Exists(miHoYoPath))
+                            {
+                                Directory.CreateDirectory(miHoYoPath);
+                            }
+                            var reader = archive.ExtractAllEntries();
+                            while(reader.MoveToNextEntry())
+                            {
+                                try
+                                {
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        ProgressText.Text = string.Format(textStrings["progresstext_unpacking_2"], unpackedFiles + 1, fileCount);
+                                        ProgressBar.Value = (unpackedFiles + 1f) / fileCount * 100;
+                                    });
+                                    reader.WriteEntryToDirectory(miHoYoPath, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true, PreserveFileTime = true });
+                                    if(!reader.Entry.IsDirectory)
+                                        unpackedFiles++;
+                                }
+                                catch
+                                {
+                                    if(!reader.Entry.IsDirectory)
+                                    {
+                                        skippedFiles.Add(reader.Entry.ToString());
+                                        fileCount--;
+                                        Log($"Unpack ERROR: {reader.Entry.ToString()}");
+                                    }
+                                }
+                            }
+                        }
+                        if(skippedFiles.Count > 0)
+                        {
+                            MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                    });
+                    Log("Game cache unpack OK");
+                    File.Delete(cacheArchivePath);
+                    Status = LauncherStatus.Ready;
+                }
+                catch(Exception ex)
+                {
+                    Status = LauncherStatus.Error;
+                    Log($"ERROR: Failed to install game cache:\n{ex}");
+                    if(MessageBox.Show(string.Format(textStrings["msgbox_installerror_msg"], ex), textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    {
+                        Status = LauncherStatus.Ready;
+                        return;
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Status = LauncherStatus.Error;
+                Log($"ERROR: Failed to download game cache:\n{ex}");
+                if(MessageBox.Show(string.Format(textStrings["msgbox_gamedownloaderror_msg"], ex), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Status = LauncherStatus.Ready;
+                    return;
+                }
+            }
+        }
+
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             #if !DEBUG
@@ -1396,7 +1356,7 @@ namespace BetterHI3Launcher
             {
                 ChangelogBox.Visibility = Visibility.Visible;
                 ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
-                ChangelogBoxScrollViewer.Height = 305;
+                ChangelogBoxScrollViewer.Height = 319;
             }
             try
             {
@@ -1584,192 +1544,67 @@ namespace BetterHI3Launcher
             OptionsContextMenu.IsOpen = true;
         }
 
-        private async void CM_DownloadCache_Click(object sender, RoutedEventArgs e)
+        private async Task CM_DownloadCache_Click(object sender, RoutedEventArgs e)
         {
             if(Status != LauncherStatus.Ready)
                 return;
 
-            try
+            Status = LauncherStatus.Working;
+            Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_mirrorconnect"];});
+            Log("Fetching mirror metadata...");
+            await Task.Run(() =>
             {
-                string title;
-                string download_url;
-                string md5;
-                string cacheArchivePath;
-                dynamic metadata;
-                if(Server == HI3Server.Global)
+                try
                 {
-                    if(Mirror == HI3Mirror.MediaFire)
+                    if(Server == HI3Server.Global)
                     {
-                        metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString());
-                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
+                        if(Mirror == HI3Mirror.MediaFire)
+                        {
+                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString());
+                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString());
+                        }
+                        else
+                        {
+                            gameCacheMetadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
+                            gameCacheMetadataNumeric = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
+                        }
                     }
                     else
                     {
-                        metadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
-                        md5 = metadata.md5Checksum.ToString();
-                    }
-                }
-                else
-                {
-                    if(Mirror == HI3Mirror.MediaFire)
-                    {
-                        metadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString());
-                        md5 = onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
-                    }
-                    else
-                    {
-                        metadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
-                        md5 = metadata.md5Checksum.ToString();
-                    }
-                }
-                if(metadata == null)
-                    return;
-                download_url = metadata.downloadUrl.ToString();
-                title = metadata.title;
-                cacheArchivePath = Path.Combine(miHoYoPath, title);
-                MessageBoxResult msgbox;
-                if(Mirror == HI3Mirror.MediaFire)
-                    msgbox = MessageBox.Show(string.Format(textStrings["msgbox_downloadcache_msg"], "N/A"), textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                else
-                    msgbox = MessageBox.Show(string.Format(textStrings["msgbox_downloadcache_msg"], DateTime.Parse(metadata.modifiedDate.ToString()).ToLocalTime()), textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if(msgbox == MessageBoxResult.No)
-                    return;
-                try
-                {
-                    var webRequest = (HttpWebRequest)WebRequest.Create(download_url);
-                    webRequest.UserAgent = userAgent;
-                    var webResponse = (HttpWebResponse)webRequest.GetResponse();
-                }
-                catch(WebException ex)
-                {
-                    Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to download cache from mirror:\n{ex}");
-                    MessageBox.Show(string.Format(textStrings["msgbox_gamedownloadmirrorerror_msg"], ex.Message), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                    Status = LauncherStatus.Ready;
-                    return;
-                }
-
-                Log($"Starting to download game cache {title}");
-                Dispatcher.Invoke(() =>
-                {
-                    Status = LauncherStatus.Downloading;
-                    ProgressBar.IsIndeterminate = false;
-                });
-                await Task.Run(() =>
-                {
-                    tracker.NewFile();
-                    var download = new DownloadPauseable(download_url, cacheArchivePath);
-                    download.Start();
-                    while(!download.Done)
-                    {
-                        tracker.SetProgress(download.BytesWritten, download.ContentLength);
-                        Dispatcher.Invoke(() =>
+                        if(Mirror == HI3Mirror.MediaFire)
                         {
-                            ProgressBar.Value = tracker.GetProgress() * 100;
-                            ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(download.BytesWritten), ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString());
-                        });
-                        Thread.Sleep(100);
-                    }
-                });
-                Log("Game cache download OK");
-                while(IsFileLocked(new FileInfo(cacheArchivePath)))
-                    Thread.Sleep(10);
-                Dispatcher.Invoke(() => {ProgressText.Text = String.Empty;});
-                try
-                {
-                    Log("Validating game cache");
-                    await Task.Run(() =>
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            Status = LauncherStatus.Verifying;
-                            ProgressBar.IsIndeterminate = false;
-                        });
-                        if(CalculateMD5(cacheArchivePath) != md5.ToUpper())
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                Status = LauncherStatus.Error;
-                                Log("ERROR: Validation failed. MD5 checksum is incorrect!");
-                                MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                            });
-                            if(File.Exists(cacheArchivePath))
-                                File.Delete(cacheArchivePath);
-                            return;
+                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString());
+                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString());
                         }
-                        Log("Validation OK");
-                        var skippedFiles = new List<string>();
-                        using(var archive = ArchiveFactory.Open(cacheArchivePath))
+                        else
                         {
-                            int unpackedFiles = 0;
-                            int fileCount = 0;
-
-                            Log("Unpacking game cache...");
-                            Dispatcher.Invoke(() => {Status = LauncherStatus.Unpacking;});
-                            foreach(var entry in archive.Entries)
-                            {
-                                if(!entry.IsDirectory)
-                                    fileCount++;
-                            }
-                            if(!Directory.Exists(miHoYoPath))
-                            {
-                                Directory.CreateDirectory(miHoYoPath);
-                            }
-                            var reader = archive.ExtractAllEntries();
-                            while(reader.MoveToNextEntry())
-                            {
-                                try
-                                {
-                                    Dispatcher.Invoke(() =>
-                                    {
-                                        ProgressText.Text = string.Format(textStrings["progresstext_unpacking_2"], unpackedFiles + 1, fileCount);
-                                        ProgressBar.Value = (unpackedFiles + 1f) / fileCount * 100;
-                                    });
-                                    reader.WriteEntryToDirectory(miHoYoPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
-                                    if(!reader.Entry.IsDirectory)
-                                        unpackedFiles++;
-                                }
-                                catch
-                                {
-                                    if(!reader.Entry.IsDirectory)
-                                    {
-                                        skippedFiles.Add(reader.Entry.ToString());
-                                        fileCount--;
-                                        Log($"Unpack ERROR: {reader.Entry.ToString()}");
-                                    }
-                                }
-                            }
+                            gameCacheMetadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
+                            gameCacheMetadataNumeric = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
                         }
-                        if(skippedFiles.Count > 0)
-                        {
-                            MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
-                        }
-                    });
-                    Log("Game cache unpack OK");
-                    File.Delete(cacheArchivePath);
-                    Status = LauncherStatus.Ready;
+                    }
                 }
                 catch(Exception ex)
                 {
                     Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to install game cache:\n{ex}");
-                    if(MessageBox.Show(string.Format(textStrings["msgbox_installerror_msg"], ex), textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
-                    {
-                        Status = LauncherStatus.Ready;
-                        return;
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to download game cache:\n{ex}");
-                if(MessageBox.Show(string.Format(textStrings["msgbox_gamedownloaderror_msg"], ex), textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
-                {
+                    Log($"ERROR: Failed to fetch cache file metadata:\n{ex}");
+                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                     Status = LauncherStatus.Ready;
                     return;
                 }
-            }
+                DownloadCacheBox.Visibility = Visibility.Visible;
+                if(Mirror == HI3Mirror.MediaFire)
+                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], ((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string, textStrings["shrug"], onlineVersionInfo.game_info.mirror.maintainer.ToString());
+                else
+                {
+                    string time;
+                    if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()) >= 0))
+                        time = $"{DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime()} ({textStrings["outdated"].ToLower()})";
+                    else
+                        time = DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime();
+                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], ((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string, time, onlineVersionInfo.game_info.mirror.maintainer.ToString());
+                }
+                Status = LauncherStatus.Ready;
+            });
         }
 
         private void CM_Uninstall_Click(object sender, RoutedEventArgs e)
@@ -2154,7 +1989,7 @@ namespace BetterHI3Launcher
                 }
                 DeleteGameFiles(false);
             }
-            if(index != 0)
+            if(Mirror == HI3Mirror.miHoYo && index != 0)
             {
                 if(MessageBox.Show(textStrings["msgbox_mirrorinfo_msg"], textStrings["msgbox_notice_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 {
@@ -2263,17 +2098,6 @@ namespace BetterHI3Launcher
                 }
             }
         }
-        private void InputBoxCancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            InputBox.Visibility = Visibility.Collapsed;
-        }
-
-        private void ChangelogBoxOKButton_Click(object sender, RoutedEventArgs e)
-        {
-            ChangelogBoxMessageTextBlock.Visibility = Visibility.Collapsed;
-            ChangelogBoxScrollViewer.Height = 325;
-            ChangelogBox.Visibility = Visibility.Collapsed;
-        }
 
         private void ShowLogCheckBox_Checked(object sender, RoutedEventArgs e)
         {
@@ -2299,6 +2123,38 @@ namespace BetterHI3Launcher
             {
                 Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}");
             }
+        }
+
+        private void InputBoxCancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            InputBox.Visibility = Visibility.Collapsed;
+        }
+
+        private void ChangelogBoxCloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            ChangelogBoxMessageTextBlock.Visibility = Visibility.Collapsed;
+            ChangelogBoxScrollViewer.Height = 339;
+            ChangelogBox.Visibility = Visibility.Collapsed;
+        }
+        private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(MessageBox.Show($"{textStrings["msgbox_download_cache_1_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], ToBytesCount(gameCacheMetadata.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+                return;
+            DownloadCacheBox.Visibility = Visibility.Collapsed;
+            DownloadGameCache(true);
+        }
+
+        private void DownloadCacheBoxNumericFilesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(MessageBox.Show($"{textStrings["msgbox_download_cache_2_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], ToBytesCount(gameCacheMetadata.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+                return;
+            DownloadCacheBox.Visibility = Visibility.Collapsed;
+            DownloadGameCache(false);
+        }
+
+        private void DownloadCacheBoxCloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            DownloadCacheBox.Visibility = Visibility.Collapsed;
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
