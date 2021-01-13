@@ -13,7 +13,9 @@ namespace BetterHI3Launcher
             textStrings["bytes_per_second"] = "Б/с";
             textStrings["outdated"] = "Устарел";
             textStrings["button_download"] = "Загрузить";
+            textStrings["button_downloading"] = "Загрузка";
             textStrings["button_update"] = "Обновить";
+            textStrings["button_pause"] = "Приостановить";
             textStrings["button_launch"] = "Запустить";
             textStrings["button_options"] = "Опции";
             textStrings["button_resume"] = "Возобновить";
@@ -36,15 +38,17 @@ namespace BetterHI3Launcher
             textStrings["progresstext_checkingupdate"] = "Проверка на наличие обновления...";
             textStrings["progresstext_downloadsize"] = "Размер загрузки";
             textStrings["progresstext_downloaded"] = "Загружено {0}/{1} ({2})";
+            textStrings["progresstext_eta"] = "Расчётное время: {0}";
             textStrings["progresstext_unpacking_1"] = "Распаковка игровых файлов...";
             textStrings["progresstext_unpacking_2"] = "Распаковка игрового файла {0}/{1}";
             textStrings["progresstext_writinginfo"] = "Запись информации о версии...";
             textStrings["progresstext_uninstalling"] = "Удаление игры...";
-            textStrings["progresstext_mirrorconnect"] = "Подключение к зеркалу...";
+            textStrings["progresstext_mirror_connect"] = "Подключение к зеркалу...";
+            textStrings["progresstext_initiating_download"] = "Загрузка начинается...";
             textStrings["inputbox_customfps_title"] = "Введите максимальное значение FPS";
             textStrings["changelogbox_title"] = "История изменений";
             textStrings["changelogbox_msg"] = "Better HI3 Launcher только что стал ещё лучше. Вот что произошло:";
-            textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому его нужно загружать вручную с зеркала.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}.\nОтветственный за зеркало: {2}.";
+            textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому его нужно загружать вручную с зеркала.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}\nОтветственный за зеркало: {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Полный кэш";
             textStrings["downloadcachebox_button_numeric_files"] = "Числовые файлы";
             textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кэша.";
@@ -55,7 +59,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_neterror_title"] = "Сетевая ошибка";
             textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу";
             textStrings["msgbox_verifyerror_title"] = "Ошибка проверки целостности файла";
-            textStrings["msgbox_verifyerror_msg"] = "Произошла ошибка при загрузке, попробуйте снова.";
+            textStrings["msgbox_verifyerror_msg"] = "Произошла ошибка при загрузке, файл может быть повреждён.\nВсё равно продолжить?";
             textStrings["msgbox_starterror_title"] = "Ошибка запуска";
             textStrings["msgbox_starterror_msg"] = "Произошла ошибка запуска лаунчера:\n{0}";
             textStrings["msgbox_launcherdownloaderror_msg"] = "Произошла ошибка загрузки лаунчера:\n{0}";
@@ -112,7 +116,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_updatecheckerror_msg"] = "Произошла ошибка проверки обновления:\n{0}";
             textStrings["msgbox_updatecheckerror_title"] = "Ошибка проверки обновления";
             textStrings["msgbox_gamedownloadmirrorold_msg"] = "Похоже, что версия игры на серверах miHoYo новее той, что загружена на зеркало.\nЗагружать старую версию нет смысла, попросите автора загрузить новую версию на зеркало.";
-            textStrings["msgbox_gamedownloadpaused_msg"] = "Игра не была до конца загружена с предыдущего раза. Изменение сервера или зеркала приведёт к сбросу прогресса загрузки.\nПродолжить?";
+            textStrings["msgbox_gamedownloadpaused_msg"] = "Игра ещё не была загружена до конца. Изменение сервера или зеркала приведёт к сбросу прогресса загрузки.\nПродолжить?";
             textStrings["msgbox_gamedownloadmirrorerror_msg"] = "Произошла ошибка загрузки с зеркала.\n{0}";
             textStrings["msgbox_install_little_space_msg"] = "Свободного пространства на устройстве по данному пути очень мало, установка может завершиться неудачей.\nПродолжить?";
             textStrings["msgbox_install_wrong_drive_type_msg"] = "На данное устройство установить нельзя.";

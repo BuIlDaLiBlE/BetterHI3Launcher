@@ -13,7 +13,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +26,7 @@ namespace BetterHI3Launcher
 {
     enum LauncherStatus
     {
-        Ready, Error, CheckingUpdates, Downloading, Updating, Verifying, Unpacking, CleaningUp, UpdateAvailable, Uninstalling, Working
+        Ready, Error, CheckingUpdates, Downloading, Updating, Verifying, Unpacking, CleaningUp, UpdateAvailable, Uninstalling, Working, DownloadPaused
     }
     enum HI3Server
     {
@@ -40,125 +39,28 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        static readonly Version localLauncherVersion = new Version("1.0.20210113.0");
-        static readonly string rootPath = Directory.GetCurrentDirectory();
-        static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
-        static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
-        static readonly string miHoYoPath = Path.Combine(localLowPath, "miHoYo");
-        static readonly string gameExeName = "BH3.exe";
-        static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
-        static readonly string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
-        static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, launcherExeName, launcherPath, launcherArchivePath;
-        static string ChangelogLanguage = "en";
-        static string GameRegistryPath;
-        static string RegistryVersionInfo;
-        static bool DownloadPaused = false;
-        dynamic localVersionInfo, onlineVersionInfo, miHoYoVersionInfo, gameGraphicSettings, gameCacheMetadata, gameCacheMetadataNumeric;
+        public static readonly Version localLauncherVersion = new Version("1.0.20210113.0");
+        public static readonly string rootPath = Directory.GetCurrentDirectory();
+        public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
+        public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
+        public static readonly string miHoYoPath = Path.Combine(localLowPath, "miHoYo");
+        public static readonly string gameExeName = "BH3.exe";
+        public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
+        public static readonly string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
+        public static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, launcherExeName, launcherPath, launcherArchivePath;
+        public static string ChangelogLanguage = "en";
+        public static string GameRegistryPath;
+        public static string RegistryVersionInfo;
+        public static bool DownloadPaused = false;
+        public dynamic localVersionInfo, onlineVersionInfo, miHoYoVersionInfo, gameGraphicSettings, gameCacheMetadata, gameCacheMetadataNumeric;
         LauncherStatus _status;
         HI3Server _gameserver;
         HI3Mirror _downloadmirror;
-        static Dictionary<string, string> textStrings = new Dictionary<string, string>();
+        public static Dictionary<string, string> textStrings = new Dictionary<string, string>();
         RegistryKey versionInfoKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
         TimedWebClient webClient = new TimedWebClient{Encoding = Encoding.UTF8, Timeout = 10000};
         DownloadPauseable download;
         DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
-
-        #if DEBUG
-            // https://stackoverflow.com/a/48864902/7570821
-            static class WinConsole
-            {
-                static public void Initialize(bool alwaysCreateNewConsole = true)
-                {
-                    bool consoleAttached = true;
-                    if (alwaysCreateNewConsole
-                        || (AttachConsole(ATTACH_PARRENT) == 0
-                        && System.Runtime.InteropServices.Marshal.GetLastWin32Error() != ERROR_ACCESS_DENIED))
-                    {
-                        consoleAttached = AllocConsole() != 0;
-                    }
-
-                    if (consoleAttached)
-                    {
-                        InitializeOutStream();
-                        InitializeInStream();
-                    }
-                }
-
-                private static void InitializeOutStream()
-                {
-                    var fs = CreateFileStream("CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, FileAccess.Write);
-                    if (fs != null)
-                    {
-                        var writer = new StreamWriter(fs) { AutoFlush = true };
-                        Console.SetOut(writer);
-                        Console.SetError(writer);
-                    }
-                }
-
-                private static void InitializeInStream()
-                {
-                    var fs = CreateFileStream("CONIN$", GENERIC_READ, FILE_SHARE_READ, FileAccess.Read);
-                    if (fs != null)
-                    {
-                        Console.SetIn(new StreamReader(fs));
-                    }
-                }
-
-                private static FileStream CreateFileStream(string name, uint win32DesiredAccess, uint win32ShareMode, FileAccess dotNetFileAccess)
-                {
-                    var file = new Microsoft.Win32.SafeHandles.SafeFileHandle(CreateFileW(name, win32DesiredAccess, win32ShareMode, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero), true);
-                    if (!file.IsInvalid)
-                    {
-                        var fs = new FileStream(file, dotNetFileAccess);
-                        return fs;
-                    }
-                    return null;
-                }
-
-                #region Win API Functions and Constants
-                [System.Runtime.InteropServices.DllImport("kernel32.dll",
-                    EntryPoint = "AllocConsole",
-                    SetLastError = true,
-                    CharSet = System.Runtime.InteropServices.CharSet.Auto,
-                    CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
-                private static extern int AllocConsole();
-
-                [System.Runtime.InteropServices.DllImport("kernel32.dll",
-                    EntryPoint = "AttachConsole",
-                    SetLastError = true,
-                    CharSet = System.Runtime.InteropServices.CharSet.Auto,
-                    CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
-                private static extern UInt32 AttachConsole(UInt32 dwProcessId);
-
-                [System.Runtime.InteropServices.DllImport("kernel32.dll",
-                    EntryPoint = "CreateFileW",
-                    SetLastError = true,
-                    CharSet = System.Runtime.InteropServices.CharSet.Auto,
-                    CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
-                private static extern IntPtr CreateFileW
-                (
-                      string lpFileName,
-                      UInt32 dwDesiredAccess,
-                      UInt32 dwShareMode,
-                      IntPtr lpSecurityAttributes,
-                      UInt32 dwCreationDisposition,
-                      UInt32 dwFlagsAndAttributes,
-                      IntPtr hTemplateFile
-                );
-
-                private const UInt32 GENERIC_WRITE = 0x40000000;
-                private const UInt32 GENERIC_READ = 0x80000000;
-                private const UInt32 FILE_SHARE_READ = 0x00000001;
-                private const UInt32 FILE_SHARE_WRITE = 0x00000002;
-                private const UInt32 OPEN_EXISTING = 0x00000003;
-                private const UInt32 FILE_ATTRIBUTE_NORMAL = 0x80;
-                private const UInt32 ERROR_ACCESS_DENIED = 5;
-
-                private const UInt32 ATTACH_PARRENT = 0xFFFFFFFF;
-
-                #endregion
-            }
-        #endif
 
         internal LauncherStatus Status
         {
@@ -185,6 +87,7 @@ namespace BetterHI3Launcher
                     switch(_status)
                     {
                         case LauncherStatus.Ready:
+                        case LauncherStatus.DownloadPaused:
                             ProgressText.Text = String.Empty;
                             ToggleUI(true);
                             ToggleProgressBar(Visibility.Hidden);
@@ -201,18 +104,25 @@ namespace BetterHI3Launcher
                             ToggleProgressBar(Visibility.Visible);
                             break;
                         case LauncherStatus.Downloading:
-                        case LauncherStatus.Updating:
+                            LaunchButton.Content = textStrings["button_downloading"];
+                            ProgressText.Text = textStrings["progresstext_initiating_download"];
+                            ToggleUI(false);
+                            ToggleProgressBar(Visibility.Visible);
+                            ProgressBar.IsIndeterminate = false;
+                            break;
                         case LauncherStatus.Working:
                             ToggleUI(false);
                             ToggleProgressBar(Visibility.Visible);
                             break;
                         case LauncherStatus.Verifying:
                             ProgressText.Text = textStrings["progresstext_verifying"];
+                            ToggleUI(false);
                             ToggleProgressBar(Visibility.Visible);
                             break;
                         case LauncherStatus.Unpacking:
                             ProgressText.Text = textStrings["progresstext_unpacking_1"];
                             ToggleProgressBar(Visibility.Visible);
+                            ProgressBar.IsIndeterminate = false;
                             break;
                         case LauncherStatus.CleaningUp:
                             ProgressText.Text = textStrings["progresstext_cleaningup"];
@@ -267,7 +177,7 @@ namespace BetterHI3Launcher
             InitializeComponent();
             Log($"BetterHI3Launcher v{localLauncherVersion}");
             Log($"Launcher exe name: {Process.GetCurrentProcess().MainModule.ModuleName}");
-            Log($"Launcher exe MD5: {CalculateMD5(Path.Combine(rootPath, Process.GetCurrentProcess().MainModule.ModuleName))}");
+            Log($"Launcher exe MD5: {BpUtility.CalculateMD5(Path.Combine(rootPath, Process.GetCurrentProcess().MainModule.ModuleName))}");
             Log($"Working directory: {rootPath}");
             Log($"OS language: {OSLanguage}");
             TextStrings_English();
@@ -292,6 +202,7 @@ namespace BetterHI3Launcher
             DownloadCacheBoxTitleTextBlock.Text = textStrings["contextmenu_downloadcache"];
             DownloadCacheBoxFullCacheButton.Content = textStrings["downloadcachebox_button_full_cache"];
             DownloadCacheBoxNumericFilesButton.Content = textStrings["downloadcachebox_button_numeric_files"];
+            DownloadCacheBoxCancelButton.Content = textStrings["button_cancel"];
             ShowLogLabel.Text = textStrings["label_log"];
 
             Grid.MouseLeftButtonDown += delegate{DragMove();};
@@ -337,7 +248,7 @@ namespace BetterHI3Launcher
                 {
                     Log("There's a newer version of the launcher, attempting to download...");
                     DownloadLauncherUpdate();
-                    if(CalculateMD5(launcherArchivePath) != onlineVersionInfo.launcher_info.md5.ToString().ToUpper())
+                    if(BpUtility.CalculateMD5(launcherArchivePath) != onlineVersionInfo.launcher_info.md5.ToString().ToUpper())
                     {
                         Status = LauncherStatus.Error;
                         if(File.Exists(launcherArchivePath))
@@ -665,7 +576,7 @@ namespace BetterHI3Launcher
                     else
                         message = ex.Message;
                     Log($"ERROR: Failed to fetch Google Drive file metadata:\n{message}");
-                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                    Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                     Status = LauncherStatus.Ready;
                 }
                 return null;
@@ -714,7 +625,7 @@ namespace BetterHI3Launcher
                 {
                     string message = ex.Message;
                     Log($"ERROR: Failed to fetch MediaFire file metadata:\n{message}");
-                    MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                    Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                     Status = LauncherStatus.Ready;
                 }
                 return null;
@@ -791,7 +702,7 @@ namespace BetterHI3Launcher
                             Dispatcher.Invoke(() =>
                             {
                                 LaunchButton.Content = textStrings["button_update"];
-                                ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {ToBytesCount(download_size)}";
+                                ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(download_size)}";
                             });
                         }
                         else
@@ -816,7 +727,7 @@ namespace BetterHI3Launcher
                                 else
                                 {
                                     LaunchButton.Content = textStrings["button_resume"];
-                                    ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {ToBytesCount(remaining_size)}";
+                                    ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(remaining_size)}";
                                 }
                             });
                         }
@@ -830,7 +741,7 @@ namespace BetterHI3Launcher
                         Dispatcher.Invoke(() =>
                         {
                             LaunchButton.Content = textStrings["button_download"];
-                            ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {ToBytesCount(download_size)}";
+                            ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(download_size)}";
                             var path = CheckForExistingGameDirectory(rootPath);
                             if(!String.IsNullOrEmpty(path))
                             {
@@ -919,18 +830,15 @@ namespace BetterHI3Launcher
             }
         }
 
-        private async Task DownloadGameFile(bool IsUpdate)
+        private async Task DownloadGameFile()
         {
             try
             {
-                if(IsUpdate)
-                    Status = LauncherStatus.Updating;
-                else
-                    Status = LauncherStatus.Downloading;
+                Status = LauncherStatus.Downloading;
 
                 string download_url;
                 string md5;
-                bool useGDDownloader = false;
+                bool abort = false;
                 if(Mirror == HI3Mirror.miHoYo)
                 {
                     download_url = $"{miHoYoVersionInfo.download_url.ToString()}/{gameArchiveName}";
@@ -1008,74 +916,75 @@ namespace BetterHI3Launcher
                 }
 
                 Log($"Starting to download game archive {gameArchiveName}");
-                Dispatcher.Invoke(() => {ProgressBar.IsIndeterminate = false;});
+                Dispatcher.Invoke(() =>
+                {
+                    LaunchButton.IsEnabled = true;
+                    LaunchButton.Content = textStrings["button_pause"];
+                });
                 await Task.Run(() =>
                 {
                     tracker.NewFile();
-                    if(Mirror == HI3Mirror.miHoYo || Mirror == HI3Mirror.MediaFire || (Mirror == HI3Mirror.GoogleDrive && !useGDDownloader))
+                    var eta_calc = new ETACalculator(1, 1);
+                    download = new DownloadPauseable(download_url, gameArchivePath);
+                    download.Start();
+                    while(download != null && !download.Done)
                     {
-                        download = new DownloadPauseable(download_url, gameArchivePath);
-                        download.Start();
-                        while(!download.Done)
+                        if(DownloadPaused)
+                            continue;
+                        tracker.SetProgress(download.BytesWritten, download.ContentLength);
+                        eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+                        Dispatcher.Invoke(() =>
                         {
-                            tracker.SetProgress(download.BytesWritten, download.ContentLength);
-                            Dispatcher.Invoke(() =>
-                            {
-                                ProgressBar.Value = tracker.GetProgress() * 100;
-                                ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(download.BytesWritten), ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString());
-                            });
-                            Thread.Sleep(100);
-                        }
-                        download = null;
+                            ProgressBar.Value = tracker.GetProgress() * 100;
+                            ProgressText.Text = $"{string.Format(textStrings["progresstext_downloaded"], BpUtility.ToBytesCount(download.BytesWritten), BpUtility.ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString())}\n{string.Format(textStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"))}";
+                        });
+                        Thread.Sleep(100);
                     }
-                    else if(Mirror == HI3Mirror.GoogleDrive && useGDDownloader)
+                    if(download == null)
                     {
-                        string gd_id;
-                        if(Server == HI3Server.Global)
-                            gd_id = onlineVersionInfo.game_info.mirror.gd.game_archive.global.ToString();
-                        else
-                            gd_id = onlineVersionInfo.game_info.mirror.gd.game_archive.os.ToString();
-                        var download = new GoogleDriveFileDownloader();
-                        download.DownloadProgressChanged += (sender, e) =>
-                        {
-                            tracker.SetProgress(e.BytesReceived, e.TotalBytesToReceive);
-                            Dispatcher.Invoke(() =>
-                            {
-                                ProgressBar.Value = tracker.GetProgress() * 100;
-                                ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(e.BytesReceived), ToBytesCount(e.TotalBytesToReceive), tracker.GetBytesPerSecondString());
-                            });
-                        };
-                        download.DownloadFile($"https://drive.google.com/uc?id={gd_id}", gameArchivePath);
-                        while(tracker.GetProgress() != 1)
-                        {
-                            Thread.Sleep(100);
-                        }
+                        abort = true;
+                        return;
                     }
+                    download = null;
+                    Log("Game archive download OK");
+                    while(BpUtility.IsFileLocked(new FileInfo(gameArchivePath)))
+                        Thread.Sleep(10);
+                    Dispatcher.Invoke(() =>
+                    {
+                        ProgressText.Text = String.Empty;
+                        LaunchButton.Content = textStrings["button_launch"];
+                    });
                 });
-                Log("Game archive download OK");
-                while(IsFileLocked(new FileInfo(gameArchivePath)))
-                    Thread.Sleep(10);
-                Dispatcher.Invoke(() => {ProgressText.Text = String.Empty;});
                 try
                 {
-                    Log("Validating game archive");
+                    if(abort)
+                        return;
                     await Task.Run(() =>
                     {
+                        Log("Validating game archive");
                         Status = LauncherStatus.Verifying;
-                        if(CalculateMD5(gameArchivePath) != md5.ToUpper())
+                        var actual_md5 = BpUtility.CalculateMD5(gameArchivePath);
+                        if(actual_md5 != md5.ToUpper())
                         {
                             Status = LauncherStatus.Error;
-                            Log("ERROR: Validation failed. MD5 checksum is incorrect!");
+                            Log($"ERROR: Validation failed. Supposed MD5: {md5}, actual MD5: {actual_md5}");
                             Dispatcher.Invoke(() =>
                             {
-                                MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                                if(MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                                {
+                                    if(File.Exists(gameArchivePath))
+                                        File.Create(gameArchivePath).Dispose();
+                                    GameUpdateCheck(false);
+                                    abort = true;
+                                }
                             });
-                            if(File.Exists(gameArchivePath))
-                                File.Create(gameArchivePath).Dispose();
-                            GameUpdateCheck(false);
-                            return;
                         }
-                        Log("Validation OK");
+                        else
+                        {
+                            Log("Validation OK");
+                        }
+                        if(abort)
+                            return;
                         var skippedFiles = new List<string>();
                         using(var archive = ArchiveFactory.Open(gameArchivePath))
                         {
@@ -1084,7 +993,6 @@ namespace BetterHI3Launcher
 
                             Log("Unpacking game archive...");
                             Status = LauncherStatus.Unpacking;
-                            Dispatcher.Invoke(() =>{ProgressBar.IsIndeterminate = false;});
                             foreach(var entry in archive.Entries)
                             {
                                 if(!entry.IsDirectory)
@@ -1117,27 +1025,29 @@ namespace BetterHI3Launcher
                         }
                         if(skippedFiles.Count > 0)
                         {
-                            MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                            Dispatcher.Invoke(() => {MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);});
                         }
-                    });
-                    Log("Game archive unpack OK");
-                    File.Delete(gameArchivePath);
-                    Dispatcher.Invoke(() => 
-                    {
-                        WriteVersionInfo();
-                        Log("Game install OK");
-                        GameUpdateCheck(false);
+                        Log("Game archive unpack OK");
+                        File.Delete(gameArchivePath);
+                        Dispatcher.Invoke(() => 
+                        {
+                            WriteVersionInfo();
+                            Log("Game install OK");
+                            GameUpdateCheck(false);
+                        });
                     });
                 }
                 catch(Exception ex)
                 {
                     Status = LauncherStatus.Error;
                     Log($"ERROR: Failed to install the game:\n{ex}");
-                    if(MessageBox.Show(string.Format(textStrings["msgbox_installerror_msg"], ex), textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    Dispatcher.Invoke(() =>
                     {
-                        Status = LauncherStatus.Ready;
-                        return;
-                    }
+                        if(MessageBox.Show(string.Format(textStrings["msgbox_installerror_msg"], ex), textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                        {
+                            Status = LauncherStatus.Ready;
+                        }
+                    });
                 }
             }
             catch(Exception ex)
@@ -1195,7 +1105,7 @@ namespace BetterHI3Launcher
                 if(Directory.Exists(gameInstallPath))
                     Directory.Delete(gameInstallPath, true);
             }
-            versionInfoKey.DeleteValue(RegistryVersionInfo);
+            try{versionInfoKey.DeleteValue(RegistryVersionInfo);}catch{}
             LaunchButton.Content = textStrings["button_download"];
         }
 
@@ -1206,6 +1116,7 @@ namespace BetterHI3Launcher
                 string title;
                 string download_url;
                 string md5;
+                bool abort = false;
                 if(FullCache)
                 {
                     title = gameCacheMetadata.title.ToString();
@@ -1227,7 +1138,7 @@ namespace BetterHI3Launcher
                     Dispatcher.Invoke(() => {MessageBox.Show(textStrings["msgbox_install_wrong_drive_type_msg"], textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                     return;
                 }
-                else if(gameInstallDrive.TotalFreeSpace < 1073741824)
+                else if(gameInstallDrive.TotalFreeSpace < 2147483648)
                 {
                     Dispatcher.Invoke(() =>
                     {
@@ -1253,45 +1164,57 @@ namespace BetterHI3Launcher
 
                 Log($"Starting to download game cache {title}");
                 Status = LauncherStatus.Downloading;
-                Dispatcher.Invoke(() => {ProgressBar.IsIndeterminate = false;});
                 await Task.Run(() =>
                 {
                     tracker.NewFile();
+                    var eta_calc = new ETACalculator(1, 1);
                     var download = new DownloadPauseable(download_url, cacheArchivePath);
                     download.Start();
                     while(!download.Done)
                     {
                         tracker.SetProgress(download.BytesWritten, download.ContentLength);
+                        eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
                         Dispatcher.Invoke(() =>
                         {
                             ProgressBar.Value = tracker.GetProgress() * 100;
-                            ProgressText.Text = string.Format(textStrings["progresstext_downloaded"], ToBytesCount(download.BytesWritten), ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString());
+                            ProgressText.Text = $"{string.Format(textStrings["progresstext_downloaded"], BpUtility.ToBytesCount(download.BytesWritten), BpUtility.ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString())}\n{string.Format(textStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"))}";
                         });
                         Thread.Sleep(100);
                     }
                 });
                 Log("Game cache download OK");
-                while(IsFileLocked(new FileInfo(cacheArchivePath)))
+                while(BpUtility.IsFileLocked(new FileInfo(cacheArchivePath)))
                     Thread.Sleep(10);
                 Dispatcher.Invoke(() => {ProgressText.Text = String.Empty;});
                 try
                 {
-                    Log("Validating game cache");
+                    if(abort)
+                        return;
                     await Task.Run(() =>
                     {
+                        Log("Validating game cache");
                         Status = LauncherStatus.Verifying;
-                        Dispatcher.Invoke(() => {ProgressBar.IsIndeterminate = false;});
-                        if(CalculateMD5(cacheArchivePath) != md5.ToUpper())
+                        var actual_md5 = BpUtility.CalculateMD5(cacheArchivePath);
+                        if(actual_md5 != md5.ToUpper())
                         {
                             Status = LauncherStatus.Error;
-                            Log("ERROR: Validation failed. MD5 checksum is incorrect!");
-                            Dispatcher.Invoke(() => {MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
-                            if(File.Exists(cacheArchivePath))
-                                File.Delete(cacheArchivePath);
-                            return;
+                            Log($"ERROR: Validation failed. Supposed MD5: {md5}, actual MD5: {actual_md5}");
+                            Dispatcher.Invoke(() =>
+                            {
+                                if(MessageBox.Show(textStrings["msgbox_verifyerror_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                                {
+                                    if(File.Exists(cacheArchivePath))
+                                        File.Delete(cacheArchivePath);
+                                    abort = true;
+                                }
+                            });
                         }
-
-                        Log("Validation OK");
+                        else
+                        {
+                            Log("Validation OK");
+                        }
+                        if(abort)
+                            return;
                         var skippedFiles = new List<string>();
                         using(var archive = ArchiveFactory.Open(cacheArchivePath))
                         {
@@ -1340,6 +1263,7 @@ namespace BetterHI3Launcher
                         }
                         Log("Game cache unpack OK");
                         File.Delete(cacheArchivePath);
+                        Dispatcher.Invoke(() => {LaunchButton.Content = textStrings["button_launch"];});
                     });
                     Status = LauncherStatus.Ready;
                 }
@@ -1407,7 +1331,7 @@ namespace BetterHI3Launcher
                 if(DownloadPaused)
                 {
                     DownloadPaused = false;
-                    await DownloadGameFile(false);
+                    await DownloadGameFile();
                     return;
                 }
 
@@ -1525,7 +1449,7 @@ namespace BetterHI3Launcher
                             MessageBox.Show(textStrings["msgbox_install_wrong_drive_type_msg"], textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
-                        else if(gameInstallDrive.TotalFreeSpace < 12884901888)
+                        else if(gameInstallDrive.TotalFreeSpace < 24696061952)
                         {
                             if(MessageBox.Show(textStrings["msgbox_install_little_space_msg"], textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                                 return;
@@ -1537,7 +1461,7 @@ namespace BetterHI3Launcher
                         gameArchivePath = Path.Combine(gameInstallPath, gameArchiveName);
                         gameExePath = Path.Combine(gameInstallPath, "BH3.exe");
                         Log($"Install dir selected: {gameInstallPath}");
-                        await DownloadGameFile(false);
+                        await DownloadGameFile();
                     }
                     catch(Exception ex)
                     {
@@ -1551,7 +1475,25 @@ namespace BetterHI3Launcher
             }
             else if(Status == LauncherStatus.UpdateAvailable)
             {
-                await DownloadGameFile(true);
+                await DownloadGameFile();
+            }
+            else if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
+            {
+                if(!DownloadPaused)
+                {
+                    download.Pause();
+                    Status = LauncherStatus.DownloadPaused;
+                    DownloadPaused = true;
+                    LaunchButton.Content = textStrings["button_resume"];
+                }
+                else
+                {
+                    Status = LauncherStatus.Downloading;
+                    DownloadPaused = false;
+                    LaunchButton.IsEnabled = true;
+                    LaunchButton.Content = textStrings["button_pause"];
+                    await download.Start();
+                }
             }
         }
 
@@ -1567,7 +1509,7 @@ namespace BetterHI3Launcher
                 return;
 
             Status = LauncherStatus.CheckingUpdates;
-            Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_mirrorconnect"];});
+            Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_mirror_connect"];});
             Log("Fetching mirror metadata...");
             
             try
@@ -1620,15 +1562,15 @@ namespace BetterHI3Launcher
             {
                 DownloadCacheBox.Visibility = Visibility.Visible;
                 if(Mirror == HI3Mirror.MediaFire)
-                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], ((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string, textStrings["shrug"], onlineVersionInfo.game_info.mirror.maintainer.ToString());
+                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], "MediaFire", textStrings["shrug"], onlineVersionInfo.game_info.mirror.maintainer.ToString());
                 else
                 {
                     string time;
-                    if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()) >= 0))
+                    if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString())) >= 0)
                         time = $"{DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime()} ({textStrings["outdated"].ToLower()})";
                     else
                         time = DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime();
-                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], ((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string, time, onlineVersionInfo.game_info.mirror.maintainer.ToString());
+                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], "Google Drive", time, onlineVersionInfo.game_info.mirror.maintainer.ToString());
                 }
                 Status = LauncherStatus.Ready;
             });
@@ -1983,6 +1925,9 @@ namespace BetterHI3Launcher
                     ServerDropdown.SelectedIndex = (int)Server;
                     return;
                 }
+                if(File.Exists(gameArchivePath))
+                    File.Delete(gameArchivePath);
+                download = null;
                 DownloadPaused = false;
                 DeleteGameFiles(false);
             }
@@ -2019,6 +1964,10 @@ namespace BetterHI3Launcher
                     MirrorDropdown.SelectedIndex = (int)Mirror;
                     return;
                 }
+                if(File.Exists(gameArchivePath))
+                    File.Delete(gameArchivePath);
+                download = null;
+                DownloadPaused = false;
                 DeleteGameFiles(false);
             }
             if(Mirror == HI3Mirror.miHoYo && index != 0)
@@ -2170,7 +2119,7 @@ namespace BetterHI3Launcher
         }
         private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
         {
-            if(MessageBox.Show($"{textStrings["msgbox_download_cache_1_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], ToBytesCount(gameCacheMetadata.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+            if(MessageBox.Show($"{textStrings["msgbox_download_cache_1_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)gameCacheMetadata.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
             DownloadCacheBox.Visibility = Visibility.Collapsed;
             DownloadGameCache(true);
@@ -2178,7 +2127,7 @@ namespace BetterHI3Launcher
 
         private void DownloadCacheBoxNumericFilesButton_Click(object sender, RoutedEventArgs e)
         {
-            if(MessageBox.Show($"{textStrings["msgbox_download_cache_2_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], ToBytesCount(gameCacheMetadataNumeric.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+            if(MessageBox.Show($"{textStrings["msgbox_download_cache_2_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)gameCacheMetadataNumeric.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
             DownloadCacheBox.Visibility = Visibility.Collapsed;
             DownloadGameCache(false);
@@ -2191,7 +2140,7 @@ namespace BetterHI3Launcher
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if(Status == LauncherStatus.Downloading || Status == LauncherStatus.Updating)
+            if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
             {
                 try
                 {
@@ -2297,59 +2246,7 @@ namespace BetterHI3Launcher
             }
         }
 
-        // https://stackoverflow.com/a/10520086/7570821
-        private static string CalculateMD5(string filename)
-        {
-            using(var md5 = MD5.Create())
-            {
-                using(var stream = File.OpenRead(filename))
-                {
-                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", String.Empty);
-                }
-            }
-        }
-
-        private void Log(string msg)
-        {
-            #if DEBUG
-                Console.WriteLine(msg);
-            #endif
-            Dispatcher.Invoke(() =>
-            {
-                LogBoxTextBox.AppendText(msg + Environment.NewLine);
-                LogBoxScrollViewer.ScrollToEnd();
-            });
-        }
-
-        // https://stackoverflow.com/a/49535675/7570821
-        private static string ToBytesCount(long bytes)
-        {
-            int unit = 1024;
-            string unitStr = textStrings["binary_prefix_byte"];
-            if(bytes < unit) return string.Format("{0} {1}", bytes, unitStr);
-            else unitStr = unitStr.ToUpper();
-            int exp = (int)(Math.Log(bytes) / Math.Log(unit));
-            return string.Format("{0:##.##} {1}{2}", bytes / Math.Pow(unit, exp), textStrings["binary_prefixes"][exp - 1], unitStr);
-        }
-
-        private static bool IsFileLocked(FileInfo file)
-        {
-            try
-            {
-                using(FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    stream.Close();
-                }
-            }
-            catch(IOException)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        struct Version
+        public struct Version
         {
             internal static Version zero = new Version(0, 0, 0, 0);
 
@@ -2407,7 +2304,7 @@ namespace BetterHI3Launcher
             }
         }
 
-        struct GameVersion
+        public struct GameVersion
         {
             internal static GameVersion zero = new GameVersion(0, 0, 0, String.Empty);
 
@@ -2467,544 +2364,16 @@ namespace BetterHI3Launcher
             }
         }
 
-        // https://stackoverflow.com/a/42725580/7570821
-        public class DownloadProgressTracker
+        public void Log(string msg)
         {
-            private long _totalFileSize;
-            private readonly int _sampleSize;
-            private readonly TimeSpan _valueDelay;
-
-            private DateTime _lastUpdateCalculated;
-            private long _previousProgress;
-
-            private double _cachedSpeed;
-
-            private Queue<Tuple<DateTime, long>> _changes = new Queue<Tuple<DateTime, long>>();
-
-            public DownloadProgressTracker(int sampleSize, TimeSpan valueDelay)
+            #if DEBUG
+                Console.WriteLine(msg);
+            #endif
+            Dispatcher.Invoke(() =>
             {
-                _lastUpdateCalculated = DateTime.Now;
-                _sampleSize = sampleSize;
-                _valueDelay = valueDelay;
-            }
-
-            public void NewFile()
-            {
-                _previousProgress = 0;
-            }
-
-            public void SetProgress(long bytesReceived, long totalBytesToReceive)
-            {
-                _totalFileSize = totalBytesToReceive;
-
-                long diff = bytesReceived - _previousProgress;
-                if(diff <= 0)
-                    return;
-
-                _previousProgress = bytesReceived;
-
-                _changes.Enqueue(new Tuple<DateTime, long>(DateTime.Now, diff));
-                while(_changes.Count > _sampleSize)
-                    _changes.Dequeue();
-            }
-
-            public double GetProgress()
-            {
-                return _previousProgress / (double) _totalFileSize;
-            }
-
-            public string GetProgressString()
-            {
-                return string.Format("{0:P0}", GetProgress());
-            }
-
-            public string GetBytesPerSecondString()
-            {
-                double speed = GetBytesPerSecond();
-                string[] prefix;
-                switch(OSLanguage)
-                {
-                    case "ru-RU":
-                    case "uk-UA":
-                    case "be-BY":
-                        prefix = new[]{"", "К", "М", "Г"};
-                        break;
-                    default:
-                        prefix = new[]{"", "K", "M", "G"};
-                        break;
-                }
-
-                int index = 0;
-                while(speed > 1024 && index < prefix.Length - 1)
-                {
-                    speed /= 1024;
-                    index++;
-                }
-
-                int intLen = ((int) speed).ToString().Length;
-                int decimals = 3 - intLen;
-                if(decimals < 0)
-                    decimals = 0;
-
-                string format = string.Format("{{0:F{0}}}", decimals) + " {1}" + textStrings["bytes_per_second"];
-
-                return string.Format(format, speed, prefix[index]);
-            }
-
-            public double GetBytesPerSecond()
-            {
-                if(DateTime.Now >= _lastUpdateCalculated + _valueDelay)
-                {
-                    _lastUpdateCalculated = DateTime.Now;
-                    _cachedSpeed = GetRateInternal();
-                }
-
-                return _cachedSpeed;
-            }
-
-            private double GetRateInternal()
-            {
-                if(_changes.Count == 0)
-                    return 0;
-
-                TimeSpan timespan = _changes.Last().Item1 - _changes.First().Item1;
-                long bytes = _changes.Sum(t => t.Item2);
-
-                double rate = bytes / timespan.TotalSeconds;
-
-                if(double.IsInfinity(rate) || double.IsNaN(rate))
-                    return 0;
-
-                return rate;
-            }
-        }
-
-        // https://gist.github.com/yasirkula/d0ec0c07b138748e5feaecbd93b6223c
-        public class GoogleDriveFileDownloader : IDisposable
-        {
-            private const string GOOGLE_DRIVE_DOMAIN = "drive.google.com";
-            private const string GOOGLE_DRIVE_DOMAIN2 = "https://drive.google.com";
-
-            // In the worst case, it is necessary to send 3 download requests to the Drive address
-            //   1. an NID cookie is returned instead of a download_warning cookie
-            //   2. download_warning cookie returned
-            //   3. the actual file is downloaded
-            private const int GOOGLE_DRIVE_MAX_DOWNLOAD_ATTEMPT = 3;
-
-            public delegate void DownloadProgressChangedEventHandler(object sender, DownloadProgress progress);
-
-            // Custom download progress reporting (needed for Google Drive)
-            public class DownloadProgress
-            {
-                public long BytesReceived, TotalBytesToReceive;
-                public object UserState;
-
-                public int ProgressPercentage
-                {
-                    get
-                    {
-                        if(TotalBytesToReceive > 0L)
-                            return (int)(((double)BytesReceived / TotalBytesToReceive) * 100);
-
-                        return 0;
-                    }
-                }
-            }
-
-            // Web client that preserves cookies (needed for Google Drive)
-            private class CookieAwareWebClient : WebClient
-            {
-                private class CookieContainer
-                {
-                    private readonly Dictionary<string, string> cookies = new Dictionary<string, string>();
-
-                    public string this[Uri address]
-                    {
-                        get
-                        {
-                            string cookie;
-                            if(cookies.TryGetValue(address.Host, out cookie))
-                                return cookie;
-
-                            return null;
-                        }
-                        set
-                        {
-                            cookies[address.Host] = value;
-                        }
-                    }
-                }
-
-                private readonly CookieContainer cookies = new CookieContainer();
-                public DownloadProgress ContentRangeTarget;
-
-                protected override WebRequest GetWebRequest(Uri address)
-                {
-                    WebRequest request = base.GetWebRequest(address);
-                    if(request is HttpWebRequest)
-                    {
-                        string cookie = cookies[address];
-                        if(cookie != null)
-                            ((HttpWebRequest)request).Headers.Set("cookie", cookie);
-
-                        if(ContentRangeTarget != null)
-                            ((HttpWebRequest)request).AddRange(0);
-                    }
-
-                    return request;
-                }
-
-                protected override WebResponse GetWebResponse(WebRequest request, IAsyncResult result)
-                {
-                    return ProcessResponse(base.GetWebResponse(request, result));
-                }
-
-                protected override WebResponse GetWebResponse(WebRequest request)
-                {
-                    return ProcessResponse(base.GetWebResponse(request));
-                }
-
-                private WebResponse ProcessResponse(WebResponse response)
-                {
-                    string[] cookies = response.Headers.GetValues("Set-Cookie");
-                    if(cookies != null && cookies.Length > 0)
-                    {
-                        int length = 0;
-                        for(int i = 0; i < cookies.Length; i++)
-                            length += cookies[i].Length;
-
-                        StringBuilder cookie = new StringBuilder(length);
-                        for(int i = 0; i < cookies.Length; i++)
-                            cookie.Append(cookies[i]);
-
-                        this.cookies[response.ResponseUri] = cookie.ToString();
-                    }
-
-                    if(ContentRangeTarget != null)
-                    {
-                        string[] rangeLengthHeader = response.Headers.GetValues("Content-Range");
-                        if(rangeLengthHeader != null && rangeLengthHeader.Length > 0)
-                        {
-                            int splitIndex = rangeLengthHeader[0].LastIndexOf('/');
-                            if(splitIndex >= 0 && splitIndex < rangeLengthHeader[0].Length - 1)
-                            {
-                                long length;
-                                if(long.TryParse(rangeLengthHeader[0].Substring(splitIndex + 1), out length))
-                                    ContentRangeTarget.TotalBytesToReceive = length;
-                            }
-                        }
-                    }
-
-                    return response;
-                }
-            }
-
-            private readonly CookieAwareWebClient webClient;
-            private readonly DownloadProgress downloadProgress;
-
-            private Uri downloadAddress;
-            private string downloadPath;
-
-            private bool asyncDownload;
-            private object userToken;
-
-            private bool downloadingDriveFile;
-            private int driveDownloadAttempt;
-
-            public event DownloadProgressChangedEventHandler DownloadProgressChanged;
-            public event AsyncCompletedEventHandler DownloadFileCompleted;
-
-            public GoogleDriveFileDownloader()
-            {
-                webClient = new CookieAwareWebClient();
-                webClient.Headers.Add(HttpRequestHeader.UserAgent, userAgent);
-                webClient.DownloadProgressChanged += DownloadProgressChangedCallback;
-                webClient.DownloadFileCompleted += DownloadFileCompletedCallback;
-
-                downloadProgress = new DownloadProgress();
-            }
-
-            public void DownloadFile(string address, string fileName)
-            {
-                DownloadFile(address, fileName, false, null);
-            }
-
-            public void DownloadFileAsync(string address, string fileName, object userToken = null)
-            {
-                DownloadFile(address, fileName, true, userToken);
-            }
-
-            private void DownloadFile(string address, string fileName, bool asyncDownload, object userToken)
-            {
-                downloadingDriveFile = address.StartsWith(GOOGLE_DRIVE_DOMAIN) || address.StartsWith(GOOGLE_DRIVE_DOMAIN2);
-                if(downloadingDriveFile)
-                {
-                    address = GetGoogleDriveDownloadAddress(address);
-                    driveDownloadAttempt = 1;
-
-                    webClient.ContentRangeTarget = downloadProgress;
-                }
-                else
-                    webClient.ContentRangeTarget = null;
-
-                downloadAddress = new Uri(address);
-                downloadPath = fileName;
-
-                downloadProgress.TotalBytesToReceive = -1L;
-                downloadProgress.UserState = userToken;
-
-                this.asyncDownload = asyncDownload;
-                this.userToken = userToken;
-
-                DownloadFileInternal();
-            }
-
-            private void DownloadFileInternal()
-            {
-                if(!asyncDownload)
-                {
-                    webClient.DownloadFile(downloadAddress, downloadPath);
-
-                    // This callback isn't triggered for synchronous downloads, manually trigger it
-                    DownloadFileCompletedCallback(webClient, new AsyncCompletedEventArgs(null, false, null));
-                }
-                else if(userToken == null)
-                    webClient.DownloadFileAsync(downloadAddress, downloadPath);
-                else
-                    webClient.DownloadFileAsync(downloadAddress, downloadPath, userToken);
-            }
-
-            private void DownloadProgressChangedCallback(object sender, DownloadProgressChangedEventArgs e)
-            {
-                if(DownloadProgressChanged != null)
-                {
-                    downloadProgress.BytesReceived = e.BytesReceived;
-                    if(e.TotalBytesToReceive > 0L)
-                        downloadProgress.TotalBytesToReceive = e.TotalBytesToReceive;
-
-                    DownloadProgressChanged(this, downloadProgress);
-                }
-            }
-
-            private void DownloadFileCompletedCallback(object sender, AsyncCompletedEventArgs e)
-            {
-                if(!downloadingDriveFile)
-                {
-                    if(DownloadFileCompleted != null)
-                        DownloadFileCompleted(this, e);
-                }
-                else
-                {
-                    if(driveDownloadAttempt < GOOGLE_DRIVE_MAX_DOWNLOAD_ATTEMPT && !ProcessDriveDownload())
-                    {
-                        // Try downloading the Drive file again
-                        driveDownloadAttempt++;
-                        DownloadFileInternal();
-                    }
-                    else if(DownloadFileCompleted != null)
-                        DownloadFileCompleted(this, e);
-                }
-            }
-
-            // Downloading large files from Google Drive prompts a warning screen and requires manual confirmation
-            // Consider that case and try to confirm the download automatically if warning prompt occurs
-            // Returns true, if no more download requests are necessary
-            private bool ProcessDriveDownload()
-            {
-                FileInfo downloadedFile = new FileInfo(downloadPath);
-                if(downloadedFile == null)
-                    return true;
-
-                // Confirmation page is around 50KB, shouldn't be larger than 60KB
-                if(downloadedFile.Length > 60000L)
-                    return true;
-
-                // Downloaded file might be the confirmation page, check it
-                string content;
-                using(var reader = downloadedFile.OpenText())
-                {
-                    // Confirmation page starts with <!DOCTYPE html>, which can be preceeded by a newline
-                    char[] header = new char[20];
-                    int readCount = reader.ReadBlock(header, 0, 20);
-                    if(readCount < 20 || !(new string(header).Contains("<!DOCTYPE html>")))
-                        return true;
-
-                    content = reader.ReadToEnd();
-                }
-
-                int linkIndex = content.LastIndexOf("href=\"/uc?");
-                if(linkIndex < 0)
-                    return true;
-
-                linkIndex += 6;
-                int linkEnd = content.IndexOf('"', linkIndex);
-                if(linkEnd < 0)
-                    return true;
-
-                downloadAddress = new Uri("https://drive.google.com" + content.Substring(linkIndex, linkEnd - linkIndex).Replace("&amp;", "&"));
-                return false;
-            }
-
-            // Handles the following formats (links can be preceeded by https://):
-            // - drive.google.com/open?id=FILEID
-            // - drive.google.com/file/d/FILEID/view?usp=sharing
-            // - drive.google.com/uc?id=FILEID&export=download
-            private string GetGoogleDriveDownloadAddress(string address)
-            {
-                int index = address.IndexOf("id=");
-                int closingIndex;
-                if(index > 0)
-                {
-                    index += 3;
-                    closingIndex = address.IndexOf('&', index);
-                    if(closingIndex < 0)
-                        closingIndex = address.Length;
-                }
-                else
-                {
-                    index = address.IndexOf("file/d/");
-                    if(index < 0) // address is not in any of the supported forms
-                        return string.Empty;
-
-                    index += 7;
-
-                    closingIndex = address.IndexOf('/', index);
-                    if(closingIndex < 0)
-                    {
-                        closingIndex = address.IndexOf('?', index);
-                        if(closingIndex < 0)
-                            closingIndex = address.Length;
-                    }
-                }
-
-                return string.Concat("https://drive.google.com/uc?id=", address.Substring(index, closingIndex - index), "&export=download");
-            }
-
-            public void Dispose()
-            {
-                webClient.Dispose();
-            }
-        }
-
-        // https://stackoverflow.com/a/62039306/7570821
-        public class DownloadPauseable
-        {
-            private volatile bool _allowedToRun;
-            private readonly string _sourceUrl;
-            private readonly string _destination;
-            private readonly int _chunkSize;
-            private readonly IProgress<double> _progress;
-            private readonly Lazy<long> _contentLength;
-
-            public long BytesWritten {get; private set;}
-            public long ContentLength => _contentLength.Value;
-
-            public bool Done => ContentLength == BytesWritten;
-
-            public DownloadPauseable(string source, string destination, int chunkSizeInBytes = 8192, IProgress<double> progress = null)
-            {
-                if(string.IsNullOrEmpty(source))
-                    throw new ArgumentNullException("source is empty");
-                if(string.IsNullOrEmpty(destination))
-                    throw new ArgumentNullException("destination is empty");
-
-                _allowedToRun = true;
-                _sourceUrl = source;
-                _destination = destination;
-                _chunkSize = chunkSizeInBytes;
-                _contentLength = new Lazy<long>(GetContentLength);
-                _progress = progress;
-
-                if(!File.Exists(destination))
-                    BytesWritten = 0;
-                else
-                {
-                    try
-                    {
-                        BytesWritten = new FileInfo(destination).Length;
-                    }
-                    catch
-                    {
-                        BytesWritten = 0;
-                    }
-                }
-            }
-
-            private long GetContentLength()
-            {
-                var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
-                request.Method = "HEAD";
-
-                using(var response = request.GetResponse())
-                    return response.ContentLength;
-            }
-
-            private async Task Start(long range)
-            {
-                if(!_allowedToRun)
-                    throw new InvalidOperationException();
-
-                if(Done)
-                    //file has been found in folder destination and is already fully downloaded 
-                    return;
-
-                var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
-                request.UserAgent = userAgent;
-                request.AddRange(range);
-
-                using(var response = await request.GetResponseAsync())
-                {
-                    using(var responseStream = response.GetResponseStream())
-                    {
-                        using(var fs = new FileStream(_destination, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-                        {
-                            while(_allowedToRun)
-                            {
-                                var buffer = new byte[_chunkSize];
-                                var bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
-
-                                if(bytesRead == 0) break;
-
-                                await fs.WriteAsync(buffer, 0, bytesRead);
-                                BytesWritten += bytesRead;
-                                _progress?.Report((double)BytesWritten / ContentLength);
-                            }
-
-                            await fs.FlushAsync();
-                        }
-                    }
-                }
-            }
-
-            public Task Start()
-            {
-                _allowedToRun = true;
-                return Start(BytesWritten);
-            }
-
-            public void Pause()
-            {
-                _allowedToRun = false;
-            }
-        }
-
-        // https://stackoverflow.com/a/12879118/7570821
-        public class TimedWebClient : WebClient
-        {
-            // Timeout in milliseconds, default = 600,000 msec
-            public int Timeout {get; set;}
-
-            public TimedWebClient()
-            {
-                this.Timeout = 600000;
-            }
-
-            protected override WebRequest GetWebRequest(Uri address)
-            {
-                var objWebRequest = base.GetWebRequest(address);
-                objWebRequest.Timeout = this.Timeout;
-                return objWebRequest;
-            }
+                LogBoxTextBox.AppendText(msg + Environment.NewLine);
+                LogBoxScrollViewer.ScrollToEnd();
+            });
         }
     }
 }

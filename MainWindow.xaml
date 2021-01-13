@@ -154,7 +154,7 @@
             <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" Text="Version:" FontSize="12" FontFamily="{DynamicResource Font}"/>
             <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,7" Foreground="#C8FFFFFF" Text="Launcher Version:" FontSize="10" FontFamily="{DynamicResource Font}"/>
             <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" Content="⨉" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="CloseButton_Click"/>
-            <Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,51" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Content="Download" Click="LaunchButton_Click"  IsEnabled="False"/>
+            <Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,51" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Content="Download" Click="LaunchButton_Click" IsEnabled="False"/>
             <Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,110" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Content="Options" Click="OptionsButton_Click" IsEnabled="False">
                 <Button.ContextMenu>
                     <ContextMenu Name="OptionsContextMenu"/>
@@ -238,6 +238,7 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="DownloadCacheBoxFullCacheButton" Margin="10" MinWidth="50" Content="Full Cache" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxFullCacheButton_Click"/>
                                 <Button Name="DownloadCacheBoxNumericFilesButton" Margin="10" MinWidth="50" Content="Numeric Files" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxNumericFilesButton_Click"/>
+                                <Button Name="DownloadCacheBoxCancelButton" Margin="10" MinWidth="50" Content="Cancel" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxCloseButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

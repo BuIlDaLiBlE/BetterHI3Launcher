@@ -14,7 +14,9 @@ namespace BetterHI3Launcher
             textStrings.Add("shrug", "¯\\_(ツ)_/¯");
             textStrings.Add("outdated", "Outdated");
             textStrings.Add("button_download", "Download");
+            textStrings.Add("button_downloading", "Downloading");
             textStrings.Add("button_update", "Update");
+            textStrings.Add("button_pause", "Pause");
             textStrings.Add("button_launch", "Start");
             textStrings.Add("button_options", "Options");
             textStrings.Add("button_resume", "Resume");
@@ -37,11 +39,13 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_checkingupdate", "Checking for update...");
             textStrings.Add("progresstext_downloadsize", "Download size");
             textStrings.Add("progresstext_downloaded", "Downloaded {0}/{1} ({2})");
+            textStrings.Add("progresstext_eta", "Estimated time: {0}");
             textStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
             textStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1}");
             textStrings.Add("progresstext_writinginfo", "Writing version information...");
             textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
-            textStrings.Add("progresstext_mirrorconnect", "Connecting to mirror...");
+            textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
+            textStrings.Add("progresstext_initiating_download", "Initiating download...");
             textStrings.Add("inputbox_customfps_title", "Enter max FPS cap");
             textStrings.Add("changelogbox_title", "Changelog");
             textStrings.Add("changelogbox_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
@@ -50,7 +54,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_neterror_title", "Network error");
             textStrings.Add("msgbox_neterror_msg", "An error occurred while connecting to server");
             textStrings.Add("msgbox_verifyerror_title", "File validation error");
-            textStrings.Add("msgbox_verifyerror_msg", "An error occurred while downloading. Please try again.");
+            textStrings.Add("msgbox_verifyerror_msg", "An error occurred while downloading. File may be corrupt.\nContinue regardless?");
             textStrings.Add("msgbox_starterror_title", "Startup error");
             textStrings.Add("msgbox_starterror_msg", "An error occurred while starting the launcher:\n{0}");
             textStrings.Add("msgbox_launcherdownloaderror_msg", "An error occurred while downloading the launcher:\n{0}");
@@ -72,7 +76,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry:\n{0}");
             textStrings.Add("msgbox_registryerror_title", "Registry error");
             textStrings.Add("msgbox_registryempty_msg", "No value to be tweaked in registry exists. Did you already run the game?");
-            textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and it has to be uploaded manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is {2}.");
+            textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and it has to be uploaded manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
             textStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
@@ -113,7 +117,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_updatecheckerror_msg", "An error occurred while checking for update:\n{0}");
             textStrings.Add("msgbox_updatecheckerror_title", "Update check error");
             textStrings.Add("msgbox_gamedownloadmirrorold_msg", "It seems like the game version on miHoYo servers is newer than the one on the mirror.\nThere is no reason to download an outdated version, ask the mirror maintainer to upload a new version.");
-            textStrings.Add("msgbox_gamedownloadpaused_msg", "The game was not downloaded entirely last time. Changing server or mirror will reset the download progress.\nContinue?");
+            textStrings.Add("msgbox_gamedownloadpaused_msg", "The game is not downloaded entirely yet. Changing server or mirror will reset the download progress.\nContinue?");
             textStrings.Add("msgbox_gamedownloadmirrorerror_msg", "An error occurred while downloading from the mirror.\n{0}");
             textStrings.Add("msgbox_install_little_space_msg", "There is not enough free space on selected device, installation may result in failure.\nContinue?");
             textStrings.Add("msgbox_install_wrong_drive_type_msg", "Cannot install on selected device.");
