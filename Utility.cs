@@ -14,6 +14,14 @@ namespace BetterHI3Launcher
 {
     public class BpUtility
     {
+        public static void StartProcess(string proccess, string arguments, string workingDir, bool useShellExec)
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo(proccess, arguments);
+            startInfo.WorkingDirectory = workingDir;
+            startInfo.UseShellExecute = useShellExec;
+            Process.Start(startInfo);
+        }
+
         // https://stackoverflow.com/a/10520086/7570821
         public static string CalculateMD5(string filename)
         {
@@ -115,10 +123,10 @@ namespace BetterHI3Launcher
                 case "ru-RU":
                 case "uk-UA":
                 case "be-BY":
-                    prefix = new[] { "", "К", "М", "Г" };
+                    prefix = new[]{"", "К", "М", "Г"};
                     break;
                 default:
-                    prefix = new[] { "", "K", "M", "G" };
+                    prefix = new[]{"", "K", "M", "G"};
                     break;
             }
 

@@ -4,8 +4,14 @@ namespace BetterHI3Launcher
 {
     public partial class MainWindow : Window
     {
+        bool LanguageEnglishAdded = false;
+
         private void TextStrings_English()
         {
+            if(LanguageEnglishAdded)
+                return;
+
+            LanguageEnglishAdded = true;
             textStrings.Add("version", "Version");
             textStrings.Add("launcher_version", "Launcher version");
             textStrings.Add("binary_prefixes", "KMGTPEZY");
@@ -20,17 +26,20 @@ namespace BetterHI3Launcher
             textStrings.Add("button_launch", "Start");
             textStrings.Add("button_options", "Options");
             textStrings.Add("button_resume", "Resume");
+            textStrings.Add("button_ok", "OK");
             textStrings.Add("button_confirm", "Confirm");
             textStrings.Add("button_cancel", "Cancel");
+            textStrings.Add("button_github", "Go to GitHub repository");
             textStrings.Add("label_server", "Server");
             textStrings.Add("label_mirror", "Mirror");
             textStrings.Add("label_log", "Show log");
             textStrings.Add("contextmenu_downloadcache", "Download cache");
-            textStrings.Add("contextmenu_uninstall", "Uninstall the game");
+            textStrings.Add("contextmenu_uninstall", "Uninstall game");
             textStrings.Add("contextmenu_fixupdateloop", "Fix update loop");
             textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
             textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
             textStrings.Add("contextmenu_resetgamesettings", "Reset game settings");
+            textStrings.Add("contextmenu_web_profile", "Go to web profile");
             textStrings.Add("contextmenu_changelog", "Show changelog");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
@@ -46,9 +55,13 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
             textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
             textStrings.Add("progresstext_initiating_download", "Initiating download...");
-            textStrings.Add("inputbox_customfps_title", "Enter max FPS cap");
+            textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
+            textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
+            textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
+            textStrings.Add("fpsinputbox_title", "Enter max FPS cap");
             textStrings.Add("changelogbox_title", "Changelog");
-            textStrings.Add("changelogbox_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
+            textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
+            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.");
             textStrings.Add("msgbox_genericerror_title", "Error");
             textStrings.Add("msgbox_genericerror_msg", "An error occurred:\n{0}");
             textStrings.Add("msgbox_neterror_title", "Network error");
@@ -62,8 +75,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_gamedownloaderror_msg", "An error occurred while downloading game files:\n{0}");
             textStrings.Add("msgbox_installerror_msg", "An error occurred while installing game files:\n{0}");
             textStrings.Add("msgbox_installerror_title", "Installation error");
-            textStrings.Add("msgbox_startgameerror_msg", "An error occurred while starting the game:\n{0}");
-            textStrings.Add("msgbox_update_msg", "A newer version has become available. An update is required.");
+            textStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process:\n{0}");
             textStrings.Add("msgbox_update_title", "Update notice");
             textStrings.Add("msgbox_install_msg", "The game is going to be installed to:\n{0}\nContinue installation?");
             textStrings.Add("msgbox_install_title", "Installation notice");
@@ -76,9 +88,6 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry:\n{0}");
             textStrings.Add("msgbox_registryerror_title", "Registry error");
             textStrings.Add("msgbox_registryempty_msg", "No value to be tweaked in registry exists. Did you already run the game?");
-            textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and it has to be uploaded manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
-            textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
-            textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
             textStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
             textStrings.Add("msgbox_download_cache_2_msg", "Numeric file cache is about to be downloaded.");
             textStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
@@ -104,7 +113,6 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_resetgamesettings_1_msg", "This will wipe all game settings stored in registry.\nOnly use this if you are having problems with the game!\nContinue?");
             textStrings.Add("msgbox_resetgamesettings_2_msg", "This action is irreversible. Are you sure you want to do this?");
             textStrings.Add("msgbox_resetgamesettings_3_msg", "Game settings have been wiped from registry.");
-            textStrings.Add("msgbox_about_msg", "Better Honkai Impact 3rd Launcher :^)\nWell it is much more advanced, isn't it?\nAny feedback is greatly appreciated.\n\nMade by Bp (BuIlDaLiBlE production).\nDiscord: BuIlDaLiBlE#3202");
             textStrings.Add("msgbox_extractskip_title", "File skip notice");
             textStrings.Add("msgbox_extractskip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_noexe_title", "No game executable");
