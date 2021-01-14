@@ -2098,7 +2098,7 @@ namespace BetterHI3Launcher
             LogBox.Visibility = Visibility.Collapsed;
             try
             {
-                versionInfoKey.SetValue("ShowLog", 1, RegistryValueKind.DWord);
+                versionInfoKey.SetValue("ShowLog", 0, RegistryValueKind.DWord);
             }
             catch(Exception ex)
             {
