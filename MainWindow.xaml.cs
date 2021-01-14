@@ -39,7 +39,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210113.1");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210114.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -1567,9 +1567,9 @@ namespace BetterHI3Launcher
                 {
                     string time;
                     if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString())) >= 0)
-                        time = $"{DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime()} ({textStrings["outdated"].ToLower()})";
+                        time = $"{DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime().ToString()} ({textStrings["outdated"].ToLower()})";
                     else
-                        time = DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime();
+                        time = DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime().ToString();
                     DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], "Google Drive", time, onlineVersionInfo.game_info.mirror.maintainer.ToString());
                 }
                 Status = LauncherStatus.Ready;
