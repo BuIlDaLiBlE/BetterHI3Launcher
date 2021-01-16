@@ -39,7 +39,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210114.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210116.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -47,10 +47,10 @@ namespace BetterHI3Launcher
         public static readonly string gameExeName = "BH3.exe";
         public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
         public static readonly string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
-        public static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, cacheArchivePath, launcherExeName, launcherPath, launcherArchivePath, gameWebProfileURL;
         public static string LauncherLanguage;
-        public static string GameRegistryPath;
+        public static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, cacheArchivePath, launcherExeName, launcherPath, launcherArchivePath, gameWebProfileURL;
         public static string RegistryVersionInfo;
+        public static string GameRegistryPath, GameRegistryLocalVersionRegValue;
         public static bool DownloadPaused = false;
         public dynamic localVersionInfo, onlineVersionInfo, miHoYoVersionInfo, gameGraphicSettings, gameCacheMetadata, gameCacheMetadataNumeric;
         LauncherStatus _status;
@@ -150,13 +150,15 @@ namespace BetterHI3Launcher
                 switch(_gameserver)
                 {
                     case HI3Server.Global:
-                        GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3rd";
                         RegistryVersionInfo = "VersionInfoGlobal";
+                        GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3rd";
+                        GameRegistryLocalVersionRegValue = "USD_V2_201880924_LocalVersion_h3429574199";
                         gameWebProfileURL = "https://global.user.honkaiimpact3.com";
                         break;
                     case HI3Server.SEA:
-                        GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3";
                         RegistryVersionInfo = "VersionInfoSEA";
+                        GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3";
+                        GameRegistryLocalVersionRegValue = "USD_V2_18149666_LocalVersion_h2804958440";
                         gameWebProfileURL = "https://asia.user.honkaiimpact3.com";
                         break;
                 }
@@ -1657,17 +1659,16 @@ namespace BetterHI3Launcher
             {
                 RegistryKey key;
                 key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
-                string value = "GENERAL_DATA_V2_ResourceDownloadType_h2238376574";
-                if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
+                if(key == null || key.GetValue(GameRegistryLocalVersionRegValue) == null || key.GetValueKind(GameRegistryLocalVersionRegValue) != RegistryValueKind.DWord)
                 {
                     if(key != null)
-                        key.DeleteValue(value);
+                        key.DeleteValue(GameRegistryLocalVersionRegValue);
                     if(MessageBox.Show(textStrings["msgbox_registryempty_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         return;
                     }
                 }
-                var valueBefore = key.GetValue(value);
+                var valueBefore = key.GetValue(GameRegistryLocalVersionRegValue);
                 int valueAfter;
                 if((int)valueBefore == 3)
                     valueAfter = 2;
@@ -1675,7 +1676,7 @@ namespace BetterHI3Launcher
                     valueAfter = 1;
                 else
                     valueAfter = 3;
-                key.SetValue(value, valueAfter, RegistryValueKind.DWord);
+                key.SetValue(GameRegistryLocalVersionRegValue, valueAfter, RegistryValueKind.DWord);
                 key.Close();
                 Log($"Changed ResourceDownloadType from {valueBefore} to {valueAfter}");
                 MessageBox.Show(string.Format(textStrings["msgbox_fixupdateloop_2_msg"], valueBefore, valueAfter), textStrings["contextmenu_fixupdateloop"], MessageBoxButton.OK, MessageBoxImage.Information);

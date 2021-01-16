@@ -110,6 +110,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="1"/>
+            <Setter Property="Content" Value="⨉"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -210,7 +211,7 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="FPSInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Content="⨉" Click="FPSInputBoxCancelButton_Click"/>
+                    <Button Name="FPSInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="FPSInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="ChangelogBox" Visibility="Collapsed">
@@ -245,7 +246,7 @@
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Content="⨉" Click="DownloadCacheBoxCloseButton_Click"/>
+                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="DownloadCacheBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="AboutBox" Visibility="Collapsed">
@@ -263,7 +264,7 @@
                         </StackPanel>
                     </Border>
                     <Image Source="Assets/Images/Bp_Logo.png" HorizontalAlignment="Left" Margin="16,0,0,18" Width="128"/>
-                    <Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Content="⨉" Click="AboutBoxCloseButton_Click"/>
+                    <Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="AboutBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
         </Grid>
