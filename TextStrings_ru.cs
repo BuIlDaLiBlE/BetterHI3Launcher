@@ -47,6 +47,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_uninstalling"] = "Удаление игры...";
             textStrings["progresstext_mirror_connect"] = "Подключение к зеркалу...";
             textStrings["progresstext_initiating_download"] = "Загрузка начинается...";
+            textStrings["progresstext_updating_launcher"] = "Обновление лаунчера...";
             textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}\nОтветственный за зеркало: {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Полный кэш";
             textStrings["downloadcachebox_button_numeric_files"] = "Числовые файлы";
@@ -62,7 +63,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_neterror_title"] = "Сетевая ошибка";
             textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу";
             textStrings["msgbox_verifyerror_title"] = "Ошибка проверки целостности файла";
-            textStrings["msgbox_verifyerror_msg"] = "Произошла ошибка при загрузке, файл может быть повреждён.\nВсё равно продолжить?";
+            textStrings["msgbox_verifyerror_1_msg"] = "Произошла ошибка при загрузке, попробуйте снова.";
+            textStrings["msgbox_verifyerror_2_msg"] = "Произошла ошибка при загрузке, файл может быть повреждён.\nВсё равно продолжить?";
             textStrings["msgbox_starterror_title"] = "Ошибка запуска";
             textStrings["msgbox_starterror_msg"] = "Произошла ошибка запуска лаунчера:\n{0}";
             textStrings["msgbox_launcherdownloaderror_msg"] = "Произошла ошибка загрузки лаунчера:\n{0}";

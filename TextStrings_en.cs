@@ -55,6 +55,7 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
             textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
             textStrings.Add("progresstext_initiating_download", "Initiating download...");
+            textStrings.Add("progresstext_updating_launcher", "Updating launcher...");
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
@@ -67,7 +68,8 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_neterror_title", "Network error");
             textStrings.Add("msgbox_neterror_msg", "An error occurred while connecting to server");
             textStrings.Add("msgbox_verifyerror_title", "File validation error");
-            textStrings.Add("msgbox_verifyerror_msg", "An error occurred while downloading. File may be corrupt.\nContinue regardless?");
+            textStrings.Add("msgbox_verifyerror_1_msg", "An error occurred while downloading. Please try again.");
+            textStrings.Add("msgbox_verifyerror_2_msg", "An error occurred while downloading. File may be corrupt.\nContinue regardless?");
             textStrings.Add("msgbox_starterror_title", "Startup error");
             textStrings.Add("msgbox_starterror_msg", "An error occurred while starting the launcher:\n{0}");
             textStrings.Add("msgbox_launcherdownloaderror_msg", "An error occurred while downloading the launcher:\n{0}");
