@@ -39,7 +39,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210117.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210117.1");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -1667,16 +1667,17 @@ namespace BetterHI3Launcher
             {
                 RegistryKey key;
                 key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
-                if(key == null || key.GetValue(GameRegistryLocalVersionRegValue) == null || key.GetValueKind(GameRegistryLocalVersionRegValue) != RegistryValueKind.DWord)
+                string value = "GENERAL_DATA_V2_ResourceDownloadType_h2238376574";
+                if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
                 {
                     if(key != null)
-                        key.DeleteValue(GameRegistryLocalVersionRegValue);
+                        key.DeleteValue(value);
                     if(MessageBox.Show(textStrings["msgbox_registryempty_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         return;
                     }
                 }
-                var valueBefore = key.GetValue(GameRegistryLocalVersionRegValue);
+                var valueBefore = key.GetValue(value);
                 int valueAfter;
                 if((int)valueBefore == 3)
                     valueAfter = 2;
@@ -1684,7 +1685,7 @@ namespace BetterHI3Launcher
                     valueAfter = 1;
                 else
                     valueAfter = 3;
-                key.SetValue(GameRegistryLocalVersionRegValue, valueAfter, RegistryValueKind.DWord);
+                key.SetValue(value, valueAfter, RegistryValueKind.DWord);
                 key.Close();
                 Log($"Changed ResourceDownloadType from {valueBefore} to {valueAfter}");
                 MessageBox.Show(string.Format(textStrings["msgbox_fixupdateloop_2_msg"], valueBefore, valueAfter), textStrings["contextmenu_fixupdateloop"], MessageBoxButton.OK, MessageBoxImage.Information);
