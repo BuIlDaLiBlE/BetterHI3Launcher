@@ -22,6 +22,9 @@
         <ImageBrush x:Key="CloseButton" ImageSource="/Assets/Images/Button_Close.png"/>
         <ImageBrush x:Key="CloseButtonPressed" ImageSource="/Assets/Images/Button_Close_Pressed.png"/>
         <ImageBrush x:Key="CloseButtonHighlighted" ImageSource="/Assets/Images/Button_Close_Highlighted.png"/>
+        <ImageBrush x:Key="MinimizeButton" ImageSource="/Assets/Images/Button_Minimize.png"/>
+        <ImageBrush x:Key="MinimizeButtonPressed" ImageSource="/Assets/Images/Button_Minimize_Pressed.png"/>
+        <ImageBrush x:Key="MinimizeButtonHighlighted" ImageSource="/Assets/Images/Button_Minimize_Highlighted.png"/>
         <Style x:Key="FocusVisual">
             <Setter Property="Control.Template">
                 <Setter.Value>
@@ -101,6 +104,36 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="MinimizeButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource MinimizeButton}"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="#7FA9A9A9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource MinimizeButtonHighlighted}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource MinimizeButtonPressed}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="BoxCloseButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
             <Setter Property="Background" Value="{StaticResource CloseButton}"/>
@@ -152,6 +185,7 @@
             <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" FontSize="12" FontFamily="{DynamicResource Font}"/>
             <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,7" Foreground="#C8FFFFFF" FontSize="10" FontFamily="{DynamicResource Font}"/>
             <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="CloseButton_Click"/>
+            <Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,32,0" Width="32" Height="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="MinimizeButton_Click"/>
             <Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,51" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Click="LaunchButton_Click" IsEnabled="False"/>
             <Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,110" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Click="OptionsButton_Click" IsEnabled="False">
                 <Button.ContextMenu>

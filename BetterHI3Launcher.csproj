@@ -201,6 +201,11 @@
   <ItemGroup>
     <Resource Include="Assets\Images\Button_Close_Highlighted.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\Button_Minimize.png" />
+    <Resource Include="Assets\Images\Button_Minimize_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Minimize_Pressed.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

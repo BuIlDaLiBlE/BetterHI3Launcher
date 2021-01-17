@@ -39,7 +39,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210116.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210117.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -84,6 +84,7 @@ namespace BetterHI3Launcher
                     }
 
                     _status = value;
+                    WindowState = WindowState.Normal;
                     switch(_status)
                     {
                         case LauncherStatus.Ready:
@@ -355,6 +356,9 @@ namespace BetterHI3Launcher
             var CMWebProfile = new MenuItem{Header = textStrings["contextmenu_web_profile"]};
             CMWebProfile.Click += (sender, e) => CM_WebProfile_Click(sender, e);
             OptionsContextMenu.Items.Add(CMWebProfile);
+            var CMFeedback = new MenuItem{Header = textStrings["contextmenu_feedback"]};
+            CMFeedback.Click += (sender, e) => CM_Feedback_Click(sender, e);
+            OptionsContextMenu.Items.Add(CMFeedback);
             var CMChangelog = new MenuItem{Header = textStrings["contextmenu_changelog"]};
             CMChangelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
             OptionsContextMenu.Items.Add(CMChangelog);
@@ -433,6 +437,7 @@ namespace BetterHI3Launcher
                     }
                     catch(Exception ex)
                     {
+                        Log("An error occurred while downloading background image!");
                         Status = LauncherStatus.Error;
                         if(MessageBox.Show($"{textStrings["msgbox_neterror_msg"]}:\n{ex}", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                         {
@@ -728,7 +733,7 @@ namespace BetterHI3Launcher
                         gameArchivePath = Path.Combine(gameInstallPath, gameArchiveName);
                         gameExePath = Path.Combine(gameInstallPath, "BH3.exe");
                         game_needs_update = GameUpdateCheckSimple();
-                        Log($"Game version: {miHoYoVersionInfo.cur_version.ToString()}");
+                        Log($"Game version: {localGameVersion.ToString()}");
 
                         if(game_needs_update)
                         {
@@ -769,7 +774,7 @@ namespace BetterHI3Launcher
                     }
                     else
                     {
-                        Log("No game version info :^(");
+                        Log("Game is not installed :^(");
                         if(serverChanged)
                             await FetchmiHoYoVersionInfoAsync();
                         Status = LauncherStatus.Ready;
@@ -787,11 +792,11 @@ namespace BetterHI3Launcher
                                     var server = CheckForExistingGameClientServer();
                                     if(server >= 0)
                                     {
-                                        WriteVersionInfo();
                                         if((int)Server == server)
                                             GameUpdateCheck(false);
                                         else
                                             ServerDropdown.SelectedIndex = server;
+                                        WriteVersionInfo();
                                     }
                                     else
                                     {
@@ -1107,16 +1112,14 @@ namespace BetterHI3Launcher
                 versionInfo.game_info.install_path = gameInstallPath;
                 RegistryKey key;
                 key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
-                string value = "USD_V2_201880924_LocalVersion_h3429574199";
-                if(LauncherRegKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(value) != null && key.GetValueKind(value) == RegistryValueKind.Binary))
+                if(LauncherRegKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(GameRegistryLocalVersionRegValue) != null && key.GetValueKind(GameRegistryLocalVersionRegValue) == RegistryValueKind.Binary))
                 {
-                    var version = Encoding.UTF8.GetString((byte[])key.GetValue(value)).TrimEnd('\u0000');
+                    var version = Encoding.UTF8.GetString((byte[])key.GetValue(GameRegistryLocalVersionRegValue)).TrimEnd('\u0000');
                     if(!miHoYoVersionInfo.cur_version.ToString().Contains(version))
                         versionInfo.game_info.version = version;
                 }
 
                 Log("Writing game version info to registry...");
-                ProgressText.Text = textStrings["progresstext_writinginfo"];
                 LauncherRegKey.SetValue(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(versionInfo)), RegistryValueKind.Binary);
                 LauncherRegKey.Close();
                 LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
@@ -1358,6 +1361,11 @@ namespace BetterHI3Launcher
             Close();
         }
 
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
         private async void LaunchButton_Click(object sender, RoutedEventArgs e)
         {
             if(Status == LauncherStatus.Ready || Status == LauncherStatus.Error)
@@ -1437,11 +1445,11 @@ namespace BetterHI3Launcher
                                         var server = CheckForExistingGameClientServer();
                                         if(server >= 0)
                                         {
-                                            WriteVersionInfo();
                                             if((int)Server == server)
                                                 GameUpdateCheck(false);
                                             else
                                                 ServerDropdown.SelectedIndex = server;
+                                            WriteVersionInfo();
                                         }
                                         else
                                         {
@@ -1939,6 +1947,21 @@ namespace BetterHI3Launcher
             }
         }
 
+        private void CM_Feedback_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose", null, rootPath, true);
+            }
+            catch(Exception ex)
+            {
+                Status = LauncherStatus.Error;
+                Log($"ERROR: Failed to execute process:\n{ex}");
+                MessageBox.Show(string.Format(textStrings["msgbox_process_start_error_msg"], ex), textStrings["msgbox_starterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                Status = LauncherStatus.Ready;
+            }
+        }
+
         private void CM_Changelog_Click(object sender, RoutedEventArgs e)
         {
             ChangelogBox.Visibility = Visibility.Visible;
@@ -2240,6 +2263,8 @@ namespace BetterHI3Launcher
                 path.Replace(@"Honkai Impact 3\Honkai Impact 3", @"Honkai Impact 3\Games"),
                 path.Replace(@"Honkai Impact 3rd\Games\Honkai Impact 3rd", @"Honkai Impact 3rd\Games"),
                 path.Replace(@"Honkai Impact 3\Games\Honkai Impact 3", @"Honkai Impact 3\Games"),
+                path.Replace(@"\BH3_Data\Honkai Impact 3rd", String.Empty),
+                path.Replace(@"\BH3_Data\Honkai Impact 3", String.Empty),
                 path.Substring(0, path.Length - 16),
                 path.Substring(0, path.Length - 18),
                 Path.Combine(path, "Games"),
