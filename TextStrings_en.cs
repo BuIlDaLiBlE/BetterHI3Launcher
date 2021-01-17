@@ -40,6 +40,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
             textStrings.Add("contextmenu_resetgamesettings", "Reset game settings");
             textStrings.Add("contextmenu_web_profile", "Go to web profile");
+            textStrings.Add("contextmenu_feedback", "Send feedback");
             textStrings.Add("contextmenu_changelog", "Show changelog");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
@@ -51,7 +52,6 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_eta", "Estimated time: {0}");
             textStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
             textStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1}");
-            textStrings.Add("progresstext_writinginfo", "Writing version information...");
             textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
             textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
             textStrings.Add("progresstext_initiating_download", "Initiating download...");

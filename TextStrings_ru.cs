@@ -32,6 +32,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_customfps"] = "Своё ограничение FPS";
             textStrings["contextmenu_resetgamesettings"] = "Сбросить настройки игры";
             textStrings["contextmenu_web_profile"] = "Перейти в веб-профиль";
+            textStrings["contextmenu_feedback"] = "Отправить отзыв";
             textStrings["contextmenu_changelog"] = "История изменений";
             textStrings["contextmenu_about"] = "О лаунчере";
             textStrings["progresstext_error"] = "Ошибочка вышла :^(";
@@ -43,7 +44,6 @@ namespace BetterHI3Launcher
             textStrings["progresstext_eta"] = "Расчётное время: {0}";
             textStrings["progresstext_unpacking_1"] = "Распаковка игровых файлов...";
             textStrings["progresstext_unpacking_2"] = "Распаковка игрового файла {0}/{1}";
-            textStrings["progresstext_writinginfo"] = "Запись информации о версии...";
             textStrings["progresstext_uninstalling"] = "Удаление игры...";
             textStrings["progresstext_mirror_connect"] = "Подключение к зеркалу...";
             textStrings["progresstext_initiating_download"] = "Загрузка начинается...";
