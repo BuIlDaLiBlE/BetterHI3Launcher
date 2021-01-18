@@ -27,8 +27,8 @@ namespace BetterHI3Launcher
             textStrings["label_log"] = "Показать лог";
             textStrings["contextmenu_downloadcache"] = "Загрузить кэш";
             textStrings["contextmenu_uninstall"] = "Удалить игру";
-            textStrings["contextmenu_fixupdateloop"] = "Исправить зацикленную загрузку";
             textStrings["contextmenu_fixsubs"] = "Исправить субтитры";
+            textStrings["contextmenu_download_type"] = "Изменить тип загрузки";
             textStrings["contextmenu_customfps"] = "Своё ограничение FPS";
             textStrings["contextmenu_resetgamesettings"] = "Сбросить настройки игры";
             textStrings["contextmenu_web_profile"] = "Перейти в веб-профиль";
@@ -47,6 +47,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_uninstalling"] = "Удаление игры...";
             textStrings["progresstext_mirror_connect"] = "Подключение к зеркалу...";
             textStrings["progresstext_initiating_download"] = "Загрузка начинается...";
+            textStrings["progresstext_updating_launcher"] = "Обновление лаунчера...";
             textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}\nОтветственный за зеркало: {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Полный кэш";
             textStrings["downloadcachebox_button_numeric_files"] = "Числовые файлы";
@@ -62,7 +63,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_neterror_title"] = "Сетевая ошибка";
             textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу";
             textStrings["msgbox_verifyerror_title"] = "Ошибка проверки целостности файла";
-            textStrings["msgbox_verifyerror_msg"] = "Произошла ошибка при загрузке, файл может быть повреждён.\nВсё равно продолжить?";
+            textStrings["msgbox_verifyerror_1_msg"] = "Произошла ошибка при загрузке, попробуйте снова.";
+            textStrings["msgbox_verifyerror_2_msg"] = "Произошла ошибка при загрузке, файл может быть повреждён.\nВсё равно продолжить?";
             textStrings["msgbox_starterror_title"] = "Ошибка запуска";
             textStrings["msgbox_starterror_msg"] = "Произошла ошибка запуска лаунчера:\n{0}";
             textStrings["msgbox_launcherdownloaderror_msg"] = "Произошла ошибка загрузки лаунчера:\n{0}";
@@ -90,8 +92,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Удаление";
             textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Ошибка удаления";
-            textStrings["msgbox_fixupdateloop_1_msg"] = "Будет произведена попытка исправить печально известную проблему с бесконечной загрузкой в игре.\nЕсли с первого раза не помогает, попробуйте ещё раз.\nПродолжить?";
-            textStrings["msgbox_fixupdateloop_2_msg"] = "Значение ResourceDownloadType до: {0}.\nЗначение ResourceDownloadType после: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Будет изменён тип загрузки внутриигровых ресурсов в надежде исправить печально известную проблему с бесконечной загрузкой в игре.\nЕсли с первого раза не помогает, попробуйте ещё раз.\nПродолжить?";
+            textStrings["msgbox_download_type_2_msg"] = "Значение ResourceDownloadType до: {0}.\nЗначение ResourceDownloadType после: {1}.";
             textStrings["msgbox_fixsubs_1_msg"] = "Будет произведена попытка исправить субтитры к видео (и гача баннеры). Убедитесь, что все видеофайлы были загружены в игре.\nПродолжить?";
             textStrings["msgbox_fixsubs_2_msg"] = "Распаковка субтитров к видео {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Проверка файла субтитров {0}/{1}...";

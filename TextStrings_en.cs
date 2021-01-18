@@ -35,8 +35,8 @@ namespace BetterHI3Launcher
             textStrings.Add("label_log", "Show log");
             textStrings.Add("contextmenu_downloadcache", "Download cache");
             textStrings.Add("contextmenu_uninstall", "Uninstall game");
-            textStrings.Add("contextmenu_fixupdateloop", "Fix update loop");
             textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
+            textStrings.Add("contextmenu_download_type", "Change download type");
             textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
             textStrings.Add("contextmenu_resetgamesettings", "Reset game settings");
             textStrings.Add("contextmenu_web_profile", "Go to web profile");
@@ -55,6 +55,7 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
             textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
             textStrings.Add("progresstext_initiating_download", "Initiating download...");
+            textStrings.Add("progresstext_updating_launcher", "Updating launcher...");
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
@@ -67,7 +68,8 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_neterror_title", "Network error");
             textStrings.Add("msgbox_neterror_msg", "An error occurred while connecting to server");
             textStrings.Add("msgbox_verifyerror_title", "File validation error");
-            textStrings.Add("msgbox_verifyerror_msg", "An error occurred while downloading. File may be corrupt.\nContinue regardless?");
+            textStrings.Add("msgbox_verifyerror_1_msg", "An error occurred while downloading. Please try again.");
+            textStrings.Add("msgbox_verifyerror_2_msg", "An error occurred while downloading. File may be corrupt.\nContinue regardless?");
             textStrings.Add("msgbox_starterror_title", "Startup error");
             textStrings.Add("msgbox_starterror_msg", "An error occurred while starting the launcher:\n{0}");
             textStrings.Add("msgbox_launcherdownloaderror_msg", "An error occurred while downloading the launcher:\n{0}");
@@ -98,8 +100,8 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_uninstall_title", "Uninstall");
             textStrings.Add("msgbox_uninstallerror_msg", "An error occurred while uninstalling the game:\n{0}");
             textStrings.Add("msgbox_uninstallerror_title", "Uninstallation error");
-            textStrings.Add("msgbox_fixupdateloop_1_msg", "This will attempt to fix the infamous update loop which doesn't let you enter the game.\nIf this doesn't fix the problem, try again.\nContinue?");
-            textStrings.Add("msgbox_fixupdateloop_2_msg", "ResourceDownloadType value before: {0}.\nResourceDownloadType value after: {1}.");
+            textStrings.Add("msgbox_download_type_1_msg", "This will change game's resource download type in an attempt to fix the infamous update loop which doesn't let you enter the game.\nIf this doesn't fix the problem, try again.\nContinue?");
+            textStrings.Add("msgbox_download_type_2_msg", "ResourceDownloadType value before: {0}.\nResourceDownloadType value after: {1}.");
             textStrings.Add("msgbox_fixsubs_1_msg", "This will attempt to fix CG subtitles (and gacha banners). Make sure you have already downloaded all CGs in the game.\nContinue?");
             textStrings.Add("msgbox_fixsubs_2_msg", "Unpacking subtitle file {0}/{1}...");
             textStrings.Add("msgbox_fixsubs_3_msg", "Checking subtitle file {0}/{1}...");
