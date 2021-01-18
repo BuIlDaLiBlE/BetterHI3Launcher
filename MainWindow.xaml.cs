@@ -39,7 +39,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210117.1");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210118.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -200,6 +200,7 @@ namespace BetterHI3Launcher
             Log($"Launcher exe MD5: {BpUtility.CalculateMD5(Path.Combine(rootPath, Process.GetCurrentProcess().MainModule.ModuleName))}");
             Log($"Working directory: {rootPath}");
             Log($"OS language: {OSLanguage}");
+            SetLanguage(null);
             switch(OSLanguage)
             {
                 case "ru-RU":
@@ -208,7 +209,6 @@ namespace BetterHI3Launcher
                     LauncherLanguage = "ru";
                     break;
             }
-            SetLanguage(null);
             var LanguageRegValue = LauncherRegKey.GetValue("Language");
             if(LanguageRegValue != null)
             {
@@ -266,12 +266,12 @@ namespace BetterHI3Launcher
             CMUninstall.Click += async (sender, e) => await CM_Uninstall_Click(sender, e);
             OptionsContextMenu.Items.Add(CMUninstall);
             OptionsContextMenu.Items.Add(new Separator());
-            var CMFixUpdateLoop = new MenuItem{Header = textStrings["contextmenu_fixupdateloop"]};
-            CMFixUpdateLoop.Click += (sender, e) => CM_FixUpdateLoop_Click(sender, e);
-            OptionsContextMenu.Items.Add(CMFixUpdateLoop);
             var CMFixSubtitles = new MenuItem{Header = textStrings["contextmenu_fixsubs"]};
             CMFixSubtitles.Click += async (sender, e) => await CM_FixSubtitles_Click(sender, e);
             OptionsContextMenu.Items.Add(CMFixSubtitles);
+            var CMFixUpdateLoop = new MenuItem{Header = textStrings["contextmenu_download_type"]};
+            CMFixUpdateLoop.Click += (sender, e) => CM_FixUpdateLoop_Click(sender, e);
+            OptionsContextMenu.Items.Add(CMFixUpdateLoop);
             var CMCustomFPS = new MenuItem{Header = textStrings["contextmenu_customfps"]};
             CMCustomFPS.Click += (sender, e) => CM_CustomFPS_Click(sender, e);
             OptionsContextMenu.Items.Add(CMCustomFPS);
@@ -1695,7 +1695,7 @@ namespace BetterHI3Launcher
             if(Status != LauncherStatus.Ready)
                 return;
 
-            if(MessageBox.Show(textStrings["msgbox_fixupdateloop_1_msg"], textStrings["contextmenu_fixupdateloop"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
+            if(MessageBox.Show(textStrings["msgbox_download_type_1_msg"], textStrings["contextmenu_download_type"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
 
             try
@@ -1723,7 +1723,7 @@ namespace BetterHI3Launcher
                 key.SetValue(value, valueAfter, RegistryValueKind.DWord);
                 key.Close();
                 Log($"Changed ResourceDownloadType from {valueBefore} to {valueAfter}");
-                MessageBox.Show(string.Format(textStrings["msgbox_fixupdateloop_2_msg"], valueBefore, valueAfter), textStrings["contextmenu_fixupdateloop"], MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(string.Format(textStrings["msgbox_download_type_2_msg"], valueBefore, valueAfter), textStrings["contextmenu_download_type"], MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch(Exception ex)
             {
@@ -2296,7 +2296,7 @@ namespace BetterHI3Launcher
 
         private string CheckForExistingGameDirectory(string path)
         {
-            string[] pathVariants =
+            var pathVariants = new List<string>(new string[]
             {
                 path.Replace(@"Honkai Impact 3rd\Honkai Impact 3rd", @"Honkai Impact 3rd\Games"),
                 path.Replace(@"Honkai Impact 3\Honkai Impact 3", @"Honkai Impact 3\Games"),
@@ -2304,14 +2304,20 @@ namespace BetterHI3Launcher
                 path.Replace(@"Honkai Impact 3\Games\Honkai Impact 3", @"Honkai Impact 3\Games"),
                 path.Replace(@"\BH3_Data\Honkai Impact 3rd", String.Empty),
                 path.Replace(@"\BH3_Data\Honkai Impact 3", String.Empty),
-                path.Substring(0, path.Length - 16),
-                path.Substring(0, path.Length - 18),
                 Path.Combine(path, "Games"),
                 Path.Combine(path, "Honkai Impact 3rd"),
                 Path.Combine(path, "Honkai Impact 3"),
                 Path.Combine(path, "Honkai Impact 3rd", "Games"),
                 Path.Combine(path, "Honkai Impact 3", "Games")
-            };
+            });
+            if(path.Length >= 16)
+            {
+                pathVariants.Add(path.Substring(0, path.Length - 16));
+            }
+            if(path.Length >= 18)
+            {
+                pathVariants.Add(path.Substring(0, path.Length - 18));
+            }
 
             if(File.Exists(Path.Combine(path, gameExeName)))
             {
@@ -2319,10 +2325,10 @@ namespace BetterHI3Launcher
             }
             else
             {
-                for(int i = 0; i < pathVariants.Length; i++)
+                foreach(var variant in pathVariants)
                 {
-                    if(File.Exists(Path.Combine(pathVariants[i], gameExeName)))
-                        return pathVariants[i];
+                    if(File.Exists(Path.Combine(variant, gameExeName)))
+                        return variant;
                 }
                 return String.Empty;
             }

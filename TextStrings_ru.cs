@@ -27,8 +27,8 @@ namespace BetterHI3Launcher
             textStrings["label_log"] = "Показать лог";
             textStrings["contextmenu_downloadcache"] = "Загрузить кэш";
             textStrings["contextmenu_uninstall"] = "Удалить игру";
-            textStrings["contextmenu_fixupdateloop"] = "Исправить зацикленную загрузку";
             textStrings["contextmenu_fixsubs"] = "Исправить субтитры";
+            textStrings["contextmenu_download_type"] = "Изменить тип загрузки";
             textStrings["contextmenu_customfps"] = "Своё ограничение FPS";
             textStrings["contextmenu_resetgamesettings"] = "Сбросить настройки игры";
             textStrings["contextmenu_web_profile"] = "Перейти в веб-профиль";
@@ -92,8 +92,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Удаление";
             textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Ошибка удаления";
-            textStrings["msgbox_fixupdateloop_1_msg"] = "Будет произведена попытка исправить печально известную проблему с бесконечной загрузкой в игре.\nЕсли с первого раза не помогает, попробуйте ещё раз.\nПродолжить?";
-            textStrings["msgbox_fixupdateloop_2_msg"] = "Значение ResourceDownloadType до: {0}.\nЗначение ResourceDownloadType после: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Будет изменён тип загрузки внутриигровых ресурсов в надежде исправить печально известную проблему с бесконечной загрузкой в игре.\nЕсли с первого раза не помогает, попробуйте ещё раз.\nПродолжить?";
+            textStrings["msgbox_download_type_2_msg"] = "Значение ResourceDownloadType до: {0}.\nЗначение ResourceDownloadType после: {1}.";
             textStrings["msgbox_fixsubs_1_msg"] = "Будет произведена попытка исправить субтитры к видео (и гача баннеры). Убедитесь, что все видеофайлы были загружены в игре.\nПродолжить?";
             textStrings["msgbox_fixsubs_2_msg"] = "Распаковка субтитров к видео {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Проверка файла субтитров {0}/{1}...";
