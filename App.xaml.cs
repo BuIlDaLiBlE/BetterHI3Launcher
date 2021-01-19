@@ -18,14 +18,12 @@ namespace BetterHI3Launcher
                 // Initializes a new instance of the Mutex class with a Boolean value that indicates 
                 // whether the calling thread should have initial ownership of the mutex, a string that is the name of the mutex, 
                 // and a Boolean value that, when the method returns, indicates whether the calling thread was granted initial ownership of the mutex.
-
                 m = new Mutex(true, mutexName, out createdNew);
 
                 if(!createdNew)
                 {
                     Current.Shutdown(); // Exit the application
                 }
-
             }
             catch
             {
