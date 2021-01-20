@@ -129,7 +129,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_gamedownloadmirrorold_msg", "It seems like the game version on miHoYo servers is newer than the one on the mirror.\nThere is no reason to download an outdated version, ask the mirror maintainer to upload a new version.");
             textStrings.Add("msgbox_gamedownloadpaused_msg", "The game is not downloaded entirely yet. Changing server or mirror will reset the download progress.\nContinue?");
             textStrings.Add("msgbox_gamedownloadmirrorerror_msg", "An error occurred while downloading from the mirror.\n{0}");
-            textStrings.Add("msgbox_install_little_space_msg", "There is not enough free space on selected device, installation may result in failure.\nContinue?");
+            textStrings.Add("msgbox_install_little_space_msg", "There is potentially not enough free space on selected device, it is recommended to free up some space or installation may result in failure.\nContinue?");
             textStrings.Add("msgbox_install_wrong_drive_type_msg", "Cannot install on selected device.");
             textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
         }
