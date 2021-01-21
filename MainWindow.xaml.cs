@@ -39,7 +39,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210121.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210121.1");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -75,7 +75,7 @@ namespace BetterHI3Launcher
                         OptionsButton.IsEnabled = val;
                         ServerDropdown.IsEnabled = val;
                         MirrorDropdown.IsEnabled = val;
-                        ToggleContextMenuItems(val);
+                        ToggleContextMenuItems(val, false);
                     }
                     void ToggleProgressBar(dynamic val)
                     {
@@ -88,7 +88,6 @@ namespace BetterHI3Launcher
                     switch(_status)
                     {
                         case LauncherStatus.Ready:
-                        case LauncherStatus.DownloadPaused:
                             ProgressText.Text = String.Empty;
                             ToggleUI(true);
                             ToggleProgressBar(Visibility.Hidden);
@@ -111,6 +110,12 @@ namespace BetterHI3Launcher
                             ToggleProgressBar(Visibility.Visible);
                             ProgressBar.IsIndeterminate = false;
                             break;
+                        case LauncherStatus.DownloadPaused:
+                            ProgressText.Text = String.Empty;
+                            ToggleUI(true);
+                            ToggleProgressBar(Visibility.Hidden);
+                            ToggleContextMenuItems(false, false);
+                            break;
                         case LauncherStatus.Working:
                             ToggleUI(false);
                             ToggleProgressBar(Visibility.Visible);
@@ -131,7 +136,7 @@ namespace BetterHI3Launcher
                         case LauncherStatus.UpdateAvailable:
                             ToggleUI(true);
                             ToggleProgressBar(Visibility.Hidden);
-                            ToggleContextMenuItems(false);
+                            ToggleContextMenuItems(false, true);
                             break;
                         case LauncherStatus.Uninstalling:
                             ProgressText.Text = textStrings["progresstext_uninstalling"];
@@ -291,7 +296,7 @@ namespace BetterHI3Launcher
             var CMAbout = new MenuItem{Header = textStrings["contextmenu_about"]};
             CMAbout.Click += (sender, e) => CM_About_Click(sender, e);
             OptionsContextMenu.Items.Add(CMAbout);
-            ToggleContextMenuItems(false);
+            ToggleContextMenuItems(false, false);
 
             try
             {
@@ -412,6 +417,8 @@ namespace BetterHI3Launcher
                 {
                     LauncherVersionText.Text = $"{textStrings["launcher_version"]}: v{localLauncherVersion}";
                     ChangelogBoxTextBox.Text += onlineVersionInfo.launcher_info.changelog[LauncherLanguage];
+                    ShowLogStackPanel.Margin = new Thickness((double)onlineVersionInfo.launcher_info.ui.ShowLogStackPanel_Margin.left, 0, 0, (double)onlineVersionInfo.launcher_info.ui.ShowLogStackPanel_Margin.bottom);
+                    LogBox.Margin = new Thickness((double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.left, (double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.top, (double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.right, (double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.bottom);
                 });
             }
             else
@@ -684,7 +691,7 @@ namespace BetterHI3Launcher
                             Dispatcher.Invoke(() =>
                             {
                                 LaunchButton.Content = textStrings["button_launch"];
-                                ToggleContextMenuItems(true);
+                                ToggleContextMenuItems(true, false);
                             });
                         }
                         if(File.Exists(gameArchivePath))
@@ -950,7 +957,7 @@ namespace BetterHI3Launcher
                         return;
                     await Task.Run(() =>
                     {
-                        Log("Validating game archive");
+                        Log("Validating game archive...");
                         Status = LauncherStatus.Verifying;
                         string actual_md5 = BpUtility.CalculateMD5(gameArchivePath);
                         if(actual_md5 != md5.ToUpper())
@@ -1067,7 +1074,7 @@ namespace BetterHI3Launcher
                 {
                     var version = Encoding.UTF8.GetString((byte[])key.GetValue(GameRegistryLocalVersionRegValue)).TrimEnd('\u0000');
                     if(!miHoYoVersionInfo.cur_version.ToString().Contains(version))
-                        versionInfo.game_info.version = version;
+                        versionInfo.game_info.version = $"{version}_xxxxxxxxxx";
                 }
 
                 Log("Writing game version info to registry...");
@@ -1095,7 +1102,7 @@ namespace BetterHI3Launcher
                     Directory.Delete(gameInstallPath, true);
             }
             try{LauncherRegKey.DeleteValue(RegistryVersionInfo);}catch{}
-            LaunchButton.Content = textStrings["button_download"];
+            Dispatcher.Invoke(() => { LaunchButton.Content = textStrings["button_download"]; });
         }
 
         private async void DownloadGameCache(bool FullCache)
@@ -1184,7 +1191,7 @@ namespace BetterHI3Launcher
                         return;
                     await Task.Run(() =>
                     {
-                        Log("Validating game cache");
+                        Log("Validating game cache...");
                         Status = LauncherStatus.Verifying;
                         string actual_md5 = BpUtility.CalculateMD5(cacheArchivePath);
                         if(actual_md5 != md5.ToUpper())
@@ -1653,7 +1660,7 @@ namespace BetterHI3Launcher
 
         private async Task CM_Uninstall_Click(object sender, RoutedEventArgs e)
         {
-            if((Status == LauncherStatus.Ready || Status == LauncherStatus.Error) && !String.IsNullOrEmpty(gameInstallPath))
+            if((Status == LauncherStatus.Ready || Status == LauncherStatus.Error || Status == LauncherStatus.UpdateAvailable) && !String.IsNullOrEmpty(gameInstallPath))
             {
                 if(rootPath.Contains(gameInstallPath))
                 {
@@ -2356,16 +2363,19 @@ namespace BetterHI3Launcher
                         return 0;
                     else if(gameTitleLine.Contains("Honkai Impact 3"))
                         return 1;
+
                 }
             }
             return -1;
         }
 
-        private void ToggleContextMenuItems(bool val)
+        private void ToggleContextMenuItems(bool val, bool leaveUninstallEnabled)
         {
             foreach(dynamic item in OptionsContextMenu.Items)
             {
                 if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_about"]))
+                    continue;
+                if(!val && (item.GetType() == typeof(MenuItem) && item.Header.ToString() == textStrings["contextmenu_uninstall"]))
                     continue;
                 item.IsEnabled = val;
             }

@@ -211,20 +211,20 @@
                 <ComboBoxItem Content="MediaFire"></ComboBoxItem>
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-            <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
-                <CheckBox.LayoutTransform>
-                    <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
-                </CheckBox.LayoutTransform>
-            </CheckBox>
-            <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White">
-                <TextBlock.Effect>
-                    <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
-                </TextBlock.Effect>
-            </TextBlock>
+            <StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
+                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
+                    <CheckBox.LayoutTransform>
+                        <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                    </CheckBox.LayoutTransform>
+                </CheckBox>
+                <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
+                    </TextBlock.Effect>
+                </TextBlock>
             </StackPanel>
-            <Grid Name="LogBox" Visibility="Collapsed">
-                <Border Margin="0,0,316,25" Width="944" Height="520" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Name="LogBox" Margin="0,0,316,25" Width="944" Height="520" Visibility="Visible">
+                <Border BorderBrush="Black" Background="Transparent">
                     <StackPanel>
                         <ScrollViewer Name="LogBoxScrollViewer" Width="944" Height="520" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <TextBox Name="LogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#C8000000" Foreground="White" FontFamily="Consolas" IsReadOnly="True"/>
