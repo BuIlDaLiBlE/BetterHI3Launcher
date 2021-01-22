@@ -64,7 +64,7 @@ namespace BetterHI3Launcher
             textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
             textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.");
             textStrings.Add("msgbox_genericerror_title", "Error");
-            textStrings.Add("msgbox_genericerror_msg", "An error occurred:\n{0}");
+            textStrings.Add("msgbox_genericerror_msg", "An error occurred.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_neterror_title", "Network error");
             textStrings.Add("msgbox_neterror_msg", "An error occurred while connecting to server");
             textStrings.Add("msgbox_verifyerror_title", "File validation error");
@@ -74,10 +74,10 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_starterror_msg", "An error occurred while starting the launcher:\n{0}");
             textStrings.Add("msgbox_launcherdownloaderror_msg", "An error occurred while downloading the launcher:\n{0}");
             textStrings.Add("msgbox_gamedownloaderror_title", "Error downloading game files");
-            textStrings.Add("msgbox_gamedownloaderror_msg", "An error occurred while downloading game files:\n{0}");
-            textStrings.Add("msgbox_installerror_msg", "An error occurred while installing game files:\n{0}");
+            textStrings.Add("msgbox_gamedownloaderror_msg", "An error occurred while downloading game files.\nFor more information take a look at the log.");
+            textStrings.Add("msgbox_installerror_msg", "An error occurred while installing game files.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_installerror_title", "Installation error");
-            textStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process:\n{0}");
+            textStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_update_title", "Update notice");
             textStrings.Add("msgbox_install_msg", "The game is going to be installed to:\n{0}\nContinue installation?");
             textStrings.Add("msgbox_install_title", "Installation notice");
@@ -87,7 +87,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_abort_2_msg", "Progress will not be saved.");
             textStrings.Add("msgbox_abort_3_msg", "Progress will be saved.");
             textStrings.Add("msgbox_abort_title", "Abort request");
-            textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry:\n{0}");
+            textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_registryerror_title", "Registry error");
             textStrings.Add("msgbox_registryempty_msg", "No value to be tweaked in registry exists. Did you already run the game?");
             textStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
@@ -124,11 +124,11 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_notice_title", "Notice");
             textStrings.Add("msgbox_novideodir_msg", "Video folder cannot be found.\nTry reinstalling the game.");
             textStrings.Add("msgbox_mirrorinfo_msg", "Use this mirror only if you cannot download the game via official miHoYo servers.\nPlease note that it is updated manually.\nContinue?");
-            textStrings.Add("msgbox_updatecheckerror_msg", "An error occurred while checking for update:\n{0}");
+            textStrings.Add("msgbox_updatecheckerror_msg", "An error occurred while checking for update.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_updatecheckerror_title", "Update check error");
             textStrings.Add("msgbox_gamedownloadmirrorold_msg", "It seems like the game version on miHoYo servers is newer than the one on the mirror.\nThere is no reason to download an outdated version, ask the mirror maintainer to upload a new version.");
             textStrings.Add("msgbox_gamedownloadpaused_msg", "The game is not downloaded entirely yet. Changing server or mirror will reset the download progress.\nContinue?");
-            textStrings.Add("msgbox_gamedownloadmirrorerror_msg", "An error occurred while downloading from the mirror.\n{0}");
+            textStrings.Add("msgbox_gamedownloadmirrorerror_msg", "An error occurred while downloading from the mirror.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_install_little_space_msg", "There is potentially not enough free space on selected device, it is recommended to free up some space or installation may result in failure.\nContinue?");
             textStrings.Add("msgbox_install_wrong_drive_type_msg", "Cannot install on selected device.");
             textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");

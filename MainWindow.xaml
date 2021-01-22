@@ -14,6 +14,9 @@
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         Title="Better HI3 Launcher" Width="1362" Height="698">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo/>
+    </Window.TaskbarItemInfo>
     <Window.Resources>
         <FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
         <ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
@@ -180,7 +183,7 @@
             <Image Name="BackgroundImage" Stretch="Fill"/>
             <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
             <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
-            <ProgressBar Name="ProgressBar" Minimum="0" Maximum="100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
+            <ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
             <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" MinWidth="214" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
             <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" FontSize="12" FontFamily="{DynamicResource Font}"/>
             <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,7" Foreground="#C8FFFFFF" FontSize="10" FontFamily="{DynamicResource Font}"/>
@@ -223,7 +226,7 @@
                     </TextBlock.Effect>
                 </TextBlock>
             </StackPanel>
-            <Grid Name="LogBox" Margin="0,0,316,25" Width="944" Height="520" Visibility="Visible">
+            <Grid Name="LogBox" Margin="0,0,316,25" Width="944" Height="520" Visibility="Collapsed">
                 <Border BorderBrush="Black" Background="Transparent">
                     <StackPanel>
                         <ScrollViewer Name="LogBoxScrollViewer" Width="944" Height="520" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -248,6 +251,23 @@
                     <Button Name="FPSInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="FPSInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
+            <Grid Name="DownloadCacheBox" Visibility="Collapsed">
+                <Grid Background="#80000000"/>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="200">
+                    <Border BorderBrush="Black" Background="#C8FFFFFF">
+                        <StackPanel>
+                            <TextBlock Name="DownloadCacheBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" Height="128" FontFamily="Segoe UI" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Name="DownloadCacheBoxFullCacheButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxFullCacheButton_Click"/>
+                                <Button Name="DownloadCacheBoxNumericFilesButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxNumericFilesButton_Click"/>
+                                <Button Name="DownloadCacheBoxCancelButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxCloseButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="DownloadCacheBoxCloseButton_Click"/>
+                </Grid>
+            </Grid>
             <Grid Name="ChangelogBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="844" Height="390">
@@ -264,23 +284,6 @@
                         </StackPanel>
                     </Border>
                     <Button Name="ChangelogBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="ChangelogBoxCloseButton_Click"/>
-                </Grid>
-            </Grid>
-            <Grid Name="DownloadCacheBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="200">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
-                        <StackPanel>
-                            <TextBlock Name="DownloadCacheBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" Height="128" FontFamily="Segoe UI" TextWrapping="Wrap"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="DownloadCacheBoxFullCacheButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxFullCacheButton_Click"/>
-                                <Button Name="DownloadCacheBoxNumericFilesButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxNumericFilesButton_Click"/>
-                                <Button Name="DownloadCacheBoxCancelButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxCloseButton_Click"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="DownloadCacheBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="AboutBox" Visibility="Collapsed">
