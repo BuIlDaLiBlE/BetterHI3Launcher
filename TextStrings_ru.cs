@@ -59,7 +59,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кэша числовых файлов.";
             textStrings["msgbox_download_cache_3_msg"] = "Приблизительный размер: {0}.\nПродолжить?";
             textStrings["msgbox_genericerror_title"] = "Ошибка";
-            textStrings["msgbox_genericerror_msg"] = "Произошла ошибка:\n{0}";
+            textStrings["msgbox_genericerror_msg"] = "Произошла ошибка.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_neterror_title"] = "Сетевая ошибка";
             textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу";
             textStrings["msgbox_verifyerror_title"] = "Ошибка проверки целостности файла";
@@ -69,10 +69,10 @@ namespace BetterHI3Launcher
             textStrings["msgbox_starterror_msg"] = "Произошла ошибка запуска лаунчера:\n{0}";
             textStrings["msgbox_launcherdownloaderror_msg"] = "Произошла ошибка загрузки лаунчера:\n{0}";
             textStrings["msgbox_gamedownloaderror_title"] = "Ошибка загрузки игровых файлов";
-            textStrings["msgbox_gamedownloaderror_msg"] = "Произошла ошибка загрузки игровых файлов:\n{0}";
-            textStrings["msgbox_installerror_msg"] = "Произошла ошибка установки игровых файлов:\n{0}";
+            textStrings["msgbox_gamedownloaderror_msg"] = "Произошла ошибка загрузки игровых файлов.\nДля дополнительной информации посмотрите лог.";
+            textStrings["msgbox_installerror_msg"] = "Произошла ошибка установки игровых файлов.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_installerror_title"] = "Ошибка установки";
-            textStrings["msgbox_process_start_error_msg"] = "Произошла ошибка запуска процесса:\n{0}";
+            textStrings["msgbox_process_start_error_msg"] = "Произошла ошибка запуска процесса.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_update_title"] = "Уведомление об обновлении";
             textStrings["msgbox_install_msg"] = "Игра будет установлена по пути:\n{0}\nПродолжить установку?";
             textStrings["msgbox_install_title"] = "Уведомление об установке";
@@ -82,7 +82,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_abort_2_msg"] = "Прогресс не будет сохранён.";
             textStrings["msgbox_abort_3_msg"] = "Прогресс будет сохранён.";
             textStrings["msgbox_abort_title"] = "Запрос на отмену";
-            textStrings["msgbox_registryerror_msg"] = "Произошла ошибка доступа к реестру:\n{0}";
+            textStrings["msgbox_registryerror_msg"] = "Произошла ошибка доступа к реестру.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_registryerror_title"] = "Ошибка реестра";
             textStrings["msgbox_registryempty_msg"] = "Нужное значение в реестре отсутствует. Вы уже запускали игру?";
             textStrings["msgbox_uninstall_1_msg"] = "Вы уверены, что хотите удалить игру?";
@@ -116,11 +116,11 @@ namespace BetterHI3Launcher
             textStrings["msgbox_notice_title"] = "Уведомление";
             textStrings["msgbox_novideodir_msg"] = "Папка с видео не может быть найдена.\nПопробуйте переустановить игру.";
             textStrings["msgbox_mirrorinfo_msg"] = "Используйте зеркало только в том случае, если не получается загрузить игру с официальных серверов miHoYo.\nУчтите, что зеркало обновляется вручную.\nПродолжить?";
-            textStrings["msgbox_updatecheckerror_msg"] = "Произошла ошибка проверки обновления:\n{0}";
+            textStrings["msgbox_updatecheckerror_msg"] = "Произошла ошибка проверки обновления.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_updatecheckerror_title"] = "Ошибка проверки обновления";
             textStrings["msgbox_gamedownloadmirrorold_msg"] = "Похоже, что версия игры на серверах miHoYo новее той, что загружена на зеркало.\nЗагружать старую версию нет смысла, попросите автора загрузить новую версию на зеркало.";
             textStrings["msgbox_gamedownloadpaused_msg"] = "Игра ещё не была загружена до конца. Изменение сервера или зеркала приведёт к сбросу прогресса загрузки.\nПродолжить?";
-            textStrings["msgbox_gamedownloadmirrorerror_msg"] = "Произошла ошибка загрузки с зеркала.\n{0}";
+            textStrings["msgbox_gamedownloadmirrorerror_msg"] = "Произошла ошибка загрузки с зеркала.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_install_little_space_msg"] = "Свободного пространства на устройстве потенциально мало, рекомендуется освободить место или установка может завершиться неудачей.\nПродолжить?";
             textStrings["msgbox_install_wrong_drive_type_msg"] = "На данное устройство установить нельзя.";
             textStrings["msgbox_mirror_error_msg"] = "Ошибка зеркала. Попросите ответственного за зеркало разобраться с этим.\nСообщение: {0}";
