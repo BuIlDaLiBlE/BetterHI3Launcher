@@ -741,11 +741,10 @@ namespace BetterHI3Launcher
                                     var server = CheckForExistingGameClientServer();
                                     if(server >= 0)
                                     {
-                                        if((int)Server == server)
-                                            GameUpdateCheck(false);
-                                        else
+                                        if((int)Server != server)
                                             ServerDropdown.SelectedIndex = server;
-                                        WriteVersionInfo();
+                                        WriteVersionInfo(true);
+                                        GameUpdateCheck(false);
                                     }
                                     else
                                     {
@@ -942,7 +941,7 @@ namespace BetterHI3Launcher
                     }
                 }
 
-                Log($"Starting to download game archive: {url}");
+                Log($"Starting to download game archive: {title} ({url})");
                 Status = LauncherStatus.Downloading;
                 Dispatcher.Invoke(() =>
                 {
@@ -1055,15 +1054,15 @@ namespace BetterHI3Launcher
                                 }
                             }
                         }
+                        File.Delete(gameArchivePath);
                         if(skippedFiles.Count > 0)
                         {
                             throw new ArchiveException("Game archive is corrupt");
                         }
                         Log("Game archive unpack OK");
-                        File.Delete(gameArchivePath);
                         Dispatcher.Invoke(() => 
                         {
-                            WriteVersionInfo();
+                            WriteVersionInfo(false);
                             Log("Game install OK");
                             GameUpdateCheck(false);
                         });
@@ -1095,7 +1094,7 @@ namespace BetterHI3Launcher
             }
         }
 
-        private void WriteVersionInfo()
+        private void WriteVersionInfo(bool CheckForLocalVersion)
         {
             try
             {
@@ -1103,16 +1102,25 @@ namespace BetterHI3Launcher
                 versionInfo.game_info = new ExpandoObject();
                 versionInfo.game_info.version = miHoYoVersionInfo.cur_version.ToString();
                 versionInfo.game_info.install_path = gameInstallPath;
-                RegistryKey key;
-                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
-                if(LauncherRegKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(GameRegistryLocalVersionRegValue) != null && key.GetValueKind(GameRegistryLocalVersionRegValue) == RegistryValueKind.Binary))
+                if(CheckForLocalVersion)
                 {
-                    var version = Encoding.UTF8.GetString((byte[])key.GetValue(GameRegistryLocalVersionRegValue)).TrimEnd('\u0000');
-                    if(!miHoYoVersionInfo.cur_version.ToString().Contains(version))
-                        versionInfo.game_info.version = $"{version}_xxxxxxxxxx";
+                    RegistryKey key;
+                    key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                    if(LauncherRegKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(GameRegistryLocalVersionRegValue) != null && key.GetValueKind(GameRegistryLocalVersionRegValue) == RegistryValueKind.Binary))
+                    {
+                        var version = Encoding.UTF8.GetString((byte[])key.GetValue(GameRegistryLocalVersionRegValue)).TrimEnd('\u0000');
+                        if(!miHoYoVersionInfo.cur_version.ToString().Contains(version))
+                            versionInfo.game_info.version = $"{version}_xxxxxxxxxx";
+                    }
+                    else
+                    {
+                        if(MessageBox.Show(textStrings["msgbox_install_existing_no_local_version_msg"], textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                        {
+                            versionInfo.game_info.version = "0.0.0_xxxxxxxxxx";
+                        }
+                    }
                 }
-
-                Log("Writing game version info to registry...");
+                Log("Writing game version info...");
                 LauncherRegKey.SetValue(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(versionInfo)), RegistryValueKind.Binary);
                 LauncherRegKey.Close();
                 LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
@@ -1191,7 +1199,7 @@ namespace BetterHI3Launcher
                     return;
                 }
 
-                Log($"Starting to download game cache {title}");
+                Log($"Starting to download game cache: {title}({url})");
                 Status = LauncherStatus.Downloading;
                 await Task.Run(() =>
                 {
@@ -1295,12 +1303,12 @@ namespace BetterHI3Launcher
                                 }
                             }
                         }
+                        File.Delete(cacheArchivePath);
                         if(skippedFiles.Count > 0)
                         {
                             throw new ArchiveException("Cache archive is corrupt");
                         }
                         Log("Game cache unpack OK");
-                        File.Delete(cacheArchivePath);
                         SendStatistics(title, time);
                     });
                 }
@@ -1564,11 +1572,10 @@ namespace BetterHI3Launcher
                                         var server = CheckForExistingGameClientServer();
                                         if(server >= 0)
                                         {
-                                            if((int)Server == server)
-                                                GameUpdateCheck(false);
-                                            else
+                                            if((int)Server != server)
                                                 ServerDropdown.SelectedIndex = server;
-                                            WriteVersionInfo();
+                                            WriteVersionInfo(true);
+                                            GameUpdateCheck(false);
                                         }
                                         else
                                         {
@@ -2373,7 +2380,7 @@ namespace BetterHI3Launcher
                         if(MessageBox.Show($"{textStrings["msgbox_abort_1_msg"]}\n{textStrings["msgbox_abort_3_msg"]}", textStrings["msgbox_abort_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                         {
                             download.Pause();
-                            WriteVersionInfo();
+                            WriteVersionInfo(false);
                         }
                         else
                         {
