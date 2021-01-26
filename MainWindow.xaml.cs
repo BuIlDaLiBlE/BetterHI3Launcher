@@ -423,7 +423,7 @@ namespace BetterHI3Launcher
                 Dispatcher.Invoke(() =>
                 {
                     LauncherVersionText.Text = $"{textStrings["launcher_version"]}: v{localLauncherVersion}";
-                    ChangelogBoxTextBox.Text += onlineVersionInfo.launcher_info.changelog[LauncherLanguage];
+                    ChangelogBoxTextBox.Text = onlineVersionInfo.launcher_info.changelog[LauncherLanguage];
                     ShowLogStackPanel.Margin = new Thickness((double)onlineVersionInfo.launcher_info.ui.ShowLogStackPanel_Margin.left, 0, 0, (double)onlineVersionInfo.launcher_info.ui.ShowLogStackPanel_Margin.bottom);
                     LogBox.Margin = new Thickness((double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.left, (double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.top, (double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.right, (double)onlineVersionInfo.launcher_info.ui.LogBox_Margin.bottom);
                 });
