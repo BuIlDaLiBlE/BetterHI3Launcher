@@ -121,6 +121,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_noexe_msg", "Game executable cannot be found :^(\nTry reinstalling the game.");
             textStrings.Add("msgbox_installexisting_msg", "The game appears to have already been installed to:\n{0}\nUse this directory?");
             textStrings.Add("msgbox_installexistinginvalid_msg", "The selected directory doesn't contain a valid installation of the game. This launcher only supports Global and SEA clients.");
+            textStrings.Add("msgbox_install_existing_no_local_version_msg", "Local version couldn't be determined.\nIs your game updated already? Please choose wisely!\nSelecting \"Yes\" will make you be able to launch the game.\nSelecting \"No\" will make you have to download the game.");
             textStrings.Add("msgbox_notice_title", "Notice");
             textStrings.Add("msgbox_novideodir_msg", "Video folder cannot be found.\nTry reinstalling the game.");
             textStrings.Add("msgbox_mirrorinfo_msg", "Use this mirror only if you cannot download the game via official miHoYo servers.\nPlease note that it is updated manually.\nContinue?");
