@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210122.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210126.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -90,7 +90,7 @@ namespace BetterHI3Launcher
                     switch(_status)
                     {
                         case LauncherStatus.Ready:
-                            ProgressText.Text = String.Empty;
+                            ProgressText.Text = string.Empty;
                             ToggleUI(true);
                             ToggleProgressBar(false);
                             break;
@@ -114,7 +114,7 @@ namespace BetterHI3Launcher
                             TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
                             break;
                         case LauncherStatus.DownloadPaused:
-                            ProgressText.Text = String.Empty;
+                            ProgressText.Text = string.Empty;
                             ToggleUI(true);
                             ToggleProgressBar(false);
                             ToggleContextMenuItems(false, false);
@@ -526,7 +526,7 @@ namespace BetterHI3Launcher
 
         private dynamic FetchMediaFireFileMetadata(string id, bool numeric)
         {
-            if(String.IsNullOrEmpty(id))
+            if(string.IsNullOrEmpty(id))
                 throw new ArgumentNullException();
 
             string url = $"https://www.mediafire.com/file/{id}";
@@ -539,7 +539,7 @@ namespace BetterHI3Launcher
                 using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
                 {
                     dynamic metadata = new ExpandoObject();
-                    metadata.title = webResponse.Headers["Content-Disposition"].Replace("attachment; filename=", String.Empty).Replace("\"", String.Empty);
+                    metadata.title = webResponse.Headers["Content-Disposition"].Replace("attachment; filename=", string.Empty).Replace("\"", string.Empty);
                     metadata.modifiedDate = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                     metadata.downloadUrl = url;
                     metadata.fileSize = webResponse.ContentLength;
@@ -576,7 +576,7 @@ namespace BetterHI3Launcher
 
         private dynamic FetchGDFileMetadata(string id)
         {
-            if(String.IsNullOrEmpty(id))
+            if(string.IsNullOrEmpty(id))
                 throw new ArgumentNullException();
 
             string url = $"https://www.googleapis.com/drive/v2/files/{id}?key={onlineVersionInfo.launcher_info.gd_key}";
@@ -732,7 +732,9 @@ namespace BetterHI3Launcher
                             LaunchButton.Content = textStrings["button_download"];
                             ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(download_size)}";
                             var path = CheckForExistingGameDirectory(rootPath);
-                            if(!String.IsNullOrEmpty(path))
+                            if(string.IsNullOrEmpty(path))
+                                path = CheckForExistingGameDirectory(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
+                            if(!string.IsNullOrEmpty(path))
                             {
                                 if(MessageBox.Show(string.Format(textStrings["msgbox_installexisting_msg"], path), textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                                 {
@@ -980,7 +982,7 @@ namespace BetterHI3Launcher
                         Thread.Sleep(10);
                     Dispatcher.Invoke(() =>
                     {
-                        ProgressText.Text = String.Empty;
+                        ProgressText.Text = string.Empty;
                         LaunchButton.Content = textStrings["button_launch"];
                     });
                 });
@@ -1225,7 +1227,7 @@ namespace BetterHI3Launcher
                         Thread.Sleep(10);
                     Dispatcher.Invoke(() =>
                     {
-                        ProgressText.Text = String.Empty;
+                        ProgressText.Text = string.Empty;
                         LaunchButton.Content = textStrings["button_launch"];
                     });
                 });
@@ -1556,14 +1558,14 @@ namespace BetterHI3Launcher
                                 gameInstallPath = null;
                             }
 
-                            if(String.IsNullOrEmpty(gameInstallPath))
+                            if(string.IsNullOrEmpty(gameInstallPath))
                             {
-                                return String.Empty;
+                                return string.Empty;
                             }
                             else
                             {
                                 var path = CheckForExistingGameDirectory(gameInstallPath);
-                                if(!String.IsNullOrEmpty(path))
+                                if(!string.IsNullOrEmpty(path))
                                 {
                                     if(MessageBox.Show(string.Format(textStrings["msgbox_installexisting_msg"], path), textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                                     {
@@ -1587,16 +1589,16 @@ namespace BetterHI3Launcher
                                             }
                                         }
                                     }
-                                    return String.Empty;
+                                    return string.Empty;
                                 }
                                 return gameInstallPath;
                             }
                         }
-                        if(String.IsNullOrEmpty(SelectGameInstallDirectory()))
+                        if(string.IsNullOrEmpty(SelectGameInstallDirectory()))
                             return;
                         while(MessageBox.Show(string.Format(textStrings["msgbox_install_msg"], gameInstallPath), textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                         {
-                            if(String.IsNullOrEmpty(SelectGameInstallDirectory()))
+                            if(string.IsNullOrEmpty(SelectGameInstallDirectory()))
                                 return;
                         }
                         var gameInstallDrive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(gameInstallPath) && x.IsReady).FirstOrDefault();
@@ -1746,7 +1748,7 @@ namespace BetterHI3Launcher
 
         private async Task CM_Uninstall_Click(object sender, RoutedEventArgs e)
         {
-            if((Status == LauncherStatus.Ready || Status == LauncherStatus.UpdateAvailable) && !String.IsNullOrEmpty(gameInstallPath))
+            if((Status == LauncherStatus.Ready || Status == LauncherStatus.UpdateAvailable) && !string.IsNullOrEmpty(gameInstallPath))
             {
                 if(rootPath.Contains(gameInstallPath))
                 {
@@ -1765,19 +1767,22 @@ namespace BetterHI3Launcher
                     try
                     {
                         DeleteGameFiles(true);
-                        if(MessageBox.Show(textStrings["msgbox_uninstall_3_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                        Dispatcher.Invoke(() =>
                         {
-                            string path;
-                            if(Server == HI3Server.Global)
-                                path = Path.Combine(miHoYoPath, "Honkai Impact 3rd");
-                            else
-                                path = Path.Combine(miHoYoPath, "Honkai Impact 3");
-                            Log("Deleting game cache and registry settings...");
-                            if(Directory.Exists(path))
-                                Directory.Delete(path, true);
-                            if(Registry.CurrentUser.OpenSubKey(GameRegistryPath) != null)
-                                Registry.CurrentUser.DeleteSubKeyTree(GameRegistryPath, true);
-                        }
+                            if(MessageBox.Show(textStrings["msgbox_uninstall_3_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                            {
+                                string path;
+                                if(Server == HI3Server.Global)
+                                    path = Path.Combine(miHoYoPath, "Honkai Impact 3rd");
+                                else
+                                    path = Path.Combine(miHoYoPath, "Honkai Impact 3");
+                                Log("Deleting game cache and registry settings...");
+                                if(Directory.Exists(path))
+                                    Directory.Delete(path, true);
+                                if(Registry.CurrentUser.OpenSubKey(GameRegistryPath) != null)
+                                    Registry.CurrentUser.DeleteSubKeyTree(GameRegistryPath, true);
+                            }
+                        });
                         Log("Game uninstall OK");
                         GameUpdateCheck(false);
                     }
@@ -1950,7 +1955,7 @@ namespace BetterHI3Launcher
                                 for(int line = 1; line < lineCount; line++)
                                 {
                                     var timecodeLine = File.ReadLines(SubtitleFiles[i]).Skip(line).Take(1).First();
-                                    if(String.IsNullOrEmpty(timecodeLine) || timecodeLine[0] != '0')
+                                    if(string.IsNullOrEmpty(timecodeLine) || timecodeLine[0] != '0')
                                         continue;
                                     if(timecodeLine.Contains("."))
                                     {
@@ -2264,8 +2269,8 @@ namespace BetterHI3Launcher
         {
             try
             {
-                FPSInputBoxTextBox.Text = String.Concat(FPSInputBoxTextBox.Text.Where(c => !char.IsWhiteSpace(c)));
-                if(String.IsNullOrEmpty(FPSInputBoxTextBox.Text))
+                FPSInputBoxTextBox.Text = string.Concat(FPSInputBoxTextBox.Text.Where(c => !char.IsWhiteSpace(c)));
+                if(string.IsNullOrEmpty(FPSInputBoxTextBox.Text))
                 {
                     MessageBox.Show(textStrings["msgbox_customfps_1_msg"], textStrings["contextmenu_customfps"], MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -2412,8 +2417,8 @@ namespace BetterHI3Launcher
                 path.Replace(@"Honkai Impact 3\Honkai Impact 3", @"Honkai Impact 3\Games"),
                 path.Replace(@"Honkai Impact 3rd\Games\Honkai Impact 3rd", @"Honkai Impact 3rd\Games"),
                 path.Replace(@"Honkai Impact 3\Games\Honkai Impact 3", @"Honkai Impact 3\Games"),
-                path.Replace(@"\BH3_Data\Honkai Impact 3rd", String.Empty),
-                path.Replace(@"\BH3_Data\Honkai Impact 3", String.Empty),
+                path.Replace(@"\BH3_Data\Honkai Impact 3rd", string.Empty),
+                path.Replace(@"\BH3_Data\Honkai Impact 3", string.Empty),
                 Path.Combine(path, "Games"),
                 Path.Combine(path, "Honkai Impact 3rd"),
                 Path.Combine(path, "Honkai Impact 3"),
@@ -2440,7 +2445,7 @@ namespace BetterHI3Launcher
                     if(File.Exists(Path.Combine(variant, gameExeName)))
                         return variant;
                 }
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -2450,7 +2455,7 @@ namespace BetterHI3Launcher
             if(File.Exists(path))
             {
                 var gameTitleLine = File.ReadLines(path).Skip(1).Take(1).First();
-                if(!String.IsNullOrEmpty(gameTitleLine))
+                if(!string.IsNullOrEmpty(gameTitleLine))
                 {
                     if(gameTitleLine.Contains("Honkai Impact 3rd"))
                         return 0;
@@ -2534,7 +2539,7 @@ namespace BetterHI3Launcher
 
         public struct GameVersion
         {
-            internal static GameVersion zero = new GameVersion(0, 0, 0, String.Empty);
+            internal static GameVersion zero = new GameVersion(0, 0, 0, string.Empty);
 
             private int major, minor, patch;
             private string build;
@@ -2555,7 +2560,7 @@ namespace BetterHI3Launcher
                     major = 0;
                     minor = 0;
                     patch = 0;
-                    build = String.Empty;
+                    build = string.Empty;
                     return;
                 }
 
