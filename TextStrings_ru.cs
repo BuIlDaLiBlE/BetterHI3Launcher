@@ -125,6 +125,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_install_little_space_msg"] = "Свободного пространства на устройстве потенциально мало, рекомендуется освободить место или установка может завершиться неудачей.\nПродолжить?";
             textStrings["msgbox_install_wrong_drive_type_msg"] = "На данное устройство установить нельзя.";
             textStrings["msgbox_mirror_error_msg"] = "Ошибка зеркала. Попросите ответственного за зеркало разобраться с этим.\nСообщение: {0}";
+            textStrings["msgbox_net_version_old_msg"] = "Этот лаунчер требует установленного .NET Framework версии 4.6 или новее.";
         }
     }
 }

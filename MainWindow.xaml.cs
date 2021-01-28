@@ -292,6 +292,16 @@ namespace BetterHI3Launcher
             OptionsContextMenu.Items.Add(CMAbout);
             ToggleContextMenuItems(false, false);
 
+            RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
+            if(key == null || (int)key.GetValue("Release") < 393295)
+            {
+                if(MessageBox.Show(textStrings["msgbox_net_version_old_msg"], textStrings["msgbox_starterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                    return;
+                }
+            }
+
             try
             {
                 FetchOnlineVersionInfo();
@@ -1106,8 +1116,7 @@ namespace BetterHI3Launcher
                 versionInfo.game_info.install_path = gameInstallPath;
                 if(CheckForLocalVersion)
                 {
-                    RegistryKey key;
-                    key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                    RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
                     if(LauncherRegKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(GameRegistryLocalVersionRegValue) != null && key.GetValueKind(GameRegistryLocalVersionRegValue) == RegistryValueKind.Binary))
                     {
                         var version = Encoding.UTF8.GetString((byte[])key.GetValue(GameRegistryLocalVersionRegValue)).TrimEnd('\u0000');
@@ -1808,8 +1817,7 @@ namespace BetterHI3Launcher
 
             try
             {
-                RegistryKey key;
-                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
                 string value = "GENERAL_DATA_V2_ResourceDownloadType_h2238376574";
                 if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
                 {
@@ -2012,8 +2020,7 @@ namespace BetterHI3Launcher
 
             try
             {
-                RegistryKey key;
-                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
                 string value = "GENERAL_DATA_V2_PersonalGraphicsSetting_h906361411";
                 if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
                 {
@@ -2061,8 +2068,7 @@ namespace BetterHI3Launcher
 
             try
             {
-                RegistryKey key;
-                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
                 if(key == null)
                 {
                     Log("ERROR: No game registry key!");
