@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210126.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210131.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -99,6 +99,7 @@ namespace BetterHI3Launcher
                             ToggleUI(false);
                             ToggleProgressBar(false);
                             ShowLogCheckBox.IsChecked = true;
+                            TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
                             break;
                         case LauncherStatus.CheckingUpdates:
                             ProgressText.Text = textStrings["progresstext_checkingupdate"];
@@ -1523,7 +1524,7 @@ namespace BetterHI3Launcher
                     try
                     {
                         BpUtility.StartProcess(gameExePath, null, gameInstallPath, true);
-                        Close();
+                        WindowState = WindowState.Minimized;
                     }
                     catch(Exception ex)
                     {
@@ -1864,6 +1865,7 @@ namespace BetterHI3Launcher
             try
             {
                 Status = LauncherStatus.Working;
+                Log("Starting to fix subtitles...");
                 var GameVideoDirectory = Path.Combine(gameInstallPath, @"BH3_Data\StreamingAssets\Video");
                 if(Directory.Exists(GameVideoDirectory))
                 {
@@ -1919,9 +1921,12 @@ namespace BetterHI3Launcher
                                 filesUnpacked++;
                             }
                             Dispatcher.Invoke(() =>
-                            { 
+                            {
                                 if(skippedFiles.Count > 0)
+                                {
+                                    TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
                                     MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                                }
                             });
                             Log($"Unpacked {filesUnpacked} archives");
                         });
@@ -1984,6 +1989,7 @@ namespace BetterHI3Launcher
                         });
                         Log($"Parsed {subtitlesParsed} subtitles, fixed {subsFixed.Count} of them");
                     }
+                    WindowState = WindowState.Normal;
                     if(SubtitleArchives.Count > 0 && subsFixed.Count == 0)
                         MessageBox.Show(string.Format(textStrings["msgbox_fixsubs_4_msg"], SubtitleArchives.Count), textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
                     else if(SubtitleArchives.Count == 0 && subsFixed.Count > 0)
