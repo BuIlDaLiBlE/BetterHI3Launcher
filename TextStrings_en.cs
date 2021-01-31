@@ -133,6 +133,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_install_little_space_msg", "There is potentially not enough free space on selected device, it is recommended to free up some space or installation may result in failure.\nContinue?");
             textStrings.Add("msgbox_install_wrong_drive_type_msg", "Cannot install on selected device.");
             textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
+            textStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6 or newer to be installed.");
         }
     }
 }

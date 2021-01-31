@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210126.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210131.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -99,6 +99,7 @@ namespace BetterHI3Launcher
                             ToggleUI(false);
                             ToggleProgressBar(false);
                             ShowLogCheckBox.IsChecked = true;
+                            TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
                             break;
                         case LauncherStatus.CheckingUpdates:
                             ProgressText.Text = textStrings["progresstext_checkingupdate"];
@@ -291,6 +292,16 @@ namespace BetterHI3Launcher
             CMAbout.Click += (sender, e) => CM_About_Click(sender, e);
             OptionsContextMenu.Items.Add(CMAbout);
             ToggleContextMenuItems(false, false);
+
+            RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
+            if(key == null || (int)key.GetValue("Release") < 393295)
+            {
+                if(MessageBox.Show(textStrings["msgbox_net_version_old_msg"], textStrings["msgbox_starterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                    return;
+                }
+            }
 
             try
             {
@@ -1106,8 +1117,7 @@ namespace BetterHI3Launcher
                 versionInfo.game_info.install_path = gameInstallPath;
                 if(CheckForLocalVersion)
                 {
-                    RegistryKey key;
-                    key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                    RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
                     if(LauncherRegKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(GameRegistryLocalVersionRegValue) != null && key.GetValueKind(GameRegistryLocalVersionRegValue) == RegistryValueKind.Binary))
                     {
                         var version = Encoding.UTF8.GetString((byte[])key.GetValue(GameRegistryLocalVersionRegValue)).TrimEnd('\u0000');
@@ -1514,7 +1524,7 @@ namespace BetterHI3Launcher
                     try
                     {
                         BpUtility.StartProcess(gameExePath, null, gameInstallPath, true);
-                        Close();
+                        WindowState = WindowState.Minimized;
                     }
                     catch(Exception ex)
                     {
@@ -1808,8 +1818,7 @@ namespace BetterHI3Launcher
 
             try
             {
-                RegistryKey key;
-                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
                 string value = "GENERAL_DATA_V2_ResourceDownloadType_h2238376574";
                 if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
                 {
@@ -1856,6 +1865,7 @@ namespace BetterHI3Launcher
             try
             {
                 Status = LauncherStatus.Working;
+                Log("Starting to fix subtitles...");
                 var GameVideoDirectory = Path.Combine(gameInstallPath, @"BH3_Data\StreamingAssets\Video");
                 if(Directory.Exists(GameVideoDirectory))
                 {
@@ -1911,9 +1921,12 @@ namespace BetterHI3Launcher
                                 filesUnpacked++;
                             }
                             Dispatcher.Invoke(() =>
-                            { 
+                            {
                                 if(skippedFiles.Count > 0)
+                                {
+                                    TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
                                     MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                                }
                             });
                             Log($"Unpacked {filesUnpacked} archives");
                         });
@@ -1976,6 +1989,7 @@ namespace BetterHI3Launcher
                         });
                         Log($"Parsed {subtitlesParsed} subtitles, fixed {subsFixed.Count} of them");
                     }
+                    WindowState = WindowState.Normal;
                     if(SubtitleArchives.Count > 0 && subsFixed.Count == 0)
                         MessageBox.Show(string.Format(textStrings["msgbox_fixsubs_4_msg"], SubtitleArchives.Count), textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
                     else if(SubtitleArchives.Count == 0 && subsFixed.Count > 0)
@@ -2012,8 +2026,7 @@ namespace BetterHI3Launcher
 
             try
             {
-                RegistryKey key;
-                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
                 string value = "GENERAL_DATA_V2_PersonalGraphicsSetting_h906361411";
                 if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
                 {
@@ -2061,8 +2074,7 @@ namespace BetterHI3Launcher
 
             try
             {
-                RegistryKey key;
-                key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
                 if(key == null)
                 {
                     Log("ERROR: No game registry key!");

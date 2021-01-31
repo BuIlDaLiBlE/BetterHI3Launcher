@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -758,7 +759,7 @@ namespace BetterHI3Launcher
             bool consoleAttached = true;
             if (alwaysCreateNewConsole
                 || (AttachConsole(ATTACH_PARRENT) == 0
-                && System.Runtime.InteropServices.Marshal.GetLastWin32Error() != ERROR_ACCESS_DENIED))
+                && Marshal.GetLastWin32Error() != ERROR_ACCESS_DENIED))
             {
                 consoleAttached = AllocConsole() != 0;
             }
@@ -802,25 +803,25 @@ namespace BetterHI3Launcher
         }
 
         #region Win API Functions and Constants
-        [System.Runtime.InteropServices.DllImport("kernel32.dll",
+        [DllImport("kernel32.dll",
             EntryPoint = "AllocConsole",
             SetLastError = true,
-            CharSet = System.Runtime.InteropServices.CharSet.Auto,
-            CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
+            CharSet = CharSet.Auto,
+            CallingConvention = CallingConvention.StdCall)]
         private static extern int AllocConsole();
 
-        [System.Runtime.InteropServices.DllImport("kernel32.dll",
+        [DllImport("kernel32.dll",
             EntryPoint = "AttachConsole",
             SetLastError = true,
-            CharSet = System.Runtime.InteropServices.CharSet.Auto,
-            CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
+            CharSet = CharSet.Auto,
+            CallingConvention = CallingConvention.StdCall)]
         private static extern UInt32 AttachConsole(UInt32 dwProcessId);
 
-        [System.Runtime.InteropServices.DllImport("kernel32.dll",
+        [DllImport("kernel32.dll",
             EntryPoint = "CreateFileW",
             SetLastError = true,
-            CharSet = System.Runtime.InteropServices.CharSet.Auto,
-            CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
+            CharSet = CharSet.Auto,
+            CallingConvention = CallingConvention.StdCall)]
         private static extern IntPtr CreateFileW
         (
                 string lpFileName,
