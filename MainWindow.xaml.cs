@@ -291,7 +291,6 @@ namespace BetterHI3Launcher
             var CMAbout = new MenuItem{Header = textStrings["contextmenu_about"]};
             CMAbout.Click += (sender, e) => CM_About_Click(sender, e);
             OptionsContextMenu.Items.Add(CMAbout);
-            ToggleContextMenuItems(false, false);
 
             RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
             if(key == null || (int)key.GetValue("Release") < 393295)
@@ -728,6 +727,7 @@ namespace BetterHI3Launcher
                                 {
                                     LaunchButton.Content = textStrings["button_resume"];
                                     ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(remaining_size)}";
+                                    ToggleContextMenuItems(false, true);
                                 }
                             });
                         }
@@ -742,6 +742,7 @@ namespace BetterHI3Launcher
                         {
                             LaunchButton.Content = textStrings["button_download"];
                             ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(download_size)}";
+                            ToggleContextMenuItems(false, false);
                             var path = CheckForExistingGameDirectory(rootPath);
                             if(string.IsNullOrEmpty(path))
                                 path = CheckForExistingGameDirectory(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
@@ -1758,7 +1759,7 @@ namespace BetterHI3Launcher
 
         private async Task CM_Uninstall_Click(object sender, RoutedEventArgs e)
         {
-            if((Status == LauncherStatus.Ready || Status == LauncherStatus.UpdateAvailable) && !string.IsNullOrEmpty(gameInstallPath))
+            if((Status == LauncherStatus.Ready || Status == LauncherStatus.UpdateAvailable || Status == LauncherStatus.DownloadPaused) && !string.IsNullOrEmpty(gameInstallPath))
             {
                 if(rootPath.Contains(gameInstallPath))
                 {
@@ -2155,7 +2156,7 @@ namespace BetterHI3Launcher
                     File.Delete(gameArchivePath);
                 download = null;
                 DownloadPaused = false;
-                DeleteGameFiles(false);
+                try{DeleteGameFiles(false);}catch{}
             }
             switch(index)
             {
@@ -2485,7 +2486,7 @@ namespace BetterHI3Launcher
             {
                 if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_about"]))
                     continue;
-                if(!val && (item.GetType() == typeof(MenuItem) && item.Header.ToString() == textStrings["contextmenu_uninstall"]))
+                if(!val && leaveUninstallEnabled && (item.GetType() == typeof(MenuItem) && item.Header.ToString() == textStrings["contextmenu_uninstall"]))
                     continue;
                 item.IsEnabled = val;
             }
