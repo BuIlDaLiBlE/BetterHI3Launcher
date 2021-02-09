@@ -173,10 +173,13 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Border Width="1362" Height="698">
+    <Border>
         <Border.Effect>
-            <DropShadowEffect Color="Black" BlurRadius="50" Direction="-90" ShadowDepth="8" RenderingBias="Quality"/>
+            <DropShadowEffect Color="Black" BlurRadius="50" Direction="-90" ShadowDepth="8"/>
         </Border.Effect>
+        <Border.CacheMode>
+            <BitmapCache/>
+        </Border.CacheMode>
         <Grid Name="Grid" Width="1280" Height="590">
             <Rectangle Fill="Magenta"/>
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" Text="NO IMAGE :^(" FontFamily="{DynamicResource Font}" FontSize="48"/>

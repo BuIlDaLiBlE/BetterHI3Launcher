@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210131.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210209.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -1068,7 +1068,14 @@ namespace BetterHI3Launcher
                                 }
                             }
                         }
-                        File.Delete(gameArchivePath);
+                        try
+                        {
+                            File.Delete(gameArchivePath);
+                        }
+                        catch
+                        {
+                            Log($"Delete ERROR: {gameArchivePath}");
+                        }
                         if(skippedFiles.Count > 0)
                         {
                             throw new ArchiveException("Game archive is corrupt");
@@ -1212,7 +1219,7 @@ namespace BetterHI3Launcher
                     return;
                 }
 
-                Log($"Starting to download game cache: {title}({url})");
+                Log($"Starting to download game cache: {title} ({url})");
                 Status = LauncherStatus.Downloading;
                 await Task.Run(() =>
                 {
@@ -1259,8 +1266,15 @@ namespace BetterHI3Launcher
                             {
                                 if(MessageBox.Show(textStrings["msgbox_verifyerror_2_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                                 {
-                                    if(File.Exists(cacheArchivePath))
-                                        File.Delete(cacheArchivePath);
+                                    try
+                                    {
+                                        if(File.Exists(cacheArchivePath))
+                                            File.Delete(cacheArchivePath);
+                                    }
+                                    catch
+                                    {
+                                        Log($"Delete ERROR: {cacheArchivePath}");
+                                    }
                                     abort = true;
                                     GameUpdateCheck(false);
                                 }
@@ -1316,7 +1330,15 @@ namespace BetterHI3Launcher
                                 }
                             }
                         }
-                        File.Delete(cacheArchivePath);
+                        try
+                        {
+                            if(File.Exists(cacheArchivePath))
+                                File.Delete(cacheArchivePath);
+                        }
+                        catch
+                        {
+                            Log($"Delete ERROR: {cacheArchivePath}");
+                        }
                         if(skippedFiles.Count > 0)
                         {
                             throw new ArchiveException("Cache archive is corrupt");
@@ -1469,7 +1491,7 @@ namespace BetterHI3Launcher
                 }
             }
             
-            if(LauncherRegKey.GetValue("RanOnce") != null && (LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString()))
+            if(LauncherRegKey != null && (LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString()))
             {
                 ChangelogBox.Visibility = Visibility.Visible;
                 ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
@@ -1477,9 +1499,10 @@ namespace BetterHI3Launcher
             }
             try
             {
-                if(LauncherRegKey.GetValue("RanOnce") == null)
-                    LauncherRegKey.SetValue("RanOnce", 1, RegistryValueKind.DWord);
-                LauncherRegKey.SetValue("LauncherVersion", localLauncherVersion);
+                if(LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString())
+                    LauncherRegKey.SetValue("LauncherVersion", localLauncherVersion);
+                if(LauncherRegKey.GetValue("RanOnce") != null)
+                    LauncherRegKey.DeleteValue("RanOnce");
             }
             catch(Exception ex)
             {
@@ -1918,7 +1941,16 @@ namespace BetterHI3Launcher
                                     Log($"Unpack OK: {SubtitleArchive}");
                                 File.SetAttributes(SubtitleArchive, File.GetAttributes(SubtitleArchive) & ~FileAttributes.ReadOnly);
                                 if(!skippedFilePaths.Contains(SubtitleArchive))
-                                    File.Delete(SubtitleArchive);
+                                {
+                                    try
+                                    {
+                                        File.Delete(SubtitleArchive);
+                                    }
+                                    catch
+                                    {
+                                        Log($"Delete ERROR: {SubtitleArchive}");
+                                    }
+                                }
                                 filesUnpacked++;
                             }
                             Dispatcher.Invoke(() =>
@@ -2152,8 +2184,15 @@ namespace BetterHI3Launcher
                     ServerDropdown.SelectedIndex = (int)Server;
                     return;
                 }
-                if(File.Exists(gameArchivePath))
-                    File.Delete(gameArchivePath);
+                try
+                {
+                    if(File.Exists(gameArchivePath))
+                        File.Delete(gameArchivePath);
+                }
+                catch
+                {
+                    Log($"Delete ERROR: {gameArchivePath}");
+                }
                 download = null;
                 DownloadPaused = false;
                 try{DeleteGameFiles(false);}catch{}
@@ -2191,8 +2230,15 @@ namespace BetterHI3Launcher
                     MirrorDropdown.SelectedIndex = (int)Mirror;
                     return;
                 }
-                if(File.Exists(gameArchivePath))
-                    File.Delete(gameArchivePath);
+                try
+                {
+                    if(File.Exists(gameArchivePath))
+                        File.Delete(gameArchivePath);
+                }
+                catch
+                {
+                    Log($"Delete ERROR: {gameArchivePath}");
+                }
                 download = null;
                 DownloadPaused = false;
                 DeleteGameFiles(false);
@@ -2383,10 +2429,24 @@ namespace BetterHI3Launcher
                         if(MessageBox.Show($"{textStrings["msgbox_abort_1_msg"]}\n{textStrings["msgbox_abort_2_msg"]}", textStrings["msgbox_abort_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                         {
                             Status = LauncherStatus.CleaningUp;
-                            if(File.Exists(gameArchivePath))
-                                File.Delete(gameArchivePath);
-                            if(File.Exists(cacheArchivePath))
-                                File.Delete(cacheArchivePath);
+                            try
+                            {
+                                if(File.Exists(gameArchivePath))
+                                    File.Delete(gameArchivePath);
+                            }
+                            catch
+                            {
+                                Log($"Delete ERROR: {gameArchivePath}");
+                            }
+                            try
+                            {
+                                if(File.Exists(cacheArchivePath))
+                                    File.Delete(cacheArchivePath);
+                            }
+                            catch
+                            {
+                                Log($"Delete ERROR: {cacheArchivePath}");
+                            }
                         }
                         else
                         {
