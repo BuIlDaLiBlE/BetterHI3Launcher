@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210209.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210209.1");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -1499,7 +1499,7 @@ namespace BetterHI3Launcher
             }
             try
             {
-                if(LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString())
+                if(LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString())
                     LauncherRegKey.SetValue("LauncherVersion", localLauncherVersion);
                 if(LauncherRegKey.GetValue("RanOnce") != null)
                     LauncherRegKey.DeleteValue("RanOnce");
@@ -1510,6 +1510,7 @@ namespace BetterHI3Launcher
                 Log($"ERROR: Failed to write critical registry info:\n{ex}");
                 if(MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
+                    Application.Current.Shutdown();
                     return;
                 }
             }
