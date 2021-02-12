@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210209.1");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210212.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -163,15 +163,22 @@ namespace BetterHI3Launcher
                     case HI3Server.Global:
                         RegistryVersionInfo = "VersionInfoGlobal";
                         GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3rd";
-                        GameRegistryLocalVersionRegValue = "USD_V2_201880924_LocalVersion_h3429574199";
                         gameWebProfileURL = "https://global.user.honkaiimpact3.com";
                         break;
                     case HI3Server.SEA:
                         RegistryVersionInfo = "VersionInfoSEA";
                         GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3";
-                        GameRegistryLocalVersionRegValue = "USD_V2_18149666_LocalVersion_h2804958440";
                         gameWebProfileURL = "https://asia.user.honkaiimpact3.com";
                         break;
+                }
+                GameRegistryLocalVersionRegValue = null;
+                foreach(string regvalue in Registry.CurrentUser.OpenSubKey(GameRegistryPath).GetValueNames())
+                {
+                    if(regvalue.Contains("LocalVersion_h"))
+                    {
+                        GameRegistryLocalVersionRegValue = regvalue;
+                        break;
+                    }
                 }
             }
         }
@@ -1847,7 +1854,7 @@ namespace BetterHI3Launcher
                 string value = "GENERAL_DATA_V2_ResourceDownloadType_h2238376574";
                 if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
                 {
-                    if(key != null)
+                    if(key.GetValue(value) != null)
                         key.DeleteValue(value);
                     if(MessageBox.Show(textStrings["msgbox_registryempty_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
@@ -2064,7 +2071,7 @@ namespace BetterHI3Launcher
                 string value = "GENERAL_DATA_V2_PersonalGraphicsSetting_h906361411";
                 if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
                 {
-                    if(key != null)
+                    if(key.GetValue(value) != null)
                         key.DeleteValue(value);
                     if(MessageBox.Show(textStrings["msgbox_registryempty_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                         return;
@@ -2673,6 +2680,9 @@ namespace BetterHI3Launcher
 
         public void Log(string msg)
         {
+            if(string.IsNullOrEmpty(msg))
+                return;
+
             #if DEBUG
                 Console.WriteLine(msg);
             #endif
