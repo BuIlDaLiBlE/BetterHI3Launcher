@@ -40,7 +40,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210212.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210212.1");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -172,13 +172,18 @@ namespace BetterHI3Launcher
                         break;
                 }
                 GameRegistryLocalVersionRegValue = null;
-                foreach(string regvalue in Registry.CurrentUser.OpenSubKey(GameRegistryPath).GetValueNames())
+                var regkey = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                if(regkey != null)
                 {
-                    if(regvalue.Contains("LocalVersion_h"))
+                    foreach(string regvalue in regkey.GetValueNames())
                     {
-                        GameRegistryLocalVersionRegValue = regvalue;
-                        break;
+                        if(regvalue.Contains("LocalVersion_h"))
+                        {
+                            GameRegistryLocalVersionRegValue = regvalue;
+                            break;
+                        }
                     }
+                    regkey.Close();
                 }
             }
         }
@@ -1146,6 +1151,7 @@ namespace BetterHI3Launcher
                             versionInfo.game_info.version = "0.0.0_xxxxxxxxxx";
                         }
                     }
+                    key.Close();
                 }
                 Log("Writing game version info...");
                 LauncherRegKey.SetValue(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(versionInfo)), RegistryValueKind.Binary);
@@ -1821,8 +1827,10 @@ namespace BetterHI3Launcher
                                 Log("Deleting game cache and registry settings...");
                                 if(Directory.Exists(path))
                                     Directory.Delete(path, true);
-                                if(Registry.CurrentUser.OpenSubKey(GameRegistryPath) != null)
+                                var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+                                if(key != null)
                                     Registry.CurrentUser.DeleteSubKeyTree(GameRegistryPath, true);
+                                key.Close();
                             }
                         });
                         Log("Game uninstall OK");
@@ -2083,6 +2091,7 @@ namespace BetterHI3Launcher
                     if(MessageBox.Show(textStrings["msgbox_registryempty_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                         return;
                 }
+                key.Close();
                 FPSInputBox.Visibility = Visibility.Visible;
                 FPSInputBoxTitleTextBlock.Text = textStrings["fpsinputbox_title"];
                 if(json.TargetFrameRateForInLevel != null)
@@ -2125,6 +2134,7 @@ namespace BetterHI3Launcher
                     }
                 }
                 Registry.CurrentUser.DeleteSubKeyTree(GameRegistryPath, true);
+                key.Close();
                 Log("Game settings reset OK");
                 MessageBox.Show(textStrings["msgbox_resetgamesettings_3_msg"], textStrings["contextmenu_resetgamesettings"], MessageBoxButton.OK, MessageBoxImage.Information);
             }
