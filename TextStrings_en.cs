@@ -17,7 +17,6 @@ namespace BetterHI3Launcher
             textStrings.Add("binary_prefixes", "KMGTPEZY");
             textStrings.Add("binary_prefix_byte", "b");
             textStrings.Add("bytes_per_second", "B/s");
-            textStrings.Add("shrug", "¯\\_(ツ)_/¯");
             textStrings.Add("outdated", "Outdated");
             textStrings.Add("button_download", "Download");
             textStrings.Add("button_downloading", "Downloading");
@@ -106,7 +105,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_fixsubs_2_msg", "Unpacking subtitle file {0}/{1}...");
             textStrings.Add("msgbox_fixsubs_3_msg", "Checking subtitle file {0}/{1}...");
             textStrings.Add("msgbox_fixsubs_4_msg", "Unpacked subtitles for {0} CGs.");
-            textStrings.Add("msgbox_fixsubs_5_msg", "Fixed {0} wrong subtitle files.");
+            textStrings.Add("msgbox_fixsubs_5_msg", "Fixed {0} subtitle files.");
             textStrings.Add("msgbox_fixsubs_6_msg", "No subtitle files were fixed. They are either not downloaded yet or already fixed.");
             textStrings.Add("msgbox_customfps_1_msg", "Value must not be empty.");
             textStrings.Add("msgbox_customfps_2_msg", "Value must not be zero or negative.");

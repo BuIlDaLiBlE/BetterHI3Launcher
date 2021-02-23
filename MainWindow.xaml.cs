@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -40,10 +41,10 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210212.1");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210223.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
-        public static readonly string backgroundImagePath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
+        public static readonly string launcherDataPath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
         public static readonly string miHoYoPath = Path.Combine(localLowPath, "miHoYo");
         public static readonly string gameExeName = "BH3.exe";
         public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
@@ -316,21 +317,6 @@ namespace BetterHI3Launcher
 
             try
             {
-                FetchOnlineVersionInfo();
-                FetchmiHoYoVersionInfo();
-            }
-            catch(Exception ex)
-            {
-                Status = LauncherStatus.Error;
-                if(MessageBox.Show($"{textStrings["msgbox_neterror_msg"]}:\n{ex}", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
-                {
-                    Application.Current.Shutdown();
-                    return;
-                }
-            }
-
-            try
-            {
                 var LastSelectedServerRegValue = LauncherRegKey.GetValue("LastSelectedServer");
                 if(LastSelectedServerRegValue != null)
                 {
@@ -348,6 +334,20 @@ namespace BetterHI3Launcher
                 }
                 ServerDropdown.SelectedIndex = (int)Server;
 
+                try
+                {
+                    FetchOnlineVersionInfo();
+                    FetchmiHoYoVersionInfo();
+                }
+                catch(Exception ex)
+                {
+                    Status = LauncherStatus.Error;
+                    if(MessageBox.Show($"{textStrings["msgbox_neterror_msg"]}:\n{ex}", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    {
+                        Application.Current.Shutdown();
+                        return;
+                    }
+                }
                 var LastSelectedMirrorRegValue = LauncherRegKey.GetValue("LastSelectedMirror");
                 if(LastSelectedMirrorRegValue != null)
                 {
@@ -378,34 +378,7 @@ namespace BetterHI3Launcher
                 }
                 Log($"Using server: {((ComboBoxItem)ServerDropdown.SelectedItem).Content as string}");
                 Log($"Using mirror: {((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string}");
-
-                string backgroundImageName = miHoYoVersionInfo.bg_file_name.ToString();
-                var BackgroundImageNameRegValue = LauncherRegKey.GetValue("BackgroundImageName");
-                if(BackgroundImageNameRegValue != null && File.Exists(Path.Combine(backgroundImagePath, backgroundImageName)) && backgroundImageName == BackgroundImageNameRegValue.ToString())
-                {
-                    Log($"Background image {backgroundImageName} exists, using it");
-                    BackgroundImage.Source = new BitmapImage(new Uri(Path.Combine(backgroundImagePath, backgroundImageName)));
-                }
-                else
-                {
-                    Log($"Background image doesn't exist, attempting to download: {backgroundImageName}");
-                    try
-                    {
-                        webClient.Headers.Add(HttpRequestHeader.UserAgent, userAgent);
-                        if(!Directory.Exists(backgroundImagePath))
-                            Directory.CreateDirectory(backgroundImagePath);
-                        webClient.DownloadFile(new Uri($"{miHoYoVersionInfo.download_url.ToString()}/{miHoYoVersionInfo.bg_file_name.ToString()}"), Path.Combine(backgroundImagePath, backgroundImageName));
-                        BackgroundImage.Source = new BitmapImage(new Uri(Path.Combine(backgroundImagePath, backgroundImageName)));
-                        LauncherRegKey.SetValue("BackgroundImageName", backgroundImageName);
-                        LauncherRegKey.Close();
-                        LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
-                        Log($"Downloaded background image: {backgroundImageName}");
-                    }
-                    catch(Exception ex)
-                    {
-                        Log($"ERROR: Failed to download background image:\n{ex}");
-                    }
-                }
+                DownloadBackgroundImage();
             }
             catch(Exception ex)
             {
@@ -786,6 +759,8 @@ namespace BetterHI3Launcher
                             }
                         });
                     }
+                    if(serverChanged)
+                        await DownloadBackgroundImageAsync();
                 }
                 catch(Exception ex)
                 {
@@ -859,6 +834,41 @@ namespace BetterHI3Launcher
                     }
                 });
             }
+        }
+
+        private void DownloadBackgroundImage()
+        {
+            string backgroundImageName = miHoYoVersionInfo.bg_file_name.ToString();
+            string backgroundImagePath = Path.Combine(launcherDataPath, backgroundImageName);
+            if(File.Exists(backgroundImagePath))
+            {
+                Log($"Background image {backgroundImageName} exists, using it");
+                BackgroundImage.Source = new BitmapImage(new Uri(backgroundImagePath));
+            }
+            else
+            {
+                Log($"Background image {backgroundImageName} doesn't exist, downloading...");
+                try
+                {
+                    webClient.Headers.Add(HttpRequestHeader.UserAgent, userAgent);
+                    Directory.CreateDirectory(launcherDataPath);
+                    webClient.DownloadFile(new Uri($"{miHoYoVersionInfo.download_url.ToString()}/{miHoYoVersionInfo.bg_file_name.ToString()}"), backgroundImagePath);
+                    BackgroundImage.Source = new BitmapImage(new Uri(backgroundImagePath));
+                    Log($"Downloaded background image: {backgroundImagePath}");
+                }
+                catch(Exception ex)
+                {
+                    Log($"ERROR: Failed to download background image:\n{ex}");
+                }
+            }
+        }
+
+        private async Task DownloadBackgroundImageAsync()
+        {
+            await Task.Run(() =>
+            {
+                Dispatcher.Invoke(() => {DownloadBackgroundImage();});
+            });
         }
 
         private async Task DownloadGameFile()
@@ -1312,10 +1322,7 @@ namespace BetterHI3Launcher
                                 if(!entry.IsDirectory)
                                     fileCount++;
                             }
-                            if(!Directory.Exists(miHoYoPath))
-                            {
-                                Directory.CreateDirectory(miHoYoPath);
-                            }
+                            Directory.CreateDirectory(miHoYoPath);
                             var reader = archive.ExtractAllEntries();
                             while(reader.MoveToNextEntry())
                             {
@@ -1516,6 +1523,8 @@ namespace BetterHI3Launcher
                     LauncherRegKey.SetValue("LauncherVersion", localLauncherVersion);
                 if(LauncherRegKey.GetValue("RanOnce") != null)
                     LauncherRegKey.DeleteValue("RanOnce");
+                if(LauncherRegKey.GetValue("BackgroundImageName") != null)
+                    LauncherRegKey.DeleteValue("BackgroundImageName");
             }
             catch(Exception ex)
             {
@@ -1660,10 +1669,7 @@ namespace BetterHI3Launcher
                             if(MessageBox.Show(textStrings["msgbox_install_little_space_msg"], textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                                 return;
                         }
-                        if(!Directory.Exists(gameInstallPath))
-                        {
-                            Directory.CreateDirectory(gameInstallPath);
-                        }
+                        Directory.CreateDirectory(gameInstallPath);
                         gameArchivePath = Path.Combine(gameInstallPath, gameArchiveName);
                         gameExePath = Path.Combine(gameInstallPath, "BH3.exe");
                         Log($"Install dir selected: {gameInstallPath}");
@@ -1687,10 +1693,7 @@ namespace BetterHI3Launcher
                     if(MessageBox.Show(textStrings["msgbox_install_little_space_msg"], textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                         return;
                 }
-                if(!Directory.Exists(gameInstallPath))
-                {
-                    Directory.CreateDirectory(gameInstallPath);
-                }
+                Directory.CreateDirectory(gameInstallPath);
                 await DownloadGameFile();
             }
             else if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
@@ -1737,28 +1740,32 @@ namespace BetterHI3Launcher
                     await FetchOnlineVersionInfoAsync();
                     if(Server == HI3Server.Global)
                     {
-                        if(Mirror == HI3Mirror.MediaFire)
+                        if(Mirror == HI3Mirror.GoogleDrive)
                         {
-                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), false);
-                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), true);
+                            gameCacheMetadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
+                            if(gameCacheMetadata != null)
+                                gameCacheMetadataNumeric = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
                         }
                         else
                         {
-                            gameCacheMetadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
-                            gameCacheMetadataNumeric = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
+                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), false);
+                            if(gameCacheMetadata != null)
+                                gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), true);
                         }
                     }
                     else
                     {
-                        if(Mirror == HI3Mirror.MediaFire)
+                        if(Mirror == HI3Mirror.GoogleDrive)
                         {
-                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), false);
-                            gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), true);
+                            gameCacheMetadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
+                            if(gameCacheMetadata != null)
+                                gameCacheMetadataNumeric = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
                         }
                         else
                         {
-                            gameCacheMetadata = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
-                            gameCacheMetadataNumeric = FetchGDFileMetadata(onlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
+                            gameCacheMetadata = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), false);
+                            if(gameCacheMetadata != null)
+                                gameCacheMetadataNumeric = FetchMediaFireFileMetadata(onlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), true);
                         }
                     }
                 });
@@ -1779,17 +1786,24 @@ namespace BetterHI3Launcher
             Dispatcher.Invoke(() =>
             {
                 DownloadCacheBox.Visibility = Visibility.Visible;
-                if(Mirror == HI3Mirror.MediaFire)
-                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], "MediaFire", textStrings["shrug"], onlineVersionInfo.game_info.mirror.maintainer.ToString());
+                string mirror;
+                string time;
+                string last_updated;
+                if(Mirror == HI3Mirror.GoogleDrive)
+                {
+                    mirror = "Google Drive";
+                    time = gameCacheMetadataNumeric.modifiedDate.ToString();
+                }
                 else
                 {
-                    string time;
-                    if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString())) >= 0)
-                        time = $"{DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime().ToString()} ({textStrings["outdated"].ToLower()})";
-                    else
-                        time = DateTime.Parse(gameCacheMetadataNumeric.modifiedDate.ToString()).ToLocalTime().ToString();
-                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], "Google Drive", time, onlineVersionInfo.game_info.mirror.maintainer.ToString());
+                    mirror = "MediaFire";
+                    time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)onlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
                 }
+                if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(time)) >= 0)
+                    last_updated = $"{DateTime.Parse(time).ToLocalTime()} ({textStrings["outdated"].ToLower()})";
+                else
+                    last_updated = DateTime.Parse(time).ToLocalTime().ToString();
+                DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], mirror, last_updated, onlineVersionInfo.game_info.mirror.maintainer.ToString());
                 Status = LauncherStatus.Ready;
             });
         }
@@ -1973,8 +1987,9 @@ namespace BetterHI3Launcher
                             {
                                 if(skippedFiles.Count > 0)
                                 {
-                                    TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
-                                    MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    ShowLogCheckBox.IsChecked = true;
+                                    //TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
+                                    //MessageBox.Show(textStrings["msgbox_extractskip_msg"], textStrings["msgbox_extractskip_title"], MessageBoxButton.OK, MessageBoxImage.Warning);
                                 }
                             });
                             Log($"Unpacked {filesUnpacked} archives");
@@ -1991,11 +2006,10 @@ namespace BetterHI3Launcher
                         int subtitlesParsed = 0;
                         await Task.Run(() =>
                         {
-                            for(int i = SubtitleFiles.Count - 1; i >= 0; i--)
+                            foreach(var SubtitleFile in SubtitleFiles)
                             {
-                                //Log($"Reading subtitle {Path.GetFileName(SubtitleFiles[i])}");
-                                var fileLines = File.ReadAllLines(SubtitleFiles[i]);
-                                var lineCount = fileLines.Length;
+                                var fileLines = File.ReadAllLines(SubtitleFile);
+                                int lineCount = fileLines.Length;
                                 int linesReplaced = 0;
                                 Dispatcher.Invoke(() =>
                                 {
@@ -2004,40 +2018,102 @@ namespace BetterHI3Launcher
                                     ProgressBar.Value = progress;
                                     TaskbarItemInfo.ProgressValue = progress;
                                 });
-                                File.SetAttributes(SubtitleFiles[i], File.GetAttributes(SubtitleFiles[i]) & ~FileAttributes.ReadOnly);
-                                if(new FileInfo(SubtitleFiles[i]).Length == 0)
+                                File.SetAttributes(SubtitleFile, File.GetAttributes(SubtitleFile) & ~FileAttributes.ReadOnly);
+                                if(new FileInfo(SubtitleFile).Length == 0)
                                 {
-                                    // commented out, zero length subs are needed for CG playback (such as gacha video) for some reason
-                                    //Log($"Deleting zero length file {Path.GetFileName(SubtitleFiles[i])}");
-                                    //File.Delete(SubtitleFiles[i]);
-                                    //SubtitleFiles.Remove(SubtitleFiles[i]);
                                     subtitlesParsed++;
                                     continue;
                                 }
-                                for(int line = 1; line < lineCount; line++)
+                                for(int atLine = 1; atLine < lineCount; atLine++)
                                 {
-                                    var timecodeLine = File.ReadLines(SubtitleFiles[i]).Skip(line).Take(1).First();
-                                    if(string.IsNullOrEmpty(timecodeLine) || timecodeLine[0] != '0')
+                                    var line = File.ReadLines(SubtitleFile).Skip(atLine).Take(1).First();
+                                    if(string.IsNullOrEmpty(line) || new Regex(@"^\d+$").IsMatch(line))
                                         continue;
-                                    if(timecodeLine.Contains("."))
+
+                                    bool lineFixed = false;
+                                    void LogLine()
                                     {
-                                        //Log($"Fixed line {1 + line}: {timecodeLine}");
-                                        fileLines[line] = timecodeLine.Replace(".", ",");
+                                        if(lineFixed)
+                                            return;
+
                                         linesReplaced++;
-                                        if(!subsFixed.Contains(SubtitleFiles[i]))
+                                        lineFixed = true;
+                                        //Log($"Fixed line {1 + atLine}: {line}");
+                                    }
+
+                                    if(line.Contains("-->"))
+                                    {
+                                        if(line.Contains("."))
                                         {
-                                            subsFixed.Add(SubtitleFiles[i]);
-                                            Log($"Subtitle fixed: {SubtitleFiles[i]}\n");
+                                            fileLines[atLine] = line.Replace(".", ",");
+                                            LogLine();
+                                        }
+                                        if(line.Contains(" ,"))
+                                        {
+                                            fileLines[atLine] = line.Replace(" ,", ",");
+                                            LogLine();
+                                        }
+                                        if(line.Contains("  "))
+                                        {
+                                            fileLines[atLine] = line.Replace("  ", " ");
+                                            LogLine();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if(line.Contains(" ,"))
+                                        {
+                                            fileLines[atLine] = line.Replace(" ,", ",");
+                                            LogLine();
                                         }
                                     }
                                 }
                                 if(linesReplaced > 0)
-                                    File.WriteAllLines(SubtitleFiles[i], fileLines);
+                                {
+                                    File.WriteAllLines(SubtitleFile, fileLines);
+                                    if(!subsFixed.Contains(SubtitleFile))
+                                    {
+                                        subsFixed.Add(SubtitleFile);
+                                        Log($"Subtitle fixed: {SubtitleFile}");
+                                    }
+                                }
                                 subtitlesParsed++;
                             }
                         });
                         Log($"Parsed {subtitlesParsed} subtitles, fixed {subsFixed.Count} of them");
                     }
+                    if(Server == HI3Server.Global)
+                    {
+                        ProgressBar.IsIndeterminate = true;
+                        TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
+                        SubtitleFiles = Directory.EnumerateFiles(GameVideoDirectory, "*id.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("id.srt", StringComparison.CurrentCultureIgnoreCase)).ToList();
+                        SubtitleFiles.AddRange(SubtitleFiles = Directory.EnumerateFiles(GameVideoDirectory, "*th.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("th.srt", StringComparison.CurrentCultureIgnoreCase)).ToList());
+                        SubtitleFiles.AddRange(SubtitleFiles = Directory.EnumerateFiles(GameVideoDirectory, "*vn.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("vn.srt", StringComparison.CurrentCultureIgnoreCase)).ToList());
+                        if(SubtitleFiles.Count > 0)
+                        {
+                            int deletedSubs = 0;
+                            await Task.Run(() =>
+                            {
+                                foreach(var SubtitleFile in SubtitleFiles)
+                                {
+                                    try
+                                    {
+                                        if(File.Exists(SubtitleFile))
+                                            File.Delete(SubtitleFile);
+                                        deletedSubs++;
+                                    }
+                                    catch
+                                    {
+                                        Log($"Delete ERROR: {SubtitleFile}");
+                                    }
+                                }
+                            });
+                            Log($"Deleted {deletedSubs} useless subtitles");
+                        }
+                    }
+                    ProgressText.Text = string.Empty;
+                    ProgressBar.Visibility = Visibility.Hidden;
+                    TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
                     WindowState = WindowState.Normal;
                     if(SubtitleArchives.Count > 0 && subsFixed.Count == 0)
                         MessageBox.Show(string.Format(textStrings["msgbox_fixsubs_4_msg"], SubtitleArchives.Count), textStrings["msgbox_notice_title"], MessageBoxButton.OK, MessageBoxImage.Information);
