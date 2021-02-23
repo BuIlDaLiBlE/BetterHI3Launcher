@@ -11,7 +11,7 @@ namespace BetterHI3Launcher
             textStrings["binary_prefixes"] = "КМГТПЭЗЙ";
             textStrings["binary_prefix_byte"] = "б";
             textStrings["bytes_per_second"] = "Б/с";
-            textStrings["outdated"] = "Устарел";
+            textStrings["outdated"] = "Устарело";
             textStrings["button_download"] = "Загрузить";
             textStrings["button_downloading"] = "Загрузка";
             textStrings["button_update"] = "Обновить";
@@ -98,7 +98,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_fixsubs_2_msg"] = "Распаковка субтитров к видео {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Проверка файла субтитров {0}/{1}...";
             textStrings["msgbox_fixsubs_4_msg"] = "Субтитры распакованы к {0} файлам видео.";
-            textStrings["msgbox_fixsubs_5_msg"] = "Исправлено {0} неправильных файлов субтитров.";
+            textStrings["msgbox_fixsubs_5_msg"] = "Исправлено {0} файлов субтитров.";
             textStrings["msgbox_fixsubs_6_msg"] = "Не был исправлен ни один файл субтитров. Субтитры либо ещё не загружены, либо уже исправлены.";
             textStrings["msgbox_customfps_1_msg"] = "Значение не должно быть пустым.";
             textStrings["msgbox_customfps_2_msg"] = "Значение не должно равняться нулю или быть отрицательным.";
