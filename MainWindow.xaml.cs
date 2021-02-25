@@ -41,7 +41,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210223.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210225.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string launcherDataPath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -1390,10 +1390,10 @@ namespace BetterHI3Launcher
                 throw new ArgumentNullException();
 
             string server = (int)Server == 0 ? "global" : "os";
-            string mirror = (int)Mirror == 1 ? "mediafire" : "gd";
+            string mirror = (int)Mirror == 2 ? "gd" : "mediafire";
             try
             {
-                var webRequest = (HttpWebRequest)WebRequest.Create("https://bpnet.host/bh3_manage");
+                var webRequest = (HttpWebRequest)WebRequest.Create(onlineVersionInfo.launcher_info.stat_url.ToString());
                 var data = Encoding.ASCII.GetBytes($"save_stats={server}&mirror={mirror}&file={file}&time={time}");
                 webRequest.Method = "POST";
                 webRequest.UserAgent = userAgent;
