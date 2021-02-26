@@ -37,9 +37,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
             textStrings.Add("contextmenu_download_type", "Change download type");
             textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
-            //tency additions
             textStrings.Add("contextmenu_customresolution", "Set custom Resolution");
-            //
             textStrings.Add("contextmenu_resetgamesettings", "Reset game settings");
             textStrings.Add("contextmenu_web_profile", "Go to web profile");
             textStrings.Add("contextmenu_feedback", "Send feedback");
@@ -62,14 +60,12 @@ namespace BetterHI3Launcher
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
             textStrings.Add("fpsinputbox_title", "Enter FPS Limits");
-            //Tency Additions
             textStrings.Add("fpsinputbox_combat", "Combat FPS");
             textStrings.Add("fpsinputbox_menu", "Menu FPS");
             textStrings.Add("resolutioninputbox_title", "Enter Custom Resolution");
             textStrings.Add("resolutionlabel_width", "Width(X):");
             textStrings.Add("resolutionlabel_height", "Height(Y):");
             textStrings.Add("resolutionlabel_isfullscreen", "Enable Fullscreen(Y/N):");
-            //
             textStrings.Add("changelogbox_title", "Changelog");
             textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
             textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.");
@@ -122,12 +118,10 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_customfps_2_msg", "Value must not be zero or negative.");
             textStrings.Add("msgbox_customfps_3_msg", "Values lower than 30 are not recommended. Continue?");
             textStrings.Add("msgbox_customfps_4_msg", "FPS limits successfully set to {0} and {1}.");
-            //Tency Additions
             textStrings.Add("msgbox_customresolution_1_msg", "Honkai must be run atleast once before setting a custom resolution.");
             textStrings.Add("msgbox_customresolution_2_msg", "No registry values to change, Try disabling fullscreen in-game first.");
             textStrings.Add("msgbox_customresolution_3_msg", "Heights greater than the width behave abnormally. Continue?");
             textStrings.Add("msgbox_customresolution_4_msg", "Resolution successfully set to {0}x{1}, fullscreen {2}.");
-            //
             textStrings.Add("msgbox_resetgamesettings_1_msg", "This will wipe all game settings stored in registry.\nOnly use this if you are having problems with the game!\nContinue?");
             textStrings.Add("msgbox_resetgamesettings_2_msg", "This action is irreversible. Are you sure you want to do this?");
             textStrings.Add("msgbox_resetgamesettings_3_msg", "Game settings have been wiped from registry.");
