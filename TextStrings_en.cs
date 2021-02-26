@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 
 namespace BetterHI3Launcher
 {
@@ -8,7 +8,7 @@ namespace BetterHI3Launcher
 
         private void TextStrings_English()
         {
-            if(LanguageEnglishAdded)
+            if (LanguageEnglishAdded)
                 return;
 
             LanguageEnglishAdded = true;
@@ -59,7 +59,7 @@ namespace BetterHI3Launcher
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
-            textStrings.Add("fpsinputbox_title", "Enter FPS Limits");     
+            textStrings.Add("fpsinputbox_title", "Enter FPS Limits");
             textStrings.Add("fpsinputbox_combat", "Combat FPS");
             textStrings.Add("fpsinputbox_menu", "Menu FPS");
             textStrings.Add("resolutioninputbox_title", "Enter Custom Resolution");

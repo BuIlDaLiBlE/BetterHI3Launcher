@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using SharpCompress.Archives;
@@ -7,7 +7,6 @@ using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
 using System.IO;
@@ -2194,6 +2193,7 @@ namespace BetterHI3Launcher
                 Status = LauncherStatus.Error;
                 Log($"ERROR: Failed to access registry:\n{ex}");
                 if (MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+
                 {
                     Status = LauncherStatus.Ready;
                     return;
@@ -2201,6 +2201,64 @@ namespace BetterHI3Launcher
             }
         }
         //Major Addtion - CM_CustomResolution_Click
+        //context menu click function to show and propulate a custom Resolution menu.
+        private void CM_CustomResolution_Click(object sender, RoutedEventArgs e)
+        {
+            if (Status != LauncherStatus.Ready)
+                return;
+            try
+            {
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
+                string value = "GENERAL_DATA_V2_ScreenSettingData_h1916288658";
+                if (key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
+                {
+                    if (key.GetValue(value) != null)
+                        key.DeleteValue(value);
+                    if (MessageBox.Show(textStrings["msgbox_customresolution_2_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                        return;
+                }
+                var valueBefore = key.GetValue(value);
+                var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])valueBefore));
+                if (json == null)
+                {
+                    if (MessageBox.Show(textStrings["msgbox_customresolution_2_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                        return;
+                }
+                key.Close();
+                //Log($"{json}");
+                ResolutionInputBox.Visibility = Visibility.Visible;
+                ResolutionInputBoxTitleTextBlock.Text = textStrings["resolutioninputbox_title"];
+                ResolutionTextHeight.Text = textStrings["resolutionlabel_height"];
+                ResolutionTextWidth.Text = textStrings["resolutionlabel_width"];
+                ToggleFullscreenText.Text = textStrings["resolutionlabel_isfullscreen"];
+
+                if (json.width != null && json.height != null)
+                {
+                    ResolutionInputBoxTextBoxW.Text = json.width;
+                    ResolutionInputBoxTextBoxH.Text = json.height;
+                    ToggleFullscreen.IsChecked = json.isfullScreen;
+                }
+                else
+                {
+                    ResolutionInputBoxTextBoxW.Text = "720";
+                    ResolutionInputBoxTextBoxH.Text = "480";
+                }
+                gameGraphicSettings = json;
+            }
+
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.Error;
+                Log($"ERROR: Failed to access registry:\n {ex}");
+                if (MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK);
+                {
+                    Status = LauncherStatus.Ready;
+                    return;
+                }
+            }
+            
+        }
+        //Tency Addtion - CM_CustomResolution_Click
         //context menu click function to show and propulate a custom Resolution menu.
         private void CM_CustomResolution_Click(object sender, RoutedEventArgs e)
         {
@@ -2542,7 +2600,6 @@ namespace BetterHI3Launcher
         {
             FPSInputBox.Visibility = Visibility.Collapsed;
         }
-        //Major Addition
         private void ResolutionInputBoxOKButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -2589,7 +2646,6 @@ namespace BetterHI3Launcher
                 if (key.GetValue(iniHeight) != null)
                     key.SetValue(iniHeight, cHeight, RegistryValueKind.DWord);
                 key.Close();
-
                 ResolutionInputBox.Visibility = Visibility.Collapsed;
                 Log($"Set custom Resolution to {cWidth} x {cHeight} OK");
                 MessageBox.Show(string.Format(textStrings["msgbox_customresolution_4_msg"], cWidth, cHeight, cFullscreen), textStrings["contextmenu_customresolution"], MessageBoxButton.OK, MessageBoxImage.Information);
