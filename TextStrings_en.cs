@@ -121,7 +121,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_customresolution_1_msg", "Honkai must be run atleast once before setting a custom resolution.");
             textStrings.Add("msgbox_customresolution_2_msg", "No registry values to change, Try disabling fullscreen in-game first.");
             textStrings.Add("msgbox_customresolution_3_msg", "Heights greater than the width behave abnormally. Continue?");
-            textStrings.Add("msgbox_customresolution_4_msg", "Resolution successfully set to {0}x{1}, fullscreen {2}.");
+            textStrings.Add("msgbox_customresolution_4_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
             textStrings.Add("msgbox_resetgamesettings_1_msg", "This will wipe all game settings stored in registry.\nOnly use this if you are having problems with the game!\nContinue?");
             textStrings.Add("msgbox_resetgamesettings_2_msg", "This action is irreversible. Are you sure you want to do this?");
             textStrings.Add("msgbox_resetgamesettings_3_msg", "Game settings have been wiped from registry.");
