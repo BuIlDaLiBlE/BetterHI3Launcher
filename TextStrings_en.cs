@@ -8,7 +8,7 @@ namespace BetterHI3Launcher
 
         private void TextStrings_English()
         {
-            if (LanguageEnglishAdded)
+            if(LanguageEnglishAdded)
                 return;
 
             LanguageEnglishAdded = true;
@@ -37,7 +37,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
             textStrings.Add("contextmenu_download_type", "Change download type");
             textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
-            textStrings.Add("contextmenu_customresolution", "Set custom Resolution");
+            textStrings.Add("contextmenu_customresolution", "Set custom resolution");
             textStrings.Add("contextmenu_resetgamesettings", "Reset game settings");
             textStrings.Add("contextmenu_web_profile", "Go to web profile");
             textStrings.Add("contextmenu_feedback", "Send feedback");
@@ -59,7 +59,7 @@ namespace BetterHI3Launcher
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
-            textStrings.Add("fpsinputbox_title", "Enter FPS Limits");
+            textStrings.Add("fpsinputbox_title", "Enter max FPS cap");
             textStrings.Add("fpsinputbox_combat", "Combat FPS");
             textStrings.Add("fpsinputbox_menu", "Menu FPS");
             textStrings.Add("resolutioninputbox_title", "Enter Custom Resolution");
@@ -117,7 +117,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_customfps_1_msg", "Value must not be empty.");
             textStrings.Add("msgbox_customfps_2_msg", "Value must not be zero or negative.");
             textStrings.Add("msgbox_customfps_3_msg", "Values lower than 30 are not recommended. Continue?");
-            textStrings.Add("msgbox_customfps_4_msg", "FPS limits successfully set to {0} and {1}.");
+            textStrings.Add("msgbox_customfps_4_msg", "Combat and menu FPS cap successfully set to {0} and {1} respectively.");
             textStrings.Add("msgbox_customresolution_1_msg", "Honkai must be run atleast once before setting a custom resolution.");
             textStrings.Add("msgbox_customresolution_2_msg", "No registry values to change, Try disabling fullscreen in-game first.");
             textStrings.Add("msgbox_customresolution_3_msg", "Heights greater than the width behave abnormally. Continue?");

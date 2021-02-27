@@ -182,7 +182,7 @@
         </Border.CacheMode>
         <Grid Name="Grid" Width="1280" Height="590">
             <Rectangle Fill="Transparent"/>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" Text="" FontFamily="{DynamicResource Font}" FontSize="48"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" FontFamily="{DynamicResource Font}" FontSize="48"/>
             <Image Name="BackgroundImage" Stretch="Fill"/>
             <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
             <Image Name="HI3LogoImage" Source="HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
@@ -218,12 +218,12 @@
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
             <StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Background="Transparent" RenderTransformOrigin="0.75,0.75">
+                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Background="Transparent">
                     <CheckBox.LayoutTransform>
                         <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
                     </CheckBox.LayoutTransform>
                 </CheckBox>
-                <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="SeaShell">
+                <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                     </TextBlock.Effect>
@@ -288,7 +288,6 @@
                     <Button Name="ResolutionInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="ResolutionInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
-
             <Grid Name="DownloadCacheBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="200">
