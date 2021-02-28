@@ -185,7 +185,7 @@
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" FontFamily="{DynamicResource Font}" FontSize="48"/>
             <Image Name="BackgroundImage" Stretch="Fill"/>
             <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
-            <Image Name="HI3LogoImage" Source="HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
+            <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
             <ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
             <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" MinWidth="214" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
             <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" FontSize="12" FontFamily="{DynamicResource Font}"/>
@@ -218,7 +218,7 @@
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
             <StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Background="Transparent">
+                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
                     <CheckBox.LayoutTransform>
                         <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
                     </CheckBox.LayoutTransform>
@@ -245,12 +245,12 @@
                         <StackPanel>
                             <TextBlock Name="FPSInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="FPSInBoxCombat" Margin="25,5,25,5" Text="Combat FPS:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox x:Name="FPSInputBoxTextBoxCombat" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                                <TextBlock Name="CombatFPSInputBoxTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="CombatFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
                             <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="FPSInBoxMenu" Margin="25,5,25,5" Text="Menu FPS:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox x:Name="FPSInputBoxTextBoxMenu" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                                <TextBlock Name="MenuFPSInputBoxTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="MenuFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="FPSInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="FPSInputBoxOKButton_Click"/>
@@ -268,16 +268,16 @@
                         <StackPanel>
                             <TextBlock Name="ResolutionInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="ResolutionTextWidth" Margin="25,5,25,5" Text="Custom Width:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox x:Name="ResolutionInputBoxTextBoxW" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                                <TextBlock Name="ResolutionInputBoxWidthTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="ResolutionInputBoxWidthTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
                             <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="ResolutionTextHeight" Margin="25,5,25,5" Text="Custom Height:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox x:Name="ResolutionInputBoxTextBoxH" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                                <TextBlock Name="ResolutionInputBoxHeightTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="ResolutionInputBoxHeightTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
                             <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="ToggleFullscreenText" Margin="25,5,25,5" Text="Enable Fullscreen" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <CheckBox Name="ToggleFullscreen" Margin="25,5,25,5" HorizontalAlignment="Right"></CheckBox>
+                                <TextBlock Name="ResolutionInputBoxFullscreenTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <CheckBox Name="ResolutionInputBoxFullscreenCheckbox" Margin="25,5,25,5" HorizontalAlignment="Right"/>
                             </DockPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="ResolutionInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="ResolutionInputBoxOKButton_Click"/>
@@ -325,19 +325,19 @@
             </Grid>
             <Grid Name="AboutBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="200">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="250">
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="AboutBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <TextBlock Margin="150,0,25,0" Text="Better Honkai Impact 3rd Launcher" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
-                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="110" FontFamily="Segoe UI" TextWrapping="Wrap"/>
+                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="160" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="AboutBoxGitHubButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxGitHubButton_Click"/>
                                 <Button Name="AboutBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxCloseButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Image Source="Assets/Images/Bp_Logo.png" HorizontalAlignment="Left" Margin="16,0,0,18" Width="128"/>
+                    <Image Source="Assets/Images/Bp_Logo.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
                     <Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="AboutBoxCloseButton_Click"/>
                 </Grid>
             </Grid>

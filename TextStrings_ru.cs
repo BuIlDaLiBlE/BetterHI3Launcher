@@ -12,6 +12,8 @@ namespace BetterHI3Launcher
             textStrings["binary_prefix_byte"] = "б";
             textStrings["bytes_per_second"] = "Б/с";
             textStrings["outdated"] = "Устарело";
+            textStrings["enabled"] = "Включен";
+            textStrings["disabled"] = "Выключен";
             textStrings["button_download"] = "Загрузить";
             textStrings["button_downloading"] = "Загрузка";
             textStrings["button_update"] = "Обновить";
@@ -29,11 +31,19 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_uninstall"] = "Удалить игру";
             textStrings["contextmenu_fixsubs"] = "Исправить субтитры";
             textStrings["contextmenu_download_type"] = "Изменить тип загрузки";
-            textStrings["contextmenu_customfps"] = "Своё ограничение FPS";
+            textStrings["contextmenu_game_settings"] = "Управление настройками игры";
+            textStrings["contextmenu_customfps"] = "Задать своё ограничение FPS";
+            textStrings["contextmenu_customresolution"] = "Задать своё разрешение";
             textStrings["contextmenu_resetgamesettings"] = "Сбросить настройки игры";
             textStrings["contextmenu_web_profile"] = "Перейти в веб-профиль";
             textStrings["contextmenu_feedback"] = "Отправить отзыв";
             textStrings["contextmenu_changelog"] = "История изменений";
+            textStrings["contextmenu_language"] = "Язык";
+            textStrings["contextmenu_language_system"] = "Системный";
+            textStrings["contextmenu_language_english"] = "Английский";
+            textStrings["contextmenu_language_russian"] = "Русский";
+            textStrings["contextmenu_language_spanish"] = "Испанский";
+            textStrings["contextmenu_language_contribute"] = "Хотите помочь?";
             textStrings["contextmenu_about"] = "О лаунчере";
             textStrings["progresstext_error"] = "Ошибочка вышла :^(";
             textStrings["progresstext_verifying"] = "Проверка игровых файлов...";
@@ -51,10 +61,16 @@ namespace BetterHI3Launcher
             textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}\nОтветственный за зеркало: {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Полный кэш";
             textStrings["downloadcachebox_button_numeric_files"] = "Числовые файлы";
-            textStrings["fpsinputbox_title"] = "Введите максимальное значение FPS";
+            textStrings["fpsinputbox_title"] = "Задайте ограничение FPS";
+            textStrings["fpsinputbox_label_combatfps"] = "FPS во время игры";
+            textStrings["fpsinputbox_label_menufps"] = "FPS в меню";
+            textStrings["resolutioninputbox_title"] = "Задайте разрешение";
+            textStrings["resolutioninputbox_label_width"] = "Ширина";
+            textStrings["resolutioninputbox_label_height"] = "Высота";
+            textStrings["resolutioninputbox_label_fullscreen"] = "Полный экран";
             textStrings["changelogbox_title"] = "История изменений";
             textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
-            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.";
+            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам GitHub:\nSinsOfSeven - Сделал возможность задавать своё разрешение игры\nProxy-E23 - Перевёл лаунчер на испанский язык";
             textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кэша.";
             textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кэша числовых файлов.";
             textStrings["msgbox_download_cache_3_msg"] = "Приблизительный размер: {0}.\nПродолжить?";
@@ -84,7 +100,9 @@ namespace BetterHI3Launcher
             textStrings["msgbox_abort_title"] = "Запрос на отмену";
             textStrings["msgbox_registryerror_msg"] = "Произошла ошибка доступа к реестру.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_registryerror_title"] = "Ошибка реестра";
-            textStrings["msgbox_registryempty_msg"] = "Нужное значение в реестре отсутствует. Вы уже запускали игру?";
+            textStrings["msgbox_registryempty_1_msg"] = "Нужное значение в реестре отсутствует.";
+            textStrings["msgbox_registryempty_2_msg"] = "Вы уже запускали игру?";
+            textStrings["msgbox_registryempty_3_msg"] = "Попробуйте изменить настройки видео в игре (выключить полный экран, изменить пресет видео и т. д.).";
             textStrings["msgbox_uninstall_1_msg"] = "Вы уверены, что хотите удалить игру?";
             textStrings["msgbox_uninstall_2_msg"] = "Вы точно уверены, что хотите удалить игру? :^(";
             textStrings["msgbox_uninstall_3_msg"] = "Удалить также и настройки игры с кэшем?";
@@ -100,10 +118,12 @@ namespace BetterHI3Launcher
             textStrings["msgbox_fixsubs_4_msg"] = "Субтитры распакованы к {0} файлам видео.";
             textStrings["msgbox_fixsubs_5_msg"] = "Исправлено {0} файлов субтитров.";
             textStrings["msgbox_fixsubs_6_msg"] = "Не был исправлен ни один файл субтитров. Субтитры либо ещё не загружены, либо уже исправлены.";
-            textStrings["msgbox_customfps_1_msg"] = "Значение не должно быть пустым.";
-            textStrings["msgbox_customfps_2_msg"] = "Значение не должно равняться нулю или быть отрицательным.";
+            textStrings["msgbox_customfps_1_msg"] = "Значения не должно быть пустым.";
+            textStrings["msgbox_customfps_2_msg"] = "Значения не должно равняться нулю или быть отрицательным.";
             textStrings["msgbox_customfps_3_msg"] = "Значения ниже 30 не рекомендуются. Продолжить?";
-            textStrings["msgbox_customfps_4_msg"] = "Максимальное значение FPS установлено на {0}.";
+            textStrings["msgbox_customfps_4_msg"] = "Ограничение FPS во время игры и в меню успешно установлено на {0} и {1} соответственно.";
+            textStrings["msgbox_customresolution_1_msg"] = "Не рекомендуется устанавливать высоту больше, чем ширину.\nПродолжить?";
+            textStrings["msgbox_customresolution_2_msg"] = "Разрешение {0}x{1} успешно установлено, полный экран {2}.";
             textStrings["msgbox_resetgamesettings_1_msg"] = "Будут сброшены все настройки игры, сохранённые в реестре.\nИспользуйте это только в том случае, если возникли проблемы с игрой!\nПродолжить?";
             textStrings["msgbox_resetgamesettings_2_msg"] = "Эта операция необратима. Вы уверены, что хотите продолжить?";
             textStrings["msgbox_resetgamesettings_3_msg"] = "Настройки игры были сброшены.";
@@ -126,6 +146,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_install_wrong_drive_type_msg"] = "На данное устройство установить нельзя.";
             textStrings["msgbox_mirror_error_msg"] = "Ошибка зеркала. Попросите ответственного за зеркало разобраться с этим.\nСообщение: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Этот лаунчер требует установленного .NET Framework версии 4.6 или новее.";
+            textStrings["msgbox_language_msg"] = "Язык изменится на {0} и лаунчер будет перезапущен.\nПродолжить?";
         }
     }
 }

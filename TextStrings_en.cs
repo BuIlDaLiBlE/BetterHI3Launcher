@@ -18,6 +18,8 @@ namespace BetterHI3Launcher
             textStrings.Add("binary_prefix_byte", "b");
             textStrings.Add("bytes_per_second", "B/s");
             textStrings.Add("outdated", "Outdated");
+            textStrings.Add("enabled", "Enabled");
+            textStrings.Add("disabled", "Disabled");
             textStrings.Add("button_download", "Download");
             textStrings.Add("button_downloading", "Downloading");
             textStrings.Add("button_update", "Update");
@@ -36,12 +38,19 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_uninstall", "Uninstall game");
             textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
             textStrings.Add("contextmenu_download_type", "Change download type");
+            textStrings.Add("contextmenu_game_settings", "Manage game settings");
             textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
             textStrings.Add("contextmenu_customresolution", "Set custom resolution");
             textStrings.Add("contextmenu_resetgamesettings", "Reset game settings");
             textStrings.Add("contextmenu_web_profile", "Go to web profile");
             textStrings.Add("contextmenu_feedback", "Send feedback");
             textStrings.Add("contextmenu_changelog", "Show changelog");
+            textStrings.Add("contextmenu_language", "Language");
+            textStrings.Add("contextmenu_language_system", "System Default");
+            textStrings.Add("contextmenu_language_english", "English");
+            textStrings.Add("contextmenu_language_russian", "Russian");
+            textStrings.Add("contextmenu_language_spanish", "Spanish");
+            textStrings.Add("contextmenu_language_contribute", "Want to help?");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
             textStrings.Add("progresstext_verifying", "Verifying game files...");
@@ -60,15 +69,15 @@ namespace BetterHI3Launcher
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
             textStrings.Add("fpsinputbox_title", "Enter max FPS cap");
-            textStrings.Add("fpsinputbox_combat", "Combat FPS");
-            textStrings.Add("fpsinputbox_menu", "Menu FPS");
-            textStrings.Add("resolutioninputbox_title", "Enter Custom Resolution");
-            textStrings.Add("resolutionlabel_width", "Width(X):");
-            textStrings.Add("resolutionlabel_height", "Height(Y):");
-            textStrings.Add("resolutionlabel_isfullscreen", "Enable Fullscreen(Y/N):");
+            textStrings.Add("fpsinputbox_label_combatfps", "FPS in-game");
+            textStrings.Add("fpsinputbox_label_menufps", "FPS in menu");
+            textStrings.Add("resolutioninputbox_title", "Enter custom resolution");
+            textStrings.Add("resolutioninputbox_label_width", "Width");
+            textStrings.Add("resolutioninputbox_label_height", "Height");
+            textStrings.Add("resolutioninputbox_label_fullscreen", "Fullscreen");
             textStrings.Add("changelogbox_title", "Changelog");
             textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
-            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.");
+            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language contibution");
             textStrings.Add("msgbox_genericerror_title", "Error");
             textStrings.Add("msgbox_genericerror_msg", "An error occurred.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_neterror_title", "Network error");
@@ -95,7 +104,9 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_abort_title", "Abort request");
             textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_registryerror_title", "Registry error");
-            textStrings.Add("msgbox_registryempty_msg", "No value to be tweaked in registry exists. Did you already run the game?");
+            textStrings.Add("msgbox_registryempty_1_msg", "No value to be tweaked in registry exists.");
+            textStrings.Add("msgbox_registryempty_2_msg", "Did you already run the game?");
+            textStrings.Add("msgbox_registryempty_3_msg", "Try changing video settings in-game first (disabling fullscreen, changing video preset, etc).");
             textStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
             textStrings.Add("msgbox_download_cache_2_msg", "Numeric file cache is about to be downloaded.");
             textStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
@@ -114,14 +125,12 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_fixsubs_4_msg", "Unpacked subtitles for {0} CGs.");
             textStrings.Add("msgbox_fixsubs_5_msg", "Fixed {0} subtitle files.");
             textStrings.Add("msgbox_fixsubs_6_msg", "No subtitle files were fixed. They are either not downloaded yet or already fixed.");
-            textStrings.Add("msgbox_customfps_1_msg", "Value must not be empty.");
-            textStrings.Add("msgbox_customfps_2_msg", "Value must not be zero or negative.");
+            textStrings.Add("msgbox_customfps_1_msg", "Values must not be empty.");
+            textStrings.Add("msgbox_customfps_2_msg", "Values must not be zero or negative.");
             textStrings.Add("msgbox_customfps_3_msg", "Values lower than 30 are not recommended. Continue?");
-            textStrings.Add("msgbox_customfps_4_msg", "Combat and menu FPS cap successfully set to {0} and {1} respectively.");
-            textStrings.Add("msgbox_customresolution_1_msg", "Honkai must be run atleast once before setting a custom resolution.");
-            textStrings.Add("msgbox_customresolution_2_msg", "No registry values to change, Try disabling fullscreen in-game first.");
-            textStrings.Add("msgbox_customresolution_3_msg", "Heights greater than the width behave abnormally. Continue?");
-            textStrings.Add("msgbox_customresolution_4_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
+            textStrings.Add("msgbox_customfps_4_msg", "In-game and menu FPS cap successfully set to {0} and {1} respectively.");
+            textStrings.Add("msgbox_customresolution_1_msg", "Height being greater than width is not recommended.\nContinue?");
+            textStrings.Add("msgbox_customresolution_2_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
             textStrings.Add("msgbox_resetgamesettings_1_msg", "This will wipe all game settings stored in registry.\nOnly use this if you are having problems with the game!\nContinue?");
             textStrings.Add("msgbox_resetgamesettings_2_msg", "This action is irreversible. Are you sure you want to do this?");
             textStrings.Add("msgbox_resetgamesettings_3_msg", "Game settings have been wiped from registry.");
@@ -144,6 +153,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_install_wrong_drive_type_msg", "Cannot install on selected device.");
             textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
             textStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6 or newer to be installed.");
+            textStrings.Add("msgbox_language_msg", "Language is going to be changed to {0} and launcher will be restarted.\nContinue?");
         }
     }
 }
