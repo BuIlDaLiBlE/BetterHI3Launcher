@@ -1,4 +1,4 @@
-﻿<Window x:Class="BetterHI3Launcher.MainWindow"
+<Window x:Class="BetterHI3Launcher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -181,11 +181,11 @@
             <BitmapCache/>
         </Border.CacheMode>
         <Grid Name="Grid" Width="1280" Height="590">
-            <Rectangle Fill="Magenta"/>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" Text="NO IMAGE :^(" FontFamily="{DynamicResource Font}" FontSize="48"/>
+            <Rectangle Fill="Transparent"/>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" FontFamily="{DynamicResource Font}" FontSize="48"/>
             <Image Name="BackgroundImage" Stretch="Fill"/>
             <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
-            <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
+            <Image Name="HI3LogoImage" Source="HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
             <ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
             <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" MinWidth="214" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
             <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" FontSize="12" FontFamily="{DynamicResource Font}"/>
@@ -218,7 +218,7 @@
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
             <StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
+                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Background="Transparent">
                     <CheckBox.LayoutTransform>
                         <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
                     </CheckBox.LayoutTransform>
@@ -244,7 +244,14 @@
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="FPSInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <TextBox Name="FPSInputBoxTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                            <DockPanel Height="26" Margin="100,0">
+                                <TextBlock Name="FPSInBoxCombat" Margin="25,5,25,5" Text="Combat FPS:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox x:Name="FPSInputBoxTextBoxCombat" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                            </DockPanel>
+                            <DockPanel Height="26" Margin="100,0">
+                                <TextBlock Name="FPSInBoxMenu" Margin="25,5,25,5" Text="Menu FPS:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox x:Name="FPSInputBoxTextBoxMenu" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                            </DockPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="FPSInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="FPSInputBoxOKButton_Click"/>
                                 <Button Name="FPSInputBoxCancelButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="FPSInputBoxCancelButton_Click"/>
@@ -252,6 +259,33 @@
                         </StackPanel>
                     </Border>
                     <Button Name="FPSInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="FPSInputBoxCancelButton_Click"/>
+                </Grid>
+            </Grid>
+            <Grid Name="ResolutionInputBox" Visibility="Collapsed">
+                <Grid Background="#80000000"/>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="250">
+                    <Border BorderBrush="Black" Background="#C8FFFFFF">
+                        <StackPanel>
+                            <TextBlock Name="ResolutionInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <DockPanel Height="26" Margin="100,0">
+                                <TextBlock Name="ResolutionTextWidth" Margin="25,5,25,5" Text="Custom Width:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox x:Name="ResolutionInputBoxTextBoxW" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                            </DockPanel>
+                            <DockPanel Height="26" Margin="100,0">
+                                <TextBlock Name="ResolutionTextHeight" Margin="25,5,25,5" Text="Custom Height:" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox x:Name="ResolutionInputBoxTextBoxH" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="InputBoxTextBox_PreviewTextInput" DataObject.Pasting="InputBoxTextBox_Pasting"/>
+                            </DockPanel>
+                            <DockPanel Height="26" Margin="100,0">
+                                <TextBlock Name="ToggleFullscreenText" Margin="25,5,25,5" Text="Enable Fullscreen" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <CheckBox Name="ToggleFullscreen" Margin="25,5,25,5" HorizontalAlignment="Right"></CheckBox>
+                            </DockPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Name="ResolutionInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="ResolutionInputBoxOKButton_Click"/>
+                                <Button Name="ResolutionInputBoxCancelButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="ResolutionInputBoxCancelButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Button Name="ResolutionInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="ResolutionInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="DownloadCacheBox" Visibility="Collapsed">
