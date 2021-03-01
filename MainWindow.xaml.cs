@@ -2881,12 +2881,12 @@ namespace BetterHI3Launcher
             {
                 case "es":
                     LauncherLanguage = lang;
-                    Resources["Font"] = new FontFamily("Arial Bold");
+                    Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Spanish();
                     break;
                 case "ru":
                     LauncherLanguage = lang;
-                    Resources["Font"] = new FontFamily("Arial Bold");
+                    Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Russian();
                     break;
                 default:
