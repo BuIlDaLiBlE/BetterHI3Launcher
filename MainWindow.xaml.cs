@@ -395,7 +395,7 @@ namespace BetterHI3Launcher
                 catch(Exception ex)
                 {
                     Status = LauncherStatus.Error;
-                    if(MessageBox.Show($"{textStrings["msgbox_neterror_msg"]}:\n{ex}", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    if(MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         Application.Current.Shutdown();
                         return;
@@ -482,7 +482,7 @@ namespace BetterHI3Launcher
             else
             {
                 Status = LauncherStatus.Error;
-                MessageBox.Show($"{textStrings["msgbox_neterror_msg"]}.", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], onlineVersionInfo.status_message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

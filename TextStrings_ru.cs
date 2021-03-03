@@ -77,7 +77,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_genericerror_title"] = "Ошибка";
             textStrings["msgbox_genericerror_msg"] = "Произошла ошибка.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_neterror_title"] = "Сетевая ошибка";
-            textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу";
+            textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу:\n{0}";
             textStrings["msgbox_verifyerror_title"] = "Ошибка проверки целостности файла";
             textStrings["msgbox_verifyerror_1_msg"] = "Произошла ошибка при загрузке, попробуйте снова.";
             textStrings["msgbox_verifyerror_2_msg"] = "Произошла ошибка при загрузке, файл может быть повреждён.\nВсё равно продолжить?";

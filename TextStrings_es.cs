@@ -69,7 +69,7 @@ namespace BetterHI3Launcher
             textStrings["aboutbox_msg"] = "Bueno, es más avanzado, ¿no? :^)\nEste proyecto se hizo con la esperanza de que muchos capitanes tuvieran una mejor experiencia con el juego.\nNo está afiliado con miHoYo y es completamente de código abierto.\nAgradecemos mucho cualquier comentario.\nUn agradecimiento especial a estos colaboradores de GitHub:\nSinsOfSeven - Contribución de resolución personalizada\nProxy-E23 - Contribución de idioma español";
             textStrings["msgbox_genericerror_msg"] = "Ha ocurrido un error.\nPara mas informacion, consultar el log.";
             textStrings["msgbox_neterror_title"] = "Error de red";
-            textStrings["msgbox_neterror_msg"] = "Error al conectarse al servidor";
+            textStrings["msgbox_neterror_msg"] = "Error al conectarse al servidor:\n{0}";
             textStrings["msgbox_verifyerror_title"] = "Error al validar el archivo";
             textStrings["msgbox_verifyerror_1_msg"] = "Ocurrió un error durante la descarga. Vuelva a intentarlo.";
             textStrings["msgbox_verifyerror_2_msg"] = "Ocurrió un error durante la descarga. El archivo puede estar dañado.\nContinuar de todos modos?";

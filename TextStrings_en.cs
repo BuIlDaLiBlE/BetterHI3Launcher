@@ -81,7 +81,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_genericerror_title", "Error");
             textStrings.Add("msgbox_genericerror_msg", "An error occurred.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_neterror_title", "Network error");
-            textStrings.Add("msgbox_neterror_msg", "An error occurred while connecting to server");
+            textStrings.Add("msgbox_neterror_msg", "An error occurred while connecting to server:\n{0}");
             textStrings.Add("msgbox_verifyerror_title", "File validation error");
             textStrings.Add("msgbox_verifyerror_1_msg", "An error occurred while downloading. Please try again.");
             textStrings.Add("msgbox_verifyerror_2_msg", "An error occurred while downloading. File may be corrupt.\nContinue regardless?");
