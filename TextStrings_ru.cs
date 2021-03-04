@@ -53,7 +53,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_downloaded"] = "Загружено {0}/{1} ({2})";
             textStrings["progresstext_eta"] = "Расчётное время: {0}";
             textStrings["progresstext_unpacking_1"] = "Распаковка игровых файлов...";
-            textStrings["progresstext_unpacking_2"] = "Распаковка игрового файла {0}/{1}";
+            textStrings["progresstext_unpacking_2"] = "Распаковка игрового файла {0}/{1}...";
             textStrings["progresstext_uninstalling"] = "Удаление игры...";
             textStrings["progresstext_mirror_connect"] = "Подключение к зеркалу...";
             textStrings["progresstext_initiating_download"] = "Загрузка начинается...";
@@ -77,7 +77,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_genericerror_title"] = "Ошибка";
             textStrings["msgbox_genericerror_msg"] = "Произошла ошибка.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_neterror_title"] = "Сетевая ошибка";
-            textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу";
+            textStrings["msgbox_neterror_msg"] = "Произошла ошибка подключения к серверу:\n{0}";
             textStrings["msgbox_verifyerror_title"] = "Ошибка проверки целостности файла";
             textStrings["msgbox_verifyerror_1_msg"] = "Произошла ошибка при загрузке, попробуйте снова.";
             textStrings["msgbox_verifyerror_2_msg"] = "Произошла ошибка при загрузке, файл может быть повреждён.\nВсё равно продолжить?";
@@ -147,6 +147,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Ошибка зеркала. Попросите ответственного за зеркало разобраться с этим.\nСообщение: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Этот лаунчер требует установленного .NET Framework версии 4.6 или новее.";
             textStrings["msgbox_language_msg"] = "Язык изменится на {0} и лаунчер будет перезапущен.\nПродолжить?";
+            textStrings["msgbox_no_internet_msg"] = "Не могу подключиться к интернету. Вы подключены к сети?";
         }
     }
 }

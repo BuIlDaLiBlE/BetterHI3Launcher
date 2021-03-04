@@ -1,4 +1,4 @@
-﻿<Window x:Class="BetterHI3Launcher.MainWindow"
+<Window x:Class="BetterHI3Launcher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -19,6 +19,7 @@
     </Window.TaskbarItemInfo>
     <Window.Resources>
         <FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
+        <FontFamily x:Key="FontStatic">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
         <ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
         <ImageBrush x:Key="ButtonPressed" ImageSource="/Assets/Images/Button_Pressed.png"/>
         <ImageBrush x:Key="ButtonDisabled" ImageSource="/Assets/Images/Button_Disabled.png"/>
@@ -187,9 +188,9 @@
             <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
             <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
             <ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
-            <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" MinWidth="214" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
-            <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" FontSize="12" FontFamily="{DynamicResource Font}"/>
-            <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,7" Foreground="#C8FFFFFF" FontSize="10" FontFamily="{DynamicResource Font}"/>
+            <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
+            <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12"/>
+            <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,7" Foreground="#C8FFFFFF" FontFamily="{DynamicResource Font}" FontSize="10"/>
             <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="CloseButton_Click"/>
             <Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,32,0" Width="32" Height="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="MinimizeButton_Click"/>
             <Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,51" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Click="LaunchButton_Click" IsEnabled="False"/>
@@ -203,7 +204,7 @@
                     <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
             </TextBlock>
-            <ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{DynamicResource Font}" SelectedIndex="0" SelectionChanged="ServerDropdown_Changed">
+            <ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" SelectedIndex="0" SelectionChanged="ServerDropdown_Changed">
                 <ComboBoxItem Content="Global"></ComboBoxItem>
                 <ComboBoxItem Content="SEA"></ComboBoxItem>
             </ComboBox>
@@ -212,7 +213,7 @@
                     <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
             </TextBlock>
-            <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{DynamicResource Font}" SelectedIndex="0" SelectionChanged="MirrorDropdown_Changed">
+            <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" SelectedIndex="0" SelectionChanged="MirrorDropdown_Changed">
                 <ComboBoxItem Content="miHoYo"></ComboBoxItem>
                 <ComboBoxItem Content="MediaFire"></ComboBoxItem>
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>

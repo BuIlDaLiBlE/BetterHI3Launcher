@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using SharpCompress.Archives;
@@ -41,18 +41,18 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210228.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210304.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
-        public static readonly string localLowPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
+        public static readonly string localLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string launcherDataPath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
         public static readonly string miHoYoPath = Path.Combine(localLowPath, "miHoYo");
         public static readonly string gameExeName = "BH3.exe";
         public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
         public static readonly string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
         public static string LauncherLanguage;
-        public static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, cacheArchivePath, launcherExeName, launcherPath, launcherArchivePath, gameWebProfileURL;
+        public static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, cacheArchivePath, launcherExeName, launcherPath, launcherArchivePath;
         public static string RegistryVersionInfo;
-        public static string GameRegistryPath, GameRegistryLocalVersionRegValue;
+        public static string GameRegistryPath, GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
         public static bool EnableAutoUpdate = true;
         public static bool DownloadPaused = false;
         public static Dictionary<string, string> textStrings = new Dictionary<string, string>();
@@ -165,12 +165,14 @@ namespace BetterHI3Launcher
                     case HI3Server.Global:
                         RegistryVersionInfo = "VersionInfoGlobal";
                         GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3rd";
-                        gameWebProfileURL = "https://global.user.honkaiimpact3.com";
+                        GameFullName = "Honkai Impact 3rd";
+                        GameWebProfileURL = "https://global.user.honkaiimpact3.com";
                         break;
                     case HI3Server.SEA:
                         RegistryVersionInfo = "VersionInfoSEA";
                         GameRegistryPath = @"SOFTWARE\miHoYo\Honkai Impact 3";
-                        gameWebProfileURL = "https://asia.user.honkaiimpact3.com";
+                        GameFullName = "Honkai Impact 3";
+                        GameWebProfileURL = "https://asia.user.honkaiimpact3.com";
                         break;
                 }
                 GameRegistryLocalVersionRegValue = null;
@@ -318,7 +320,7 @@ namespace BetterHI3Launcher
             OptionsContextMenu.Items.Add(CMGameSettings);
             OptionsContextMenu.Items.Add(new Separator());
             var CMWebProfile = new MenuItem{Header = textStrings["contextmenu_web_profile"]};
-            CMWebProfile.Click += (sender, e) => BpUtility.StartProcess(gameWebProfileURL, null, rootPath, true);
+            CMWebProfile.Click += (sender, e) => BpUtility.StartProcess(GameWebProfileURL, null, rootPath, true);
             OptionsContextMenu.Items.Add(CMWebProfile);
             var CMFeedback = new MenuItem{Header = textStrings["contextmenu_feedback"]};
             CMFeedback.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose", null, rootPath, true);
@@ -390,10 +392,10 @@ namespace BetterHI3Launcher
                     FetchOnlineVersionInfo();
                     FetchmiHoYoVersionInfo();
                 }
-                catch(Exception ex)
+                catch
                 {
                     Status = LauncherStatus.Error;
-                    if(MessageBox.Show($"{textStrings["msgbox_neterror_msg"]}:\n{ex}", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    if(MessageBox.Show(textStrings["msgbox_no_internet_msg"], textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         Application.Current.Shutdown();
                         return;
@@ -480,7 +482,7 @@ namespace BetterHI3Launcher
             else
             {
                 Status = LauncherStatus.Error;
-                MessageBox.Show($"{textStrings["msgbox_neterror_msg"]}.", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], onlineVersionInfo.status_message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -618,6 +620,7 @@ namespace BetterHI3Launcher
                     Log($"ERROR: Failed to fetch MediaFire file metadata:\n{msg}");
                     Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], msg), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                     Status = LauncherStatus.Ready;
+                    Dispatcher.Invoke(() => {LaunchButton.IsEnabled = false;});
                 }
                 return null;
             }
@@ -661,6 +664,7 @@ namespace BetterHI3Launcher
                         Log($"ERROR: Failed to fetch Google Drive file metadata:\n{msg}");
                         Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], msg), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                         Status = LauncherStatus.Ready;
+                        Dispatcher.Invoke(() => {LaunchButton.IsEnabled = false;});
                     }
                 }
                 return null;
@@ -1364,6 +1368,20 @@ namespace BetterHI3Launcher
                         }
                         if(abort)
                             return;
+                        try
+                        {
+                            foreach(var file in Directory.GetFiles(Path.Combine(miHoYoPath, $@"{GameFullName}\Data\data"), "*.unity3d"))
+                            {
+                                try
+                                {
+                                    File.Delete(file);
+                                }
+                                catch
+                                {
+                                    Log($"Delete ERROR: {file}");
+                                }
+                            }
+                        }catch{}
                         var skippedFiles = new List<string>();
                         using(var archive = ArchiveFactory.Open(cacheArchivePath))
                         {
@@ -1390,7 +1408,7 @@ namespace BetterHI3Launcher
                                         ProgressBar.Value = progress;
                                         TaskbarItemInfo.ProgressValue = progress;
                                     });
-                                    reader.WriteEntryToDirectory(miHoYoPath, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true, PreserveFileTime = true });
+                                    reader.WriteEntryToDirectory(miHoYoPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
                                     if(!reader.Entry.IsDirectory)
                                         unpackedFiles++;
                                 }
@@ -1665,10 +1683,7 @@ namespace BetterHI3Launcher
 
                             if(dialog.ShowDialog() == CommonFileDialogResult.Ok)
                             {
-                                if(Server == HI3Server.Global)
-                                    gameInstallPath = Path.Combine(dialog.FileName, "Honkai Impact 3rd");
-                                else
-                                    gameInstallPath = Path.Combine(dialog.FileName, "Honkai Impact 3");
+                                gameInstallPath = Path.Combine(dialog.FileName, GameFullName);
                             }
                             else
                             {
@@ -1893,11 +1908,7 @@ namespace BetterHI3Launcher
                         {
                             if(MessageBox.Show(textStrings["msgbox_uninstall_3_msg"], textStrings["msgbox_uninstall_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                             {
-                                string path;
-                                if(Server == HI3Server.Global)
-                                    path = Path.Combine(miHoYoPath, "Honkai Impact 3rd");
-                                else
-                                    path = Path.Combine(miHoYoPath, "Honkai Impact 3");
+                                string path = Path.Combine(miHoYoPath, GameFullName);
                                 Log("Deleting game cache and registry settings...");
                                 if(Directory.Exists(path))
                                     Directory.Delete(path, true);
@@ -2867,7 +2878,7 @@ namespace BetterHI3Launcher
         {
             foreach(dynamic item in OptionsContextMenu.Items)
             {
-                if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_about"]))
+                if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_language"] || item.Header.ToString() == textStrings["contextmenu_about"]))
                     continue;
                 if(!val && leaveUninstallEnabled && (item.GetType() == typeof(MenuItem) && item.Header.ToString() == textStrings["contextmenu_uninstall"]))
                     continue;
@@ -2881,12 +2892,12 @@ namespace BetterHI3Launcher
             {
                 case "es":
                     LauncherLanguage = lang;
-                    Resources["Font"] = new FontFamily("Arial Bold");
+                    Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Spanish();
                     break;
                 case "ru":
                     LauncherLanguage = lang;
-                    Resources["Font"] = new FontFamily("Arial Bold");
+                    Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Russian();
                     break;
                 default:

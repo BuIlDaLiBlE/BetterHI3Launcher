@@ -50,7 +50,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_downloaded"] = "Descargado {0}/{1} ({2})";
             textStrings["progresstext_eta"] = "Tiempo estimado: {0}";
             textStrings["progresstext_unpacking_1"] = "Descomprimiendo archivos del juego...";
-            textStrings["progresstext_unpacking_2"] = "Descomprimiendo archivo del juego {0}/{1}";
+            textStrings["progresstext_unpacking_2"] = "Descomprimiendo archivo del juego {0}/{1}...";
             textStrings["progresstext_uninstalling"] = "Desinstalando juego...";
             textStrings["progresstext_mirror_connect"] = "Conectando al espejo...";
             textStrings["progresstext_initiating_download"] = "Iniciando Descarga...";
@@ -69,7 +69,7 @@ namespace BetterHI3Launcher
             textStrings["aboutbox_msg"] = "Bueno, es más avanzado, ¿no? :^)\nEste proyecto se hizo con la esperanza de que muchos capitanes tuvieran una mejor experiencia con el juego.\nNo está afiliado con miHoYo y es completamente de código abierto.\nAgradecemos mucho cualquier comentario.\nUn agradecimiento especial a estos colaboradores de GitHub:\nSinsOfSeven - Contribución de resolución personalizada\nProxy-E23 - Contribución de idioma español";
             textStrings["msgbox_genericerror_msg"] = "Ha ocurrido un error.\nPara mas informacion, consultar el log.";
             textStrings["msgbox_neterror_title"] = "Error de red";
-            textStrings["msgbox_neterror_msg"] = "Error al conectarse al servidor";
+            textStrings["msgbox_neterror_msg"] = "Error al conectarse al servidor:\n{0}";
             textStrings["msgbox_verifyerror_title"] = "Error al validar el archivo";
             textStrings["msgbox_verifyerror_1_msg"] = "Ocurrió un error durante la descarga. Vuelva a intentarlo.";
             textStrings["msgbox_verifyerror_2_msg"] = "Ocurrió un error durante la descarga. El archivo puede estar dañado.\nContinuar de todos modos?";
@@ -142,6 +142,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Hay un error con el espejo. Pídale al encargado del espejo que llegue al fondo de esto.\nMensaje: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Este launcher requiere la instalación de .NET Framework 4.6 o posterior.";
             textStrings["msgbox_language_msg"] = "El idioma se cambiará a {0} y el launcher se reiniciará.\n¿Continuar?";
+            textStrings["msgbox_no_internet_msg"] = "No se puede conectar a internet. ¿Estás conectado?";
         }
     }
 }
