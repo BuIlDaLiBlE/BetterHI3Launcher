@@ -620,6 +620,7 @@ namespace BetterHI3Launcher
                     Log($"ERROR: Failed to fetch MediaFire file metadata:\n{msg}");
                     Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], msg), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                     Status = LauncherStatus.Ready;
+                    Dispatcher.Invoke(() => {LaunchButton.IsEnabled = false;});
                 }
                 return null;
             }
@@ -663,6 +664,7 @@ namespace BetterHI3Launcher
                         Log($"ERROR: Failed to fetch Google Drive file metadata:\n{msg}");
                         Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], msg), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                         Status = LauncherStatus.Ready;
+                        Dispatcher.Invoke(() => {LaunchButton.IsEnabled = false;});
                     }
                 }
                 return null;
@@ -2876,7 +2878,7 @@ namespace BetterHI3Launcher
         {
             foreach(dynamic item in OptionsContextMenu.Items)
             {
-                if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_about"]))
+                if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_language"] || item.Header.ToString() == textStrings["contextmenu_about"]))
                     continue;
                 if(!val && leaveUninstallEnabled && (item.GetType() == typeof(MenuItem) && item.Header.ToString() == textStrings["contextmenu_uninstall"]))
                     continue;

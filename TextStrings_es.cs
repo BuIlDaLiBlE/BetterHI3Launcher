@@ -50,7 +50,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_downloaded"] = "Descargado {0}/{1} ({2})";
             textStrings["progresstext_eta"] = "Tiempo estimado: {0}";
             textStrings["progresstext_unpacking_1"] = "Descomprimiendo archivos del juego...";
-            textStrings["progresstext_unpacking_2"] = "Descomprimiendo archivo del juego {0}/{1}";
+            textStrings["progresstext_unpacking_2"] = "Descomprimiendo archivo del juego {0}/{1}...";
             textStrings["progresstext_uninstalling"] = "Desinstalando juego...";
             textStrings["progresstext_mirror_connect"] = "Conectando al espejo...";
             textStrings["progresstext_initiating_download"] = "Iniciando Descarga...";
