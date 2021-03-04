@@ -154,6 +154,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
             textStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6 or newer to be installed.");
             textStrings.Add("msgbox_language_msg", "Language is going to be changed to {0} and launcher will be restarted.\nContinue?");
+            textStrings.Add("msgbox_no_internet_msg", "Cannot connect to the internet. Are you online?");
         }
     }
 }

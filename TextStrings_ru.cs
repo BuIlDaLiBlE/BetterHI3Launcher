@@ -147,6 +147,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Ошибка зеркала. Попросите ответственного за зеркало разобраться с этим.\nСообщение: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Этот лаунчер требует установленного .NET Framework версии 4.6 или новее.";
             textStrings["msgbox_language_msg"] = "Язык изменится на {0} и лаунчер будет перезапущен.\nПродолжить?";
+            textStrings["msgbox_no_internet_msg"] = "Не могу подключиться к интернету. Вы подключены к сети?";
         }
     }
 }

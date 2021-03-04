@@ -142,6 +142,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Hay un error con el espejo. Pídale al encargado del espejo que llegue al fondo de esto.\nMensaje: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Este launcher requiere la instalación de .NET Framework 4.6 o posterior.";
             textStrings["msgbox_language_msg"] = "El idioma se cambiará a {0} y el launcher se reiniciará.\n¿Continuar?";
+            textStrings["msgbox_no_internet_msg"] = "No se puede conectar a internet. ¿Estás conectado?";
         }
     }
 }

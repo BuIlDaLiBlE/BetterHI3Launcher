@@ -41,7 +41,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210228.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210304.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string launcherDataPath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -392,10 +392,10 @@ namespace BetterHI3Launcher
                     FetchOnlineVersionInfo();
                     FetchmiHoYoVersionInfo();
                 }
-                catch(Exception ex)
+                catch
                 {
                     Status = LauncherStatus.Error;
-                    if(MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    if(MessageBox.Show(textStrings["msgbox_no_internet_msg"], textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         Application.Current.Shutdown();
                         return;
