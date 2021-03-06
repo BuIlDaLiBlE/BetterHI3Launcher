@@ -204,6 +204,7 @@ namespace BetterHI3Launcher
         {
             #if DEBUG
                 WinConsole.Initialize();
+                userAgent += "[DEBUG]";
             #endif
             InitializeComponent();
             Log(userAgent);
@@ -394,6 +395,8 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
+                    if(Status == LauncherStatus.Error)
+                        return;
                     Status = LauncherStatus.Error;
                     if(MessageBox.Show(textStrings["msgbox_no_internet_msg"], textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
@@ -447,7 +450,7 @@ namespace BetterHI3Launcher
         private void FetchOnlineVersionInfo()
         {
             #if DEBUG
-                var version_info_url = new[]{"https://bpnet.host/bh3_debug.json"};
+                var version_info_url = new[]{"https://bpnet.host/bh3?launcherstatus_debug"};
             #else
                 var version_info_url = new[]{"https://bpnet.host/bh3?launcherstatus", "https://serioussam.ucoz.ru/bbh3l_prod.json"};
             #endif
@@ -483,6 +486,7 @@ namespace BetterHI3Launcher
             {
                 Status = LauncherStatus.Error;
                 MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], onlineVersionInfo.status_message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
             }
         }
 
@@ -757,22 +761,17 @@ namespace BetterHI3Launcher
                                 ToggleContextMenuItems(true, false);
                             });
                         }
-                        if(File.Exists(gameArchivePath))
+                        if(localVersionInfo.game_info.installed == false && File.Exists(gameArchivePath))
                         {
                             DownloadPaused = true;
                             var remaining_size = download_size - new FileInfo(gameArchivePath).Length;
                             Dispatcher.Invoke(() =>
                             {
+                                ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(remaining_size)}";
                                 if(remaining_size <= 0)
-                                {
-                                    LaunchButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-                                }
-                                else
-                                {
-                                    LaunchButton.Content = textStrings["button_resume"];
-                                    ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(remaining_size)}";
-                                    ToggleContextMenuItems(false, true);
-                                }
+                                    ProgressText.Text = string.Empty;
+                                LaunchButton.Content = textStrings["button_resume"];
+                                ToggleContextMenuItems(false, true);
                             });
                         }
                     }
@@ -801,7 +800,7 @@ namespace BetterHI3Launcher
                                     {
                                         if((int)Server != server)
                                             ServerDropdown.SelectedIndex = server;
-                                        WriteVersionInfo(true);
+                                        WriteVersionInfo(true, true);
                                         GameUpdateCheck(false);
                                     }
                                     else
@@ -1038,17 +1037,17 @@ namespace BetterHI3Launcher
 
                 Log($"Starting to download game archive: {title} ({url})");
                 Status = LauncherStatus.Downloading;
-                Dispatcher.Invoke(() =>
-                {
-                    LaunchButton.IsEnabled = true;
-                    LaunchButton.Content = textStrings["button_pause"];
-                });
                 await Task.Run(() =>
                 {
                     tracker.NewFile();
                     var eta_calc = new ETACalculator(1, 1);
                     download = new DownloadPauseable(url, gameArchivePath);
                     download.Start();
+                    Dispatcher.Invoke(() =>
+                    {
+                        LaunchButton.IsEnabled = true;
+                        LaunchButton.Content = textStrings["button_pause"];
+                    });
                     while(download != null && !download.Done)
                     {
                         if(DownloadPaused)
@@ -1164,7 +1163,7 @@ namespace BetterHI3Launcher
                         Log("Game archive unpack OK");
                         Dispatcher.Invoke(() => 
                         {
-                            WriteVersionInfo(false);
+                            WriteVersionInfo(false, true);
                             Log("Game install OK");
                             GameUpdateCheck(false);
                         });
@@ -1196,7 +1195,7 @@ namespace BetterHI3Launcher
             }
         }
 
-        private void WriteVersionInfo(bool CheckForLocalVersion)
+        private void WriteVersionInfo(bool CheckForLocalVersion, bool IsInstalled)
         {
             try
             {
@@ -1204,6 +1203,7 @@ namespace BetterHI3Launcher
                 versionInfo.game_info = new ExpandoObject();
                 versionInfo.game_info.version = miHoYoVersionInfo.cur_version.ToString();
                 versionInfo.game_info.install_path = gameInstallPath;
+                versionInfo.game_info.installed = IsInstalled;
                 if(CheckForLocalVersion)
                 {
                     RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
@@ -1590,7 +1590,7 @@ namespace BetterHI3Launcher
                 }
             }
             
-            if(LauncherRegKey != null && (LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString()))
+            if(LauncherRegKey != null && LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString())
             {
                 ChangelogBox.Visibility = Visibility.Visible;
                 ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
@@ -1708,7 +1708,7 @@ namespace BetterHI3Launcher
                                         {
                                             if((int)Server != server)
                                                 ServerDropdown.SelectedIndex = server;
-                                            WriteVersionInfo(true);
+                                            WriteVersionInfo(true, true);
                                             GameUpdateCheck(false);
                                         }
                                         else
@@ -2754,7 +2754,7 @@ namespace BetterHI3Launcher
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if(Status == LauncherStatus.Downloading)
+            if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
             {
                 try
                 {
@@ -2792,7 +2792,7 @@ namespace BetterHI3Launcher
                         if(MessageBox.Show($"{textStrings["msgbox_abort_1_msg"]}\n{textStrings["msgbox_abort_3_msg"]}", textStrings["msgbox_abort_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                         {
                             download.Pause();
-                            WriteVersionInfo(false);
+                            WriteVersionInfo(false, false);
                         }
                         else
                         {
@@ -2878,8 +2878,15 @@ namespace BetterHI3Launcher
         {
             foreach(dynamic item in OptionsContextMenu.Items)
             {
-                if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_language"] || item.Header.ToString() == textStrings["contextmenu_about"]))
-                    continue;
+                if(item.GetType() == typeof(MenuItem))
+                { 
+                    if(item.Header.ToString() == textStrings["contextmenu_web_profile"] ||
+                       item.Header.ToString() == textStrings["contextmenu_feedback"] ||
+                       item.Header.ToString() == textStrings["contextmenu_changelog"] ||
+                       item.Header.ToString() == textStrings["contextmenu_language"] ||
+                       item.Header.ToString() == textStrings["contextmenu_about"])
+                        continue;
+                }
                 if(!val && leaveUninstallEnabled && (item.GetType() == typeof(MenuItem) && item.Header.ToString() == textStrings["contextmenu_uninstall"]))
                     continue;
                 item.IsEnabled = val;
