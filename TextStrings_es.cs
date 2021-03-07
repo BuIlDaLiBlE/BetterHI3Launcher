@@ -55,6 +55,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_mirror_connect"] = "Conectando al espejo...";
             textStrings["progresstext_initiating_download"] = "Iniciando Descarga...";
             textStrings["progresstext_updating_launcher"] = "Actualizando launcher...";
+            textStrings["introbox_title"] = "¡Bienvenido a Better Honkai Impact 3rd launcher!";
             textStrings["downloadcachebox_msg"] = "Seleccione si desea descargar el paquete de la caché completa o solo los archivos numéricos.\nSeleccione \"Caché completa\" si tiene problemas para actualizar los recursos del evento.\nSeleccione \"Archivos numéricos\" si tiene un problema al actualizar la configuración.\nTenga en cuenta que actualmente no hay forma de recuperar automáticamente la última caché y tenemos que subirla manualmente a un espejo.\nUsando espejo: {0}.\nUltima actualizacion de la caché: {1}\nActual encargado del espejo {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Caché completa";
             textStrings["downloadcachebox_button_numeric_files"] = "Archivos numericos";

@@ -65,6 +65,9 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
             textStrings.Add("progresstext_initiating_download", "Initiating download...");
             textStrings.Add("progresstext_updating_launcher", "Updating launcher...");
+            textStrings.Add("introbox_title", "Welcome to Better Honkai Impact 3rd launcher!");
+            textStrings.Add("introbox_msg_1", "!!! IMPORTANT, PLEASE READ !!!");
+            textStrings.Add("introbox_msg_2", "Seems like this is your first time using the launcher. First of all, I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so.\nSecondly, it is important that if you used the official launcher to update the game and didn't launch it yet (to the point where you are on the bridge) you shouldn't use this launcher. Otherwise the launcher may detect your game version as old and make you have to download it again.\n\nRead all that? Great! If you already have the game installed just press the \"Download\" button and select your game folder. The launcher will detect your game and you won't have to download it again.");
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");

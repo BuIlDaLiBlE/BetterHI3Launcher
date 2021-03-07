@@ -48,11 +48,12 @@ namespace BetterHI3Launcher
         public static readonly string miHoYoPath = Path.Combine(localLowPath, "miHoYo");
         public static readonly string gameExeName = "BH3.exe";
         public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
-        public static readonly string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
+        public static string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
         public static string LauncherLanguage;
         public static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, cacheArchivePath, launcherExeName, launcherPath, launcherArchivePath;
         public static string RegistryVersionInfo;
         public static string GameRegistryPath, GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
+        public static bool FirstLaunch = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher") == null ? true : false;
         public static bool EnableAutoUpdate = true;
         public static bool DownloadPaused = false;
         public static Dictionary<string, string> textStrings = new Dictionary<string, string>();
@@ -204,7 +205,7 @@ namespace BetterHI3Launcher
         {
             #if DEBUG
                 WinConsole.Initialize();
-                userAgent += "[DEBUG]";
+                userAgent += " [DEBUG]";
             #endif
             InitializeComponent();
             Log(userAgent);
@@ -262,6 +263,10 @@ namespace BetterHI3Launcher
             OptionsButton.Content = textStrings["button_options"];
             ServerLabel.Text = $"{textStrings["label_server"]}:";
             MirrorLabel.Text = $"{textStrings["label_mirror"]}:";
+            IntroBoxTitleTextBlock.Text = textStrings["introbox_title"];
+            IntroBoxImportantMessageTextBlock.Text = textStrings["introbox_msg_1"];
+            IntroBoxMessageTextBlock.Text = textStrings["introbox_msg_2"];
+            IntroBoxOKButton.Content = textStrings["button_ok"];
             DownloadCacheBoxTitleTextBlock.Text = textStrings["contextmenu_downloadcache"];
             DownloadCacheBoxFullCacheButton.Content = textStrings["downloadcachebox_button_full_cache"];
             DownloadCacheBoxNumericFilesButton.Content = textStrings["downloadcachebox_button_numeric_files"];
@@ -288,6 +293,7 @@ namespace BetterHI3Launcher
 
             Grid.MouseLeftButtonDown += delegate{DragMove();};
             LogBox.Visibility = Visibility.Collapsed;
+            IntroBox.Visibility = Visibility.Collapsed;
             FPSInputBox.Visibility = Visibility.Collapsed;
             ResolutionInputBox.Visibility = Visibility.Collapsed;
             DownloadCacheBox.Visibility = Visibility.Collapsed;
@@ -1590,6 +1596,10 @@ namespace BetterHI3Launcher
                 }
             }
             
+            if(FirstLaunch)
+            {
+                IntroBox.Visibility = Visibility.Visible;
+            }
             if(LauncherRegKey != null && LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString())
             {
                 ChangelogBox.Visibility = Visibility.Visible;
@@ -2565,6 +2575,11 @@ namespace BetterHI3Launcher
             }
         }
 
+        private void IntroBoxCloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            IntroBox.Visibility = Visibility.Collapsed;
+        }
+
         private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
         {
             if(MessageBox.Show($"{textStrings["msgbox_download_cache_1_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)gameCacheMetadata.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
@@ -2637,7 +2652,6 @@ namespace BetterHI3Launcher
         {
             FPSInputBox.Visibility = Visibility.Collapsed;
         }
-
 
         private void ResolutionInputBoxOKButton_Click(object sender, RoutedEventArgs e)
         {
@@ -2900,10 +2914,16 @@ namespace BetterHI3Launcher
                 case "es":
                     LauncherLanguage = lang;
                     Resources["Font"] = new FontFamily("Segoe UI Bold");
+                    IntroBoxMessageTextBlock.Height = 155;
+                    AboutBoxMessageTextBlock.Height = 155;
+                    DownloadCacheBoxMessageTextBlock.Height = 123;
                     TextStrings_Spanish();
                     break;
                 case "ru":
                     LauncherLanguage = lang;
+                    IntroBoxMessageTextBlock.Height = 155;
+                    AboutBoxMessageTextBlock.Height = 155;
+                    DownloadCacheBoxMessageTextBlock.Height = 123;
                     Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Russian();
                     break;
