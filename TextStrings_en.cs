@@ -50,6 +50,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_language_english", "English");
             textStrings.Add("contextmenu_language_russian", "Russian");
             textStrings.Add("contextmenu_language_spanish", "Spanish");
+            textStrings.Add("contextmenu_language_portuguese", "Portuguese");
             textStrings.Add("contextmenu_language_contribute", "Want to help?");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
@@ -80,7 +81,7 @@ namespace BetterHI3Launcher
             textStrings.Add("resolutioninputbox_label_fullscreen", "Fullscreen");
             textStrings.Add("changelogbox_title", "Changelog");
             textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
-            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language contibution");
+            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language contibution\nSpookyKisuy - Portuguese language contibution");
             textStrings.Add("msgbox_genericerror_title", "Error");
             textStrings.Add("msgbox_genericerror_msg", "An error occurred.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_neterror_title", "Network error");

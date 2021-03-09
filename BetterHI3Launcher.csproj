@@ -126,6 +126,7 @@
     </ApplicationDefinition>
     <Compile Include="TextStrings_en.cs" />
     <Compile Include="TextStrings_es.cs" />
+    <Compile Include="TextStrings_pt.cs" />
     <Compile Include="TextStrings_ru.cs" />
     <Compile Include="Utility.cs" />
     <Page Include="MainWindow.xaml">

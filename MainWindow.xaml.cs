@@ -237,6 +237,10 @@ namespace BetterHI3Launcher
                 case "es-UY":
                     LauncherLanguage = "es";
                     break;
+                case "pt-BR":
+                case "pt-PT":
+                    LauncherLanguage = "pt";
+                    break;
                 case "ru-RU":
                 case "uk-UA":
                 case "be-BY":
@@ -348,6 +352,9 @@ namespace BetterHI3Launcher
             var CMLanguageSpanish = new MenuItem{Header = textStrings["contextmenu_language_spanish"]};
             CMLanguageSpanish.Click += (sender, e) => CM_Language_Click(sender, e);
             CMLanguage.Items.Add(CMLanguageSpanish);
+            var CMLanguagePortuguese = new MenuItem{Header = textStrings["contextmenu_language_portuguese"]};
+            CMLanguagePortuguese.Click += (sender, e) => CM_Language_Click(sender, e);
+            CMLanguage.Items.Add(CMLanguagePortuguese);
             CMLanguage.Items.Add(new Separator());
             var CMLanguageContribute = new MenuItem{Header = textStrings["contextmenu_language_contribute"]};
             CMLanguageContribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contibuting-translations", null, rootPath, true);
@@ -364,6 +371,8 @@ namespace BetterHI3Launcher
                 CMLanguageRussian.IsChecked = true;
             else if(LanguageRegValue.ToString() == "es")
                 CMLanguageSpanish.IsChecked = true;
+            else if(LanguageRegValue.ToString() == "pt")
+                CMLanguagePortuguese.IsChecked = true;
 
             RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
             if(key == null || (int)key.GetValue("Release") < 393295)
@@ -2409,6 +2418,10 @@ namespace BetterHI3Launcher
                 {
                     LauncherLanguage = "es";
                 }
+                else if(lang == textStrings["contextmenu_language_portuguese"])
+                {
+                    LauncherLanguage = "pt";
+                }
                 else
                 {
                     Log($"ERROR: Translation for {lang} doesn't exist");
@@ -2913,24 +2926,27 @@ namespace BetterHI3Launcher
             {
                 case "es":
                     LauncherLanguage = lang;
-                    Resources["Font"] = new FontFamily("Segoe UI Bold");
-                    IntroBoxMessageTextBlock.Height = 155;
-                    AboutBoxMessageTextBlock.Height = 155;
-                    DownloadCacheBoxMessageTextBlock.Height = 123;
                     TextStrings_Spanish();
+                    break;
+                case "pt":
+                    LauncherLanguage = lang;
+                    TextStrings_Portuguese();
                     break;
                 case "ru":
                     LauncherLanguage = lang;
-                    IntroBoxMessageTextBlock.Height = 155;
-                    AboutBoxMessageTextBlock.Height = 155;
-                    DownloadCacheBoxMessageTextBlock.Height = 123;
-                    Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Russian();
                     break;
                 default:
                     LauncherLanguage = "en";
                     TextStrings_English();
                     break;
+            }
+            if(LauncherLanguage != "en")
+            {
+                IntroBoxMessageTextBlock.Height = 155;
+                AboutBoxMessageTextBlock.Height = 165;
+                DownloadCacheBoxMessageTextBlock.Height = 123;
+                Resources["Font"] = new FontFamily("Segoe UI Bold");
             }
         }
 

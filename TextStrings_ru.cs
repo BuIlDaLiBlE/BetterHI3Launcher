@@ -43,6 +43,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_english"] = "Английский";
             textStrings["contextmenu_language_russian"] = "Русский";
             textStrings["contextmenu_language_spanish"] = "Испанский";
+            textStrings["contextmenu_language_portuguese"] = "Португальский";
             textStrings["contextmenu_language_contribute"] = "Хотите помочь?";
             textStrings["contextmenu_about"] = "О лаунчере";
             textStrings["progresstext_error"] = "Ошибочка вышла :^(";
@@ -73,7 +74,7 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_fullscreen"] = "Полный экран";
             textStrings["changelogbox_title"] = "История изменений";
             textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
-            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам GitHub:\nSinsOfSeven - Сделал возможность задавать своё разрешение игры\nProxy-E23 - Перевёл лаунчер на испанский язык";
+            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам GitHub:\nSinsOfSeven - Сделал возможность задавать своё разрешение игры\nProxy-E23 - Перевёл лаунчер на испанский язык\nSpookyKisuy - Перевёл лаунчер на португальский язык";
             textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кэша.";
             textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кэша числовых файлов.";
             textStrings["msgbox_download_cache_3_msg"] = "Приблизительный размер: {0}.\nПродолжить?";
