@@ -41,7 +41,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210304.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210309.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string launcherDataPath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
@@ -2098,11 +2098,12 @@ namespace BetterHI3Launcher
                         {
                             foreach(var SubtitleFile in SubtitleFiles)
                             {
-                                var subLine = File.ReadAllText(SubtitleFile);
                                 var subLines = File.ReadAllLines(SubtitleFile);
+                                var subLinesToRemove = new List<int>();
                                 bool subFixed = false;
                                 int lineCount = subLines.Length;
                                 int linesReplaced = 0;
+                                int linesRemoved = 0;
                                 Dispatcher.Invoke(() =>
                                 {
                                     ProgressText.Text = string.Format(textStrings["msgbox_fixsubs_3_msg"], subtitlesParsed + 1, SubtitleFiles.Count);
@@ -2150,6 +2151,10 @@ namespace BetterHI3Launcher
                                             subLines[atLine] = line.Replace("  ", " ");
                                             LogLine();
                                         }
+                                        if(atLine + 1 < lineCount && string.IsNullOrEmpty(subLines[atLine + 1]))
+                                        {
+                                            subLinesToRemove.Add(atLine + 1);
+                                        }
                                     }
                                     else
                                     {
@@ -2160,11 +2165,17 @@ namespace BetterHI3Launcher
                                         }
                                     }
                                 }
-                                if(linesReplaced > 0)
+                                foreach(var line in subLinesToRemove)
+                                {
+                                    subLines = subLines.Where((source, index) => index != line - linesRemoved).ToArray();
+                                    linesRemoved++;
+                                }
+                                if(linesReplaced > 0 || linesRemoved > 0)
                                 {
                                     File.WriteAllLines(SubtitleFile, subLines);
                                     subFixed = true;
                                 }
+                                var subLine = File.ReadAllText(SubtitleFile);
                                 if(subLine.Contains($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}"))
                                 {
                                     subLine = subLine.Replace($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}", $"{Environment.NewLine}{Environment.NewLine}");
