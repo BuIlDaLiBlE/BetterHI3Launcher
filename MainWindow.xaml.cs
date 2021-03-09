@@ -1527,10 +1527,10 @@ namespace BetterHI3Launcher
 
                         if(Process.GetCurrentProcess().MainModule.ModuleName != launcherExeName)
                         {
-                            Status = LauncherStatus.Error;
+                            Status = LauncherStatus.Error; 
                             File.Move(Path.Combine(rootPath, Process.GetCurrentProcess().MainModule.ModuleName), launcherPath);
                             BpUtility.StartProcess(launcherExeName, null, rootPath, true);
-                            Application.Current.Shutdown();
+                            Dispatcher.Invoke(() => {Application.Current.Shutdown();});
                             return;
                         }
 
@@ -1557,7 +1557,7 @@ namespace BetterHI3Launcher
                                 }
                                 if(MessageBox.Show(textStrings["msgbox_verifyerror_1_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                                 {
-                                    Application.Current.Shutdown();
+                                    Dispatcher.Invoke(() => {Application.Current.Shutdown();});
                                     return;
                                 }
                             }
@@ -1570,11 +1570,8 @@ namespace BetterHI3Launcher
                                     reader.WriteEntryToDirectory(rootPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true});
                                 }
                             }
-                            Dispatcher.Invoke(() =>
-                            {
-                                BpUtility.StartProcess(launcherExeName, null, rootPath, true);
-                                Application.Current.Shutdown();
-                            });
+                            BpUtility.StartProcess(launcherExeName, null, rootPath, true);
+                            Dispatcher.Invoke(() => {Application.Current.Shutdown();});
                             return;
                         }
                         else
