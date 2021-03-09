@@ -2407,6 +2407,30 @@ namespace BetterHI3Launcher
                 msg = string.Format(textStrings["msgbox_language_msg"], lang);
             if(MessageBox.Show(msg, textStrings["contextmenu_language"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                 return;
+            if(Status == LauncherStatus.DownloadPaused)
+            {
+                if(MessageBox.Show($"{textStrings["msgbox_abort_1_msg"]}\n{textStrings["msgbox_abort_2_msg"]}", textStrings["msgbox_abort_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                    return;
+                Status = LauncherStatus.CleaningUp;
+                try
+                {
+                    if(File.Exists(gameArchivePath))
+                        File.Delete(gameArchivePath);
+                }
+                catch
+                {
+                    Log($"Delete ERROR: {gameArchivePath}");
+                }
+                try
+                {
+                    if(File.Exists(cacheArchivePath))
+                        File.Delete(cacheArchivePath);
+                }
+                catch
+                {
+                    Log($"Delete ERROR: {cacheArchivePath}");
+                }
+            }
 
             try
             {
