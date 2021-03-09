@@ -41,18 +41,19 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version localLauncherVersion = new Version("1.0.20210304.0");
+        public static readonly Version localLauncherVersion = new Version("1.0.20210309.0");
         public static readonly string rootPath = Directory.GetCurrentDirectory();
         public static readonly string localLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string launcherDataPath = Path.Combine(localLowPath, @"Bp\Better HI3 Launcher");
         public static readonly string miHoYoPath = Path.Combine(localLowPath, "miHoYo");
         public static readonly string gameExeName = "BH3.exe";
         public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
-        public static readonly string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
+        public static string userAgent = $"BetterHI3Launcher v{localLauncherVersion}";
         public static string LauncherLanguage;
         public static string gameInstallPath, gameArchivePath, gameArchiveName, gameExePath, cacheArchivePath, launcherExeName, launcherPath, launcherArchivePath;
         public static string RegistryVersionInfo;
         public static string GameRegistryPath, GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
+        public static bool FirstLaunch = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher") == null ? true : false;
         public static bool EnableAutoUpdate = true;
         public static bool DownloadPaused = false;
         public static Dictionary<string, string> textStrings = new Dictionary<string, string>();
@@ -204,6 +205,7 @@ namespace BetterHI3Launcher
         {
             #if DEBUG
                 WinConsole.Initialize();
+                userAgent += " [DEBUG]";
             #endif
             InitializeComponent();
             Log(userAgent);
@@ -235,6 +237,10 @@ namespace BetterHI3Launcher
                 case "es-UY":
                     LauncherLanguage = "es";
                     break;
+                case "pt-BR":
+                case "pt-PT":
+                    LauncherLanguage = "pt";
+                    break;
                 case "ru-RU":
                 case "uk-UA":
                 case "be-BY":
@@ -261,6 +267,10 @@ namespace BetterHI3Launcher
             OptionsButton.Content = textStrings["button_options"];
             ServerLabel.Text = $"{textStrings["label_server"]}:";
             MirrorLabel.Text = $"{textStrings["label_mirror"]}:";
+            IntroBoxTitleTextBlock.Text = textStrings["introbox_title"];
+            IntroBoxImportantMessageTextBlock.Text = textStrings["introbox_msg_1"];
+            IntroBoxMessageTextBlock.Text = textStrings["introbox_msg_2"];
+            IntroBoxOKButton.Content = textStrings["button_ok"];
             DownloadCacheBoxTitleTextBlock.Text = textStrings["contextmenu_downloadcache"];
             DownloadCacheBoxFullCacheButton.Content = textStrings["downloadcachebox_button_full_cache"];
             DownloadCacheBoxNumericFilesButton.Content = textStrings["downloadcachebox_button_numeric_files"];
@@ -287,6 +297,7 @@ namespace BetterHI3Launcher
 
             Grid.MouseLeftButtonDown += delegate{DragMove();};
             LogBox.Visibility = Visibility.Collapsed;
+            IntroBox.Visibility = Visibility.Collapsed;
             FPSInputBox.Visibility = Visibility.Collapsed;
             ResolutionInputBox.Visibility = Visibility.Collapsed;
             DownloadCacheBox.Visibility = Visibility.Collapsed;
@@ -341,6 +352,9 @@ namespace BetterHI3Launcher
             var CMLanguageSpanish = new MenuItem{Header = textStrings["contextmenu_language_spanish"]};
             CMLanguageSpanish.Click += (sender, e) => CM_Language_Click(sender, e);
             CMLanguage.Items.Add(CMLanguageSpanish);
+            var CMLanguagePortuguese = new MenuItem{Header = textStrings["contextmenu_language_portuguese"]};
+            CMLanguagePortuguese.Click += (sender, e) => CM_Language_Click(sender, e);
+            CMLanguage.Items.Add(CMLanguagePortuguese);
             CMLanguage.Items.Add(new Separator());
             var CMLanguageContribute = new MenuItem{Header = textStrings["contextmenu_language_contribute"]};
             CMLanguageContribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contibuting-translations", null, rootPath, true);
@@ -357,6 +371,8 @@ namespace BetterHI3Launcher
                 CMLanguageRussian.IsChecked = true;
             else if(LanguageRegValue.ToString() == "es")
                 CMLanguageSpanish.IsChecked = true;
+            else if(LanguageRegValue.ToString() == "pt")
+                CMLanguagePortuguese.IsChecked = true;
 
             RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
             if(key == null || (int)key.GetValue("Release") < 393295)
@@ -394,6 +410,8 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
+                    if(Status == LauncherStatus.Error)
+                        return;
                     Status = LauncherStatus.Error;
                     if(MessageBox.Show(textStrings["msgbox_no_internet_msg"], textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
@@ -447,7 +465,7 @@ namespace BetterHI3Launcher
         private void FetchOnlineVersionInfo()
         {
             #if DEBUG
-                var version_info_url = new[]{"https://bpnet.host/bh3_debug.json"};
+                var version_info_url = new[]{"https://bpnet.host/bh3?launcherstatus_debug"};
             #else
                 var version_info_url = new[]{"https://bpnet.host/bh3?launcherstatus", "https://serioussam.ucoz.ru/bbh3l_prod.json"};
             #endif
@@ -483,6 +501,7 @@ namespace BetterHI3Launcher
             {
                 Status = LauncherStatus.Error;
                 MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], onlineVersionInfo.status_message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
             }
         }
 
@@ -757,22 +776,17 @@ namespace BetterHI3Launcher
                                 ToggleContextMenuItems(true, false);
                             });
                         }
-                        if(File.Exists(gameArchivePath))
+                        if(localVersionInfo.game_info.installed == false && File.Exists(gameArchivePath))
                         {
                             DownloadPaused = true;
                             var remaining_size = download_size - new FileInfo(gameArchivePath).Length;
                             Dispatcher.Invoke(() =>
                             {
+                                ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(remaining_size)}";
                                 if(remaining_size <= 0)
-                                {
-                                    LaunchButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-                                }
-                                else
-                                {
-                                    LaunchButton.Content = textStrings["button_resume"];
-                                    ProgressText.Text = $"{textStrings["progresstext_downloadsize"]}: {BpUtility.ToBytesCount(remaining_size)}";
-                                    ToggleContextMenuItems(false, true);
-                                }
+                                    ProgressText.Text = string.Empty;
+                                LaunchButton.Content = textStrings["button_resume"];
+                                ToggleContextMenuItems(false, true);
                             });
                         }
                     }
@@ -801,7 +815,7 @@ namespace BetterHI3Launcher
                                     {
                                         if((int)Server != server)
                                             ServerDropdown.SelectedIndex = server;
-                                        WriteVersionInfo(true);
+                                        WriteVersionInfo(true, true);
                                         GameUpdateCheck(false);
                                     }
                                     else
@@ -1038,17 +1052,17 @@ namespace BetterHI3Launcher
 
                 Log($"Starting to download game archive: {title} ({url})");
                 Status = LauncherStatus.Downloading;
-                Dispatcher.Invoke(() =>
-                {
-                    LaunchButton.IsEnabled = true;
-                    LaunchButton.Content = textStrings["button_pause"];
-                });
                 await Task.Run(() =>
                 {
                     tracker.NewFile();
                     var eta_calc = new ETACalculator(1, 1);
                     download = new DownloadPauseable(url, gameArchivePath);
                     download.Start();
+                    Dispatcher.Invoke(() =>
+                    {
+                        LaunchButton.IsEnabled = true;
+                        LaunchButton.Content = textStrings["button_pause"];
+                    });
                     while(download != null && !download.Done)
                     {
                         if(DownloadPaused)
@@ -1164,7 +1178,7 @@ namespace BetterHI3Launcher
                         Log("Game archive unpack OK");
                         Dispatcher.Invoke(() => 
                         {
-                            WriteVersionInfo(false);
+                            WriteVersionInfo(false, true);
                             Log("Game install OK");
                             GameUpdateCheck(false);
                         });
@@ -1196,7 +1210,7 @@ namespace BetterHI3Launcher
             }
         }
 
-        private void WriteVersionInfo(bool CheckForLocalVersion)
+        private void WriteVersionInfo(bool CheckForLocalVersion, bool IsInstalled)
         {
             try
             {
@@ -1204,6 +1218,7 @@ namespace BetterHI3Launcher
                 versionInfo.game_info = new ExpandoObject();
                 versionInfo.game_info.version = miHoYoVersionInfo.cur_version.ToString();
                 versionInfo.game_info.install_path = gameInstallPath;
+                versionInfo.game_info.installed = IsInstalled;
                 if(CheckForLocalVersion)
                 {
                     RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
@@ -1590,7 +1605,11 @@ namespace BetterHI3Launcher
                 }
             }
             
-            if(LauncherRegKey != null && (LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString()))
+            if(FirstLaunch)
+            {
+                IntroBox.Visibility = Visibility.Visible;
+            }
+            if(LauncherRegKey != null && LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != localLauncherVersion.ToString())
             {
                 ChangelogBox.Visibility = Visibility.Visible;
                 ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
@@ -1708,7 +1727,7 @@ namespace BetterHI3Launcher
                                         {
                                             if((int)Server != server)
                                                 ServerDropdown.SelectedIndex = server;
-                                            WriteVersionInfo(true);
+                                            WriteVersionInfo(true, true);
                                             GameUpdateCheck(false);
                                         }
                                         else
@@ -2079,11 +2098,12 @@ namespace BetterHI3Launcher
                         {
                             foreach(var SubtitleFile in SubtitleFiles)
                             {
-                                var subLine = File.ReadAllText(SubtitleFile);
                                 var subLines = File.ReadAllLines(SubtitleFile);
+                                var subLinesToRemove = new List<int>();
                                 bool subFixed = false;
                                 int lineCount = subLines.Length;
                                 int linesReplaced = 0;
+                                int linesRemoved = 0;
                                 Dispatcher.Invoke(() =>
                                 {
                                     ProgressText.Text = string.Format(textStrings["msgbox_fixsubs_3_msg"], subtitlesParsed + 1, SubtitleFiles.Count);
@@ -2131,6 +2151,10 @@ namespace BetterHI3Launcher
                                             subLines[atLine] = line.Replace("  ", " ");
                                             LogLine();
                                         }
+                                        if(atLine + 1 < lineCount && string.IsNullOrEmpty(subLines[atLine + 1]))
+                                        {
+                                            subLinesToRemove.Add(atLine + 1);
+                                        }
                                     }
                                     else
                                     {
@@ -2141,11 +2165,17 @@ namespace BetterHI3Launcher
                                         }
                                     }
                                 }
-                                if(linesReplaced > 0)
+                                foreach(var line in subLinesToRemove)
+                                {
+                                    subLines = subLines.Where((source, index) => index != line - linesRemoved).ToArray();
+                                    linesRemoved++;
+                                }
+                                if(linesReplaced > 0 || linesRemoved > 0)
                                 {
                                     File.WriteAllLines(SubtitleFile, subLines);
                                     subFixed = true;
                                 }
+                                var subLine = File.ReadAllText(SubtitleFile);
                                 if(subLine.Contains($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}"))
                                 {
                                     subLine = subLine.Replace($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}", $"{Environment.NewLine}{Environment.NewLine}");
@@ -2399,6 +2429,10 @@ namespace BetterHI3Launcher
                 {
                     LauncherLanguage = "es";
                 }
+                else if(lang == textStrings["contextmenu_language_portuguese"])
+                {
+                    LauncherLanguage = "pt";
+                }
                 else
                 {
                     Log($"ERROR: Translation for {lang} doesn't exist");
@@ -2565,6 +2599,11 @@ namespace BetterHI3Launcher
             }
         }
 
+        private void IntroBoxCloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            IntroBox.Visibility = Visibility.Collapsed;
+        }
+
         private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
         {
             if(MessageBox.Show($"{textStrings["msgbox_download_cache_1_msg"]}\n{string.Format(textStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)gameCacheMetadata.fileSize))}", textStrings["contextmenu_downloadcache"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
@@ -2637,7 +2676,6 @@ namespace BetterHI3Launcher
         {
             FPSInputBox.Visibility = Visibility.Collapsed;
         }
-
 
         private void ResolutionInputBoxOKButton_Click(object sender, RoutedEventArgs e)
         {
@@ -2754,7 +2792,7 @@ namespace BetterHI3Launcher
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if(Status == LauncherStatus.Downloading)
+            if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
             {
                 try
                 {
@@ -2792,7 +2830,7 @@ namespace BetterHI3Launcher
                         if(MessageBox.Show($"{textStrings["msgbox_abort_1_msg"]}\n{textStrings["msgbox_abort_3_msg"]}", textStrings["msgbox_abort_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                         {
                             download.Pause();
-                            WriteVersionInfo(false);
+                            WriteVersionInfo(false, false);
                         }
                         else
                         {
@@ -2878,8 +2916,15 @@ namespace BetterHI3Launcher
         {
             foreach(dynamic item in OptionsContextMenu.Items)
             {
-                if(item.GetType() == typeof(MenuItem) && (item.Header.ToString() == textStrings["contextmenu_changelog"] || item.Header.ToString() == textStrings["contextmenu_language"] || item.Header.ToString() == textStrings["contextmenu_about"]))
-                    continue;
+                if(item.GetType() == typeof(MenuItem))
+                { 
+                    if(item.Header.ToString() == textStrings["contextmenu_web_profile"] ||
+                       item.Header.ToString() == textStrings["contextmenu_feedback"] ||
+                       item.Header.ToString() == textStrings["contextmenu_changelog"] ||
+                       item.Header.ToString() == textStrings["contextmenu_language"] ||
+                       item.Header.ToString() == textStrings["contextmenu_about"])
+                        continue;
+                }
                 if(!val && leaveUninstallEnabled && (item.GetType() == typeof(MenuItem) && item.Header.ToString() == textStrings["contextmenu_uninstall"]))
                     continue;
                 item.IsEnabled = val;
@@ -2892,18 +2937,27 @@ namespace BetterHI3Launcher
             {
                 case "es":
                     LauncherLanguage = lang;
-                    Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Spanish();
+                    break;
+                case "pt":
+                    LauncherLanguage = lang;
+                    TextStrings_Portuguese();
                     break;
                 case "ru":
                     LauncherLanguage = lang;
-                    Resources["Font"] = new FontFamily("Segoe UI Bold");
                     TextStrings_Russian();
                     break;
                 default:
                     LauncherLanguage = "en";
                     TextStrings_English();
                     break;
+            }
+            if(LauncherLanguage != "en")
+            {
+                IntroBoxMessageTextBlock.Height = 155;
+                AboutBoxMessageTextBlock.Height = 165;
+                DownloadCacheBoxMessageTextBlock.Height = 123;
+                Resources["Font"] = new FontFamily("Segoe UI Bold");
             }
         }
 

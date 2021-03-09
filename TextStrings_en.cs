@@ -50,6 +50,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_language_english", "English");
             textStrings.Add("contextmenu_language_russian", "Russian");
             textStrings.Add("contextmenu_language_spanish", "Spanish");
+            textStrings.Add("contextmenu_language_portuguese", "Portuguese");
             textStrings.Add("contextmenu_language_contribute", "Want to help?");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
@@ -65,6 +66,9 @@ namespace BetterHI3Launcher
             textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
             textStrings.Add("progresstext_initiating_download", "Initiating download...");
             textStrings.Add("progresstext_updating_launcher", "Updating launcher...");
+            textStrings.Add("introbox_title", "Welcome to Better Honkai Impact 3rd launcher!");
+            textStrings.Add("introbox_msg_1", "!!! IMPORTANT, PLEASE READ !!!");
+            textStrings.Add("introbox_msg_2", "Seems like this is your first time using the launcher. First of all, I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so.\nSecondly, it is important that if you used the official launcher to update the game and didn't launch it yet (to the point where you are on the bridge) you shouldn't use this launcher. Otherwise the launcher may detect your game version as old and make you have to download it again.\n\nRead all that? Great! If you already have the game installed just press the \"Download\" button and select your game folder. The launcher will detect your game and you won't have to download it again.");
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
@@ -77,7 +81,7 @@ namespace BetterHI3Launcher
             textStrings.Add("resolutioninputbox_label_fullscreen", "Fullscreen");
             textStrings.Add("changelogbox_title", "Changelog");
             textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
-            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language contibution");
+            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language contibution\nSpookyKisuy - Portuguese language contibution");
             textStrings.Add("msgbox_genericerror_title", "Error");
             textStrings.Add("msgbox_genericerror_msg", "An error occurred.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_neterror_title", "Network error");

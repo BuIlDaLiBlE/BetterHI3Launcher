@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
         mc:Ignorable="d"
         WindowStyle="None"
         ResizeMode="NoResize"
@@ -239,19 +240,36 @@
                     </StackPanel>
                 </Border>
             </Grid>
+            <Grid Name="IntroBox" Visibility="Collapsed">
+                <Grid Background="#80000000"/>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="250">
+                    <Border BorderBrush="Black" Background="#C8FFFFFF">
+                        <StackPanel>
+                            <TextBlock Name="IntroBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBlock Name="IntroBoxImportantMessageTextBlock" Margin="150,0,25,0" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
+                            <TextBlock Name="IntroBoxMessageTextBlock" Margin="150,0,22,5" Height="160" FontFamily="Segoe UI" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Name="IntroBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="IntroBoxCloseButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
+                    <Button Name="IntroBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="IntroBoxCloseButton_Click"/>
+                </Grid>
+            </Grid>
             <Grid Name="FPSInputBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="250">
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="FPSInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="CombatFPSInputBoxTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="CombatFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                            <DockPanel Height="26" Margin="100,5">
+                                <TextBlock Name="CombatFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="CombatFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
-                            <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="MenuFPSInputBoxTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="MenuFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="3" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                            <DockPanel Height="26" Margin="100,5">
+                                <TextBlock Name="MenuFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="MenuFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="FPSInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="FPSInputBoxOKButton_Click"/>
@@ -268,17 +286,17 @@
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="ResolutionInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="ResolutionInputBoxWidthTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="ResolutionInputBoxWidthTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                            <DockPanel Height="26" Margin="100,5">
+                                <TextBlock Name="ResolutionInputBoxWidthTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="ResolutionInputBoxWidthTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="4" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
-                            <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="ResolutionInputBoxHeightTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="ResolutionInputBoxHeightTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" MaxLength="4" FontFamily="{DynamicResource Font}" FontSize="20" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                            <DockPanel Height="26" Margin="100,5">
+                                <TextBlock Name="ResolutionInputBoxHeightTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <TextBox Name="ResolutionInputBoxHeightTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="4" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
-                            <DockPanel Height="26" Margin="100,0">
-                                <TextBlock Name="ResolutionInputBoxFullscreenTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <CheckBox Name="ResolutionInputBoxFullscreenCheckbox" Margin="25,5,25,5" HorizontalAlignment="Right"/>
+                            <DockPanel Height="26" Margin="100,5">
+                                <TextBlock Name="ResolutionInputBoxFullscreenTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                                <CheckBox Name="ResolutionInputBoxFullscreenCheckbox" Margin="25,5,25,0" HorizontalAlignment="Right"/>
                             </DockPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="ResolutionInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="ResolutionInputBoxOKButton_Click"/>
@@ -326,19 +344,19 @@
             </Grid>
             <Grid Name="AboutBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="250">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="260">
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="AboutBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <TextBlock Margin="150,0,25,0" Text="Better Honkai Impact 3rd Launcher" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
-                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="160" FontFamily="Segoe UI" TextWrapping="Wrap"/>
+                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="170" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="AboutBoxGitHubButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxGitHubButton_Click"/>
                                 <Button Name="AboutBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxCloseButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Image Source="Assets/Images/Bp_Logo.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
+                    <Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
                     <Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="AboutBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
