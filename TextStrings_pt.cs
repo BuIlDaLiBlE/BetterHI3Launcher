@@ -41,6 +41,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_russian"] = "Russo";
             textStrings["contextmenu_language_spanish"] = "Espanhol";
             textStrings["contextmenu_language_portuguese"] = "Português";
+            textStrings["contextmenu_language_german"] = "Alemã";
             textStrings["contextmenu_language_contribute"] = "Quer ajudar?";
             textStrings["contextmenu_about"] = "Sobre";
             textStrings["progresstext_error"] = "Erros foram encontrados :^(";
@@ -59,7 +60,7 @@ namespace BetterHI3Launcher
             textStrings["introbox_title"] = "Bem-vindo ao Better Honkai Impact 3rd Launcher!";
             textStrings["introbox_msg_1"] = "!!! IMPORTANTE, POR FAVOR LEIA !!!";
             textStrings["introbox_msg_2"] = "Parece que esta é a primeira vezque usa este launcher. Em primeiro lugar, fico feliz que você tenha decidido dar uma chance, portanto, não hesite caso queira fornecer feedback.\nEm segundo lugar, é importante que se você usou o launcher oficial para atualizar o jogo e ainda não o iniciou (ao ponto de aindaestar na ponte), não use este launcher. Caso contrário, o launcher pode detectar a versão do jogo como antiga e fazer com que você tenha que baixá-la novamente.\n\nLeu tudo isso? Excelente!Se você já tem o jogo instalado, basta pressionar o botão de \"Download\" e selecionara pasta do jogo. O launcher irá detectar seu jogo e você não terá que baixá - lo novamente.";
-            textStrings["downloadcachebox_msg"] = "Selecione se deseja baixar o pacote de cache completo ou apenas arquivos numéricos.\nSelecione\"Cache completo\" se você tiver problemas para atualizar os recursos do evento.\nSelecione \"Arquivos numéricos\" se você tiver problemas para atualizar as configurações.\nPor favor, note que atualmente não há como recuperar automaticamente o cache mais recente e temos que carregá-lo manualmente para um espelho.\nUsando espelho: {0}.\nCache atualizado por último: {1}\nO mantenedor do espelho atual é {2}.";
+            textStrings["downloadcachebox_msg"] = "Selecione se deseja baixar o pacote de cache completo ou apenas arquivos numéricos.\nSelecione\"Cache completo\" se você tiver problemas para atualizar os recursos do evento.\nSelecione \"Arquivos numéricos\" se você tiver problemas para atualizar as configurações.\nPor favor, note que atualmente não há como recuperar automaticamente o cache mais recente e temos que carregá-lo manualmente para um espelho.\nUsando espelho: {0}.\nCache atualizado por último: {1}.\nO mantenedor do espelho atual é {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Cache completo";
             textStrings["downloadcachebox_button_numeric_files"] = "Arquivos numéricos";
             textStrings["fpsinputbox_title"] = "Insira o limite de FPS customizado";
@@ -71,7 +72,7 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_fullscreen"] = "Tela cheia";
             textStrings["changelogbox_title"] = "Changelog";
             textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher acaba de se tornar ainda melhor. Aqui está o que aconteceu:";
-            textStrings["aboutbox_msg"] = "Bem, é muito mais avançado, não é? :^)\nEste projeto foi feito com a esperança de que muitos capitães tivessem uma melhor experiência com o jogo.\nEle não é afiliado à miHoYo e é totalmente código-aberto.\nQualquer comentário será muito bem vindo.\nAgradecimentos especiais à esses contribuidores do GitHub:\nSinsOfSeven - Contribuição de resolução personalizada\nProxy-E23 - Contribuição da língua espanhola\nSpookyKisuy - Contribuição da língua portuguêsa";
+            textStrings["aboutbox_msg"] = "Bem, é muito mais avançado, não é? :^)\nEste projeto foi feito com a esperança de que muitos capitães tivessem uma melhor experiência com o jogo.\nEle não é afiliado à miHoYo e é totalmente código-aberto.\nQualquer comentário será muito bem vindo.\nAgradecimentos especiais à esses contribuidores do GitHub:\nSinsOfSeven - Contribuição de resolução personalizada\nProxy-E23 - Contribuição da idioma espanhola\nSpookyKisuy - Contribuição da idioma portuguêsa\nbulawin1 - Contribuição da idioma alemã";
             textStrings["msgbox_genericerror_title"] = "Erro";
             textStrings["msgbox_genericerror_msg"] = "Ocorreu um erro.\nPara obter informações dê uma olhada no log.";
             textStrings["msgbox_neterror_title"] = "Erro de rede";

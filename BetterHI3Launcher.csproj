@@ -124,6 +124,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="TextStrings_de.cs" />
     <Compile Include="TextStrings_en.cs" />
     <Compile Include="TextStrings_es.cs" />
     <Compile Include="TextStrings_pt.cs" />

@@ -44,6 +44,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_russian"] = "Русский";
             textStrings["contextmenu_language_spanish"] = "Испанский";
             textStrings["contextmenu_language_portuguese"] = "Португальский";
+            textStrings["contextmenu_language_german"] = "Немецкий";
             textStrings["contextmenu_language_contribute"] = "Хотите помочь?";
             textStrings["contextmenu_about"] = "О лаунчере";
             textStrings["progresstext_error"] = "Ошибочка вышла :^(";
@@ -62,7 +63,7 @@ namespace BetterHI3Launcher
             textStrings["introbox_title"] = "Добро пожаловать в Better Honkai Impact 3rd launcher!";
             textStrings["introbox_msg_1"] = "!!! ВАЖНО, СТОИТ ПРОЧИТАТЬ !!!";
             textStrings["introbox_msg_2"] = "Похоже, вы впервые запустили этот лаунчер. Во-первых, я рад, что вы решили попробовать его, так что не стесняйтесь высказывать своё мнение по поводу него.\nВо-вторых, если вы вдруг использовали официальный лаунчер для обновления игры и ещё её не запустили (до момента захода на мостик) - этот лаунчер использовать не стоит. Иначе он может определить версию игры как старую и заставить загружать игру снова.\n\nПрочитали всё это? Замечательно! Если игра уже установлена, то просто нажмите \"Загрузить\" и выберите папку с игрой. Лаунчер её найдёт и ничего скачивать заново будет не нужно.";
-            textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}\nОтветственный за зеркало: {2}.";
+            textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}.\nОтветственный за зеркало: {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Полный кэш";
             textStrings["downloadcachebox_button_numeric_files"] = "Числовые файлы";
             textStrings["fpsinputbox_title"] = "Задайте ограничение FPS";
@@ -74,7 +75,7 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_fullscreen"] = "Полный экран";
             textStrings["changelogbox_title"] = "История изменений";
             textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
-            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам GitHub:\nSinsOfSeven - Сделал возможность задавать своё разрешение игры\nProxy-E23 - Перевёл лаунчер на испанский язык\nSpookyKisuy - Перевёл лаунчер на португальский язык";
+            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам GitHub:\nSinsOfSeven - Сделал возможность задавать своё разрешение игры\nProxy-E23 - Перевёл лаунчер на испанский язык\nSpookyKisuy - Перевёл лаунчер на португальский язык\nbulawin1 - Перевёл лаунчер на немецкий язык";
             textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кэша.";
             textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кэша числовых файлов.";
             textStrings["msgbox_download_cache_3_msg"] = "Приблизительный размер: {0}.\nПродолжить?";
