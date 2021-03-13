@@ -216,6 +216,13 @@ namespace BetterHI3Launcher
             SetLanguage(null);
             switch(OSLanguage)
             {
+                case "de-AT":
+                case "de-CH":
+                case "de-DE":
+                case "de-LI":
+                case "de-LU":
+                    LauncherLanguage = "de";
+                    break;
                 case "es-AR":
                 case "es-BO":
                 case "es-CL":
@@ -355,6 +362,9 @@ namespace BetterHI3Launcher
             var CMLanguagePortuguese = new MenuItem{Header = textStrings["contextmenu_language_portuguese"]};
             CMLanguagePortuguese.Click += (sender, e) => CM_Language_Click(sender, e);
             CMLanguage.Items.Add(CMLanguagePortuguese);
+            var CMLanguageGerman = new MenuItem{Header = textStrings["contextmenu_language_german"]};
+            CMLanguageGerman.Click += (sender, e) => CM_Language_Click(sender, e);
+            CMLanguage.Items.Add(CMLanguageGerman);
             CMLanguage.Items.Add(new Separator());
             var CMLanguageContribute = new MenuItem{Header = textStrings["contextmenu_language_contribute"]};
             CMLanguageContribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contibuting-translations", null, rootPath, true);
@@ -373,6 +383,8 @@ namespace BetterHI3Launcher
                 CMLanguageSpanish.IsChecked = true;
             else if(LanguageRegValue.ToString() == "pt")
                 CMLanguagePortuguese.IsChecked = true;
+            else if(LanguageRegValue.ToString() == "de")
+                CMLanguageGerman.IsChecked = true;
 
             RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
             if(key == null || (int)key.GetValue("Release") < 393295)
@@ -2401,7 +2413,7 @@ namespace BetterHI3Launcher
 
             string lang = item.Header.ToString();
             string msg;
-            if(LauncherLanguage != "en")
+            if(LauncherLanguage != "en" && LauncherLanguage != "de")
                 msg = string.Format(textStrings["msgbox_language_msg"], lang.ToLower());
             else
                 msg = string.Format(textStrings["msgbox_language_msg"], lang);
@@ -2453,6 +2465,10 @@ namespace BetterHI3Launcher
                 else if(lang == textStrings["contextmenu_language_portuguese"])
                 {
                     LauncherLanguage = "pt";
+                }
+                else if(lang == textStrings["contextmenu_language_german"])
+                {
+                    LauncherLanguage = "de";
                 }
                 else
                 {
@@ -2956,6 +2972,10 @@ namespace BetterHI3Launcher
         {
             switch(lang)
             {
+                case "de":
+                    LauncherLanguage = lang;
+                    TextStrings_German();
+                    break;
                 case "es":
                     LauncherLanguage = lang;
                     TextStrings_Spanish();
@@ -2975,10 +2995,28 @@ namespace BetterHI3Launcher
             }
             if(LauncherLanguage != "en")
             {
+                var IntroBoxGrid = VisualTreeHelper.GetChild(IntroBox, 1) as Grid;
+                var AboutBoxGrid = VisualTreeHelper.GetChild(AboutBox, 1) as Grid;
                 IntroBoxMessageTextBlock.Height = 155;
-                AboutBoxMessageTextBlock.Height = 165;
+                AboutBoxMessageTextBlock.Height = 175;
                 DownloadCacheBoxMessageTextBlock.Height = 123;
                 Resources["Font"] = new FontFamily("Segoe UI Bold");
+                if(LauncherLanguage == "de")
+                {
+                    IntroBoxGrid.Height = 290;
+                    IntroBoxMessageTextBlock.Height = 195;
+                    AboutBoxGrid.Height = 280;
+                    AboutBoxMessageTextBlock.Height = 180;
+                }
+                else if(LauncherLanguage == "es" || LauncherLanguage == "pt")
+                {
+                    AboutBoxGrid.Height = 280;
+                    AboutBoxMessageTextBlock.Height = 180;
+                }
+                else if(LauncherLanguage == "ru")
+                {
+                    AboutBoxMessageTextBlock.Height = 170;
+                }
             }
         }
 
