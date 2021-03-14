@@ -34,6 +34,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_spanish"] = "Spanisch";
             textStrings["contextmenu_language_portuguese"] = "Portugiesisch";
             textStrings["contextmenu_language_german"] = "Deutsch";
+            textStrings["contextmenu_language_vietnamese"] = "Vietnamesisch";
             textStrings["contextmenu_language_contribute"] = "Wollen Sie helfen?";
             textStrings["contextmenu_about"] = "Über";
             textStrings["progresstext_error"] = "Ein Fehler ist aufgetreten :^(";
@@ -63,7 +64,7 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_height"] = "Höhe";
             textStrings["resolutioninputbox_label_fullscreen"] = "Vollbild";
             textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher wurde aktualisiert, hier siehst du die letzten Änderungen:";
-            textStrings["aboutbox_msg"] = "Es hat sich einiges verbessert oder nicht? :^)\nDieses Projekt ist entstanden um euch Captains eine bessere Spielerfahrung zu bieten.\nDieser Launcher steht in keinem Zusammenhang mit miHoYo und ist ein OpenSource Projekt.\nJedes Feedback wird freundlich begrüßt.\nBesonderen Dank gehen an diese GitHub contributors:\nSinsOfSeven - Beitrag zur benutzerdefinierten Auflösung\nProxy-E23 - Beitrag der spanischen Sprache\nSpookyKisuy - Beitrag der portugiesischen Sprache\nbulawin1 - Beitrag der deutscher Sprache";
+            textStrings["aboutbox_msg"] = "Es hat sich einiges verbessert oder nicht? :^)\nDieses Projekt ist entstanden um euch Captains eine bessere Spielerfahrung zu bieten.\nDieser Launcher steht in keinem Zusammenhang mit miHoYo und ist ein OpenSource Projekt.\nJedes Feedback wird freundlich begrüßt.\nBesonderen Dank gehen an diese GitHub contributors:\nSinsOfSeven - Beitrag zur benutzerdefinierten Auflösung\nProxy-E23 - Beitrag der spanischen Sprache\nSpookyKisuy - Beitrag der portugiesischen Sprache\nbulawin1 - Beitrag der deutscher Sprache\nKorewaLidesu - Beitrag der vietnamesischen Sprache";
             textStrings["msgbox_genericerror_title"] = "Fehler";
             textStrings["msgbox_genericerror_msg"] = "Ein Fehler ist aufgetreten.\nFür mehr Informationen schaue im Log nach.";
             textStrings["msgbox_neterror_title"] = "Netzwerkfehler";
