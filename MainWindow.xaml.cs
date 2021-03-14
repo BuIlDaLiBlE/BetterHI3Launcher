@@ -1665,7 +1665,8 @@ namespace BetterHI3Launcher
                     return;
                 }
             }
-            GameUpdateCheck(false);
+            if(!FirstLaunch)
+                GameUpdateCheck(false);
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -2667,6 +2668,7 @@ namespace BetterHI3Launcher
         private void IntroBoxCloseButton_Click(object sender, RoutedEventArgs e)
         {
             IntroBox.Visibility = Visibility.Collapsed;
+            GameUpdateCheck(false);
         }
 
         private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
