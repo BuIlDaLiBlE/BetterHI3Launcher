@@ -129,6 +129,7 @@
     <Compile Include="TextStrings_es.cs" />
     <Compile Include="TextStrings_pt.cs" />
     <Compile Include="TextStrings_ru.cs" />
+    <Compile Include="TextStrings_vi.cs" />
     <Compile Include="Utility.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

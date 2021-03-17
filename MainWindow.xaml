@@ -344,12 +344,12 @@
             </Grid>
             <Grid Name="AboutBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="270">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="285">
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="AboutBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <TextBlock Margin="150,0,25,0" Text="Better Honkai Impact 3rd Launcher" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
-                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="180" FontFamily="Segoe UI" TextWrapping="Wrap"/>
+                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="195" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="AboutBoxGitHubButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxGitHubButton_Click"/>
                                 <Button Name="AboutBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxCloseButton_Click"/>

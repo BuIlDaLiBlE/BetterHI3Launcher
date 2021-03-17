@@ -42,6 +42,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_spanish"] = "Español";
             textStrings["contextmenu_language_portuguese"] = "Portugués";
             textStrings["contextmenu_language_german"] = "Alemán";
+            textStrings["contextmenu_language_vietnamese"] = "Vietnamita";
             textStrings["contextmenu_language_contribute"] = "¿Quiero ayudar?";
             textStrings["contextmenu_about"] = "Acerca de";
             textStrings["progresstext_error"] = "Se cometieron errores :^(";
@@ -71,7 +72,7 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_height"] = "Altura";
             textStrings["changelogbox_title"] = "Log de cambios";
             textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher se ha vuelto mejor. Esto es lo que paso:";
-            textStrings["aboutbox_msg"] = "Bueno, es más avanzado, ¿no? :^)\nEste proyecto se hizo con la esperanza de que muchos capitanes tuvieran una mejor experiencia con el juego.\nNo está afiliado con miHoYo y es completamente de código abierto.\nAgradecemos mucho cualquier comentario.\nUn agradecimiento especial a estos colaboradores de GitHub:\nSinsOfSeven - Contribución de resolución personalizada\nProxy-E23 - Contribución de idioma español\nSpookyKisuy - Contribución de idioma portugués\nbulawin1 - Contribución de idioma alemán";
+            textStrings["aboutbox_msg"] = "Bueno, es más avanzado, ¿no? :^)\nEste proyecto se hizo con la esperanza de que muchos capitanes tuvieran una mejor experiencia con el juego.\nNo está afiliado con miHoYo y es completamente de código abierto.\nAgradecemos mucho cualquier comentario.\nUn agradecimiento especial a estos colaboradores de GitHub:\nSinsOfSeven - Contribución de resolución personalizada\nProxy-E23 - Contribución de idioma español\nSpookyKisuy - Contribución de idioma portugués\nbulawin1 - Contribución de idioma alemán\nKorewaLidesu - Contribución de idioma vietnamita";
             textStrings["msgbox_genericerror_msg"] = "Ha ocurrido un error.\nPara mas informacion, consultar el log.";
             textStrings["msgbox_neterror_title"] = "Error de red";
             textStrings["msgbox_neterror_msg"] = "Error al conectarse al servidor:\n{0}";
