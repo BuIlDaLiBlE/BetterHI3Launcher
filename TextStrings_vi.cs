@@ -11,6 +11,8 @@ namespace BetterHI3Launcher
             textStrings["outdated"] = "Quá hạn";
             textStrings["enabled"] = "Đã bật";
             textStrings["disabled"] = "Đã tắt";
+            textStrings["button_yes"] = "Đúng";
+            textStrings["button_no"] = "Không";
             textStrings["button_download"] = "Tải xuống";
             textStrings["button_downloading"] = "Đang tải xuống";
             textStrings["button_update"] = "Cập nhật";
@@ -45,7 +47,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_contribute"] = "Muốn giúp đỡ?";
             textStrings["contextmenu_about"] = "Thông tin";
             textStrings["progresstext_error"] = "Lỗi ở :^(";
-            textStrings["progresstext_verifying"] = "Xác minh tệp trò chơi...";
+            textStrings["progresstext_verifying_files"] = "Xác minh tệp trò chơi...";
             textStrings["progresstext_cleaningup"] = "Dọn dẹp...";
             textStrings["progresstext_checkingupdate"] = "Kiểm tra cập nhật...";
             textStrings["progresstext_downloadsize"] = "Kích thước tải xuống";
@@ -130,9 +132,9 @@ namespace BetterHI3Launcher
             textStrings["msgbox_resetgamesettings_2_msg"] = "Hành động này là không thể thay đổi. Bạn có chắc chắn muốn làm điều này?";
             textStrings["msgbox_resetgamesettings_3_msg"] = "Cài đặt trò chơi đã bị xóa khỏi registry.";
             textStrings["msgbox_extractskip_title"] = "Thông báo bỏ qua tệp";
-            textStrings["msgbox_extractskip_msg"] = "Đã giải nén xong nhưng không thể	giải nén được một số tệp. Bạn có thể muốn giải nén chúng theo cách thủ công.\nĐể biết thêm thông tin, hãy xem log.";
+            textStrings["msgbox_extractskip_msg"] = "Đã giải nén xong nhưng không thể giải nén được một số tệp. Bạn có thể muốn giải nén chúng theo cách thủ công.\nĐể biết thêm thông tin, hãy xem log.";
             textStrings["msgbox_noexe_title"] = "Không có tệp thực thi trò chơi";
-            textStrings["msgbox_noexe_msg"] = "Không thể tìm thấy tệp thực thi trò chơi :^(\nThử cài đặt lại trò chơi.";
+            textStrings["msgbox_noexe_msg"] = "Không thể tìm thấy tệp thực thi trò chơi.\nThử cài đặt lại trò chơi.";
             textStrings["msgbox_installexisting_msg"] = "Trò chơi dường như đã được cài đặt vào:\n{0}\nSử dụng thư mục này?";
             textStrings["msgbox_installexistinginvalid_msg"] = "Thư mục đã chọn không chứa cài đặt hợp lệ của trò chơi. Trình khởi chạy này chỉ hỗ trợ GLB và SEA client.";
             textStrings["msgbox_install_existing_no_local_version_msg"] = "Không thể xác định phiên bản cục bộ.\nTrò chơi của bạn đã được cập nhật chưa? Hãy lựa chọn một cách khôn ngoan!\nLựa chọn \"Đồng ý\" sẽ khiến bạn có thể khởi chạy trò chơi.\nLựa chọn \"Không\" sẽ khiến bạn phải tải xuống trò chơi.";
@@ -147,7 +149,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_install_little_space_msg"] = "Có khả năng không đủ dung lượng trống trên thiết bị đã chọn, bạn nên giải phóng một số dung lượng nếu không quá trình cài đặt có thể dẫn đến thất bại.\nTiếp tục?";
             textStrings["msgbox_install_wrong_drive_type_msg"] = "Không thể cài đặt trên thiết bị đã chọn.";
             textStrings["msgbox_mirror_error_msg"] = "Có lỗi với mirror. Yêu cầu người bảo trì mirror tìm hiểu sâu hơn về vấn đề này.\nMessage: {0}";
-            textStrings["msgbox_net_version_old_msg"] = "Trính khởi chạy yêu cầu .NET Framework 4.6 hoặc mới hơn để có thể cài đặt.";
+            textStrings["msgbox_net_version_old_msg"] = "Trính khởi chạy yêu cầu .NET Framework 4.6.1 hoặc mới hơn để có thể cài đặt.";
             textStrings["msgbox_language_msg"] = "Ngôn ngữ sẽ chuyển sang {0} và trình khởi chạy sẽ được khởi động lại.\nTiếp tục?";
             textStrings["msgbox_no_internet_msg"] = "Không thể kết nối với mạng. Vui lòng chắc chắn rằng bạn đã kết nối?";
         }

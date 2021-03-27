@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 
 namespace BetterHI3Launcher
 {
@@ -11,8 +11,11 @@ namespace BetterHI3Launcher
             textStrings["outdated"] = "Desatualizado";
             textStrings["enabled"] = "Ativado";
             textStrings["disabled"] = "Desativado";
+            textStrings["button_yes"] = "Sim";
+            textStrings["button_no"] = "Não";
             textStrings["button_download"] = "Baixar";
             textStrings["button_downloading"] = "Baixando";
+            textStrings["button_running"] = "Rodando";
             textStrings["button_update"] = "Atualizar";
             textStrings["button_pause"] = "Pausar";
             textStrings["button_launch"] = "Iniciar";
@@ -21,10 +24,13 @@ namespace BetterHI3Launcher
             textStrings["button_confirm"] = "Confirmar";
             textStrings["button_cancel"] = "Cancelar";
             textStrings["button_github"] = "Ir para o repositório GitHub";
+            textStrings["button_generate"] = "Gerar";
             textStrings["label_server"] = "Servidor";
             textStrings["label_mirror"] = "Espelho";
             textStrings["label_log"] = "Mostrar log";
             textStrings["contextmenu_downloadcache"] = "Baixar cache";
+            textStrings["contextmenu_repair"] = "Reparar arquivos do jogo";
+            textStrings["contextmenu_move"] = "Mover arquivos do jogo";
             textStrings["contextmenu_uninstall"] = "Desinstalar jogo";
             textStrings["contextmenu_fixsubs"] = "Corrigir legendas";
             textStrings["contextmenu_download_type"] = "Alterar tipo de download";
@@ -46,24 +52,31 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_contribute"] = "Quer ajudar?";
             textStrings["contextmenu_about"] = "Sobre";
             textStrings["progresstext_error"] = "Erros foram encontrados :^(";
-            textStrings["progresstext_verifying"] = "Verificando arquivos do jogo...";
+            textStrings["progresstext_verifying_files"] = "Verificando arquivos do jogo...";
+            textStrings["progresstext_verifying_file"] = "Verificando arquivo do jogo {0}/{1}...";
             textStrings["progresstext_cleaningup"] = "Limpando...";
             textStrings["progresstext_checkingupdate"] = "Verificando atualizações...";
             textStrings["progresstext_downloadsize"] = "Tamanho do download";
             textStrings["progresstext_downloaded"] = "Baixado {0}/{1} ({2})";
+            textStrings["progresstext_downloading_file"] = "Baixando arquivo {0}/{1}...";
             textStrings["progresstext_eta"] = "Tempo estimado: {0}";
             textStrings["progresstext_unpacking_1"] = "Extraindo arquivos do jogo...";
             textStrings["progresstext_unpacking_2"] = "Extraindo arquivo do jogo {0}/{1}...";
+            textStrings["progresstext_moving_files"] = "Movendo arquivos do jogo...";
             textStrings["progresstext_uninstalling"] = "Desinstalando o jogo...";
             textStrings["progresstext_mirror_connect"] = "Conectando ao espelho...";
             textStrings["progresstext_initiating_download"] = "Iniciando download...";
             textStrings["progresstext_updating_launcher"] = "Atualizando launcher...";
+            textStrings["progresstext_generating_hash"] = "Gerando hash para arquivo {0}/{1}...";
+            textStrings["progresstext_zipping"] = "Adicionando arquivo {0}/{1} para arquivo ZIP...";
+            textStrings["progresstext_fetching_hashes"] = "Buscando hashes de arquivo...";
             textStrings["introbox_title"] = "Bem-vindo ao Better Honkai Impact 3rd Launcher!";
             textStrings["introbox_msg_1"] = "!!! IMPORTANTE, POR FAVOR LEIA !!!";
             textStrings["introbox_msg_2"] = "Parece que essa é a primeira vez que você está usando esse launcher. Em primeiro lugar, fico feliz que você tenha decidido dar uma chance, portanto, não hesite caso queira enviar feedback.\nEm segundo lugar, é importante que se você usou o launcher oficial para atualizar o jogo e ainda não o iniciou (ao ponto de ainda estar na ponte), não use esse launcher. Caso contrário, o launcher pode detectar a versão do jogo como antiga e fazer com que você tenha que baixá-lo novamente.\n\nLeu tudo? Ótimo! Se você já tem o jogo instalado, basta pressionar o botão \"Baixar\" e selecionar a pasta do jogo. O launcher irá detectar seu jogo e você não terá que baixá-lo novamente.";
             textStrings["downloadcachebox_msg"] = "Selecione se deseja baixar o pacote de cache completo ou apenas arquivos numéricos.\nSelecione\"Cache completo\" se você tiver problemas para atualizar os recursos do evento.\nSelecione \"Arquivos numéricos\" se você tiver problemas para atualizar as configurações.\nPor favor, note que atualmente não há como recuperar automaticamente o cache mais recente e temos que carregá-lo manualmente para um espelho.\nUsando espelho: {0}.\nCache atualizado por último: {1}.\nO mantenedor do espelho atual é {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Cache completo";
             textStrings["downloadcachebox_button_numeric_files"] = "Arquivos numéricos";
+            textStrings["repairbox_msg"] = "Isso verificará todos os arquivos do jogo e tentará reparar se algum estiver quebrado. Pode demorar um pouco.\nContinuar?\nUsando espelho: {0}.\nO mantenedor do espelho atual é {1}.";
             textStrings["fpsinputbox_title"] = "Insira o limite de FPS customizado";
             textStrings["fpsinputbox_label_combatfps"] = "FPS em jogo";
             textStrings["fpsinputbox_label_menufps"] = "FPS no menu";
@@ -90,7 +103,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_installerror_title"] = "Erro de instalação";
             textStrings["msgbox_process_start_error_msg"] = "Ocorreu um erro ao iniciar o processo.\nPara mais informações dê uma olhada no log.";
             textStrings["msgbox_update_title"] = "Aviso de atualização";
-            textStrings["msgbox_install_msg"] = "O jogo será instalado em:\n{0}\nContinuar instalação?";
+            textStrings["msgbox_install_msg"] = "O jogo será instalado em:\n{0}\nContinuar?";
             textStrings["msgbox_install_title"] = "Aviso de instalação";
             textStrings["msgbox_installdirerror_msg"] = "Ocorreu um erro ao selecionar o diretório de instalação do jogo:\n{0}";
             textStrings["msgbox_installdirerror_title"] = "Diretório inválido";
@@ -106,6 +119,17 @@ namespace BetterHI3Launcher
             textStrings["msgbox_download_cache_1_msg"] = "O cache completo está prestes a ser baixado.";
             textStrings["msgbox_download_cache_2_msg"] = "Os arquivos numéricos estão prestes a serem baixados.";
             textStrings["msgbox_download_cache_3_msg"] = "Tamanho do download: {0}.\nContinuar?";
+            textStrings["msgbox_repair_1_msg"] = "A versão do jogo instalado difere das informações de reparo no servidor. Por termos que atualizar essas informações manualmente, elas podem ficar indisponíveis por algum tempo.\nPor favor, tente novamente mais tarde.";
+            textStrings["msgbox_repair_2_msg"] = "Nenhum arquivo precisa de reparos.";
+            textStrings["msgbox_repair_3_msg"] = "Encontrados {0} arquivo(s) corrompido(s)/perdido(s). Eles precisam ser reparados baixando-os novamente.\nComo a tecnologia é incrível, apenas os arquivos necessários serão baixados.\nTamanho do download: {1}.\nContinuar?";
+            textStrings["msgbox_repair_4_msg"] = "{0} arquivo(s) reparado(s) com sucesso.";
+            textStrings["msgbox_repair_5_msg"] = "{0} arquivo(s) não foram reparados. Considere verificar seu dispositivo de armazenamento, isso pode ser o problema.";
+            textStrings["msgbox_repair_6_msg"] = "Isso irá gerar um arquivo JSON contendo a lista de arquivos do jogo e seus hashes, então criar um arquivo ZIP com esses arquivos.\nContinuar?";
+            textStrings["msgbox_move_1_msg"] = "O jogo será movido para:\n{0}\nContinuar?";
+            textStrings["msgbox_move_2_msg"] = "Não é possível mover o jogo dentro do diretório do jogo atual.";
+            textStrings["msgbox_move_3_msg"] = "Não é possível mover o jogo enquanto o launcher está dentro do diretório do jogo. Mova o launcher para fora do diretório e tente novamente.";
+            textStrings["msgbox_move_title"] = "Mover";
+            textStrings["msgbox_move_error_title"] = "Mover erro";
             textStrings["msgbox_uninstall_1_msg"] = "Tem certeza que deseja desinstalar o jogo?";
             textStrings["msgbox_uninstall_2_msg"] = "Tem certeza absoluta que deseja desinstalar o jogo? :^(";
             textStrings["msgbox_uninstall_3_msg"] = "Remover as configurações e arquivos de cache do jogo também?";
@@ -133,7 +157,9 @@ namespace BetterHI3Launcher
             textStrings["msgbox_extractskip_title"] = "Aviso de salto de arquivo";
             textStrings["msgbox_extractskip_msg"] = "A extração terminou, mas alguns arquivos não foram extraídos. Você pode querer extraí-los manualmente.\nPara mais informações dê uma olhada no log.";
             textStrings["msgbox_noexe_title"] = "Nenhum jogo executável";
-            textStrings["msgbox_noexe_msg"] = "O executável do jogo não foi encontrado :^(\nTente reinstalar o jogo.";
+            textStrings["msgbox_noexe_msg"] = "O executável do jogo não foi encontrado.\nTente reinstalar o jogo.";
+            textStrings["msgbox_nodir_title"] = "Nenhum jogo diretório";
+            textStrings["msgbox_nodir_msg"] = "O diretório do jogo não foi encontrado.\nTente reinstalar o jogo.";
             textStrings["msgbox_installexisting_msg"] = "O jogo parece já ter sido instalado em:\n{0}\nUsar este diretório?";
             textStrings["msgbox_installexistinginvalid_msg"] = "O diretório selecionado não contém uma instalação válida do jogo. Este launcher só oferece suporte a clientes globais e SEA.";
             textStrings["msgbox_install_existing_no_local_version_msg"] = "Não foi possível determinar a versão local.\nSeu jogo já está atualizado? Por favor, escolha com sabedoria!\nSelecionar \"Sim\" fará com que você seja capaz de iniciar o jogo.\nSelecionar \"Não\" fará com que você tenha que baixar o jogo.";
@@ -147,8 +173,10 @@ namespace BetterHI3Launcher
             textStrings["msgbox_gamedownloadmirrorerror_msg"] = "Ocorreu um erro ao baixar do espelho.\nPara mais informações dê uma olhada no log.";
             textStrings["msgbox_install_little_space_msg"] = "Potencialmente, não há espaço livre suficiente no dispositivo selecionado, é recomendável liberar algum espaço ou a instalação pode resultar em falha.\nContinuar?";
             textStrings["msgbox_install_wrong_drive_type_msg"] = "Não é possível instalar no dispositivo selecionado.";
+            textStrings["msgbox_move_little_space_msg"] = "Potencialmente, não há espaço livre suficiente no dispositivo selecionado, é recomendável liberar algum espaço ou a operação de movimentação pode resultar em falha.\nContinuar?";
+            textStrings["msgbox_move_wrong_drive_type_msg"] = "Não é possível mover para o dispositivo selecionado.";
             textStrings["msgbox_mirror_error_msg"] = "Ocorreu um erro com o espelho. Peça ao mantenedor do espelho para chegar ao final disso.\nMensagem: {0}";
-            textStrings["msgbox_net_version_old_msg"] = "Este launcher requer que o .NET Framework 4.6 ou mais recente esteja instalado.";
+            textStrings["msgbox_net_version_old_msg"] = "Este launcher requer que o .NET Framework 4.6.1 ou mais recente esteja instalado.";
             textStrings["msgbox_language_msg"] = "O idioma será alterado para {0} e o launcher será reiniciado.\nContinuar?";
             textStrings["msgbox_no_internet_msg"] = "Não foi possível conectar-se à internet. Você está online?";
         }

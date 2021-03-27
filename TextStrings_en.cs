@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 
 namespace BetterHI3Launcher
 {
@@ -20,8 +20,11 @@ namespace BetterHI3Launcher
             textStrings.Add("outdated", "Outdated");
             textStrings.Add("enabled", "Enabled");
             textStrings.Add("disabled", "Disabled");
+            textStrings.Add("button_yes", "Yes");
+            textStrings.Add("button_no", "No");
             textStrings.Add("button_download", "Download");
             textStrings.Add("button_downloading", "Downloading");
+            textStrings.Add("button_running", "Running");
             textStrings.Add("button_update", "Update");
             textStrings.Add("button_pause", "Pause");
             textStrings.Add("button_launch", "Start");
@@ -31,10 +34,13 @@ namespace BetterHI3Launcher
             textStrings.Add("button_confirm", "Confirm");
             textStrings.Add("button_cancel", "Cancel");
             textStrings.Add("button_github", "Go to GitHub repository");
+            textStrings.Add("button_generate", "Generate");
             textStrings.Add("label_server", "Server");
             textStrings.Add("label_mirror", "Mirror");
             textStrings.Add("label_log", "Show log");
             textStrings.Add("contextmenu_downloadcache", "Download cache");
+            textStrings.Add("contextmenu_repair", "Repair game files");
+            textStrings.Add("contextmenu_move", "Move game files");
             textStrings.Add("contextmenu_uninstall", "Uninstall game");
             textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
             textStrings.Add("contextmenu_download_type", "Change download type");
@@ -56,24 +62,31 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_language_contribute", "Want to help?");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
-            textStrings.Add("progresstext_verifying", "Verifying game files...");
+            textStrings.Add("progresstext_verifying_files", "Verifying game files...");
+            textStrings.Add("progresstext_verifying_file", "Verifying game file {0}/{1}...");
             textStrings.Add("progresstext_cleaningup", "Cleaning up...");
             textStrings.Add("progresstext_checkingupdate", "Checking for update...");
             textStrings.Add("progresstext_downloadsize", "Download size");
             textStrings.Add("progresstext_downloaded", "Downloaded {0}/{1} ({2})");
+            textStrings.Add("progresstext_downloading_file", "Downloading file {0}/{1}...");
             textStrings.Add("progresstext_eta", "Estimated time: {0}");
             textStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
             textStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1}...");
+            textStrings.Add("progresstext_moving_files", "Moving game files...");
             textStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
             textStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
             textStrings.Add("progresstext_initiating_download", "Initiating download...");
             textStrings.Add("progresstext_updating_launcher", "Updating launcher...");
+            textStrings.Add("progresstext_generating_hash", "Generating hash for file {0}/{1}...");
+            textStrings.Add("progresstext_zipping", "Adding file {0}/{1} to ZIP archive...");
+            textStrings.Add("progresstext_fetching_hashes", "Fetching file hashes...");
             textStrings.Add("introbox_title", "Welcome to Better Honkai Impact 3rd launcher!");
             textStrings.Add("introbox_msg_1", "!!! IMPORTANT, PLEASE READ !!!");
             textStrings.Add("introbox_msg_2", "Seems like this is your first time using the launcher. First of all, I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so.\nSecondly, it is important that if you used the official launcher to update the game and didn't launch it yet (to the point where you are on the bridge) you shouldn't use this launcher. Otherwise the launcher may detect your game version as old and make you have to download it again.\n\nRead all that? Great! If you already have the game installed just press the \"Download\" button and select your game folder. The launcher will detect your game and you won't have to download it again.");
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
+            textStrings.Add("repairbox_msg", "This will check every game file and attempt to repair if any is broken. It could take a while.\nContinue?\nUsing mirror: {0}.\nCurrent mirror maintainer is {1}.");
             textStrings.Add("fpsinputbox_title", "Enter max FPS cap");
             textStrings.Add("fpsinputbox_label_combatfps", "FPS in-game");
             textStrings.Add("fpsinputbox_label_menufps", "FPS in menu");
@@ -100,7 +113,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_installerror_title", "Installation error");
             textStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_update_title", "Update notice");
-            textStrings.Add("msgbox_install_msg", "The game is going to be installed to:\n{0}\nContinue installation?");
+            textStrings.Add("msgbox_install_msg", "The game is going to be installed to:\n{0}\nContinue?");
             textStrings.Add("msgbox_install_title", "Installation notice");
             textStrings.Add("msgbox_installdirerror_msg", "An error occurred while selecting game installation directory:\n{0}");
             textStrings.Add("msgbox_installdirerror_title", "Invalid directory");
@@ -116,6 +129,17 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
             textStrings.Add("msgbox_download_cache_2_msg", "Numeric file cache is about to be downloaded.");
             textStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
+            textStrings.Add("msgbox_repair_1_msg", "The version of the game installed differs from repair information on the server. Due to us having to update this information manually, it may not be available for some time.\nPlease try again later.");
+            textStrings.Add("msgbox_repair_2_msg", "No files need any repairs.");
+            textStrings.Add("msgbox_repair_3_msg", "Found {0} corrupted/missing file(s). They need to be repaired by downloading them again.\nBecause technology is awesome, only the required files will be downloaded.\nDownload size: {1}.\nContinue?");
+            textStrings.Add("msgbox_repair_4_msg", "{0} file(s) successfully repaired.");
+            textStrings.Add("msgbox_repair_5_msg", "{0} file(s) failed to be repaired. Consider checking your storage device, it may be faulty.");
+            textStrings.Add("msgbox_repair_6_msg", "Going to generate a JSON file containing the list of game files and their hashes, then create a ZIP archive with those files.\nContinue?");
+            textStrings.Add("msgbox_move_1_msg", "The game is going to be moved to:\n{0}\nContinue?");
+            textStrings.Add("msgbox_move_2_msg", "Cannot move the game inside the current game directory.");
+            textStrings.Add("msgbox_move_3_msg", "Cannot move the game while the launcher is inside game directory. Move launcher outside the directory and try again.");
+            textStrings.Add("msgbox_move_title", "Move");
+            textStrings.Add("msgbox_move_error_title", "Move error");
             textStrings.Add("msgbox_uninstall_1_msg", "Are you sure you want to uninstall the game?");
             textStrings.Add("msgbox_uninstall_2_msg", "Are you really sure you want to uninstall the game? :^(");
             textStrings.Add("msgbox_uninstall_3_msg", "Remove game cache files and settings as well?");
@@ -143,12 +167,14 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_extractskip_title", "File skip notice");
             textStrings.Add("msgbox_extractskip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_noexe_title", "No game executable");
-            textStrings.Add("msgbox_noexe_msg", "Game executable cannot be found :^(\nTry reinstalling the game.");
+            textStrings.Add("msgbox_noexe_msg", "Game executable cannot be found.\nTry reinstalling the game.");
+            textStrings.Add("msgbox_nodir_title", "No game directory");
+            textStrings.Add("msgbox_nodir_msg", "Game directory cannot be found.\nTry reinstalling the game.");
             textStrings.Add("msgbox_installexisting_msg", "The game appears to have already been installed to:\n{0}\nUse this directory?");
             textStrings.Add("msgbox_installexistinginvalid_msg", "The selected directory doesn't contain a valid installation of the game. This launcher only supports Global and SEA clients.");
             textStrings.Add("msgbox_install_existing_no_local_version_msg", "Local version couldn't be determined.\nIs your game updated already? Please choose wisely!\nSelecting \"Yes\" will make you be able to launch the game.\nSelecting \"No\" will make you have to download the game.");
             textStrings.Add("msgbox_notice_title", "Notice");
-            textStrings.Add("msgbox_novideodir_msg", "Video folder cannot be found.\nTry reinstalling the game.");
+            textStrings.Add("msgbox_novideodir_msg", "Video directory cannot be found.\nTry reinstalling the game.");
             textStrings.Add("msgbox_mirrorinfo_msg", "Use this mirror only if you cannot download the game via official miHoYo servers.\nPlease note that it is updated manually.\nContinue?");
             textStrings.Add("msgbox_updatecheckerror_msg", "An error occurred while checking for update.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_updatecheckerror_title", "Update check error");
@@ -157,8 +183,10 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_gamedownloadmirrorerror_msg", "An error occurred while downloading from the mirror.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_install_little_space_msg", "There is potentially not enough free space on selected device, it is recommended to free up some space or installation may result in failure.\nContinue?");
             textStrings.Add("msgbox_install_wrong_drive_type_msg", "Cannot install on selected device.");
+            textStrings.Add("msgbox_move_little_space_msg", "There is potentially not enough free space on selected device, it is recommended to free up some space or move operation may result in failure.\nContinue?");
+            textStrings.Add("msgbox_move_wrong_drive_type_msg", "Cannot move to selected device.");
             textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
-            textStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6 or newer to be installed.");
+            textStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6.1 or newer to be installed.");
             textStrings.Add("msgbox_language_msg", "Language is going to be changed to {0} and launcher will be restarted.\nContinue?");
             textStrings.Add("msgbox_no_internet_msg", "Cannot connect to the internet. Are you online?");
         }
