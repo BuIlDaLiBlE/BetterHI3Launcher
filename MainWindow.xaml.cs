@@ -2123,7 +2123,34 @@ namespace BetterHI3Launcher
                         {
                             try
                             {
-                                Directory.Move(GameInstallPath, path);
+                                if(Directory.GetDirectoryRoot(GameInstallPath) == Directory.GetDirectoryRoot(path))
+                                {
+                                    Directory.Move(GameInstallPath, path);
+                                }
+                                else
+                                {
+                                    Directory.CreateDirectory(path);
+                                    Directory.SetCreationTime(path, Directory.GetCreationTime(GameInstallPath));
+                                    Directory.SetLastWriteTime(path, Directory.GetLastWriteTime(GameInstallPath));
+                                    string[] dirs = Directory.GetDirectories(GameInstallPath);
+                                    foreach(string dir in dirs)
+                                    {
+                                        string name = Path.GetFileName(dir);
+                                        string dest = Path.Combine(path, name);
+                                        Directory.CreateDirectory(dest);
+                                        Directory.SetCreationTime(dest, Directory.GetCreationTime(dir));
+                                        Directory.SetLastWriteTime(dest, Directory.GetLastWriteTime(dir));
+                                    }
+                                    string[] files = Directory.GetFiles(GameInstallPath);
+                                    foreach(string file in files)
+                                    {
+                                        string name = Path.GetFileName(file);
+                                        string dest = Path.Combine(path, name);
+                                        File.Copy(file, dest, true);
+                                        File.SetCreationTime(dest, File.GetCreationTime(file));
+                                    }
+                                    Directory.Delete(GameInstallPath, true);
+                                }
                                 GameInstallPath = path;
                                 WriteVersionInfo(false, true);
                                 Log("Successfully moved game files");
