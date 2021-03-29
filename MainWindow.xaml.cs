@@ -43,7 +43,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version LocalLauncherVersion = new Version("1.1.20210329.0");
+        public static readonly Version LocalLauncherVersion = new Version("1.1.20210330.0");
         public static readonly string RootPath = Directory.GetCurrentDirectory();
         public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -2132,24 +2132,43 @@ namespace BetterHI3Launcher
                                     Directory.CreateDirectory(path);
                                     Directory.SetCreationTime(path, Directory.GetCreationTime(GameInstallPath));
                                     Directory.SetLastWriteTime(path, Directory.GetLastWriteTime(GameInstallPath));
-                                    string[] dirs = Directory.GetDirectories(GameInstallPath);
-                                    foreach(string dir in dirs)
-                                    {
-                                        string name = Path.GetFileName(dir);
-                                        string dest = Path.Combine(path, name);
-                                        Directory.CreateDirectory(dest);
-                                        Directory.SetCreationTime(dest, Directory.GetCreationTime(dir));
-                                        Directory.SetLastWriteTime(dest, Directory.GetLastWriteTime(dir));
-                                    }
                                     string[] files = Directory.GetFiles(GameInstallPath);
                                     foreach(string file in files)
                                     {
                                         string name = Path.GetFileName(file);
                                         string dest = Path.Combine(path, name);
+                                        new FileInfo(file).Attributes &= ~FileAttributes.ReadOnly;
                                         File.Copy(file, dest, true);
                                         File.SetCreationTime(dest, File.GetCreationTime(file));
                                     }
-                                    Directory.Delete(GameInstallPath, true);
+                                    string[] dirs = Directory.GetDirectories(GameInstallPath, "*", SearchOption.AllDirectories);
+                                    foreach(string dir in dirs)
+                                    {
+                                        string name = dir.Replace(GameInstallPath, string.Empty);
+                                        string dest = $@"{path}{name}";
+                                        new DirectoryInfo(dir).Attributes &= ~FileAttributes.ReadOnly;
+                                        Directory.CreateDirectory(dest);
+                                        Directory.SetCreationTime(dest, Directory.GetCreationTime(dir));
+                                        Directory.SetLastWriteTime(dest, Directory.GetLastWriteTime(dir));
+                                        string[] nestedFiles = Directory.GetFiles(dir);
+                                        foreach(string nestedFile in nestedFiles)
+                                        {
+                                            string nestedName = Path.GetFileName(nestedFile);
+                                            string nestedDest = Path.Combine(dest, nestedName);
+                                            new FileInfo(nestedFile).Attributes &= ~FileAttributes.ReadOnly;
+                                            File.Copy(nestedFile, nestedDest, true);
+                                            File.SetCreationTime(nestedDest, File.GetCreationTime(nestedFile));
+                                        }
+                                    }
+                                    try
+                                    {
+                                        new DirectoryInfo(GameInstallPath).Attributes &= ~FileAttributes.ReadOnly;
+                                        Directory.Delete(GameInstallPath, true);
+                                    }
+                                    catch
+                                    {
+                                        Log($"Failed to delete old game directory, you may want to do it manually: {GameInstallPath}");
+                                    }
                                 }
                                 GameInstallPath = path;
                                 WriteVersionInfo(false, true);
