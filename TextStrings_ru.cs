@@ -31,7 +31,7 @@ namespace BetterHI3Launcher
             textStrings["label_server"] = "Сервер";
             textStrings["label_mirror"] = "Зеркало";
             textStrings["label_log"] = "Показать лог";
-            textStrings["contextmenu_downloadcache"] = "Загрузить кэш";
+            textStrings["contextmenu_downloadcache"] = "Загрузить кеш";
             textStrings["contextmenu_repair"] = "Починить игровые файлы";
             textStrings["contextmenu_move"] = "Переместить игровые файлы";
             textStrings["contextmenu_uninstall"] = "Удалить игру";
@@ -76,8 +76,8 @@ namespace BetterHI3Launcher
             textStrings["introbox_title"] = "Добро пожаловать в Better Honkai Impact 3rd launcher!";
             textStrings["introbox_msg_1"] = "!!! ВАЖНО, СТОИТ ПРОЧИТАТЬ !!!";
             textStrings["introbox_msg_2"] = "Похоже, вы впервые запустили этот лаунчер. Во-первых, я рад, что вы решили попробовать его, так что не стесняйтесь высказывать своё мнение по поводу него.\nВо-вторых, если вы вдруг использовали официальный лаунчер для обновления игры и ещё её не запустили (до момента захода на мостик) - этот лаунчер использовать не стоит. Иначе он может определить версию игры как старую и заставить загружать игру снова.\n\nПрочитали всё это? Замечательно! Если игра уже установлена, то просто нажмите \"Загрузить\" и выберите папку с игрой. Лаунчер её найдёт и ничего скачивать заново будет не нужно.";
-            textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кэш.\nВыберите \"Полный кэш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кэш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кэша: {1}.\nОтветственный за зеркало: {2}.";
-            textStrings["downloadcachebox_button_full_cache"] = "Полный кэш";
+            textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кеш.\nВыберите \"Полный кеш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кеш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кеша: {1}.\nОтветственный за зеркало: {2}.";
+            textStrings["downloadcachebox_button_full_cache"] = "Полный кеш";
             textStrings["downloadcachebox_button_numeric_files"] = "Числовые файлы";
             textStrings["repairbox_msg"] = "Будет произведена проверка каждого игрового файла с последующим его исправлением, если нужно. Это может занять какое-то время.\nПродолжить?\nИспользуемое зеркало: {0}.\nОтветственный за зеркало: {1}.";
             textStrings["fpsinputbox_title"] = "Задайте ограничение FPS";
@@ -90,8 +90,8 @@ namespace BetterHI3Launcher
             textStrings["changelogbox_title"] = "История изменений";
             textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
             textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам GitHub:\nSinsOfSeven - Возможность задавать своё разрешение игры\nProxy-E23 - Перевод лаунчера на испанский язык\nSpookyKisuy - Перевод лаунчера на португальский язык\nbulawin1 - Перевод лаунчера на немецкий язык\nKorewaLidesu - Перевод лаунчера на вьетнамский язык";
-            textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кэша.";
-            textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кэша числовых файлов.";
+            textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кеша.";
+            textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кеша числовых файлов.";
             textStrings["msgbox_download_cache_3_msg"] = "Размер загрузки: {0}.\nПродолжить?";
             textStrings["msgbox_genericerror_title"] = "Ошибка";
             textStrings["msgbox_genericerror_msg"] = "Произошла ошибка.\nДля дополнительной информации посмотрите лог.";
@@ -135,7 +135,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_move_error_title"] = "Ошибка перемещения";
             textStrings["msgbox_uninstall_1_msg"] = "Вы уверены, что хотите удалить игру?";
             textStrings["msgbox_uninstall_2_msg"] = "Вы точно уверены, что хотите удалить игру? :^(";
-            textStrings["msgbox_uninstall_3_msg"] = "Удалить также и настройки игры с кэшем?";
+            textStrings["msgbox_uninstall_3_msg"] = "Удалить также и настройки игры с кешем?";
             textStrings["msgbox_uninstall_4_msg"] = "Нельзя удалить игру, пока лаунчер находится внутри игровой папки. Переместите лаунчер из папки и попробуйте снова.";
             textStrings["msgbox_uninstall_title"] = "Удаление";
             textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";
