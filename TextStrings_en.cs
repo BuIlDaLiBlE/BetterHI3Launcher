@@ -59,6 +59,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_language_portuguese", "Portuguese");
             textStrings.Add("contextmenu_language_german", "German");
             textStrings.Add("contextmenu_language_vietnamese", "Vietnamese");
+            textStrings.Add("contextmenu_language_serbian", "Serbian");
             textStrings.Add("contextmenu_language_contribute", "Want to help?");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
@@ -86,7 +87,7 @@ namespace BetterHI3Launcher
             textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is {2}.");
             textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
             textStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
-            textStrings.Add("repairbox_msg", "This will check every game file and attempt to repair if any is broken. It could take a while.\nContinue?\nUsing mirror: {0}.\nCurrent mirror maintainer is {1}.");
+            textStrings.Add("repairbox_msg", "This will check every game file and attempt to repair if any is broken. It can take a while.\nContinue?\nAvailable mirrors: {0}.\nCurrent mirror maintainer is {1}.");
             textStrings.Add("fpsinputbox_title", "Enter max FPS cap");
             textStrings.Add("fpsinputbox_label_combatfps", "FPS in-game");
             textStrings.Add("fpsinputbox_label_menufps", "FPS in menu");
@@ -96,7 +97,7 @@ namespace BetterHI3Launcher
             textStrings.Add("resolutioninputbox_label_fullscreen", "Fullscreen");
             textStrings.Add("changelogbox_title", "Changelog");
             textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
-            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language contibution\nSpookyKisuy - Portuguese language contibution\nbulawin1 - German language contribution\nKorewaLidesu - Vietnamese language contribution");
+            textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation");
             textStrings.Add("msgbox_genericerror_title", "Error");
             textStrings.Add("msgbox_genericerror_msg", "An error occurred.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_neterror_title", "Network error");
@@ -135,6 +136,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_repair_4_msg", "{0} file(s) successfully repaired.");
             textStrings.Add("msgbox_repair_5_msg", "{0} file(s) failed to be repaired. Consider checking your storage device, it may be faulty.");
             textStrings.Add("msgbox_repair_6_msg", "Going to generate a JSON file containing the list of game files and their hashes, then create a ZIP archive with those files.\nContinue?");
+            textStrings.Add("msgbox_repair_7_msg", "Continue to create ZIP file? It definitely takes a while.");
             textStrings.Add("msgbox_move_1_msg", "The game is going to be moved to:\n{0}\nContinue?");
             textStrings.Add("msgbox_move_2_msg", "Cannot move the game inside the current game directory.");
             textStrings.Add("msgbox_move_3_msg", "Cannot move the game while the launcher is inside game directory. Move launcher outside the directory and try again.");

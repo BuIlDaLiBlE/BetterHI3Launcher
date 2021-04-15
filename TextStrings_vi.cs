@@ -15,6 +15,7 @@ namespace BetterHI3Launcher
             textStrings["button_no"] = "Không";
             textStrings["button_download"] = "Tải xuống";
             textStrings["button_downloading"] = "Đang tải xuống";
+            textStrings["button_running"] = "Đang chạy";
             textStrings["button_update"] = "Cập nhật";
             textStrings["button_pause"] = "Tạm dừng";
             textStrings["button_launch"] = "Bắt đầu";
@@ -47,6 +48,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_portuguese"] = "Tiếng Bồ Đào Nha";
             textStrings["contextmenu_language_german"] = "Tiếng Đức";
             textStrings["contextmenu_language_vietnamese"] = "Tiếng Việt";
+            textStrings["contextmenu_language_serbian"] = "Tiếng Serbia";
             textStrings["contextmenu_language_contribute"] = "Muốn giúp đỡ?";
             textStrings["contextmenu_about"] = "Thông tin";
             textStrings["progresstext_error"] = "Lỗi ở :^(";
@@ -82,9 +84,8 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_width"] = "Chiều rộng";
             textStrings["resolutioninputbox_label_height"] = "Chiều cao";
             textStrings["resolutioninputbox_label_fullscreen"] = "Toàn màn hình";
-            textStrings["changelogbox_title"] = "Changelog";
             textStrings["changelogbox_msg"] = "Trình khởi chạy Better Honkai Impact 3rd vừa trở nên tốt hơn. Đây là những gì đã xảy ra:";
-            textStrings["aboutbox_msg"] = "Chà, nó cao cấp hơn nhiều phải không? :^)\nDự án này được thực hiện với hy vọng nhiều thuyền trưởng sẽ có trải nghiệm tốt hơn với trò chơi.\nNó không liên kết với miHoYo và hoàn toàn là mã nguồn mở.\nBất kỳ thông tin phản hồi đều được đánh giá rất cao.\nĐặc biệt cảm ơn những cộng tác viên GitHub:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language contibution\nSpookyKisuy - Portuguese language contibution\nbulawin1 - German language contribution\nKorewaLidesu - Vietnamese language contribution";
+            textStrings["aboutbox_msg"] = "Chà, nó cao cấp hơn nhiều phải không? :^)\nDự án này được thực hiện với hy vọng nhiều thuyền trưởng sẽ có trải nghiệm tốt hơn với trò chơi.\nNó không liên kết với miHoYo và hoàn toàn là mã nguồn mở.\nBất kỳ thông tin phản hồi đều được đánh giá rất cao.\nĐặc biệt cảm ơn những cộng tác viên GitHub:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation";
             textStrings["msgbox_genericerror_title"] = "Lỗi";
             textStrings["msgbox_genericerror_msg"] = "Đã có lỗi xảy ra.\nĐể biết thêm thông tin, hãy xem log.";
             textStrings["msgbox_neterror_title"] = "Lỗi mạng";

@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -253,7 +254,7 @@ namespace BetterHI3Launcher
             #endif
 
             InitializeComponent();
-            Log(UserAgent);
+            Log(UserAgent, false);
             Log($"Working directory: {RootPath}");
             Log($"OS language: {OSLanguage}");
             SetLanguage(null);
@@ -296,6 +297,16 @@ namespace BetterHI3Launcher
                 case "be-BY":
                     LauncherLanguage = "ru";
                     break;
+                case "sr-Cyrl-BA":
+                case "sr-Cyrl-CS":
+                case "sr-Cyrl-ME":
+                case "sr-Cyrl-RS":
+                case "sr-Latn-BA":
+                case "sr-Latn-CS":
+                case "sr-Latn-ME":
+                case "sr-Latn-RS":
+                    LauncherLanguage = "sr";
+                    break;
                 case "vi-VN":
                     LauncherLanguage = "vi";
                     break;
@@ -316,6 +327,7 @@ namespace BetterHI3Launcher
                 SetLanguage(LauncherLanguage);
             }
             Log($"Launcher language: {LauncherLanguage}");
+            UserAgent += $" [{LauncherLanguage}]";
 
             var args = new List<string>();
             for(int i = 1; i < CommandLineArgs.Length; i++)
@@ -333,6 +345,8 @@ namespace BetterHI3Launcher
             if(args.Contains("NOSHADOW"))
             {
                 Border.Effect = null;
+                Application.Current.MainWindow.Width = Grid.Width;
+                Application.Current.MainWindow.Height = Grid.Height;
                 Log("DropShadowEffect disabled");
             }
             if(args.Contains("ADVANCED"))
@@ -384,6 +398,7 @@ namespace BetterHI3Launcher
 
             Grid.MouseLeftButtonDown += delegate{DragMove();};
             LogBox.Visibility = Visibility.Collapsed;
+            LogBoxRichTextBox.Document.PageWidth = LogBox.ActualWidth;
             IntroBox.Visibility = Visibility.Collapsed;
             RepairBox.Visibility = Visibility.Collapsed;
             FPSInputBox.Visibility = Visibility.Collapsed;
@@ -455,6 +470,9 @@ namespace BetterHI3Launcher
             var CMLanguageVietnamese = new MenuItem{Header = textStrings["contextmenu_language_vietnamese"]};
             CMLanguageVietnamese.Click += (sender, e) => CM_Language_Click(sender, e);
             CMLanguage.Items.Add(CMLanguageVietnamese);
+            var CMLanguageSerbian = new MenuItem{Header = textStrings["contextmenu_language_serbian"]};
+            CMLanguageSerbian.Click += (sender, e) => CM_Language_Click(sender, e);
+            CMLanguage.Items.Add(CMLanguageSerbian);
             CMLanguage.Items.Add(new Separator());
             var CMLanguageContribute = new MenuItem{Header = textStrings["contextmenu_language_contribute"]};
             CMLanguageContribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contibuting-translations", null, RootPath, true);
@@ -488,6 +506,9 @@ namespace BetterHI3Launcher
                         break;
                     case "vi":
                         CMLanguageVietnamese.IsChecked = true;
+                        break;
+                    case "sr":
+                        CMLanguageSerbian.IsChecked = true;
                         break;
                 }
             }
@@ -732,7 +753,7 @@ namespace BetterHI3Launcher
                 if(ex.Response != null)
                 {
                     string msg = ex.Message;
-                    Log($"ERROR: Failed to fetch MediaFire file metadata:\n{msg}");
+                    Log($"ERROR: Failed to fetch MediaFire file metadata:\n{msg}", true, 1);
                     Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], msg), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                     Status = LauncherStatus.Ready;
                     Dispatcher.Invoke(() => {LaunchButton.IsEnabled = false;});
@@ -774,7 +795,7 @@ namespace BetterHI3Launcher
                             msg = json.error.errors[0].message;
                         else
                             msg = ex.Message;
-                        Log($"ERROR: Failed to fetch Google Drive file metadata:\n{msg}");
+                        Log($"ERROR: Failed to fetch Google Drive file metadata:\n{msg}", true, 1);
                         Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], msg), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                         Status = LauncherStatus.Ready;
                         Dispatcher.Invoke(() => {LaunchButton.IsEnabled = false;});
@@ -848,6 +869,7 @@ namespace BetterHI3Launcher
                         GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
                         GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
                         game_needs_update = GameUpdateCheckSimple();
+                        Log("success!", false);
                         Log($"Game version: {LocalGameVersion}");
                         Log($"Game directory: {GameInstallPath}");
 
@@ -921,7 +943,7 @@ namespace BetterHI3Launcher
                                     else
                                     {
                                         Status = LauncherStatus.Error;
-                                        Log($"ERROR: Directory {GameInstallPath} doesn't contain a valid installation of the game.\nThis launcher only supports Global and SEA clients!");
+                                        Log($"ERROR: Directory {GameInstallPath} doesn't contain a valid installation of the game.\nThis launcher only supports Global and SEA clients!", true, 1);
                                         if(MessageBox.Show(string.Format(textStrings["msgbox_installexistinginvalid_msg"]), textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                                         {
                                             Status = LauncherStatus.Ready;
@@ -938,7 +960,7 @@ namespace BetterHI3Launcher
                 catch(Exception ex)
                 {
                     Status = LauncherStatus.Error;
-                    Log($"ERROR: Checking for game update failed:\n{ex}");
+                    Log($"ERROR: Checking for game update failed:\n{ex}", true, 1);
                     Dispatcher.Invoke(() =>
                     {
                         if(MessageBox.Show(textStrings["msgbox_updatecheckerror_msg"], textStrings["msgbox_updatecheckerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
@@ -990,12 +1012,12 @@ namespace BetterHI3Launcher
                         }
                     }
                 }
-                Log("Successfully downloaded launcher update");
+                Log("success!", false);
             }
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to download launcher update:\n{ex}");
+                Log($"ERROR: Failed to download launcher update:\n{ex}", true, 1);
                 Dispatcher.Invoke(() =>
                 {
                     if(MessageBox.Show(string.Format(textStrings["msgbox_launcherdownloaderror_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
@@ -1025,11 +1047,11 @@ namespace BetterHI3Launcher
                     Directory.CreateDirectory(LauncherDataPath);
                     webClient.DownloadFile(new Uri($"{miHoYoVersionInfo.download_url.ToString()}/{miHoYoVersionInfo.bg_file_name.ToString()}"), backgroundImagePath);
                     Dispatcher.Invoke(() => {BackgroundImage.Source = new BitmapImage(new Uri(backgroundImagePath));});
-                    Log($"Downloaded background image: {backgroundImagePath}");
+                    Log("success!", false);
                 }
                 catch(Exception ex)
                 {
-                    Log($"ERROR: Failed to download background image:\n{ex}");
+                    Log($"ERROR: Failed to download background image:\n{ex}", true, 1);
                 }
             }
         }
@@ -1067,7 +1089,7 @@ namespace BetterHI3Launcher
                     if(!mediafire_metadata.title.Contains(miHoYoVersionInfo.cur_version.ToString().Substring(0, 5)))
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Mirror is outdated!");
+                        Log($"ERROR: Mirror is outdated!", true, 1);
                         MessageBox.Show(textStrings["msgbox_gamedownloadmirrorold_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                         Status = LauncherStatus.Ready;
                         return;
@@ -1080,7 +1102,7 @@ namespace BetterHI3Launcher
                     catch(WebException ex)
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Failed to download from MediaFire:\n{ex}");
+                        Log($"ERROR: Failed to download from MediaFire:\n{ex}", true, 1);
                         MessageBox.Show(textStrings["msgbox_gamedownloadmirrorerror_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                         Status = LauncherStatus.Ready;
                         return;
@@ -1103,7 +1125,7 @@ namespace BetterHI3Launcher
                     if(DateTime.Compare(DateTime.Parse(miHoYoVersionInfo.last_modified.ToString()), DateTime.Parse(gd_metadata.modifiedDate.ToString())) > 0)
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Mirror is outdated!");
+                        Log($"ERROR: Mirror is outdated!", true, 1);
                         MessageBox.Show(textStrings["msgbox_gamedownloadmirrorold_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                         Status = LauncherStatus.Ready;
                         return;
@@ -1127,7 +1149,7 @@ namespace BetterHI3Launcher
                                     msg = json.error.errors[0].message;
                                 else
                                     msg = ex.Message;
-                                Log($"ERROR: Failed to download from Google Drive:\n{msg}");
+                                Log($"ERROR: Failed to download from Google Drive:\n{msg}", true, 1);
                                 MessageBox.Show(textStrings["msgbox_gamedownloadmirrorerror_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                                 Status = LauncherStatus.Ready;
                             }
@@ -1191,7 +1213,7 @@ namespace BetterHI3Launcher
                         if(actual_md5 != md5.ToUpper())
                         {
                             Status = LauncherStatus.Error;
-                            Log($"ERROR: Validation failed. Supposed MD5: {md5}, actual MD5: {actual_md5}");
+                            Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
                             Dispatcher.Invoke(() =>
                             {
                                 if(MessageBox.Show(textStrings["msgbox_verifyerror_2_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
@@ -1205,7 +1227,7 @@ namespace BetterHI3Launcher
                         }
                         else
                         {
-                            Log("Successfully validated");
+                            Log("success!", false);
                         }
                         if(abort)
                             return;
@@ -1219,7 +1241,7 @@ namespace BetterHI3Launcher
                                 }
                                 catch
                                 {
-                                    Log($"Delete ERROR: {file}");
+                                    Log($"WARNING: Failed to delete {file}", true, 2);
                                 }
                             }
                         }catch{}
@@ -1263,19 +1285,19 @@ namespace BetterHI3Launcher
                                 }
                             }
                         }
+                        if(skippedFiles.Count > 0)
+                        {
+                            throw new ArchiveException("Game archive is corrupt");
+                        }
+                        Log("success!", false);
                         try
                         {
                             File.Delete(GameArchivePath);
                         }
                         catch
                         {
-                            Log($"Delete ERROR: {GameArchivePath}");
+                            Log($"WARNING: Failed to delete {GameArchivePath}", true, 2);
                         }
-                        if(skippedFiles.Count > 0)
-                        {
-                            throw new ArchiveException("Game archive is corrupt");
-                        }
-                        Log("Successfully unpacked game archive");
                         Dispatcher.Invoke(() => 
                         {
                             WriteVersionInfo(false, true);
@@ -1289,7 +1311,7 @@ namespace BetterHI3Launcher
                 catch(Exception ex)
                 {
                     Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to install the game:\n{ex}");
+                    Log($"ERROR: Failed to install the game:\n{ex}", true, 1);
                     Dispatcher.Invoke(() =>
                     {
                         if(MessageBox.Show(textStrings["msgbox_installerror_msg"], textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
@@ -1302,7 +1324,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to download the game:\n{ex}");
+                Log($"ERROR: Failed to download the game:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_gamedownloaderror_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     GameUpdateCheck(false);
@@ -1342,11 +1364,12 @@ namespace BetterHI3Launcher
                 LauncherRegKey.SetValue(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(versionInfo)), RegistryValueKind.Binary);
                 LauncherRegKey.Close();
                 LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
+                Log("success!", false);
             }
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to access registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}", true, 1);
                 MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -1406,7 +1429,7 @@ namespace BetterHI3Launcher
                 catch(WebException ex)
                 {
                     Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to download cache from mirror:\n{ex}");
+                    Log($"ERROR: Failed to download cache from mirror:\n{ex}", true, 1);
                     MessageBox.Show(textStrings["msgbox_gamedownloadmirrorerror_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                     Status = LauncherStatus.Ready;
                     return;
@@ -1454,7 +1477,7 @@ namespace BetterHI3Launcher
                         if(actual_md5 != md5.ToUpper())
                         {
                             Status = LauncherStatus.Error;
-                            Log($"ERROR: Validation failed. Supposed MD5: {md5}, actual MD5: {actual_md5}");
+                            Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
                             Dispatcher.Invoke(() =>
                             {
                                 if(MessageBox.Show(textStrings["msgbox_verifyerror_2_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
@@ -1466,7 +1489,7 @@ namespace BetterHI3Launcher
                                     }
                                     catch
                                     {
-                                        Log($"Delete ERROR: {CacheArchivePath}");
+                                        Log($"WARNING: Failed to delete {CacheArchivePath}", true, 2);
                                     }
                                     abort = true;
                                     GameUpdateCheck(false);
@@ -1475,7 +1498,7 @@ namespace BetterHI3Launcher
                         }
                         else
                         {
-                            Log("Successfully validated");
+                            Log("success!", false);
                         }
                         if(abort)
                             return;
@@ -1489,7 +1512,7 @@ namespace BetterHI3Launcher
                                 }
                                 catch
                                 {
-                                    Log($"Delete ERROR: {file}");
+                                    Log($"WARNING: Failed to delete {file}", true, 2);
                                 }
                             }
                         }catch{}
@@ -1534,6 +1557,11 @@ namespace BetterHI3Launcher
                                 }
                             }
                         }
+                        if(skippedFiles.Count > 0)
+                        {
+                            throw new ArchiveException("Cache archive is corrupt");
+                        }
+                        Log("success!", false);
                         try
                         {
                             if(File.Exists(CacheArchivePath))
@@ -1541,27 +1569,22 @@ namespace BetterHI3Launcher
                         }
                         catch
                         {
-                            Log($"Delete ERROR: {CacheArchivePath}");
+                            Log($"WARNING: Failed to delete {CacheArchivePath}", true, 2);
                         }
-                        if(skippedFiles.Count > 0)
-                        {
-                            throw new ArchiveException("Cache archive is corrupt");
-                        }
-                        Log("Successfully unpacked game cache");
                         SendStatistics(title, time);
                     });
                 }
                 catch(Exception ex)
                 {
                     Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to install game cache:\n{ex}");
+                    Log($"ERROR: Failed to install game cache:\n{ex}", true, 1);
                     MessageBox.Show(textStrings["msgbox_installerror_msg"], textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to download game cache:\n{ex}");
+                Log($"ERROR: Failed to download game cache:\n{ex}", true, 1);
                 MessageBox.Show(textStrings["msgbox_gamedownloaderror_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
             Dispatcher.Invoke(() => {LaunchButton.Content = textStrings["button_launch"];});
@@ -1593,14 +1616,14 @@ namespace BetterHI3Launcher
                         var json = JsonConvert.DeserializeObject<dynamic>(responseData);
                         if(json.status != "success")
                         {
-                            Log($"ERROR: Failed to send download stat of {file}");
+                            Log($"WARNING: Failed to send download stat of {file}", true, 2);
                         }
                     }
                 }
             }
             catch
             {
-                Log($"ERROR: Failed to send download stat of {file}");
+                Log($"WARNING: Failed to send download stat of {file}", true, 2);
             }
         }
 
@@ -1633,7 +1656,7 @@ namespace BetterHI3Launcher
 
                         if(needsUpdate)
                         {
-                            Log("There's a newer version of the launcher, attempting to download...");
+                            Log("There's a newer version of the launcher, downloading...");
                             Status = LauncherStatus.Working;
                             Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_updating_launcher"];});
                             DownloadLauncherUpdate();
@@ -1642,7 +1665,7 @@ namespace BetterHI3Launcher
                             if(actual_md5 != md5)
                             {
                                 Status = LauncherStatus.Error;
-                                Log($"ERROR: Validation failed. Supposed MD5: {md5}, actual MD5: {actual_md5}");
+                                Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
                                 if(File.Exists(LauncherArchivePath))
                                 {
                                     File.Delete(LauncherArchivePath);
@@ -1702,17 +1725,21 @@ namespace BetterHI3Launcher
             {
                 ChangelogBox.Visibility = Visibility.Visible;
                 ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
-                ChangelogBoxScrollViewer.Height = 305;
+                ChangelogBoxScrollViewer.Height -= 20;
             }
             try
             {
                 if(LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != LocalLauncherVersion.ToString())
                     LauncherRegKey.SetValue("LauncherVersion", LocalLauncherVersion);
+                if(LauncherRegKey.GetValue("RanOnce") != null)
+                    LauncherRegKey.DeleteValue("RanOnce");
+                if(LauncherRegKey.GetValue("BackgroundImageName") != null)
+                    LauncherRegKey.DeleteValue("BackgroundImageName");
             }
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to write critical registry info:\n{ex}");
+                Log($"ERROR: Failed to write critical registry info:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Application.Current.Shutdown();
@@ -1785,7 +1812,7 @@ namespace BetterHI3Launcher
                     catch(Exception ex)
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Failed to start the game:\n{ex}");
+                        Log($"ERROR: Failed to start the game:\n{ex}", true, 1);
                         MessageBox.Show(textStrings["msgbox_process_start_error_msg"], textStrings["msgbox_starterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                         Status = LauncherStatus.Ready;
                     }
@@ -1845,7 +1872,7 @@ namespace BetterHI3Launcher
                                         else
                                         {
                                             Status = LauncherStatus.Error;
-                                            Log($"ERROR: Directory {GameInstallPath} doesn't contain a valid installation of the game. This launcher supports only Global and SEA clients!");
+                                            Log($"ERROR: Directory {GameInstallPath} doesn't contain a valid installation of the game. This launcher only supports Global and SEA clients.", true, 1);
                                             if(MessageBox.Show(string.Format(textStrings["msgbox_installexistinginvalid_msg"]), textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                                             {
                                                 Status = LauncherStatus.Ready;
@@ -1884,7 +1911,7 @@ namespace BetterHI3Launcher
                     catch(Exception ex)
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Failed to select game install directory:\n{ex}");
+                        Log($"ERROR: Failed to select game install directory:\n{ex}", true, 1);
                         MessageBox.Show(string.Format(textStrings["msgbox_installdirerror_msg"], ex), textStrings["msgbox_installdirerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                         Status = LauncherStatus.Ready;
                         return;
@@ -1979,7 +2006,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to fetch cache metadata:\n{ex}");
+                Log($"ERROR: Failed to fetch cache metadata:\n{ex}", true, 1);
                 Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_mirror_error_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                 Status = LauncherStatus.Ready;
                 return;
@@ -2010,6 +2037,7 @@ namespace BetterHI3Launcher
                 else
                     last_updated = DateTime.Parse(time).ToLocalTime().ToString();
                 DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+                Log("success!", false);
                 Status = LauncherStatus.Ready;
             });
         }
@@ -2046,14 +2074,16 @@ namespace BetterHI3Launcher
                 else
                 {
                     Status = LauncherStatus.Error;
+                    Log($"ERROR: Failed to fetch repair data: {OnlineRepairInfo.status_message}", true, 1);
                     MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], OnlineRepairInfo.status_message), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                     Status = LauncherStatus.Ready;
+                    return;
                 }
             }
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to fetch repair data:\n{ex}");
+                Log($"ERROR: Failed to fetch repair data:\n{ex}", true, 1);
                 Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_neterror_msg"], ex), textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                 Status = LauncherStatus.Ready;
                 return;
@@ -2061,9 +2091,8 @@ namespace BetterHI3Launcher
             Dispatcher.Invoke(() =>
             {
                 RepairBox.Visibility = Visibility.Visible;
-                string mirror;
-                mirror = "MediaFire"; // the only mirror for now
-                RepairBoxMessageTextBlock.Text = string.Format(textStrings["repairbox_msg"], mirror, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+                RepairBoxMessageTextBlock.Text = string.Format(textStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+                Log("success!", false);
                 Status = LauncherStatus.Ready;
             });
         }
@@ -2145,7 +2174,7 @@ namespace BetterHI3Launcher
                                     foreach(string dir in dirs)
                                     {
                                         string name = dir.Replace(GameInstallPath, string.Empty);
-                                        string dest = $@"{path}{name}";
+                                        string dest = $"{path}{name}";
                                         new DirectoryInfo(dir).Attributes &= ~FileAttributes.ReadOnly;
                                         Directory.CreateDirectory(dest);
                                         Directory.SetCreationTime(dest, Directory.GetCreationTime(dir));
@@ -2167,7 +2196,7 @@ namespace BetterHI3Launcher
                                     }
                                     catch
                                     {
-                                        Log($"Failed to delete old game directory, you may want to do it manually: {GameInstallPath}");
+                                        Log($"WARNING: Failed to delete old game directory, you may want to do it manually: {GameInstallPath}", true, 2);
                                     }
                                 }
                                 GameInstallPath = path;
@@ -2178,7 +2207,7 @@ namespace BetterHI3Launcher
                             catch(Exception ex)
                             {
                                 Status = LauncherStatus.Error;
-                                Log($"ERROR: Failed to move the game:\n{ex}");
+                                Log($"ERROR: Failed to move the game:\n{ex}", true, 1);
                                 Dispatcher.Invoke(() => {MessageBox.Show(textStrings["msgbox_genericerror_msg"], textStrings["msgbox_move_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                                 Status = LauncherStatus.Ready;
                                 return;
@@ -2236,7 +2265,7 @@ namespace BetterHI3Launcher
                     catch(Exception ex)
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Failed to uninstall the game:\n{ex}");
+                        Log($"ERROR: Failed to uninstall the game:\n{ex}", true, 1);
                         Dispatcher.Invoke(() => {MessageBox.Show(string.Format(textStrings["msgbox_uninstallerror_msg"], ex), textStrings["msgbox_uninstallerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);});
                         Status = LauncherStatus.Ready;
                         return;
@@ -2280,7 +2309,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to access registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -2342,16 +2371,16 @@ namespace BetterHI3Launcher
                                         catch
                                         {
                                             unpack_ok = false;
-                                            skippedFiles.Add($"[{Path.GetFileName(SubtitleArchive)}] {reader.Entry}");
+                                            skippedFiles.Add($"{reader.Entry} ({Path.GetFileName(SubtitleArchive)})");
                                             skippedFilePaths.Add(SubtitleArchive);
-                                            Log($"Unpack ERROR: [{SubtitleArchive}] {reader.Entry}");
+                                            Log($"ERROR: Failed to unpack {SubtitleArchive} ({reader.Entry})", true, 1);
                                             if(reader.Entry.ToString() == "CG_09_mux_1_en.srt")
                                                 Log("The above one line of error is normal, miHoYo somehow messed up the file");
                                         }
                                     }
                                 }
                                 if(unpack_ok)
-                                    Log($"Unpack OK: {SubtitleArchive}");
+                                    Log($"Unpacked {SubtitleArchive}");
                                 File.SetAttributes(SubtitleArchive, File.GetAttributes(SubtitleArchive) & ~FileAttributes.ReadOnly);
                                 if(!skippedFilePaths.Contains(SubtitleArchive))
                                 {
@@ -2361,7 +2390,7 @@ namespace BetterHI3Launcher
                                     }
                                     catch
                                     {
-                                        Log($"Delete ERROR: {SubtitleArchive}");
+                                        Log($"WARNING: Failed to delete {SubtitleArchive}", true, 2);
                                     }
                                 }
                                 filesUnpacked++;
@@ -2508,7 +2537,7 @@ namespace BetterHI3Launcher
                                     }
                                     catch
                                     {
-                                        Log($"Delete ERROR: {SubtitleFile}");
+                                        Log($"WARNING: Failed to delete {SubtitleFile}", true, 2);
                                     }
                                 }
                             });
@@ -2531,7 +2560,7 @@ namespace BetterHI3Launcher
                 else
                 {
                     Status = LauncherStatus.Error;
-                    Log("ERROR: No CG directory!");
+                    Log("ERROR: No CG directory!", true, 1);
                     MessageBox.Show(string.Format(textStrings["msgbox_novideodir_msg"]), textStrings["msgbox_genericerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 Status = LauncherStatus.Ready;
@@ -2539,7 +2568,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR:\n{ex}");
+                Log($"ERROR:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_genericerror_msg"], textStrings["msgbox_genericerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -2586,7 +2615,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to access registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -2639,7 +2668,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to access registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -2664,7 +2693,7 @@ namespace BetterHI3Launcher
                 RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
                 if(key == null)
                 {
-                    Log("ERROR: No game registry key!");
+                    Log("ERROR: No game registry key!", true, 1);
                     MessageBox.Show($"{textStrings["msgbox_registryempty_1_msg"]}\n{textStrings["msgbox_registryempty_2_msg"]}", textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -2676,7 +2705,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to access registry:\n{ex}");
+                Log($"ERROR: Failed to access registry:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -2718,7 +2747,7 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
-                    Log($"Delete ERROR: {GameArchivePath}");
+                    Log($"WARNING: Failed to delete {GameArchivePath}", true, 2);
                 }
                 try
                 {
@@ -2727,7 +2756,7 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
-                    Log($"Delete ERROR: {CacheArchivePath}");
+                    Log($"WARNING: Failed to delete {CacheArchivePath}", true, 2);
                 }
             }
 
@@ -2761,9 +2790,13 @@ namespace BetterHI3Launcher
                 {
                     LauncherLanguage = "vi";
                 }
+                else if(lang == textStrings["contextmenu_language_serbian"])
+                {
+                    LauncherLanguage = "sr";
+                }
                 else
                 {
-                    Log($"ERROR: Translation for {lang} doesn't exist");
+                    Log($"ERROR: Translation for {lang} doesn't exist", true, 1);
                     return;
                 }
                 if(lang != textStrings["contextmenu_language_system"])
@@ -2786,7 +2819,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to set language:\n{ex}");
+                Log($"ERROR: Failed to set language:\n{ex}", true, 1);
                 Status = LauncherStatus.Ready;
             }
         }
@@ -2815,7 +2848,7 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
-                    Log($"Delete ERROR: {GameArchivePath}");
+                    Log($"WARNING: Failed to delete {GameArchivePath}", true, 2);
                 }
                 download = null;
                 DownloadPaused = false;
@@ -2836,7 +2869,7 @@ namespace BetterHI3Launcher
             }
             catch(Exception ex)
             {
-                Log($"ERROR: Failed to write value with key LastSelectedServer to registry:\n{ex}");
+                Log($"ERROR: Failed to write value with key LastSelectedServer to registry:\n{ex}", true, 1);
             }
             Log($"Switched server to {((ComboBoxItem)ServerDropdown.SelectedItem).Content as string}");
             GameUpdateCheck(true);
@@ -2861,7 +2894,7 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
-                    Log($"Delete ERROR: {GameArchivePath}");
+                    Log($"WARNING: Failed to delete {GameArchivePath}", true, 2);
                 }
                 download = null;
                 DownloadPaused = false;
@@ -2893,7 +2926,7 @@ namespace BetterHI3Launcher
             }
             catch(Exception ex)
             {
-                Log($"ERROR: Failed to write value with key LastSelectedMirror to registry:\n{ex}");
+                Log($"ERROR: Failed to write value with key LastSelectedMirror to registry:\n{ex}", true, 1);
             }
             GameUpdateCheck(false);
             Log($"Selected mirror: {((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string}");
@@ -2963,7 +2996,7 @@ namespace BetterHI3Launcher
                     var corruptedFileHashes = new List<string>();
                     long corruptedFilesTotalSize = 0;
 
-                    Log("Starting game repair...");
+                    Log("Verifying game files...");
                     await Task.Run(() =>
                     {
                         for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
@@ -3054,11 +3087,11 @@ namespace BetterHI3Launcher
                                             Dispatcher.Invoke(() => {ProgressText.Text = string.Format(textStrings["progresstext_verifying_file"], i + 1, corruptedFiles.Count);});
                                             if(!File.Exists(path) || BpUtility.CalculateMD5(path) != corruptedFileHashes[i])
                                             {
-                                                Log($"File repair ERROR: {corruptedFiles[i]}");
+                                                Log($"ERROR: Failed to repair file {corruptedFiles[i]}", true, 1);
                                             }
                                             else
                                             {
-                                                Log($"File repair OK: {corruptedFiles[i]}");
+                                                Log($"Repaired file {corruptedFiles[i]}");
                                                 repairedFiles++;
                                             }
                                         }
@@ -3067,7 +3100,7 @@ namespace BetterHI3Launcher
                                             if(j == urls.Length - 1)
                                             {
                                                 Status = LauncherStatus.Error;
-                                                Log($"File download ERROR [{corruptedFiles[i]}] ({url}): {ex.Message}\nNo more URLs available!");
+                                                Log($"ERROR: Failed to download file [{corruptedFiles[i]}] ({url}): {ex.Message}\nNo more mirrors available!", true, 1);
                                                 Dispatcher.Invoke(() =>
                                                 {
                                                     MessageBox.Show(textStrings["msgbox_genericerror_msg"], textStrings["msgbox_genericerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
@@ -3079,7 +3112,7 @@ namespace BetterHI3Launcher
                                             }
                                             else
                                             {
-                                                Log($"File download ERROR [{corruptedFiles[i]}] ({url}): {ex.Message}\nAttempting to download from next URL...");
+                                                Log($"WARNING: Failed to download file [{corruptedFiles[i]}] ({url}): {ex.Message}\nAttempting to download from another mirror...", true, 2);
                                             }
                                         }
                                     }
@@ -3117,7 +3150,7 @@ namespace BetterHI3Launcher
                     }
                     else
                     {
-                        Log($"Finished verifying files, all files OK");
+                        Log($"Finished verifying files, no files need repair");
                         Dispatcher.Invoke(() =>
                         {
                             ProgressText.Text = string.Empty;
@@ -3139,7 +3172,7 @@ namespace BetterHI3Launcher
             {
                 LaunchButton.Content = textStrings["button_launch"];
                 Status = LauncherStatus.Error;
-                Log($"ERROR:\n{ex}");
+                Log($"ERROR:\n{ex}", true, 1);
                 MessageBox.Show(textStrings["msgbox_genericerror_msg"], textStrings["msgbox_genericerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
                 Status = LauncherStatus.Ready;
             }
@@ -3167,28 +3200,27 @@ namespace BetterHI3Launcher
                 {
                     try
                     {
+                        Status = LauncherStatus.Working;
+                        ProgressBar.IsIndeterminate = false;
+                        TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+                        Log("Generating game file hashes...");
+                        var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && x.Name != "config.ini" && x.Name != "Version.txt" && x.Name != "UniFairy.sys" && !x.Name.Contains("Blocks_") && !x.Name.Contains("AUDIO_DLC") && !x.Name.Contains("AUDIO_EVENT") && !x.DirectoryName.Contains("Video") && !x.DirectoryName.Contains("webCaches") && x.Extension != ".log").ToList();
+                        dynamic json = new ExpandoObject();
+                        json.repair_info = new ExpandoObject();
+                        json.repair_info.game_version = miHoYoVersionInfo.cur_version;
+                        json.repair_info.mirrors = string.Empty;
+                        json.repair_info.zip_urls = Array.Empty<string>();
+                        json.repair_info.files = new ExpandoObject();
+                        json.repair_info.files.names = new dynamic[files.Count];
+                        json.repair_info.files.hashes = new dynamic[files.Count];
+                        json.repair_info.files.sizes = new dynamic[files.Count];
                         await Task.Run(() =>
                         {
-                            Status = LauncherStatus.Working;
-                            Dispatcher.Invoke(() =>
-                            {
-                                ProgressBar.IsIndeterminate = false;
-                                TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-                            });
-                            Log("Generating game file hashes...");
-                            var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && x.Name != "config.ini" && x.Name != "Version.txt" && x.Name != "UniFairy.sys" && !x.Name.Contains("Blocks_") && !x.Name.Contains("AUDIO_DLC") && !x.Name.Contains("AUDIO_EVENT") && !x.DirectoryName.Contains("Video") && !x.DirectoryName.Contains("blob_storage") && !x.DirectoryName.Contains("GPUCache") && x.Extension != ".log").ToList();
-                            dynamic json = new ExpandoObject();
-                            json.game_version = miHoYoVersionInfo.cur_version;
-                            json.zip_urls = Array.Empty<string>();
-                            json.files = new ExpandoObject();
-                            json.files.names = new dynamic[files.Count];
-                            json.files.hashes = new dynamic[files.Count];
-                            json.files.sizes = new dynamic[files.Count];
                             for(int i = 0; i < files.Count; i++)
                             {
-                                json.files.names[i] = files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty).Replace(@"\", "/");
-                                json.files.hashes[i] = BpUtility.CalculateMD5(files[i].FullName);
-                                json.files.sizes[i] = files[i].Length;
+                                json.repair_info.files.names[i] = files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty).Replace(@"\", "/");
+                                json.repair_info.files.hashes[i] = BpUtility.CalculateMD5(files[i].FullName);
+                                json.repair_info.files.sizes[i] = files[i].Length;
                                 Dispatcher.Invoke(() =>
                                 {
                                     ProgressText.Text = string.Format(textStrings["progresstext_generating_hash"], i + 1, files.Count);
@@ -3199,32 +3231,41 @@ namespace BetterHI3Launcher
                             }
                             File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
                             Log($"Saved JSON: {dialog.FileName}");
-                            Log("Creating ZIP file...");
-                            var zipName = dialog.FileName.Replace(".json", ".zip");
-                            if(File.Exists(zipName))
-                                File.Delete(zipName);
-                            using(var archive = ZipFile.Open(zipName, ZipArchiveMode.Create))
-                            {
-                                for(int i = 0; i < files.Count; i++)
-                                {
-                                    archive.CreateEntryFromFile(files[i].FullName, files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty));
-                                    Dispatcher.Invoke(() =>
-                                    {
-                                        ProgressText.Text = string.Format(textStrings["progresstext_zipping"], i + 1, files.Count);
-                                        var progress = (i + 1f) / files.Count;
-                                        ProgressBar.Value = progress;
-                                        TaskbarItemInfo.ProgressValue = progress;
-                                    });
-                                }
-                            }
-                            Log($"Saved ZIP: {zipName}");
-                            Status = LauncherStatus.Ready;
                         });
+                        ProgressText.Text = string.Empty;
+                        ProgressBar.Visibility = Visibility.Hidden;
+                        TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+                        if(MessageBox.Show(textStrings["msgbox_repair_7_msg"], textStrings["contextmenu_repair"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                        {
+                            await Task.Run(() =>
+                            {
+                                Log("Creating ZIP file...");
+                                var zipName = dialog.FileName.Replace(".json", ".zip");
+                                if(File.Exists(zipName))
+                                    File.Delete(zipName);
+                                using(var archive = ZipFile.Open(zipName, ZipArchiveMode.Create))
+                                {
+                                    for(int i = 0; i < files.Count; i++)
+                                    {
+                                        archive.CreateEntryFromFile(files[i].FullName, files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty));
+                                        Dispatcher.Invoke(() =>
+                                        {
+                                            ProgressText.Text = string.Format(textStrings["progresstext_zipping"], i + 1, files.Count);
+                                            var progress = (i + 1f) / files.Count;
+                                            ProgressBar.Value = progress;
+                                            TaskbarItemInfo.ProgressValue = progress;
+                                        });
+                                    }
+                                }
+                                Log($"Saved ZIP: {zipName}");
+                            });
+                        }
+                        Status = LauncherStatus.Ready;
                     }
                     catch(Exception ex)
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR:\n{ex}");
+                        Log($"ERROR:\n{ex}", true, 1);
                         Status = LauncherStatus.Ready;
                     }
                 }
@@ -3276,7 +3317,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR:\n{ex}");
+                Log($"ERROR:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_genericerror_msg"], textStrings["msgbox_genericerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -3339,7 +3380,7 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR:\n{ex}");
+                Log($"ERROR:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_genericerror_msg"], textStrings["msgbox_genericerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
                     Status = LauncherStatus.Ready;
@@ -3369,7 +3410,7 @@ namespace BetterHI3Launcher
             }
             catch(Exception ex)
             {
-                Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}");
+                Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}", true, 1);
             }
         }
 
@@ -3382,7 +3423,7 @@ namespace BetterHI3Launcher
             }
             catch(Exception ex)
             {
-                Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}");
+                Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}", true, 1);
             }
         }
 
@@ -3415,7 +3456,7 @@ namespace BetterHI3Launcher
                             }
                             catch
                             {
-                                Log($"Delete ERROR: {GameArchivePath}");
+                                Log($"WARNING: Failed to delete {GameArchivePath}", true, 2);
                             }
                             try
                             {
@@ -3424,7 +3465,7 @@ namespace BetterHI3Launcher
                             }
                             catch
                             {
-                                Log($"Delete ERROR: {CacheArchivePath}");
+                                Log($"WARNING: Failed to delete {CacheArchivePath}", true, 2);
                             }
                         }
                         else
@@ -3448,7 +3489,7 @@ namespace BetterHI3Launcher
                 catch(Exception ex)
                 {
                     Status = LauncherStatus.Error;
-                    Log($"ERROR: Failed to install the game:\n{ex}");
+                    Log($"ERROR: Failed to install the game:\n{ex}", true, 1);
                     if(MessageBox.Show(textStrings["msgbox_installerror_msg"], textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         return;
@@ -3568,6 +3609,10 @@ namespace BetterHI3Launcher
                     LauncherLanguage = lang;
                     TextStrings_Russian();
                     break;
+                case "sr":
+                    LauncherLanguage = lang;
+                    TextStrings_Serbian();
+                    break;
                 case "vi":
                     LauncherLanguage = lang;
                     TextStrings_Vietnamese();
@@ -3581,39 +3626,87 @@ namespace BetterHI3Launcher
             {
                 var IntroBoxGrid = VisualTreeHelper.GetChild(IntroBox, 1) as Grid;
                 var AboutBoxGrid = VisualTreeHelper.GetChild(AboutBox, 1) as Grid;
-                IntroBoxMessageTextBlock.Height = 155;
-                DownloadCacheBoxMessageTextBlock.Height = 123;
+                IntroBoxMessageTextBlock.Height -= 5;
+                RepairBoxTitleTextBlock.Height -= 5;
+                DownloadCacheBoxMessageTextBlock.Height -= 5;
                 Resources["Font"] = new FontFamily("Segoe UI Bold");
                 if(LauncherLanguage == "de")
                 {
-                    IntroBoxGrid.Height = 290;
-                    IntroBoxMessageTextBlock.Height = 195;
-                    AboutBoxGrid.Height = 290;
-                    AboutBoxMessageTextBlock.Height = 190;
+                    IntroBoxGrid.Height += 40;
+                    IntroBoxMessageTextBlock.Height += 40;
+                    AboutBoxGrid.Height += 10;
+                    AboutBoxMessageTextBlock.Height += 5;
                 }
-                else if(LauncherLanguage == "es" || LauncherLanguage == "pt" || LauncherLanguage == "vi")
+                else if(LauncherLanguage == "es" || LauncherLanguage == "pt" || LauncherLanguage == "sr" || LauncherLanguage == "vi")
                 {
-                    AboutBoxGrid.Height = 295;
-                    AboutBoxMessageTextBlock.Height = 195;
+                    RepairBoxMessageTextBlock.Height -= 5;
+                    AboutBoxGrid.Height += 10;
                 }
                 else if(LauncherLanguage == "ru")
                 {
-                    AboutBoxMessageTextBlock.Height = 180;
+                    RepairBoxMessageTextBlock.Height -= 5;
+                    AboutBoxMessageTextBlock.Height -= 10;
                 }
             }
         }
 
-        public void Log(string msg)
+        public void Log(string msg, bool newline = true, int type = 0)
         {
             if(string.IsNullOrEmpty(msg))
                 return;
 
+            Color color;
             #if DEBUG
-                Console.WriteLine(msg);
+                ConsoleColor ccolor;
+            #endif
+            switch(type)
+            {
+                case 1:
+                    color = Colors.Red;
+                    #if DEBUG
+                        ccolor = ConsoleColor.Red;
+                    #endif
+                    break;
+                case 2:
+                    color = Colors.Yellow;
+                     #if DEBUG
+                        ccolor = ConsoleColor.Yellow;
+                    #endif
+                    break;
+                default:
+                    color = Colors.White;
+                     #if DEBUG
+                        ccolor = ConsoleColor.Gray;
+                    #endif
+                    break;
+            }
+            #if DEBUG
+                Console.ForegroundColor = ccolor;
+                if(newline)
+                    Console.Write('\n' + msg);
+                else
+                    Console.Write(msg);
             #endif
             Dispatcher.Invoke(() =>
             {
-                LogBoxTextBox.AppendText(msg + Environment.NewLine);
+                if(newline)
+                {
+                    var brush = new SolidColorBrush(color);
+                    var run = new Run()
+                    {
+                        Text = msg,
+                        Foreground = brush
+                    };
+                    var para = new Paragraph(run)
+                    {
+                        Margin = new Thickness(0)
+                    };
+                    LogBoxRichTextBox.Document.Blocks.Add(para);
+                }
+                else
+                {
+                    LogBoxRichTextBox.AppendText(msg);
+                }
                 LogBoxScrollViewer.ScrollToEnd();
             });
         }
