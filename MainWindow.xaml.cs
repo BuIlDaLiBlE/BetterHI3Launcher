@@ -661,9 +661,9 @@ namespace BetterHI3Launcher
                     else
                         changelog = webClient.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.en.ToString());
                 }
-                catch(Exception ex)
+                catch
                 {
-                    changelog = $"{textStrings["changelogbox_3_msg"]}\n{ex}";
+                    changelog = textStrings["changelogbox_3_msg"];
                 }
                 Dispatcher.Invoke(() => {ChangelogBoxTextBox.Text = changelog;});
             });
@@ -1665,7 +1665,7 @@ namespace BetterHI3Launcher
                             var reader = archive.ExtractAllEntries();
                             while(reader.MoveToNextEntry())
                             {
-                                reader.WriteEntryToDirectory(RootPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true});
+                                reader.WriteEntryToDirectory(RootPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
                             }
                         }
                         Log("success!", false);
@@ -1707,7 +1707,7 @@ namespace BetterHI3Launcher
             }
             try
             {
-                if(LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != LocalLauncherVersion.ToString())
+                if(LauncherRegKey.GetValue("LauncherVersion") == null || LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != LocalLauncherVersion.ToString())
                     LauncherRegKey.SetValue("LauncherVersion", LocalLauncherVersion);
                 // legacy values
                 if(LauncherRegKey.GetValue("RanOnce") != null)
@@ -3375,9 +3375,9 @@ namespace BetterHI3Launcher
 
         private void ChangelogBoxCloseButton_Click(object sender, RoutedEventArgs e)
         {
+            ChangelogBox.Visibility = Visibility.Collapsed;
             ChangelogBoxMessageTextBlock.Visibility = Visibility.Collapsed;
             ChangelogBoxScrollViewer.Height = 325;
-            ChangelogBox.Visibility = Visibility.Collapsed;
         }
 
         private void ShowLogCheckBox_Checked(object sender, RoutedEventArgs e)
