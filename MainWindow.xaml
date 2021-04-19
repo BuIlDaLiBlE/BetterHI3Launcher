@@ -30,6 +30,9 @@
         <ImageBrush x:Key="MinimizeButton" ImageSource="/Assets/Images/Button_Minimize.png"/>
         <ImageBrush x:Key="MinimizeButtonPressed" ImageSource="/Assets/Images/Button_Minimize_Pressed.png"/>
         <ImageBrush x:Key="MinimizeButtonHighlighted" ImageSource="/Assets/Images/Button_Minimize_Highlighted.png"/>
+        <ImageBrush x:Key="BoxCloseButton" ImageSource="/Assets/Images/Button_Box_Close.png"/>
+        <ImageBrush x:Key="BoxCloseButtonPressed" ImageSource="/Assets/Images/Button_Box_Close_Pressed.png"/>
+        <ImageBrush x:Key="BoxCloseButtonHighlighted" ImageSource="/Assets/Images/Button_Box_Close_Highlighted.png"/>
         <Style x:Key="FocusVisual">
             <Setter Property="Control.Template">
                 <Setter.Value>
@@ -54,8 +57,6 @@
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="#313131"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -85,8 +86,6 @@
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="#7FA9A9A9"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -115,8 +114,6 @@
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="#7FA9A9A9"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -141,14 +138,14 @@
         </Style>
         <Style x:Key="BoxCloseButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
-            <Setter Property="Background" Value="{StaticResource CloseButton}"/>
+            <Setter Property="Background" Value="{StaticResource BoxCloseButton}"/>
             <Setter Property="BorderBrush" Value="{x:Null}"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Foreground" Value="#7FA9A9A9"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="1"/>
-            <Setter Property="Content" Value="⨉"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -160,19 +157,22 @@
                                 <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#C8222222"/>
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource BoxCloseButtonHighlighted}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="true">
-                                <Setter Property="Background" TargetName="border" Value="#55000000"/>
-                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="DimGray"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="Gray"/>
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource BoxCloseButtonPressed}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style x:Key="WhiteButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="3,1,3,1"/>
+            <Setter Property="FontFamily" Value="{DynamicResource Font}"/>
+            <Setter Property="FontSize" Value="18"/>
         </Style>
     </Window.Resources>
     <Border Name="Border">
@@ -205,7 +205,7 @@
                     <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
             </TextBlock>
-            <ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" SelectedIndex="0" SelectionChanged="ServerDropdown_Changed">
+            <ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" SelectionChanged="ServerDropdown_Changed">
                 <ComboBoxItem Content="Global"></ComboBoxItem>
                 <ComboBoxItem Content="SEA"></ComboBoxItem>
             </ComboBox>
@@ -214,13 +214,13 @@
                     <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
             </TextBlock>
-            <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" SelectedIndex="0" SelectionChanged="MirrorDropdown_Changed">
+            <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" SelectionChanged="MirrorDropdown_Changed">
                 <ComboBoxItem Content="miHoYo"></ComboBoxItem>
                 <ComboBoxItem Content="MediaFire"></ComboBoxItem>
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
             <StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
+                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" FocusVisualStyle="{StaticResource FocusVisual}" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
                     <CheckBox.LayoutTransform>
                         <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
                     </CheckBox.LayoutTransform>
@@ -235,7 +235,7 @@
                 <Border BorderBrush="Black" Background="Transparent">
                     <StackPanel>
                         <ScrollViewer Name="LogBoxScrollViewer" Width="{Binding Path=ActualWidth, ElementName=LogBox, Mode=OneWay}" Height="{Binding Path=ActualHeight, ElementName=LogBox, Mode=OneWay}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <RichTextBox Name="LogBoxRichTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#C8000000" Foreground="White" FontFamily="Consolas" IsReadOnly="True">
+                            <RichTextBox Name="LogBoxRichTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#C8000000" Foreground="White" FontFamily="Consolas" FocusVisualStyle="{StaticResource FocusVisual}" IsReadOnly="True">
                                 <RichTextBox.Resources>
                                     <Style TargetType="{x:Type Paragraph}">
                                         <Setter Property="Margin" Value="0"/>
@@ -255,12 +255,12 @@
                             <TextBlock Name="IntroBoxImportantMessageTextBlock" Margin="150,0,25,0" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
                             <TextBlock Name="IntroBoxMessageTextBlock" Margin="150,0,22,5" Height="160" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="IntroBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="IntroBoxCloseButton_Click"/>
+                                <Button Name="IntroBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="IntroBoxCloseButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
                     <Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
-                    <Button Name="IntroBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="IntroBoxCloseButton_Click"/>
+                    <Button Name="IntroBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="IntroBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="DownloadCacheBox" Visibility="Collapsed">
@@ -271,13 +271,13 @@
                             <TextBlock Name="DownloadCacheBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" Height="128" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="DownloadCacheBoxFullCacheButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxFullCacheButton_Click"/>
-                                <Button Name="DownloadCacheBoxNumericFilesButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxNumericFilesButton_Click"/>
-                                <Button Name="DownloadCacheBoxCancelButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="DownloadCacheBoxCloseButton_Click"/>
+                                <Button Name="DownloadCacheBoxFullCacheButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxFullCacheButton_Click"/>
+                                <Button Name="DownloadCacheBoxNumericFilesButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxNumericFilesButton_Click"/>
+                                <Button Name="DownloadCacheBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="DownloadCacheBoxCloseButton_Click"/>
+                    <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="RepairBox" Visibility="Collapsed">
@@ -288,13 +288,13 @@
                             <TextBlock Name="RepairBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <TextBlock Name="RepairBoxMessageTextBlock" Margin="22,0,22,5" Height="128" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="RepairBoxYesButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="RepairBoxYesButton_Click"/>
-                                <Button Name="RepairBoxNoButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="RepairBoxCloseButton_Click"/>
-                                <Button Name="RepairBoxGenerateButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="RepairBoxGenerateButton_Click"/>
+                                <Button Name="RepairBoxYesButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxYesButton_Click"/>
+                                <Button Name="RepairBoxNoButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxCloseButton_Click"/>
+                                <Button Name="RepairBoxGenerateButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxGenerateButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="RepairBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="RepairBoxCloseButton_Click"/>
+                    <Button Name="RepairBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="RepairBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="FPSInputBox" Visibility="Collapsed">
@@ -312,12 +312,12 @@
                                 <TextBox Name="MenuFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
                             </DockPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="FPSInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="FPSInputBoxOKButton_Click"/>
-                                <Button Name="FPSInputBoxCancelButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="FPSInputBoxCancelButton_Click"/>
+                                <Button Name="FPSInputBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="FPSInputBoxOKButton_Click"/>
+                                <Button Name="FPSInputBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="FPSInputBoxCancelButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="FPSInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="FPSInputBoxCancelButton_Click"/>
+                    <Button Name="FPSInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="FPSInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="ResolutionInputBox" Visibility="Collapsed">
@@ -339,17 +339,17 @@
                                 <CheckBox Name="ResolutionInputBoxFullscreenCheckbox" Margin="25,5,25,0" HorizontalAlignment="Right"/>
                             </DockPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="ResolutionInputBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="ResolutionInputBoxOKButton_Click"/>
-                                <Button Name="ResolutionInputBoxCancelButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="ResolutionInputBoxCancelButton_Click"/>
+                                <Button Name="ResolutionInputBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="ResolutionInputBoxOKButton_Click"/>
+                                <Button Name="ResolutionInputBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="ResolutionInputBoxCancelButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="ResolutionInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="ResolutionInputBoxCancelButton_Click"/>
+                    <Button Name="ResolutionInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="ResolutionInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="ChangelogBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="844" Height="395">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="844" Height="390">
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="ChangelogBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
@@ -358,11 +358,11 @@
                                 <TextBox Name="ChangelogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#19000000" FontFamily="Consolas" IsReadOnly="True" TextWrapping="Wrap"/>
                             </ScrollViewer>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="ChangelogBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="ChangelogBoxCloseButton_Click"/>
+                                <Button Name="ChangelogBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="ChangelogBoxCloseButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-                    <Button Name="ChangelogBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="ChangelogBoxCloseButton_Click"/>
+                    <Button Name="ChangelogBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="ChangelogBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
             <Grid Name="AboutBox" Visibility="Collapsed">
@@ -374,13 +374,13 @@
                             <TextBlock Margin="150,0,25,0" Text="Better Honkai Impact 3rd Launcher" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
                             <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="210" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="AboutBoxGitHubButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxGitHubButton_Click"/>
-                                <Button Name="AboutBoxOKButton" Margin="5" Padding="3,1,3,1" Background="White" FontFamily="{DynamicResource Font}" FontSize="18" Click="AboutBoxCloseButton_Click"/>
+                                <Button Name="AboutBoxGitHubButton" Style="{DynamicResource WhiteButtonStyle}" Click="AboutBoxGitHubButton_Click"/>
+                                <Button Name="AboutBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="AboutBoxCloseButton_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
                     <Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
-                    <Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="24" Height="24" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="AboutBoxCloseButton_Click"/>
+                    <Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="AboutBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
         </Grid>

@@ -84,7 +84,9 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_width"] = "Ancho";
             textStrings["resolutioninputbox_label_height"] = "Altura";
             textStrings["changelogbox_title"] = "Log de cambios";
-            textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher se ha vuelto mejor. Esto es lo que paso:";
+            textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher se ha vuelto mejor. Esto es lo que paso:";
+            textStrings["changelogbox_2_msg"] = "Cargando el changelog...";
+            textStrings["changelogbox_3_msg"] = "No se pudo cargar el changelog.";
             textStrings["aboutbox_msg"] = "Bueno, es mucho más avanzado, ¿no?:^)\nEste proyecto se creo con la intención de que los capitanes tuvieran una mejor experiencia con el juego..\nBetterHI3Launcher no está afiliado a miHoYo y es completamente de código abierto..\nAgradecemos mucho todo el feedback.\nUn agradecimiento especial a los contribuidores de GitHub:\nSinsOfSeven - Contribución de resolución personalizada\nProxy-E23 - Traducción al idioma español\nSpookyKisuy - Traducción al idioma portugués\nbulawin1, Vrontis - Traducción al idioma alemán\nKorewaLidesu - Traducción al idioma vietnamita\nSm1leAway - Traducción al idioma sérvia";
             textStrings["msgbox_genericerror_msg"] = "Ha ocurrido un error.\nPara mas informacion, consultar el log.";
             textStrings["msgbox_neterror_title"] = "Error de red";

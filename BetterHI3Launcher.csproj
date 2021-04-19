@@ -296,6 +296,11 @@
   <ItemGroup>
     <Resource Include="Assets\Images\HoV_Dance.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\Button_Box_Close.png" />
+    <Resource Include="Assets\Images\Button_Box_Close_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Box_Close_Pressed.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

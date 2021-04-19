@@ -233,7 +233,6 @@ namespace BetterHI3Launcher
                         }
                         GameRegistryLocalVersionRegValue = versionCandidate;
                     }
-                    //regKey.Close();
                 }
             }
         }
@@ -353,7 +352,7 @@ namespace BetterHI3Launcher
             {
                 AdvancedFeatures = true;
                 UserAgent += " [ADVANCED]";
-                Log("Enabling advanced features");
+                Log("Advanced features enabled");
             }
             else
             {
@@ -388,7 +387,7 @@ namespace BetterHI3Launcher
             ResolutionInputBoxOKButton.Content = textStrings["button_confirm"];
             ResolutionInputBoxCancelButton.Content = textStrings["button_cancel"];
             ChangelogBoxTitleTextBlock.Text = textStrings["changelogbox_title"];
-            ChangelogBoxMessageTextBlock.Text = textStrings["changelogbox_msg"];
+            ChangelogBoxMessageTextBlock.Text = textStrings["changelogbox_1_msg"];
             ChangelogBoxOKButton.Content = textStrings["button_ok"];
             AboutBoxTitleTextBlock.Text = textStrings["contextmenu_about"];
             AboutBoxMessageTextBlock.Text = $"{textStrings["aboutbox_msg"]}\n\nMade by Bp (BuIlDaLiBlE production).";
@@ -398,7 +397,7 @@ namespace BetterHI3Launcher
 
             Grid.MouseLeftButtonDown += delegate{DragMove();};
             LogBox.Visibility = Visibility.Collapsed;
-            LogBoxRichTextBox.Document.PageWidth = LogBox.ActualWidth;
+            LogBoxRichTextBox.Document.PageWidth = LogBox.Width;
             IntroBox.Visibility = Visibility.Collapsed;
             RepairBox.Visibility = Visibility.Collapsed;
             FPSInputBox.Visibility = Visibility.Collapsed;
@@ -489,9 +488,6 @@ namespace BetterHI3Launcher
             {
                 switch(LanguageRegValue.ToString())
                 {
-                    case "en":
-                        CMLanguageEnglish.IsChecked = true;
-                        break;
                     case "ru":
                         CMLanguageRussian.IsChecked = true;
                         break;
@@ -509,6 +505,9 @@ namespace BetterHI3Launcher
                         break;
                     case "sr":
                         CMLanguageSerbian.IsChecked = true;
+                        break;
+                    default:
+                        CMLanguageEnglish.IsChecked = true;
                         break;
                 }
             }
@@ -629,10 +628,6 @@ namespace BetterHI3Launcher
                 Dispatcher.Invoke(() =>
                 {
                     LauncherVersionText.Text = $"{textStrings["launcher_version"]}: v{LocalLauncherVersion}";
-                    if(LauncherLanguage == "ru")
-                        ChangelogBoxTextBox.Text = OnlineVersionInfo.launcher_info.changelog[LauncherLanguage];
-                    else
-                        ChangelogBoxTextBox.Text = OnlineVersionInfo.launcher_info.changelog["en"];
                     ShowLogStackPanel.Margin = new Thickness((double)OnlineVersionInfo.launcher_info.ui.ShowLogStackPanel_Margin.left, 0, 0, (double)OnlineVersionInfo.launcher_info.ui.ShowLogStackPanel_Margin.bottom);
                     LogBox.Margin = new Thickness((double)OnlineVersionInfo.launcher_info.ui.LogBox_Margin.left, (double)OnlineVersionInfo.launcher_info.ui.LogBox_Margin.top, (double)OnlineVersionInfo.launcher_info.ui.LogBox_Margin.right, (double)OnlineVersionInfo.launcher_info.ui.LogBox_Margin.bottom);
                 });
@@ -646,6 +641,32 @@ namespace BetterHI3Launcher
                     Application.Current.Shutdown();
                 });
             }
+        }
+
+        private async void FetchChangelog()
+        {
+            if(ChangelogBoxTextBox.Text != string.Empty)
+                return;
+
+            string changelog;
+            var webClient = new BpWebClient();
+
+            Dispatcher.Invoke(() => {ChangelogBoxTextBox.Text = textStrings["changelogbox_2_msg"];});
+            await Task.Run(() =>
+            {
+                try
+                {
+                    if(LauncherLanguage == "ru")
+                        changelog = webClient.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.ru.ToString());
+                    else
+                        changelog = webClient.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.en.ToString());
+                }
+                catch(Exception ex)
+                {
+                    changelog = $"{textStrings["changelogbox_3_msg"]}\n{ex}";
+                }
+                Dispatcher.Invoke(() => {ChangelogBoxTextBox.Text = changelog;});
+            });
         }
 
         private void FetchmiHoYoVersionInfo()
@@ -836,7 +857,7 @@ namespace BetterHI3Launcher
                     if(Mirror == HI3Mirror.miHoYo)
                     {
                         // space_usage is probably when archive is unpacked, here I get the download size instead
-                        //download_size = miHoYoVersionInfo.space_usage;
+                        // download_size = miHoYoVersionInfo.space_usage;
                         download_size = miHoYoVersionInfo.size;
                     }
                     else if(Mirror == HI3Mirror.MediaFire)
@@ -1012,7 +1033,6 @@ namespace BetterHI3Launcher
                         }
                     }
                 }
-                Log("success!", false);
             }
             catch(Exception ex)
             {
@@ -1235,14 +1255,7 @@ namespace BetterHI3Launcher
                         {
                             foreach(var file in Directory.GetFiles(Path.Combine(GameInstallPath, @"BH3_Data\StreamingAssets\Asb\pc"), "*.wmv"))
                             {
-                                try
-                                {
-                                    File.Delete(file);
-                                }
-                                catch
-                                {
-                                    Log($"WARNING: Failed to delete {file}", true, 2);
-                                }
+                                DeleteFile(file);
                             }
                         }catch{}
                         var skippedFiles = new List<string>();
@@ -1290,14 +1303,7 @@ namespace BetterHI3Launcher
                             throw new ArchiveException("Game archive is corrupt");
                         }
                         Log("success!", false);
-                        try
-                        {
-                            File.Delete(GameArchivePath);
-                        }
-                        catch
-                        {
-                            Log($"WARNING: Failed to delete {GameArchivePath}", true, 2);
-                        }
+                        DeleteFile(GameArchivePath);
                         Dispatcher.Invoke(() => 
                         {
                             WriteVersionInfo(false, true);
@@ -1482,15 +1488,7 @@ namespace BetterHI3Launcher
                             {
                                 if(MessageBox.Show(textStrings["msgbox_verifyerror_2_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                                 {
-                                    try
-                                    {
-                                        if(File.Exists(CacheArchivePath))
-                                            File.Delete(CacheArchivePath);
-                                    }
-                                    catch
-                                    {
-                                        Log($"WARNING: Failed to delete {CacheArchivePath}", true, 2);
-                                    }
+                                    DeleteFile(CacheArchivePath);
                                     abort = true;
                                     GameUpdateCheck(false);
                                 }
@@ -1506,14 +1504,7 @@ namespace BetterHI3Launcher
                         {
                             foreach(var file in Directory.GetFiles(Path.Combine(miHoYoPath, $@"{GameFullName}\Data\data"), "*.unity3d"))
                             {
-                                try
-                                {
-                                    File.Delete(file);
-                                }
-                                catch
-                                {
-                                    Log($"WARNING: Failed to delete {file}", true, 2);
-                                }
+                                DeleteFile(file);
                             }
                         }catch{}
                         var skippedFiles = new List<string>();
@@ -1562,15 +1553,7 @@ namespace BetterHI3Launcher
                             throw new ArchiveException("Cache archive is corrupt");
                         }
                         Log("success!", false);
-                        try
-                        {
-                            if(File.Exists(CacheArchivePath))
-                                File.Delete(CacheArchivePath);
-                        }
-                        catch
-                        {
-                            Log($"WARNING: Failed to delete {CacheArchivePath}", true, 2);
-                        }
+                        DeleteFile(CacheArchivePath);
                         SendStatistics(title, time);
                     });
                 }
@@ -1632,88 +1615,82 @@ namespace BetterHI3Launcher
             #if DEBUG
                 EnableAutoUpdate = false;
             #endif
-            if(EnableAutoUpdate)
+            try
             {
-                try
-                {
-                    await Task.Run(() =>
-                    {
-                        bool needsUpdate = LauncherUpdateCheck();
+                string exeName = Process.GetCurrentProcess().MainModule.ModuleName;
+                string oldExeName = $"{Path.GetFileNameWithoutExtension(LauncherPath)}_old.exe";
+                bool needsUpdate = LauncherUpdateCheck();
 
-                        if(Process.GetCurrentProcess().MainModule.ModuleName != LauncherExeName)
-                        {
-                            Status = LauncherStatus.Error; 
-                            File.Move(Path.Combine(RootPath, Process.GetCurrentProcess().MainModule.ModuleName), LauncherPath);
-                            BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
-                            Dispatcher.Invoke(() => {Application.Current.Shutdown();});
-                            return;
-                        }
-
-                        if(File.Exists($"{Path.Combine(RootPath, Path.GetFileNameWithoutExtension(LauncherPath))}_old.exe"))
-                        {
-                            File.Delete($"{Path.Combine(RootPath, Path.GetFileNameWithoutExtension(LauncherPath))}_old.exe");
-                        }
-
-                        if(needsUpdate)
-                        {
-                            Log("There's a newer version of the launcher, downloading...");
-                            Status = LauncherStatus.Working;
-                            Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_updating_launcher"];});
-                            DownloadLauncherUpdate();
-                            string md5 = OnlineVersionInfo.launcher_info.md5.ToString().ToUpper();
-                            string actual_md5 = BpUtility.CalculateMD5(LauncherArchivePath);
-                            if(actual_md5 != md5)
-                            {
-                                Status = LauncherStatus.Error;
-                                Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
-                                if(File.Exists(LauncherArchivePath))
-                                {
-                                    File.Delete(LauncherArchivePath);
-                                }
-                                if(MessageBox.Show(textStrings["msgbox_verifyerror_1_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
-                                {
-                                    Dispatcher.Invoke(() => {Application.Current.Shutdown();});
-                                    return;
-                                }
-                            }
-                            File.Move(Path.Combine(RootPath, Process.GetCurrentProcess().MainModule.ModuleName), $"{Path.Combine(RootPath, Path.GetFileNameWithoutExtension(LauncherPath))}_old.exe");
-                            using(var archive = ArchiveFactory.Open(LauncherArchivePath))
-                            {
-                                var reader = archive.ExtractAllEntries();
-                                while(reader.MoveToNextEntry())
-                                {
-                                    reader.WriteEntryToDirectory(RootPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true});
-                                }
-                            }
-                            BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
-                            Dispatcher.Invoke(() => {Application.Current.Shutdown();});
-                            return;
-                        }
-                        else
-                        {
-                            if(File.Exists(Path.Combine(RootPath, "BetterHI3Launcher.7z")))
-                            {
-                                File.Delete(Path.Combine(RootPath, "BetterHI3Launcher.7z"));
-                            }
-                            if(File.Exists(LauncherArchivePath))
-                            {
-                                File.Delete(LauncherArchivePath);
-                            }
-                            if(!File.Exists(LauncherPath))
-                            {
-                                File.Copy(Path.Combine(RootPath, Process.GetCurrentProcess().MainModule.ModuleName), LauncherPath, true);
-                            }
-                        }
-                    });
-                }
-                catch(Exception ex)
+                if(Process.GetCurrentProcess().MainModule.ModuleName != LauncherExeName)
                 {
                     Status = LauncherStatus.Error;
-                    if(MessageBox.Show(string.Format(textStrings["msgbox_starterror_msg"], ex), textStrings["msgbox_starterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    DeleteFile(LauncherPath, true);
+                    File.Move(Path.Combine(RootPath, exeName), LauncherPath);
+                    BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
+                    Dispatcher.Invoke(() => {Application.Current.Shutdown();});
+                    return;
+                }
+                DeleteFile(Path.Combine(RootPath, oldExeName), true);
+                await Task.Run(() =>
+                {
+                    if(!EnableAutoUpdate)
+                        return;
+                    if(needsUpdate)
                     {
-                        Application.Current.Shutdown();
+                        Log("A newer version of the launcher is available!");
+                        Log("Downloading update...");
+                        Status = LauncherStatus.Working;
+                        Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_updating_launcher"];});
+                        DownloadLauncherUpdate();
+                        Log("success!", false);
+                        Log("Validating update...");
+                        string md5 = OnlineVersionInfo.launcher_info.md5.ToString().ToUpper();
+                        string actual_md5 = BpUtility.CalculateMD5(LauncherArchivePath);
+                        if(actual_md5 != md5)
+                        {
+                            Status = LauncherStatus.Error;
+                            Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
+                            DeleteFile(LauncherArchivePath, true);
+                            if(MessageBox.Show(textStrings["msgbox_verifyerror_1_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                            {
+                                Dispatcher.Invoke(() => {Application.Current.Shutdown();});
+                                return;
+                            }
+                        }
+                        Log("success!", false);
+                        Log("Performing update...");
+                        File.Move(Path.Combine(RootPath, exeName), Path.Combine(RootPath, oldExeName));
+                        using(var archive = ArchiveFactory.Open(LauncherArchivePath))
+                        {
+                            var reader = archive.ExtractAllEntries();
+                            while(reader.MoveToNextEntry())
+                            {
+                                reader.WriteEntryToDirectory(RootPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true});
+                            }
+                        }
+                        Log("success!", false);
+                        BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
+                        Dispatcher.Invoke(() => {Application.Current.Shutdown();});
                         return;
                     }
+                    else
+                    {
+                        DeleteFile(LauncherArchivePath, true);
+                        DeleteFile(Path.Combine(RootPath, "BetterHI3Launcher.7z"), true); // legacy name
+                        if(!File.Exists(LauncherPath))
+                        {
+                            File.Copy(Path.Combine(RootPath, exeName), LauncherPath, true);
+                        }
+                    }
+                });
+            }
+            catch(Exception ex)
+            {
+                Status = LauncherStatus.Error;
+                if(MessageBox.Show(string.Format(textStrings["msgbox_starterror_msg"], ex), textStrings["msgbox_starterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                    return;
                 }
             }
 
@@ -1726,11 +1703,13 @@ namespace BetterHI3Launcher
                 ChangelogBox.Visibility = Visibility.Visible;
                 ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
                 ChangelogBoxScrollViewer.Height -= 20;
+                FetchChangelog();
             }
             try
             {
                 if(LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != LocalLauncherVersion.ToString())
                     LauncherRegKey.SetValue("LauncherVersion", LocalLauncherVersion);
+                // legacy values
                 if(LauncherRegKey.GetValue("RanOnce") != null)
                     LauncherRegKey.DeleteValue("RanOnce");
                 if(LauncherRegKey.GetValue("BackgroundImageName") != null)
@@ -1965,7 +1944,6 @@ namespace BetterHI3Launcher
             Status = LauncherStatus.CheckingUpdates;
             Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_mirror_connect"];});
             Log("Fetching mirror data...");
-            
             try
             {
                 await Task.Run(() =>
@@ -2050,7 +2028,6 @@ namespace BetterHI3Launcher
             Status = LauncherStatus.CheckingUpdates;
             Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_fetching_hashes"];});
             Log("Fetching repair data...");
-
             try
             {
                 string server = (int)Server == 0 ? "global" : "os";
@@ -2717,6 +2694,8 @@ namespace BetterHI3Launcher
         private void CM_Changelog_Click(object sender, RoutedEventArgs e)
         {
             ChangelogBox.Visibility = Visibility.Visible;
+            ChangelogBoxScrollViewer.ScrollToHome();
+            FetchChangelog();
         }
 
         private void CM_Language_Click(object sender, RoutedEventArgs e)
@@ -3083,7 +3062,7 @@ namespace BetterHI3Launcher
                                                 url = urls[j];
                                             }
                                         
-                                            await PartialZipDownloader.DownloadFile(url, corruptedFiles[i], path, true);
+                                            await PartialZipDownloader.DownloadFile(url, corruptedFiles[i], path);
                                             Dispatcher.Invoke(() => {ProgressText.Text = string.Format(textStrings["progresstext_verifying_file"], i + 1, corruptedFiles.Count);});
                                             if(!File.Exists(path) || BpUtility.CalculateMD5(path) != corruptedFileHashes[i])
                                             {
@@ -3625,9 +3604,11 @@ namespace BetterHI3Launcher
             if(LauncherLanguage != "en")
             {
                 var IntroBoxGrid = VisualTreeHelper.GetChild(IntroBox, 1) as Grid;
+                var ChangelogBoxGrid = VisualTreeHelper.GetChild(ChangelogBox, 1) as Grid;
                 var AboutBoxGrid = VisualTreeHelper.GetChild(AboutBox, 1) as Grid;
                 IntroBoxMessageTextBlock.Height -= 5;
                 RepairBoxTitleTextBlock.Height -= 5;
+                ChangelogBoxGrid.Height += 7;
                 DownloadCacheBoxMessageTextBlock.Height -= 5;
                 Resources["Font"] = new FontFamily("Segoe UI Bold");
                 if(LauncherLanguage == "de")
@@ -3709,6 +3690,25 @@ namespace BetterHI3Launcher
                 }
                 LogBoxScrollViewer.ScrollToEnd();
             });
+        }
+
+        public void DeleteFile(string path, bool ignorereadonly = false)
+        {
+            try
+            {
+                if(File.Exists(path))
+                {
+                    if(ignorereadonly)
+                    {
+                        File.SetAttributes(path, File.GetAttributes(path) & ~FileAttributes.ReadOnly);
+                    }
+                    File.Delete(path);
+                }
+            }
+            catch
+            {
+                Log($"WARNING: Failed to delete {path}", true, 2);
+            }
         }
 
         public struct Version

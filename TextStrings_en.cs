@@ -96,7 +96,9 @@ namespace BetterHI3Launcher
             textStrings.Add("resolutioninputbox_label_height", "Height");
             textStrings.Add("resolutioninputbox_label_fullscreen", "Fullscreen");
             textStrings.Add("changelogbox_title", "Changelog");
-            textStrings.Add("changelogbox_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
+            textStrings.Add("changelogbox_1_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
+            textStrings.Add("changelogbox_2_msg", "Loading changelog...");
+            textStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
             textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation");
             textStrings.Add("msgbox_genericerror_title", "Error");
             textStrings.Add("msgbox_genericerror_msg", "An error occurred.\nFor more information take a look at the log.");

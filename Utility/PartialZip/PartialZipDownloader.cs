@@ -46,13 +46,13 @@ namespace PartialZip
         /// <param name="writePath">Path where the file will be written</param>
         /// <param name="preserveTime">Preserve modification date</param>
         /// <returns>File content</returns>
-        public static async Task DownloadFile(string archiveUrl, string filePath, string writePath, bool preserveTime)
+        public static async Task DownloadFile(string archiveUrl, string filePath, string writePath)
         {
             PartialZipDownloader downloader = new PartialZipDownloader(archiveUrl);
             PartialZipInfo info = await downloader.Open();
             var content = await downloader.Download(info, filePath);
             File.WriteAllBytes(writePath, content.Item1);
-            File.SetLastWriteTime(writePath, content.Item2);
+            File.SetLastWriteTimeUtc(writePath, content.Item2);
         }
 
         private async Task<PartialZipInfo> Open()
@@ -155,7 +155,7 @@ namespace PartialZip
             DosDateTimeToFileTime(date, time, ref fileTime);
             FileTimeToSystemTime(ref fileTime, ref systemTime);
 
-            return new DateTime(systemTime.Year, systemTime.Month, systemTime.Day, systemTime.Hour, systemTime.Minute, systemTime.Second + 1);
+            return new DateTime(systemTime.Year, systemTime.Month, systemTime.Day, systemTime.Hour, systemTime.Minute, systemTime.Second + 1, DateTimeKind.Utc).AddHours(-3);
         }
     }
 }

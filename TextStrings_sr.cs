@@ -69,7 +69,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_generating_hash"] = "Generacija heša za fajl {0}/{1}...";
             textStrings["progresstext_zipping"] = "Dodavanje fajla {0}/{1} u ZIP arhivu...";
             textStrings["progresstext_fetching_hashes"] = "Dohvatanje heševa...";
-            textStrings["introbox_title"] = "Dobrodošli u Bolji Honkai Impact 3rd pokretač!";
+            textStrings["introbox_title"] = "Dobrodošli u Better Honkai Impact 3rd pokretač!";
             textStrings["introbox_msg_1"] = "!!! VAŽNO, PROČITATI !!!";
             textStrings["introbox_msg_2"] = "Izgleda da je ovo prvi put da koristiš pokretač. Pre svega, drago mi je da si odlučio da ga isprobaš, i ako imaš bilo kakav predlog slobodno ga podeli sa mnom.\nVažno je da ukoliko koristiš oficijalni pokretač da ažuriraš igru, a još uvek je nisi pokrenuo (došao do tačke kada si na mostu) ne treba da koristiš ovaj pokretač. U suprotnom pokretač može pogrešno da prepozna tvoju verziju igre kao zastarelu, i da moraš iz početka da preuzmeš celu igru.\n\nRazumeo sve to? Odlično! Ako već imaš instaliranu igru, samo pritisni \"Preuzmi\" dugme i izaberi folder u kojem ti je igra. Pokretač će je prepoznati i nećeš morati iz početka da je preuzimaš.";
             textStrings["downloadcachebox_msg"] = "Izaberi da li želiš da preuzmeš ceo keš paket ili samo numeričke fajlove.\nIzaberi \"Ceo keš\" ako imš problema sa \"updating game resources\".\nIzaberi \"Numerički fajlovi\" ako imaš problem sa \"updating settings\".\nImaj na umu da trenutno ne postoji način da se automatski preuzme najnoviji keš i da moramo ručno da ga optremimo na server: {0}.\nKeš poslednji put ažuriran: {1}.\nTrenutni održavač preslikanog keša: {2}.";
@@ -84,7 +84,9 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_height"] = "Visina";
             textStrings["resolutioninputbox_label_fullscreen"] = "Ceo ekran";
             textStrings["changelogbox_title"] = "Zapis promena";
-            textStrings["changelogbox_msg"] = "Bolji Honkai Impact 3rd Launcher je upravo postao još bolji. Evo kako:";
+            textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher je upravo postao još bolji. Evo kako:";
+            textStrings["changelogbox_2_msg"] = "Učitavanje zapisa promena...";
+            textStrings["changelogbox_3_msg"] = "Nije uspelo da učita zapis promena.";
             textStrings["aboutbox_msg"] = "Pa mnogo je napredniji, zar ne? :^)\nOvaj projekat je napravljen sa idejom da pomogne mnogim kapetanima da imaju bolje iskustvo.\nNije nikako povezan sa miHoYo-om i kompletno je \"open source\".\nBilo kakve povratne informacije su cenjene.\nSpecijalne pohvale za sledeće GitHub pomagače:\nSinsOfSeven - Posebna rezolucija\nProxy-E23 - Španski prevod\nSpookyKisuy - Portugalski prevod\nbulawin1, Vrontis - Nemački prevod\nKorewaLidesu - Vijetnamski prevod\nSm1leAway - Srpski prevod";
             textStrings["msgbox_genericerror_title"] = "Greška";
             textStrings["msgbox_genericerror_msg"] = "Došlo je do greške.\nZa više informacija pogledaj zapis.";

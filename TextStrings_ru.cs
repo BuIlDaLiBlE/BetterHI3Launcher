@@ -89,7 +89,9 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_height"] = "Высота";
             textStrings["resolutioninputbox_label_fullscreen"] = "Полный экран";
             textStrings["changelogbox_title"] = "История изменений";
-            textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
+            textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
+            textStrings["changelogbox_2_msg"] = "Загрузка истории изменений...";
+            textStrings["changelogbox_3_msg"] = "Не удалось загрузить историю изменений.";
             textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам с GitHub:\nSinsOfSeven - Задавание своего разрешения экрана игры\nProxy-E23 - Перевод на испанский язык\nSpookyKisuy - Перевод на португальский язык\nbulawin1, Vrontis - Перевод на немецкий язык\nKorewaLidesu - Перевод на вьетнамский язык\nSm1leAway - Перевод на сербский язык";
             textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кеша.";
             textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кеша числовых файлов.";
