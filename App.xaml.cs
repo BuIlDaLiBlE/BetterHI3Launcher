@@ -48,11 +48,11 @@ namespace BetterHI3Launcher
         {
             // Catch exceptions from all threads in the AppDomain.
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
-                ShowUnhandledException(args.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException", false);
+                ShowUnhandledException(args.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException");
 
             // Catch exceptions from each AppDomain that uses a task scheduler for async operations.
             TaskScheduler.UnobservedTaskException += (sender, args) =>
-                ShowUnhandledException(args.Exception, "TaskScheduler.UnobservedTaskException", false);
+                ShowUnhandledException(args.Exception, "TaskScheduler.UnobservedTaskException");
 
             // Catch exceptions from a single specific UI dispatcher thread.
             Dispatcher.UnhandledException += (sender, args) =>
@@ -61,13 +61,16 @@ namespace BetterHI3Launcher
                 if(!Debugger.IsAttached)
                 {
                     args.Handled = true;
-                    ShowUnhandledException(args.Exception, "Dispatcher.UnhandledException", true);
+                    ShowUnhandledException(args.Exception, "Dispatcher.UnhandledException");
                 }
             };
         }
 
-        void ShowUnhandledException(Exception e, string unhandledExceptionType, bool promptUserForShutdown)
+        void ShowUnhandledException(Exception e, string unhandledExceptionType)
         {
+            if(unhandledExceptionType == "TaskScheduler.UnobservedTaskException")
+                return;
+
             MessageBox.Show($"Unhandled exception occurred:\n{e}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Current.Shutdown();
         }

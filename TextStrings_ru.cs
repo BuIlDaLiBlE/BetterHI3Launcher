@@ -52,6 +52,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_portuguese"] = "Португальский";
             textStrings["contextmenu_language_german"] = "Немецкий";
             textStrings["contextmenu_language_vietnamese"] = "Вьетнамский";
+            textStrings["contextmenu_language_serbian"] = "Сербский";
             textStrings["contextmenu_language_contribute"] = "Хотите помочь?";
             textStrings["contextmenu_about"] = "О лаунчере";
             textStrings["progresstext_error"] = "Ошибочка вышла :^(";
@@ -79,7 +80,7 @@ namespace BetterHI3Launcher
             textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кеш.\nВыберите \"Полный кеш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кеш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кеша: {1}.\nОтветственный за зеркало: {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Полный кеш";
             textStrings["downloadcachebox_button_numeric_files"] = "Числовые файлы";
-            textStrings["repairbox_msg"] = "Будет произведена проверка каждого игрового файла с последующим его исправлением, если нужно. Это может занять какое-то время.\nПродолжить?\nИспользуемое зеркало: {0}.\nОтветственный за зеркало: {1}.";
+            textStrings["repairbox_msg"] = "Будет произведена проверка каждого игрового файла с последующим его исправлением, если нужно. Это может занять какое-то время.\nПродолжить?\nДоступные зеркала: {0}.\nОтветственный за зеркало: {1}.";
             textStrings["fpsinputbox_title"] = "Задайте ограничение FPS";
             textStrings["fpsinputbox_label_combatfps"] = "FPS во время игры";
             textStrings["fpsinputbox_label_menufps"] = "FPS в меню";
@@ -88,8 +89,10 @@ namespace BetterHI3Launcher
             textStrings["resolutioninputbox_label_height"] = "Высота";
             textStrings["resolutioninputbox_label_fullscreen"] = "Полный экран";
             textStrings["changelogbox_title"] = "История изменений";
-            textStrings["changelogbox_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
-            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам GitHub:\nSinsOfSeven - Возможность задавать своё разрешение игры\nProxy-E23 - Перевод лаунчера на испанский язык\nSpookyKisuy - Перевод лаунчера на португальский язык\nbulawin1 - Перевод лаунчера на немецкий язык\nKorewaLidesu - Перевод лаунчера на вьетнамский язык";
+            textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
+            textStrings["changelogbox_2_msg"] = "Загрузка истории изменений...";
+            textStrings["changelogbox_3_msg"] = "Не удалось загрузить историю изменений.";
+            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам с GitHub:\nSinsOfSeven - Задавание своего разрешения экрана игры\nProxy-E23 - Перевод на испанский язык\nSpookyKisuy - Перевод на португальский язык\nbulawin1, Vrontis - Перевод на немецкий язык\nKorewaLidesu - Перевод на вьетнамский язык\nSm1leAway - Перевод на сербский язык";
             textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кеша.";
             textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кеша числовых файлов.";
             textStrings["msgbox_download_cache_3_msg"] = "Размер загрузки: {0}.\nПродолжить?";
@@ -128,6 +131,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_repair_4_msg"] = "{0} файлов успешно исправлено.";
             textStrings["msgbox_repair_5_msg"] = "{0} файлов не удалось исправить. Попробуйте проверить ваше хранилище, с ним могут быть проблемы.";
             textStrings["msgbox_repair_6_msg"] = "Будет сгенерирован JSON файл, содержащий список игровых файлов и их хэшей, а затем создан ZIP архив с этими файлами.\nПродолжить?";
+            textStrings["msgbox_repair_7_msg"] = "Продолжить создание ZIP архива? Это точно займёт какое-то время.";
             textStrings["msgbox_move_1_msg"] = "Игра будет перемещена в путь:\n{0}\nПродолжить?";
             textStrings["msgbox_move_2_msg"] = "Нельзя переместить игру внутрь текущей игровой папки.";
             textStrings["msgbox_move_3_msg"] = "Нельзя переместить игру, пока лаунчер находится внутри игровой папки. Переместите лаунчер из папки и попробуйте снова.";
