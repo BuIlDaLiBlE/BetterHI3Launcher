@@ -447,6 +447,9 @@ namespace BetterHI3Launcher
             var CMChangelog = new MenuItem{Header = textStrings["contextmenu_changelog"]};
             CMChangelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
             OptionsContextMenu.Items.Add(CMChangelog);
+            var CMImportantInfo = new MenuItem {Header = textStrings["contextmenu_important_info"]};
+            CMImportantInfo.Click += (sender, e) => IntroBox.Visibility = Visibility.Visible;
+            OptionsContextMenu.Items.Add(CMImportantInfo);
             var CMLanguage = new MenuItem{Header = textStrings["contextmenu_language"]};
             var CMLanguageSystem = new MenuItem{Header = textStrings["contextmenu_language_system"]};
             CMLanguageSystem.Click += (sender, e) => CM_Language_Click(sender, e);
@@ -544,14 +547,28 @@ namespace BetterHI3Launcher
                 try
                 {
                     FetchOnlineVersionInfo();
-                    FetchmiHoYoVersionInfo();
                 }
-                catch
+                catch(Exception ex)
                 {
                     if(Status == LauncherStatus.Error)
                         return;
                     Status = LauncherStatus.Error;
-                    if(MessageBox.Show(textStrings["msgbox_no_internet_msg"], textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    if(MessageBox.Show($"{textStrings["msgbox_conn_bp_error_msg"]}\n{ex}", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    {
+                        Application.Current.Shutdown();
+                        return;
+                    }
+                }
+                try
+                {
+                    FetchmiHoYoVersionInfo();
+                }
+                catch(Exception ex)
+                {
+                    if(Status == LauncherStatus.Error)
+                        return;
+                    Status = LauncherStatus.Error;
+                    if(MessageBox.Show($"{textStrings["msgbox_conn_mihoyo_error_msg"]}\n{ex}", textStrings["msgbox_neterror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                     {
                         Application.Current.Shutdown();
                         return;
@@ -890,7 +907,6 @@ namespace BetterHI3Launcher
                         GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
                         GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
                         game_needs_update = GameUpdateCheckSimple();
-                        Log("success!", false);
                         Log($"Game version: {LocalGameVersion}");
                         Log($"Game directory: {GameInstallPath}");
 
@@ -2039,7 +2055,7 @@ namespace BetterHI3Launcher
                 if(OnlineRepairInfo.status == "success")
                 {
                     OnlineRepairInfo = OnlineRepairInfo.repair_info;
-                    if(OnlineRepairInfo.game_version != miHoYoVersionInfo.cur_version)
+                    if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version && !AdvancedFeatures)
                     {
                         ProgressText.Text = string.Empty;
                         ProgressBar.Visibility = Visibility.Hidden;
@@ -2272,16 +2288,19 @@ namespace BetterHI3Launcher
                 }
                 var valueBefore = key.GetValue(value);
                 int valueAfter;
-                if((int)valueBefore == 3)
-                    valueAfter = 2;
-                else if((int)valueBefore == 2)
-                    valueAfter = 1;
+                if((int)valueBefore != 0)
+                {
+                    valueAfter = 0;
+                }
                 else
-                    valueAfter = 3;
+                {
+                    MessageBox.Show(textStrings["msgbox_download_type_3_msg"], textStrings["contextmenu_download_type"], MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
                 key.SetValue(value, valueAfter, RegistryValueKind.DWord);
                 key.Close();
                 Log($"Changed ResourceDownloadType from {valueBefore} to {valueAfter}");
-                MessageBox.Show(string.Format(textStrings["msgbox_download_type_2_msg"], valueBefore, valueAfter), textStrings["contextmenu_download_type"], MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(textStrings["msgbox_download_type_2_msg"], textStrings["contextmenu_download_type"], MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch(Exception ex)
             {
@@ -2941,7 +2960,8 @@ namespace BetterHI3Launcher
         private void IntroBoxCloseButton_Click(object sender, RoutedEventArgs e)
         {
             IntroBox.Visibility = Visibility.Collapsed;
-            GameUpdateCheck(false);
+            if(FirstLaunch)
+                GameUpdateCheck(false);
         }
 
         private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
@@ -3183,7 +3203,7 @@ namespace BetterHI3Launcher
                         ProgressBar.IsIndeterminate = false;
                         TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
                         Log("Generating game file hashes...");
-                        var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && x.Name != "config.ini" && x.Name != "Version.txt" && x.Name != "UniFairy.sys" && !x.Name.Contains("Blocks_") && !x.Name.Contains("AUDIO_DLC") && !x.Name.Contains("AUDIO_EVENT") && !x.DirectoryName.Contains("Video") && !x.DirectoryName.Contains("webCaches") && x.Extension != ".log").ToList();
+                        var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && x.Name != "config.ini" && x.Name != "UniFairy.sys" && x.Name != "Version.txt" && x.Name != "blockVerifiedVersion.txt" && !x.Name.Contains("Blocks_") && !x.Name.Contains("AUDIO_DLC") && !x.Name.Contains("AUDIO_EVENT") && !x.DirectoryName.Contains("Video") && !x.DirectoryName.Contains("webCaches") && x.Extension != ".log").ToList();
                         dynamic json = new ExpandoObject();
                         json.repair_info = new ExpandoObject();
                         json.repair_info.game_version = miHoYoVersionInfo.cur_version;
@@ -3209,6 +3229,7 @@ namespace BetterHI3Launcher
                                 });
                             }
                             File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
+                            Log("success!", false);
                             Log($"Saved JSON: {dialog.FileName}");
                         });
                         ProgressText.Text = string.Empty;
@@ -3236,6 +3257,7 @@ namespace BetterHI3Launcher
                                         });
                                     }
                                 }
+                                Log("success!", false);
                                 Log($"Saved ZIP: {zipName}");
                             });
                         }
@@ -3558,6 +3580,7 @@ namespace BetterHI3Launcher
                     if(item.Header.ToString() == textStrings["contextmenu_web_profile"] ||
                        item.Header.ToString() == textStrings["contextmenu_feedback"] ||
                        item.Header.ToString() == textStrings["contextmenu_changelog"] ||
+                       item.Header.ToString() == textStrings["contextmenu_important_info"] ||
                        item.Header.ToString() == textStrings["contextmenu_language"] ||
                        item.Header.ToString() == textStrings["contextmenu_about"])
                         continue;

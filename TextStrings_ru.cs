@@ -36,7 +36,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_move"] = "Переместить игровые файлы";
             textStrings["contextmenu_uninstall"] = "Удалить игру";
             textStrings["contextmenu_fixsubs"] = "Исправить субтитры";
-            textStrings["contextmenu_download_type"] = "Изменить тип загрузки";
+            textStrings["contextmenu_download_type"] = "Сбросить тип загрузки";
             textStrings["contextmenu_game_settings"] = "Управление настройками игры";
             textStrings["contextmenu_customfps"] = "Задать своё ограничение FPS";
             textStrings["contextmenu_customresolution"] = "Задать своё разрешение";
@@ -44,6 +44,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_web_profile"] = "Перейти в веб-профиль";
             textStrings["contextmenu_feedback"] = "Отправить отзыв";
             textStrings["contextmenu_changelog"] = "История изменений";
+            textStrings["contextmenu_important_info"] = "Важная информация";
             textStrings["contextmenu_language"] = "Язык";
             textStrings["contextmenu_language_system"] = "Системный";
             textStrings["contextmenu_language_english"] = "Английский";
@@ -144,8 +145,9 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Удаление";
             textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Ошибка удаления";
-            textStrings["msgbox_download_type_1_msg"] = "Будет изменён тип загрузки внутриигровых ресурсов в надежде исправить печально известную проблему с бесконечной загрузкой в игре.\nЕсли с первого раза не помогает, попробуйте ещё раз.\nПродолжить?";
-            textStrings["msgbox_download_type_2_msg"] = "Значение ResourceDownloadType до: {0}.\nЗначение ResourceDownloadType после: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Будет сброшен тип загрузки игровых ресурсов в надежде исправить печально известную проблему с бесконечной загрузкой в игре.\nПродолжить?";
+            textStrings["msgbox_download_type_2_msg"] = "Тип загрузки сброшен. Запустите игру и выберете \"HD assets\".";
+            textStrings["msgbox_download_type_3_msg"] = "Тип загрузки уже был сброшен. Запустите игру и выберете \"HD assets\".";
             textStrings["msgbox_fixsubs_1_msg"] = "Будет произведена попытка исправить субтитры к видео (и гача баннеры). Убедитесь, что все видеофайлы были загружены в игре.\nПродолжить?";
             textStrings["msgbox_fixsubs_2_msg"] = "Распаковка субтитров к видео {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Проверка файла субтитров {0}/{1}...";
@@ -185,7 +187,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Ошибка зеркала. Попросите ответственного за зеркало разобраться с этим.\nСообщение: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Этот лаунчер требует установленного .NET Framework версии 4.6.1 или новее.";
             textStrings["msgbox_language_msg"] = "Язык изменится на {0} и лаунчер будет перезапущен.\nПродолжить?";
-            textStrings["msgbox_no_internet_msg"] = "Не могу подключиться к интернету. Вы подключены к сети?";
+            textStrings["msgbox_conn_bp_error_msg"] = "Не удаётся подключиться к Bp Network:";
+            textStrings["msgbox_conn_mihoyo_error_msg"] = "Не удаётся подключиться к серверам miHoYo:";
         }
     }
 }

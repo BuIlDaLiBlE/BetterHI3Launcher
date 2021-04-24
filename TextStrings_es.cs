@@ -32,7 +32,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_move"] = "Mover los archivos del juego";
             textStrings["contextmenu_uninstall"] = "Desinstalar juego";
             textStrings["contextmenu_fixsubs"] = "Corregir subtítulos";
-            textStrings["contextmenu_download_type"] = "Cambiar el tipo de descarga";
+            textStrings["contextmenu_download_type"] = "Restablecer el tipo de descarga";
             textStrings["contextmenu_game_settings"] = "Administrar configuración del juego";
             textStrings["contextmenu_customfps"] = "Establecer límite de FPS personalizado";
             textStrings["contextmenu_customresolution"] = "Establecer resolución personalizada";
@@ -136,8 +136,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Desinstalar";
             textStrings["msgbox_uninstallerror_msg"] = "Ocurrio un error al desinstalar el juego:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Error de desinstalación";
-            textStrings["msgbox_download_type_1_msg"] = "Esto cambiará el tipo de descarga de recursos del juego en un intento de solucionar el infame bucle de actualización que no permite ingresar al juego.\nSi esto no soluciona el problema, inténtelo de nuevo.\n¿Continar?";
-            textStrings["msgbox_download_type_2_msg"] = "Valor ResourceDownloadType antes: {0}.\nResourceDownloadType valor después: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Esto restablecerá el tipo de descarga de recursos del juego en un intento de solucionar el infame bucle de actualización que no permite ingresar al juego.\n¿Continar?";
             textStrings["msgbox_fixsubs_1_msg"] = "Esto intentará arreglar los subtítulos CG (y los banners de gacha). Asegúrate de tener ya descargado todos los CG del juego.\n¿Continuar?";
             textStrings["msgbox_fixsubs_2_msg"] = "Descomprimiendo el archivo de subtítulos {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Comprobando archivo de subtítulos {0}/{1}...";
@@ -177,7 +176,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Hay un error con el espejo. Pídale al encargado del espejo que llegue al fondo de esto.\nMensaje: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Este launcher requiere la instalación de .NET Framework 4.6.1 o posterior.";
             textStrings["msgbox_language_msg"] = "El idioma se cambiará a {0} y el launcher se reiniciará.\n¿Continuar?";
-            textStrings["msgbox_no_internet_msg"] = "No se puede conectar a internet. ¿Estás conectado?";
+            textStrings["msgbox_conn_bp_error_msg"] = "No se puede conectar a Bp Network:";
+            textStrings["msgbox_conn_mihoyo_error_msg"] = "No se puede conectar a los servidores miHoYo:";
         }
     }
 }
