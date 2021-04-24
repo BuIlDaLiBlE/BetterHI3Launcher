@@ -31,7 +31,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_move"] = "Premesti fajlove igre";
             textStrings["contextmenu_uninstall"] = "Izbriši igru";
             textStrings["contextmenu_fixsubs"] = "Popravi titlove";
-            textStrings["contextmenu_download_type"] = "Promeni tip preuzimanja";
+            textStrings["contextmenu_download_type"] = "Resetuj tip preuzimanja";
             textStrings["contextmenu_game_settings"] = "Upravljaj podešavanjima igre";
             textStrings["contextmenu_customfps"] = "Podesi poseban FPS limit";
             textStrings["contextmenu_customresolution"] = "Podesi posebnu rezoluciju";
@@ -39,6 +39,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_web_profile"] = "Idi na web profil";
             textStrings["contextmenu_feedback"] = "Pošalji povratne informacije";
             textStrings["contextmenu_changelog"] = "Prikaži zapis promena";
+            textStrings["contextmenu_important_info"] = "Prikaži važne informacije";
             textStrings["contextmenu_language"] = "Jezik";
             textStrings["contextmenu_language_system"] = "Sistemski definisan";
             textStrings["contextmenu_language_english"] = "Engleski";
@@ -138,8 +139,9 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Brisanje";
             textStrings["msgbox_uninstallerror_msg"] = "Greška pri brisanju igre:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Greška pri brisanju";
-            textStrings["msgbox_download_type_1_msg"] = "Ovo će promeniti tip skidanja resursa igre u pokušaju da popravi problem sa beskonačnim ažuriranjem koji ti ne dozvoljava da udješ u igru.\nAko ovo ne reši problem, probaj ponovo.\nNastavi?";
-            textStrings["msgbox_download_type_2_msg"] = "ResourceDownloadType vrednost pre: {0}.\nResourceDownloadType vrednost posle: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Ovo će resetovati tip skidanja resursa igre u pokušaju da popravi problem sa beskonačnim ažuriranjem koji ti ne dozvoljava da udješ u igru.\nAko ovo ne reši problem, probaj ponovo.\nNastavi?";
+            textStrings["msgbox_download_type_2_msg"] = "Tip preuzimanja je reseteovan. Pokreni igru i izaberi \"HD assets\".";
+            textStrings["msgbox_download_type_3_msg"] = "Tip preuzimanja je već reseteovan. Pokreni igru i izaberi \"HD assets\".";
             textStrings["msgbox_fixsubs_1_msg"] = "Ovo će pokušati da popravi CG titlove (i gacha zastave). Postaraj se da imaš sve CG već preuzete.\nNastavi?";
             textStrings["msgbox_fixsubs_2_msg"] = "Otpakivanje titlova {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Provera titlova {0}/{1}...";
@@ -179,7 +181,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Greška sa serverom. Pitaj održavača servera za pomoć.\nPoruka: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Ovaj pokretač zahteva .NET Framework 4.6.1 ili noviji za instalaciju.";
             textStrings["msgbox_language_msg"] = "Jezik će biti promenjen na {0} i pokretač će se restartovati.\nNastavi?";
-            textStrings["msgbox_no_internet_msg"] = "Neuspela konekcija. Da li ti radi internet?";
+            textStrings["msgbox_conn_bp_error_msg"] = "Neuspešna konekcija na Bp Network:";
+            textStrings["msgbox_conn_mihoyo_error_msg"] = "Neuspešna konekcija na miHoYo servere:";
         }
     }
 }

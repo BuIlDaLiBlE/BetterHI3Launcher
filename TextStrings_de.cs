@@ -25,7 +25,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_move"] = "Verschiebe Spieldateien";
             textStrings["contextmenu_uninstall"] = "Spiel deinstallieren";
             textStrings["contextmenu_fixsubs"] = "Repariere Untertitel";
-            textStrings["contextmenu_download_type"] = "Wechsle den Downloadtyp";
+            textStrings["contextmenu_download_type"] = "Setze Downloadtyp zurück";
             textStrings["contextmenu_game_settings"] = "Spieleinstellungen verwalten";
             textStrings["contextmenu_customfps"] = "Setze FPS Limit";
             textStrings["contextmenu_customresolution"] = "Setze benutzerdefinierte Auflösung";
@@ -33,6 +33,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_web_profile"] = "Zum Webprofil gehen";
             textStrings["contextmenu_feedback"] = "Schreibe Feedback";
             textStrings["contextmenu_changelog"] = "Changelog anzeigen";
+            textStrings["contextmenu_important_info"] = "Zeige wichtige Informationen";
             textStrings["contextmenu_language"] = "Sprache";
             textStrings["contextmenu_language_system"] = "Systemstandard";
             textStrings["contextmenu_language_english"] = "Englisch";
@@ -131,8 +132,9 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Deinstallieren";
             textStrings["msgbox_uninstallerror_msg"] = "Es ist ein Fehler beim Deinstallieren des Spieles aufgetreten:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Deinstallationsfehler";
-            textStrings["msgbox_download_type_1_msg"] = "Dies wird die Spieleressourcen verändern, um das bekannte Problem zu beheben, welches dafür sorgt, dass man in einer Update-Schleife im Spiel ist und diese dich dann nicht ins Hauptmenü reinlässt.\nFalls es das Problem nicht lösen sollte, versuche es nochmal.\nFortfahren?";
-            textStrings["msgbox_download_type_2_msg"] = "ResourceDownloadType value before: {0}.\nResourceDownloadType value after: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Dies wird die Spieleressourcen zurückgesetzt, um das bekannte Problem zu beheben, welches dafür sorgt, dass man in einer Update-Schleife im Spiel ist und diese dich dann nicht ins Hauptmenü reinlässt.\nFortfahren?";
+            textStrings["msgbox_download_type_2_msg"] = "Der Download typ wurde zurückgesetzt. Starte das Spiel und wähle \"HD assets\".";
+            textStrings["msgbox_download_type_3_msg"] = "Der Download typ wurde bereits zurückgesetzt. Starte das Spiel und wähle \"HD assets\".";
             textStrings["msgbox_fixsubs_1_msg"] = "Dies wird ein Fehler beseitigen, bei dem Untertitel bei Zwischensequenzen oder Bannern nicht angezeigt werden. Es sollen alle Zwischensequenzen im Spiel erst heruntergeladen werden, bevor diese Option angeklickt wird.\nFortfahren?";
             textStrings["msgbox_fixsubs_2_msg"] = "Entpacke Untertitel Dateien {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Überprüfe Untertitel Dateien {0}/{1}...";
@@ -162,7 +164,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirrorinfo_msg"] = "Benutze diesen Mirror nur, wenn du nicht von den offiziellen miHoYo Server herunterladen kannst.\nDenke daran, dass die Spieledateien manuell aktualisiert werden\nFortfahren?";
             textStrings["msgbox_updatecheckerror_msg"] = "Es ist ein Fehler beim Überprüfen auf eine Aktualisierung aufgetreten.\nFür mehr Informationen schaue im Log nach.";
             textStrings["msgbox_updatecheckerror_title"] = "Aktualisierungsfehler";
-            textStrings["msgbox_gamedownloadmirrorold_msg"] = "Die Spieledateien auf dem offiziellen miHoYo-Server sind neuer, als die auf den Mirror-Servern.\nEs gibt keinen Grund eine ältere Version von diesem Mirror herunterzuladen, kontaktiere den Uploader dieses Mirrors.";
+            textStrings["msgbox_gamedownloadmirrorold_msg"] = "Die Spieledateien auf dem offiziellen miHoYo Server sind neuer, als die auf den Mirror-Servern.\nEs gibt keinen Grund eine ältere Version von diesem Mirror herunterzuladen, kontaktiere den Uploader dieses Mirrors.";
             textStrings["msgbox_gamedownloadpaused_msg"] = "Das Spiel wurde bisher nicht vollständig heruntergeladen. Den Server zu ändern würde den Downloadfortschritt zurücksetzen.\nFortfahren?";
             textStrings["msgbox_gamedownloadmirrorerror_msg"] = "Es ist ein Fehler beim Herunterladen von diesem Mirror aufgetreten.\nFür mehr Informationen schaue im Log nach.";
             textStrings["msgbox_install_little_space_msg"] = "Es ist nicht genügend Speicher beim ausgwählten Pfad verfügbar, es ist empfohlen mehr Speicherplatz freizugeben, da es zu zukünftigen Komplikationen führen kann.\nFortfahren?";
@@ -172,7 +174,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Es ist ein Fehler bei diesem Mirror aufgetreten, bitte den Uploader dieses Mirrors dem Fehler auf den Grund zu gehen.\nMessage: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Dieser Launcher benötigt eine Installation von .NET Framework 4.6.1 oder höher.";
             textStrings["msgbox_language_msg"] = "Die Sprache wird zu {0} geändert und der Launcher neu gestartet.\nFortfahren?";
-            textStrings["msgbox_no_internet_msg"] = "Es konnte keine Verbindung zum Internet hergestellt werden. Bist du mit dem Internet verbunden?";
+            textStrings["msgbox_conn_bp_error_msg"] = "Es konnte keine Verbindung zum Bp Network hergestellt werden:";
+            textStrings["msgbox_conn_mihoyo_error_msg"] = "Es konnte keine Verbindung zum miHoYo Server hergestellt werden:";
         }
     }
 }

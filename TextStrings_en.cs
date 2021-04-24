@@ -43,7 +43,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_move", "Move game files");
             textStrings.Add("contextmenu_uninstall", "Uninstall game");
             textStrings.Add("contextmenu_fixsubs", "Fix subtitles");
-            textStrings.Add("contextmenu_download_type", "Change download type");
+            textStrings.Add("contextmenu_download_type", "Reset download type");
             textStrings.Add("contextmenu_game_settings", "Manage game settings");
             textStrings.Add("contextmenu_customfps", "Set custom FPS cap");
             textStrings.Add("contextmenu_customresolution", "Set custom resolution");
@@ -51,6 +51,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_web_profile", "Go to web profile");
             textStrings.Add("contextmenu_feedback", "Send feedback");
             textStrings.Add("contextmenu_changelog", "Show changelog");
+            textStrings.Add("contextmenu_important_info", "Show important information");
             textStrings.Add("contextmenu_language", "Language");
             textStrings.Add("contextmenu_language_system", "System Default");
             textStrings.Add("contextmenu_language_english", "English");
@@ -151,8 +152,9 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_uninstall_title", "Uninstall");
             textStrings.Add("msgbox_uninstallerror_msg", "An error occurred while uninstalling the game:\n{0}");
             textStrings.Add("msgbox_uninstallerror_title", "Uninstallation error");
-            textStrings.Add("msgbox_download_type_1_msg", "This will change game's resource download type in an attempt to fix the infamous update loop which doesn't let you enter the game.\nIf this doesn't fix the problem, try again.\nContinue?");
-            textStrings.Add("msgbox_download_type_2_msg", "ResourceDownloadType value before: {0}.\nResourceDownloadType value after: {1}.");
+            textStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type in an attempt to fix the infamous update loop which doesn't let you enter the game.\nContinue?");
+            textStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"HD assets\".");
+            textStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"HD assets\".");
             textStrings.Add("msgbox_fixsubs_1_msg", "This will attempt to fix CG subtitles (and gacha banners). Make sure you have already downloaded all CGs in the game.\nContinue?");
             textStrings.Add("msgbox_fixsubs_2_msg", "Unpacking subtitle file {0}/{1}...");
             textStrings.Add("msgbox_fixsubs_3_msg", "Checking subtitle file {0}/{1}...");
@@ -192,7 +194,8 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_mirror_error_msg", "There's an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
             textStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6.1 or newer to be installed.");
             textStrings.Add("msgbox_language_msg", "Language is going to be changed to {0} and launcher will be restarted.\nContinue?");
-            textStrings.Add("msgbox_no_internet_msg", "Cannot connect to the internet. Are you online?");
+            textStrings.Add("msgbox_conn_bp_error_msg", "Cannot connect to Bp Network:");
+            textStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to miHoYo servers:");
         }
     }
 }

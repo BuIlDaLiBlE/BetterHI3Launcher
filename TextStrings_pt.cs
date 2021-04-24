@@ -33,7 +33,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_move"] = "Mover arquivos do jogo";
             textStrings["contextmenu_uninstall"] = "Desinstalar jogo";
             textStrings["contextmenu_fixsubs"] = "Corrigir legendas";
-            textStrings["contextmenu_download_type"] = "Alterar tipo de download";
+            textStrings["contextmenu_download_type"] = "Redefinir tipo de download";
             textStrings["contextmenu_game_settings"] = "Gerenciar configurações de jogo";
             textStrings["contextmenu_customfps"] = "Definir limite de FPS personalizado";
             textStrings["contextmenu_customresolution"] = "Definir resolução personalizada";
@@ -139,8 +139,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Desinstalar";
             textStrings["msgbox_uninstallerror_msg"] = "Ocorreu um erro ao desinstalar o jogo:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Erro de desinstalação";
-            textStrings["msgbox_download_type_1_msg"] = "Isso mudará o tipo de download de recursos do jogo em uma tentativa de consertar o infame loop de atualização que não permite que você entre no jogo.\nSe isso não resolver o problema, tente novamente.\nContinuar?";
-            textStrings["msgbox_download_type_2_msg"] = "Valor ResourceDownloadType antes: {0}.\nValor ResourceDownloadType depois: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Isso irá redefinir o tipo de download de recursos do jogo em uma tentativa de consertar o infame loop de atualização que não permite que você entre no jogo.\nContinuar?";
             textStrings["msgbox_fixsubs_1_msg"] = "Isso tentará corrigir as legendas dos CGs (e banners de gacha). Certifique-se de que já baixou todos os CGs do jogo.\nContinuar?";
             textStrings["msgbox_fixsubs_2_msg"] = "Extraindo arquivo de legenda {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Verificando arquivo de legenda {0}/{1}...";
@@ -180,7 +179,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Ocorreu um erro com o espelho. Peça ao mantenedor do espelho para chegar ao final disso.\nMensagem: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Este launcher requer que o .NET Framework 4.6.1 ou mais recente esteja instalado.";
             textStrings["msgbox_language_msg"] = "O idioma será alterado para {0} e o launcher será reiniciado.\nContinuar?";
-            textStrings["msgbox_no_internet_msg"] = "Não foi possível conectar-se à internet. Você está online?";
+            textStrings["msgbox_conn_bp_error_msg"] = "Não foi possível conectar-se ao Bp Network:";
+            textStrings["msgbox_conn_mihoyo_error_msg"] = "Não foi possível conectar-se aos servidores miHoYo:";
         }
     }
 }

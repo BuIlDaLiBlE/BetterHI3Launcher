@@ -32,7 +32,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_move"] = "Di chuyển tệp trò chơi";
             textStrings["contextmenu_uninstall"] = "Gỡ bỏ trò chơi";
             textStrings["contextmenu_fixsubs"] = "Sửa lại phụ đề";
-            textStrings["contextmenu_download_type"] = "Thay đổi loại tải xuống";
+            textStrings["contextmenu_download_type"] = "Đặt lại loại tải xuống";
             textStrings["contextmenu_game_settings"] = "Quản lí cài đặt trò chơi";
             textStrings["contextmenu_customfps"] = "Tuỳ chỉnh giới hạn FPS";
             textStrings["contextmenu_customresolution"] = "Tuỳ chỉnh giới hạn độ phân giải";
@@ -137,8 +137,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_title"] = "Gỡ cài đặt";
             textStrings["msgbox_uninstallerror_msg"] = "Đã xảy ra lỗi khi gỡ cài đặt trò chơi:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Lỗi khi gỡ cài đặt";
-            textStrings["msgbox_download_type_1_msg"] = "Điều này sẽ thay đổi loại tải xuống tài nguyên của trò chơi nhằm cố gắng sửa lỗi vòng lặp cập nhật không cho phép bạn tham gia trò chơi.\nNếu cách này không khắc phục được sự cố, hãy thử lại.\nTiếp tuc?";
-            textStrings["msgbox_download_type_2_msg"] = "Giá trị ResourceDownloadType trước: {0}.\n Giá trị ResourceDownloadType sau: {1}.";
+            textStrings["msgbox_download_type_1_msg"] = "Điều này sẽ đặt lại loại tải xuống tài nguyên của trò chơi nhằm cố gắng sửa lỗi vòng lặp cập nhật không cho phép bạn tham gia trò chơi.\nTiếp tuc?";
             textStrings["msgbox_fixsubs_1_msg"] = "Điều này sẽ cố gắng sửa phụ đề CG (và gacha banner). Đảm bảo rằng bạn đã tải xuống tất cả các CG trong trò chơi.\ntục?";
             textStrings["msgbox_fixsubs_2_msg"] = "Giải nén tệp phụ đề {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Kiểm tra tệp phụ đề {0}/{1}...";
@@ -178,7 +177,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_mirror_error_msg"] = "Có lỗi với mirror. Yêu cầu người bảo trì mirror tìm hiểu sâu hơn về vấn đề này.\nMessage: {0}";
             textStrings["msgbox_net_version_old_msg"] = "Trính khởi chạy yêu cầu .NET Framework 4.6.1 hoặc mới hơn để có thể cài đặt.";
             textStrings["msgbox_language_msg"] = "Ngôn ngữ sẽ chuyển sang {0} và trình khởi chạy sẽ được khởi động lại.\nTiếp tục?";
-            textStrings["msgbox_no_internet_msg"] = "Không thể kết nối với mạng. Vui lòng chắc chắn rằng bạn đã kết nối?";
+            textStrings["msgbox_conn_bp_error_msg"] = "Không thể kết nối với Bp Network:";
+            textStrings["msgbox_conn_mihoyo_error_msg"] = "Không thể kết nối với máy chủ miHoYo:";
         }
     }
 }
