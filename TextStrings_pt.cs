@@ -41,6 +41,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_web_profile"] = "Entrar no website";
             textStrings["contextmenu_feedback"] = "Enviar feedback";
             textStrings["contextmenu_changelog"] = "Mostrar changelog";
+            textStrings["contextmenu_important_info"] = "Mostrar informações importantes";
             textStrings["contextmenu_language"] = "Idioma";
             textStrings["contextmenu_language_system"] = "Padrão do sistema";
             textStrings["contextmenu_language_english"] = "Inglês";
@@ -140,6 +141,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstallerror_msg"] = "Ocorreu um erro ao desinstalar o jogo:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Erro de desinstalação";
             textStrings["msgbox_download_type_1_msg"] = "Isso irá redefinir o tipo de download de recursos do jogo em uma tentativa de consertar o infame loop de atualização que não permite que você entre no jogo.\nContinuar?";
+            textStrings["msgbox_download_type_2_msg"] = "O tipo de download foi redefinido. Inicie o jogo e selecione \"HD assets\".";
+            textStrings["msgbox_download_type_3_msg"] = "O tipo de download já foi redefinido. Inicie o jogo e selecione \"HD assets\".";
             textStrings["msgbox_fixsubs_1_msg"] = "Isso tentará corrigir as legendas dos CGs (e banners de gacha). Certifique-se de que já baixou todos os CGs do jogo.\nContinuar?";
             textStrings["msgbox_fixsubs_2_msg"] = "Extraindo arquivo de legenda {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Verificando arquivo de legenda {0}/{1}...";

@@ -44,10 +44,11 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version LocalLauncherVersion = new Version("1.1.20210424.0");
+        public static readonly Version LocalLauncherVersion = new Version("1.1.20210426.0");
         public static readonly string RootPath = Directory.GetCurrentDirectory();
         public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
+        public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
         public static readonly string miHoYoPath = Path.Combine(LocalLowPath, "miHoYo");
         public static readonly string GameExeName = "BH3.exe";
         public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
@@ -58,9 +59,7 @@ namespace BetterHI3Launcher
         public static string GameRegistryPath, GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
         public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
         public static bool FirstLaunch = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher") == null ? true : false;
-        public static bool EnableAutoUpdate = true;
-        public static bool AdvancedFeatures = false;
-        public static bool DownloadPaused = false;
+        public static bool DisableAutoUpdate, DisableLogging, AdvancedFeatures, DownloadPaused, PatchDownload;
         public static Dictionary<string, string> textStrings = new Dictionary<string, string>();
         public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
         LauncherStatus _status;
@@ -253,6 +252,45 @@ namespace BetterHI3Launcher
             #endif
 
             InitializeComponent();
+            var args = new List<string>();
+            for(int i = 1; i < CommandLineArgs.Length; i++)
+            {
+                args.Add(CommandLineArgs[i].ToUpper());
+            }
+            if(args.Contains("NOLOG"))
+            {
+                DisableLogging = true;
+            }
+            if(!DisableLogging)
+            {
+                try
+                {
+                    if(File.Exists(LauncherLogFile))
+                    {
+                        string old_log_path_1 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old1.log");
+                        for(int i = 9; i > 0; i--)
+                        {
+                            string old_log_path_2 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old{i}.log");
+                            if(File.Exists(old_log_path_2))
+                            {
+                                string old_log_path_3 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old{i + 1}.log");
+                                string old_log_path_4 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old10.log");
+                                if(File.Exists(old_log_path_4))
+                                {
+                                    File.Delete(old_log_path_4);
+                                }
+                                File.Move(old_log_path_2, old_log_path_3);
+                            }
+                        }
+                        File.Move(LauncherLogFile, old_log_path_1);
+                    }
+                }
+                catch
+                {
+                    Log($"WARNING: Unable to rename log files", true, 2);
+                }
+            }
+            DeleteFile(LauncherLogFile, true);
             Log(UserAgent, false);
             Log($"Working directory: {RootPath}");
             Log($"OS language: {OSLanguage}");
@@ -328,15 +366,10 @@ namespace BetterHI3Launcher
             Log($"Launcher language: {LauncherLanguage}");
             UserAgent += $" [{LauncherLanguage}]";
 
-            var args = new List<string>();
-            for(int i = 1; i < CommandLineArgs.Length; i++)
-            {
-                args.Add(CommandLineArgs[i].ToUpper());
-            }
             #if !DEBUG
             if(args.Contains("NOUPDATE"))
             {
-                EnableAutoUpdate = false;
+                DisableAutoUpdate = true;
                 UserAgent += " [NOUPDATE]";
                 Log("Auto-update disabled");
             }
@@ -347,6 +380,10 @@ namespace BetterHI3Launcher
                 Application.Current.MainWindow.Width = Grid.Width;
                 Application.Current.MainWindow.Height = Grid.Height;
                 Log("DropShadowEffect disabled");
+            }
+            if(args.Contains("NOLOG"))
+            {
+                Log("Logging disabled");
             }
             if(args.Contains("ADVANCED"))
             {
@@ -856,7 +893,7 @@ namespace BetterHI3Launcher
             }
         }
 
-        private async void GameUpdateCheck(bool serverChanged)
+        private async void GameUpdateCheck(bool serverChanged = false)
         {
             if(Status == LauncherStatus.Error)
                 return;
@@ -869,7 +906,7 @@ namespace BetterHI3Launcher
                 FetchOnlineVersionInfo();
                 try
                 {
-                    bool game_needs_update = false;
+                    int game_needs_update;
                     long download_size = 0;
                     if(Mirror == HI3Mirror.miHoYo)
                     {
@@ -904,14 +941,31 @@ namespace BetterHI3Launcher
                         LocalVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])LauncherRegKey.GetValue(RegistryVersionInfo)));
                         var LocalGameVersion = new GameVersion(LocalVersionInfo.game_info.version.ToString());
                         GameInstallPath = LocalVersionInfo.game_info.install_path.ToString();
+                        game_needs_update = GameUpdateCheckSimple();
                         GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
                         GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
-                        game_needs_update = GameUpdateCheckSimple();
+
+                        if(!File.Exists(GameExePath))
+                        {
+                            Log($"WARNING: Game executable is missing, resetting game version info...", true, 2);
+                            DeleteGameFiles();
+                            GameUpdateCheck();
+                            return;
+                        }
                         Log($"Game version: {LocalGameVersion}");
                         Log($"Game directory: {GameInstallPath}");
-
-                        if(game_needs_update)
+                        if(game_needs_update != 0)
                         {
+                            if(game_needs_update == 2)
+                            {
+                                var webRequest = BpUtility.CreateWebRequest($"{miHoYoVersionInfo.download_url}/{miHoYoVersionInfo.patch_list[LocalVersionInfo.game_info.version.ToString()].name.ToString()}", "HEAD");
+                                using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
+                                {
+                                    download_size = webResponse.ContentLength;
+                                }
+                                GameArchiveName = miHoYoVersionInfo.patch_list[LocalGameVersion.ToString()].name.ToString();
+                                PatchDownload = true;
+                            }
                             Log("Game requires an update!");
                             Status = LauncherStatus.UpdateAvailable;
                             Dispatcher.Invoke(() =>
@@ -962,7 +1016,13 @@ namespace BetterHI3Launcher
                             ToggleContextMenuItems(false, false);
                             var path = CheckForExistingGameDirectory(RootPath);
                             if(string.IsNullOrEmpty(path))
+                            {
                                 path = CheckForExistingGameDirectory(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
+                            }
+                            if(path.Length < 4)
+                            {
+                                path = string.Empty;
+                            }
                             if(!string.IsNullOrEmpty(path))
                             {
                                 if(MessageBox.Show(string.Format(textStrings["msgbox_installexisting_msg"], path), textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
@@ -975,7 +1035,7 @@ namespace BetterHI3Launcher
                                         if((int)Server != server)
                                             ServerDropdown.SelectedIndex = server;
                                         WriteVersionInfo(true, true);
-                                        GameUpdateCheck(false);
+                                        GameUpdateCheck();
                                     }
                                     else
                                     {
@@ -1009,25 +1069,30 @@ namespace BetterHI3Launcher
             });
         }
 
-        private bool GameUpdateCheckSimple()
+        private int GameUpdateCheckSimple()
         {
             if(LocalVersionInfo != null)
             {
                 FetchmiHoYoVersionInfo();
                 var LocalGameVersion = new GameVersion(LocalVersionInfo.game_info.version.ToString());
                 var onlineGameVersion = new GameVersion(miHoYoVersionInfo.cur_version.ToString());
+                PatchDownload = false;
                 if(onlineGameVersion.IsDifferentThan(LocalGameVersion))
                 {
-                    return true;
+                    if(miHoYoVersionInfo.patch_list[LocalGameVersion.ToString()] != null)
+                    {
+                        return 2;
+                    }
+                    return 1;
                 }
                 else
                 {
-                    return false;
+                    return 0;
                 }
             }
             else
             {
-                return false;
+                return 0;
             }
         }
 
@@ -1106,7 +1171,10 @@ namespace BetterHI3Launcher
                     title = GameArchiveName;
                     time = -1;
                     url = $"{miHoYoVersionInfo.download_url.ToString()}/{GameArchiveName}";
-                    md5 = miHoYoVersionInfo.full_version_file.md5.ToString();
+                    if(PatchDownload)
+                        md5 = miHoYoVersionInfo.patch_list[LocalVersionInfo.game_info.version.ToString()].md5.ToString();
+                    else
+                        md5 = miHoYoVersionInfo.full_version_file.md5.ToString();
                 }
                 else if(Mirror == HI3Mirror.MediaFire)
                 {
@@ -1257,7 +1325,8 @@ namespace BetterHI3Launcher
                                     if(File.Exists(GameArchivePath))
                                         File.Create(GameArchivePath).Dispose();
                                     abort = true;
-                                    GameUpdateCheck(false);
+                                    Status = LauncherStatus.Ready;
+                                    GameUpdateCheck();
                                 }
                             });
                         }
@@ -1267,13 +1336,16 @@ namespace BetterHI3Launcher
                         }
                         if(abort)
                             return;
-                        try
+                        if(!PatchDownload)
                         {
-                            foreach(var file in Directory.GetFiles(Path.Combine(GameInstallPath, @"BH3_Data\StreamingAssets\Asb\pc"), "*.wmv"))
+                            try
                             {
-                                DeleteFile(file);
-                            }
-                        }catch{}
+                                foreach(var file in Directory.GetFiles(Path.Combine(GameInstallPath, @"BH3_Data\StreamingAssets\Asb\pc"), "*.wmv"))
+                                {
+                                    DeleteFile(file);
+                                }
+                            }catch{}
+                        }
                         var skippedFiles = new List<string>();
                         using(var archive = ArchiveFactory.Open(GameArchivePath))
                         {
@@ -1324,7 +1396,7 @@ namespace BetterHI3Launcher
                         {
                             WriteVersionInfo(false, true);
                             Log("Successfully installed the game");
-                            GameUpdateCheck(false);
+                            GameUpdateCheck();
                         });
                         if(time != -1)
                             SendStatistics(title, time);
@@ -1338,7 +1410,7 @@ namespace BetterHI3Launcher
                     {
                         if(MessageBox.Show(textStrings["msgbox_installerror_msg"], textStrings["msgbox_installerror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                         {
-                            GameUpdateCheck(false);
+                            GameUpdateCheck();
                         }
                     });
                 }
@@ -1349,7 +1421,7 @@ namespace BetterHI3Launcher
                 Log($"ERROR: Failed to download the game:\n{ex}", true, 1);
                 if(MessageBox.Show(textStrings["msgbox_gamedownloaderror_msg"], textStrings["msgbox_gamedownloaderror_title"], MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
                 {
-                    GameUpdateCheck(false);
+                    GameUpdateCheck();
                 }
             }
         }
@@ -1363,6 +1435,11 @@ namespace BetterHI3Launcher
                 versionInfo.game_info.version = miHoYoVersionInfo.cur_version.ToString();
                 versionInfo.game_info.install_path = GameInstallPath;
                 versionInfo.game_info.installed = IsInstalled;
+
+                if(GameInstallPath.Length < 4)
+                {
+                    throw new Exception("Install path can't be on a root drive");
+                }
                 if(CheckForLocalVersion)
                 {
                     RegistryKey key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
@@ -1391,12 +1468,12 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                Log($"ERROR: Failed to access registry:\n{ex}", true, 1);
-                MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+                Log($"ERROR: Failed to write version info:\n{ex}", true, 1);
+                MessageBox.Show(textStrings["msgbox_genericerror_msg"], textStrings["msgbox_genericerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void DeleteGameFiles(bool DeleteGame)
+        private void DeleteGameFiles(bool DeleteGame = false)
         {
             if(DeleteGame)
             {
@@ -1506,7 +1583,8 @@ namespace BetterHI3Launcher
                                 {
                                     DeleteFile(CacheArchivePath);
                                     abort = true;
-                                    GameUpdateCheck(false);
+                                    Status = LauncherStatus.Ready;
+                                    GameUpdateCheck();
                                 }
                             });
                         }
@@ -1629,7 +1707,7 @@ namespace BetterHI3Launcher
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
             #if DEBUG
-                EnableAutoUpdate = false;
+                DisableAutoUpdate = true;
             #endif
             try
             {
@@ -1649,7 +1727,7 @@ namespace BetterHI3Launcher
                 DeleteFile(Path.Combine(RootPath, oldExeName), true);
                 await Task.Run(() =>
                 {
-                    if(!EnableAutoUpdate)
+                    if(DisableAutoUpdate)
                         return;
                     if(needsUpdate)
                     {
@@ -1742,7 +1820,7 @@ namespace BetterHI3Launcher
                 }
             }
             if(!FirstLaunch)
-                GameUpdateCheck(false);
+                GameUpdateCheck();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -1850,6 +1928,10 @@ namespace BetterHI3Launcher
                             else
                             {
                                 var path = CheckForExistingGameDirectory(GameInstallPath);
+                                if(path.Length < 4)
+                                {
+                                    path = string.Empty;
+                                }
                                 if(!string.IsNullOrEmpty(path))
                                 {
                                     if(MessageBox.Show(string.Format(textStrings["msgbox_installexisting_msg"], path), textStrings["msgbox_install_title"], MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
@@ -1862,7 +1944,7 @@ namespace BetterHI3Launcher
                                             if((int)Server != server)
                                                 ServerDropdown.SelectedIndex = server;
                                             WriteVersionInfo(true, true);
-                                            GameUpdateCheck(false);
+                                            GameUpdateCheck();
                                         }
                                         else
                                         {
@@ -2195,7 +2277,7 @@ namespace BetterHI3Launcher
                                 GameInstallPath = path;
                                 WriteVersionInfo(false, true);
                                 Log("Successfully moved game files");
-                                GameUpdateCheck(false);
+                                GameUpdateCheck();
                             }
                             catch(Exception ex)
                             {
@@ -2253,7 +2335,7 @@ namespace BetterHI3Launcher
                             }
                         });
                         Log("Sucessfully uninstalled the game");
-                        GameUpdateCheck(false);
+                        GameUpdateCheck();
                     }
                     catch(Exception ex)
                     {
@@ -2850,7 +2932,7 @@ namespace BetterHI3Launcher
                 }
                 download = null;
                 DownloadPaused = false;
-                try{DeleteGameFiles(false);}catch{}
+                try{DeleteGameFiles();}catch{}
             }
             switch(index)
             {
@@ -2896,7 +2978,7 @@ namespace BetterHI3Launcher
                 }
                 download = null;
                 DownloadPaused = false;
-                DeleteGameFiles(false);
+                DeleteGameFiles();
             }
             if(Mirror == HI3Mirror.miHoYo && index != 0)
             {
@@ -2926,7 +3008,7 @@ namespace BetterHI3Launcher
             {
                 Log($"ERROR: Failed to write value with key LastSelectedMirror to registry:\n{ex}", true, 1);
             }
-            GameUpdateCheck(false);
+            GameUpdateCheck();
             Log($"Selected mirror: {((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string}");
         }
         
@@ -2961,7 +3043,7 @@ namespace BetterHI3Launcher
         {
             IntroBox.Visibility = Visibility.Collapsed;
             if(FirstLaunch)
-                GameUpdateCheck(false);
+                GameUpdateCheck();
         }
 
         private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
@@ -3713,6 +3795,26 @@ namespace BetterHI3Launcher
                 }
                 LogBoxScrollViewer.ScrollToEnd();
             });
+            if(!DisableLogging)
+            {
+                try
+                {
+                    if(File.Exists(LauncherLogFile))
+                        File.SetAttributes(LauncherLogFile, File.GetAttributes(LauncherLogFile) & ~FileAttributes.ReadOnly);
+                    if(newline)
+                    {
+                        File.AppendAllText(LauncherLogFile, '\n' + msg);
+                    }
+                    else
+                    {
+                        File.AppendAllText(LauncherLogFile, msg);
+                    }
+                }
+                catch
+                {
+                    Log($"WARNING: Unable to write to log file", true, 2);
+                }
+            }
         }
 
         public void DeleteFile(string path, bool ignorereadonly = false)
