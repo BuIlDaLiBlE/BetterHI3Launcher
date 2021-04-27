@@ -39,7 +39,6 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_web_profile"] = "Idi na web profil";
             textStrings["contextmenu_feedback"] = "Pošalji povratne informacije";
             textStrings["contextmenu_changelog"] = "Prikaži zapis promena";
-            textStrings["contextmenu_important_info"] = "Prikaži važne informacije";
             textStrings["contextmenu_language"] = "Jezik";
             textStrings["contextmenu_language_system"] = "Sistemski definisan";
             textStrings["contextmenu_language_english"] = "Engleski";
@@ -71,8 +70,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_zipping"] = "Dodavanje fajla {0}/{1} u ZIP arhivu...";
             textStrings["progresstext_fetching_hashes"] = "Dohvatanje heševa...";
             textStrings["introbox_title"] = "Dobrodošli u Better Honkai Impact 3rd pokretač!";
-            textStrings["introbox_msg_1"] = "!!! VAŽNO, PROČITATI !!!";
-            textStrings["introbox_msg_2"] = "Izgleda da je ovo prvi put da koristiš pokretač. Pre svega, drago mi je da si odlučio da ga isprobaš, i ako imaš bilo kakav predlog slobodno ga podeli sa mnom.\nVažno je da ukoliko koristiš oficijalni pokretač da ažuriraš igru, a još uvek je nisi pokrenuo (došao do tačke kada si na mostu) ne treba da koristiš ovaj pokretač. U suprotnom pokretač može pogrešno da prepozna tvoju verziju igre kao zastarelu, i da moraš iz početka da preuzmeš celu igru.\n\nRazumeo sve to? Odlično! Ako već imaš instaliranu igru, samo pritisni \"Preuzmi\" dugme i izaberi folder u kojem ti je igra. Pokretač će je prepoznati i nećeš morati iz početka da je preuzimaš.";
+            textStrings["introbox_msg"] = "Izgleda da je ovo prvi put da koristiš pokretač. drago mi je da si odlučio da ga isprobaš, i ako imaš bilo kakav predlog slobodno ga podeli sa mnom tako što ćeš kliknuti dugme \"Opcije\" i izabrati \"Pošalji povratne informacije\".\nAko već imaš instaliranu igru, samo klikni dugme \"Preuzmi\" i izaberi direktorijum u kojem ti se nalazi igra. Pokretač će automatski detektovati verziju igre i nećeš morati ponovo da je preuzimaš.";
             textStrings["downloadcachebox_msg"] = "Izaberi da li želiš da preuzmeš ceo keš paket ili samo numeričke fajlove.\nIzaberi \"Ceo keš\" ako imš problema sa \"updating game resources\".\nIzaberi \"Numerički fajlovi\" ako imaš problem sa \"updating settings\".\nImaj na umu da trenutno ne postoji način da se automatski preuzme najnoviji keš i da moramo ručno da ga optremimo na server: {0}.\nKeš poslednji put ažuriran: {1}.\nTrenutni održavač preslikanog keša: {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Ceo keš";
             textStrings["downloadcachebox_button_numeric_files"] = "Numerički fajlovi";

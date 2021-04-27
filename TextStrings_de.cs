@@ -31,9 +31,8 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_customresolution"] = "Setze benutzerdefinierte Auflösung";
             textStrings["contextmenu_resetgamesettings"] = "Setze Spieleinstellungen zurück";
             textStrings["contextmenu_web_profile"] = "Zum Webprofil gehen";
-            textStrings["contextmenu_feedback"] = "Schreibe Feedback";
+            textStrings["contextmenu_feedback"] = "Feedback schreiben";
             textStrings["contextmenu_changelog"] = "Changelog anzeigen";
-            textStrings["contextmenu_important_info"] = "Zeige wichtige Informationen";
             textStrings["contextmenu_language"] = "Sprache";
             textStrings["contextmenu_language_system"] = "Systemstandard";
             textStrings["contextmenu_language_english"] = "Englisch";
@@ -65,8 +64,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_zipping"] = "Archiviere Datei {0}/{1} zu einem ZIP Archiv...";
             textStrings["progresstext_fetching_hashes"] = "Hole Datei-Hashes...";
             textStrings["introbox_title"] = "Herzlich Willkommen zum Better Honkai Impact 3rd launcher!";
-            textStrings["introbox_msg_1"] = "!!! WICHTIGE INFORMATIONEN, BITTE LESEN !!!";
-            textStrings["introbox_msg_2"] = "Es sieht so aus, als würdest du den Launcher zum ersten Mal benutzen. Erst einmal vielen Dank, dass du dem Launcher einen Versuch gibst, falls er dir gefällt würde ich mich über dein Feedback freuen.\nAußerdem ist es wichtig, dass du weißt, dass wenn du das Spiel bisher über dem offiziellen Launcher heruntergeladen, aber das Spiel noch nicht gestartet und bis zum Hauptmenü geladen hast (das, in Form der Brücke), dann solltest du den Launcher noch nicht benutzen, da dann der Launcher deine Spieldateien als veraltet ansieht und diese dann neu herunterlädt.\n\nHast du alles verstanden? Gut! Falls du das Spiel bereits seit längerem spielst, beziehungsweise heruntergeladen hast und im Hauptmenü warst, dann drücke auf den Herunterladen-Knopf und wähle deinen Spielordner aus. Dann sollte der Launcher dein Spiel erkennen und dir bleibt der Download erspart.";
+            textStrings["introbox_msg"] = "Es sieht so aus als würdest du den Launcher zum ersten mal benutzen. Als erstes freue ich mich das du diesem Launcher eine Chance gibst. In diesem Fall würde ich mich über ein Feedback freuen in dem du bei \"Optionen\" unter dem Reiter \"Feedback senden\".\n Falls du das Spiel bereits installiert hast, drücke einfach auf den \"Herunterladen\" Knopf und wähle das Installationsverzeichnis aus. Der Launcher wird dann automatisch deine Spieleversion erkennen und du musst es nicht erneut herunterladen.";
             textStrings["downloadcachebox_msg"] = "Wähle zwischen einem Cachedownload oder dem Herunterladen numerischer Dateien.\nWähle \"Komplettes Cache\", falls du Probleme hast die Eventdateien zu aktualisieren.\nWähle \"Numerische Dateien\", falls du Probleme hast die Einstellungen zu aktualisieren\nBitte verstehe, dass es aktuell keinen Weg gibt den Cache von den offiziellen miHoYo Server zu downloaden, aber es ist möglich es von den Mirror-Servern herunterzuladen.\nBenutze Mirror-Server: {0}.\nCache zuletzt aktualisiert: {1}.\nDer aktuelle Mirror-Maintainer ist {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Kompletter Cache";
             textStrings["downloadcachebox_button_numeric_files"] = "Numerische Dateien";

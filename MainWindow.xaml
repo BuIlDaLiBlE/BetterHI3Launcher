@@ -248,12 +248,11 @@
             </Grid>
             <Grid Name="IntroBox" Visibility="Collapsed">
                 <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="250">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="170">
                     <Border BorderBrush="Black" Background="#C8FFFFFF">
                         <StackPanel>
                             <TextBlock Name="IntroBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <TextBlock Name="IntroBoxImportantMessageTextBlock" Margin="150,0,25,0" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
-                            <TextBlock Name="IntroBoxMessageTextBlock" Margin="150,0,22,5" Height="160" FontFamily="Segoe UI" TextWrapping="Wrap"/>
+                            <TextBlock Name="IntroBoxMessageTextBlock" Margin="150,0,22,5" Height="100" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Name="IntroBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="IntroBoxCloseButton_Click"/>
                             </StackPanel>

@@ -404,8 +404,7 @@ namespace BetterHI3Launcher
             ServerLabel.Text = $"{textStrings["label_server"]}:";
             MirrorLabel.Text = $"{textStrings["label_mirror"]}:";
             IntroBoxTitleTextBlock.Text = textStrings["introbox_title"];
-            IntroBoxImportantMessageTextBlock.Text = textStrings["introbox_msg_1"];
-            IntroBoxMessageTextBlock.Text = textStrings["introbox_msg_2"];
+            IntroBoxMessageTextBlock.Text = textStrings["introbox_msg"];
             IntroBoxOKButton.Content = textStrings["button_ok"];
             DownloadCacheBoxTitleTextBlock.Text = textStrings["contextmenu_downloadcache"];
             DownloadCacheBoxFullCacheButton.Content = textStrings["downloadcachebox_button_full_cache"];
@@ -487,9 +486,6 @@ namespace BetterHI3Launcher
             var CMChangelog = new MenuItem{Header = textStrings["contextmenu_changelog"]};
             CMChangelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
             OptionsContextMenu.Items.Add(CMChangelog);
-            var CMImportantInfo = new MenuItem {Header = textStrings["contextmenu_important_info"]};
-            CMImportantInfo.Click += (sender, e) => IntroBox.Visibility = Visibility.Visible;
-            OptionsContextMenu.Items.Add(CMImportantInfo);
             var CMLanguage = new MenuItem{Header = textStrings["contextmenu_language"]};
             var CMLanguageSystem = new MenuItem{Header = textStrings["contextmenu_language_system"]};
             CMLanguageSystem.Click += (sender, e) => CM_Language_Click(sender, e);
@@ -885,7 +881,7 @@ namespace BetterHI3Launcher
 
         private bool LauncherUpdateCheck()
         {
-            Version OnlineLauncherVersion = new Version(OnlineVersionInfo.launcher_info.version.ToString());
+            var OnlineLauncherVersion = new Version(OnlineVersionInfo.launcher_info.version.ToString());
             if(LocalLauncherVersion.IsDifferentThan(OnlineLauncherVersion))
             {
                 return true;
@@ -942,9 +938,16 @@ namespace BetterHI3Launcher
                     if(LauncherRegKey.GetValue(RegistryVersionInfo) != null)
                     {
                         LocalVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])LauncherRegKey.GetValue(RegistryVersionInfo)));
-                        var LocalGameVersion = new GameVersion(LocalVersionInfo.game_info.version.ToString());
                         GameInstallPath = LocalVersionInfo.game_info.install_path.ToString();
-                        game_needs_update = GameUpdateCheckSimple();
+                        var LocalGameVersion = new GameVersion(LocalVersionInfo.game_info.version.ToString());
+                        var config_ini_file = Path.Combine(GameInstallPath, "config.ini");
+                        if(File.Exists(config_ini_file))
+                        {
+                            var data = new FileIniDataParser().ReadFile(config_ini_file);
+                            if(data["General"]["game_version"] != null)
+                                LocalGameVersion = new GameVersion(data["General"]["game_version"]);
+                        }
+                        game_needs_update = GameUpdateCheckSimple(LocalGameVersion);
                         GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
                         GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
 
@@ -1085,12 +1088,11 @@ namespace BetterHI3Launcher
             });
         }
 
-        private int GameUpdateCheckSimple()
+        private int GameUpdateCheckSimple(GameVersion LocalGameVersion)
         {
             if(LocalVersionInfo != null)
             {
                 FetchmiHoYoVersionInfo();
-                var LocalGameVersion = new GameVersion(LocalVersionInfo.game_info.version.ToString());
                 var onlineGameVersion = new GameVersion(miHoYoVersionInfo.cur_version.ToString());
                 if(onlineGameVersion.IsDifferentThan(LocalGameVersion))
                 {
@@ -1470,7 +1472,7 @@ namespace BetterHI3Launcher
                     if(File.Exists(config_ini_file))
                     {
                         var data = ini_parser.ReadFile(config_ini_file);
-                        if(data["General"]["game_version"].Length == 17)
+                        if(data["General"]["game_version"] != null)
                             versionInfo.game_info.version = data["General"]["game_version"];
                     }
                     else if(LauncherRegKey.GetValue(RegistryVersionInfo) == null && (key != null && key.GetValue(GameRegistryLocalVersionRegValue) != null && key.GetValueKind(GameRegistryLocalVersionRegValue) == RegistryValueKind.Binary))
@@ -3686,7 +3688,6 @@ namespace BetterHI3Launcher
                     if(item.Header.ToString() == textStrings["contextmenu_web_profile"] ||
                        item.Header.ToString() == textStrings["contextmenu_feedback"] ||
                        item.Header.ToString() == textStrings["contextmenu_changelog"] ||
-                       item.Header.ToString() == textStrings["contextmenu_important_info"] ||
                        item.Header.ToString() == textStrings["contextmenu_language"] ||
                        item.Header.ToString() == textStrings["contextmenu_about"])
                         continue;
@@ -3739,26 +3740,24 @@ namespace BetterHI3Launcher
                 var IntroBoxGrid = VisualTreeHelper.GetChild(IntroBox, 1) as Grid;
                 var ChangelogBoxGrid = VisualTreeHelper.GetChild(ChangelogBox, 1) as Grid;
                 var AboutBoxGrid = VisualTreeHelper.GetChild(AboutBox, 1) as Grid;
-                IntroBoxMessageTextBlock.Height -= 5;
-                RepairBoxTitleTextBlock.Height -= 5;
-                ChangelogBoxGrid.Height += 7;
+                IntroBoxGrid.Height += 8;
+                ChangelogBoxGrid.Height += 8;
+                AboutBoxGrid.Height += 8;
                 DownloadCacheBoxMessageTextBlock.Height -= 5;
                 Resources["Font"] = new FontFamily("Segoe UI Bold");
                 if(LauncherLanguage == "de")
                 {
-                    IntroBoxGrid.Height += 40;
-                    IntroBoxMessageTextBlock.Height += 40;
-                    AboutBoxGrid.Height += 10;
-                    AboutBoxMessageTextBlock.Height += 5;
+                    AboutBoxGrid.Height -= 10;
+                    AboutBoxMessageTextBlock.Height -= 10;
                 }
                 else if(LauncherLanguage == "es" || LauncherLanguage == "pt" || LauncherLanguage == "sr" || LauncherLanguage == "vi")
                 {
                     RepairBoxMessageTextBlock.Height -= 5;
-                    AboutBoxGrid.Height += 10;
                 }
                 else if(LauncherLanguage == "ru")
                 {
                     RepairBoxMessageTextBlock.Height -= 5;
+                    AboutBoxGrid.Height -= 10;
                     AboutBoxMessageTextBlock.Height -= 10;
                 }
             }
@@ -3827,8 +3826,11 @@ namespace BetterHI3Launcher
             {
                 try
                 {
+                    Directory.CreateDirectory(LauncherDataPath);
                     if(File.Exists(LauncherLogFile))
+                    {
                         File.SetAttributes(LauncherLogFile, File.GetAttributes(LauncherLogFile) & ~FileAttributes.ReadOnly);
+                    }
                     if(newline)
                     {
                         File.AppendAllText(LauncherLogFile, '\n' + msg);
@@ -3867,7 +3869,6 @@ namespace BetterHI3Launcher
         public struct Version
         {
             internal static Version zero = new Version(0, 0, 0, 0);
-
             private int major, minor, date, hotfix;
 
             internal Version(int _major, int _minor, int _date, int _hotfix)
@@ -3916,6 +3917,7 @@ namespace BetterHI3Launcher
                 }
                 return false;
             }
+
             public override string ToString()
             {
                 return $"{major}.{minor}.{date}.{hotfix}";
@@ -3925,7 +3927,6 @@ namespace BetterHI3Launcher
         public struct GameVersion
         {
             internal static GameVersion zero = new GameVersion(0, 0, 0, string.Empty);
-
             private int major, minor, patch;
             private string build;
             
@@ -3945,7 +3946,7 @@ namespace BetterHI3Launcher
                     major = 0;
                     minor = 0;
                     patch = 0;
-                    build = string.Empty;
+                    build = "xxxxxxxxxx";
                     return;
                 }
 

@@ -71,8 +71,6 @@ namespace BetterHI3Launcher
             textStrings["progresstext_zipping"] = "Đang thêm tệp {0}/{1} vào tệp nén...";
             textStrings["progresstext_fetching_hashes"] = "Lấy hash của tệp...";
             textStrings["introbox_title"] = "Chào mừng đến với Better Honkai Impact 3rd launcher!";
-            textStrings["introbox_msg_1"] = "!!! NỘI DUNG QUAN TRỌNG, VUI LÒNG ĐỌC KĨ !!!";
-            textStrings["introbox_msg_2"] = "Có vẻ như đây là lần đầu tiên bạn sử dụng launcher. Trước hết, tôi rất vui vì bạn đã quyết định dùng thử .\nĐiều thứ 2, nếu bạn sử dụng launcher chính thức để cập nhật và chưa vào trò chơi (trước khi bạn lên tàu) bạn không nên sử dụng launcher này. Nếu không, trình khởi chạy có thể phát hiện ra phiên bản trò chơi của bạn là cũ và khiến bạn phải tải xuống lại.\n\nĐọc tất cả những điều đó? Tuyệt! Nếu bạn đã tải trò chơi xuống từ trước, hãy nhấn nút \"Tải xuống\" và chọn thư mục trò chơi. Trình khởi chạy sẽ phát hiện trò chơi và bạn không cần phải tải lại lần nữa.";
             textStrings["downloadcachebox_msg"] = "Chọn tải xuống gói cache đầy đủ hoặc chỉ một vài tệp.\nChọn \"Gói cache đầy đủ\" nếu bạn gặp vấn đề khi tải tài nguyên sự kiện.\nChọn \"Chỉ một vài tệp\" nếu bạn gặp sự cố khi cập nhật cài đặt.\nXin lưu ý rằng hiện tại không có cách nào để tự động truy xuất cache mới nhất và chúng tôi phải đưa nó lên mirror theo cách thủ công.\nSử dụng mirror: {0}.\nLần cuối cache được cập nhật: {1}.\nNgười bảo trì mirror hiện tại là {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Gói cache đầy đủ";
             textStrings["downloadcachebox_button_numeric_files"] = "Chỉ một vài tệp";

@@ -41,7 +41,6 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_web_profile"] = "Entrar no website";
             textStrings["contextmenu_feedback"] = "Enviar feedback";
             textStrings["contextmenu_changelog"] = "Mostrar changelog";
-            textStrings["contextmenu_important_info"] = "Mostrar informações importantes";
             textStrings["contextmenu_language"] = "Idioma";
             textStrings["contextmenu_language_system"] = "Padrão do sistema";
             textStrings["contextmenu_language_english"] = "Inglês";
@@ -73,8 +72,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_zipping"] = "Adicionando arquivo {0}/{1} para arquivo ZIP...";
             textStrings["progresstext_fetching_hashes"] = "Buscando hashes de arquivo...";
             textStrings["introbox_title"] = "Bem-vindo ao Better Honkai Impact 3rd Launcher!";
-            textStrings["introbox_msg_1"] = "!!! IMPORTANTE, POR FAVOR LEIA !!!";
-            textStrings["introbox_msg_2"] = "Parece que essa é a primeira vez que você está usando esse launcher. Em primeiro lugar, fico feliz que você tenha decidido dar uma chance, portanto, não hesite caso queira enviar feedback.\nEm segundo lugar, é importante que se você usou o launcher oficial para atualizar o jogo e ainda não o iniciou (ao ponto de ainda estar na ponte), não use esse launcher. Caso contrário, o launcher pode detectar a versão do jogo como antiga e fazer com que você tenha que baixá-lo novamente.\n\nLeu tudo? Ótimo! Se você já tem o jogo instalado, basta pressionar o botão \"Baixar\" e selecionar a pasta do jogo. O launcher irá detectar seu jogo e você não terá que baixá-lo novamente.";
+            textStrings["introbox_msg"] = "Parece que essa é a sua primeira vez usando esse laucher. Estou feliz que você tenha decidido testar ele, então nesse caso, caso queira dar umas sugestões, você pode clicar em \"Opções\" e depois em \"Enviar feedback\".\nSe você já tem o jogo instalado, apenas clique em \"Download\" e mostre onde seu jogo está. O launcher irá detectar a versão do jogo automaticamente e você não precisará baixá-lo novamente.";
             textStrings["downloadcachebox_msg"] = "Selecione se deseja baixar o pacote de cache completo ou apenas arquivos numéricos.\nSelecione\"Cache completo\" se você tiver problemas para atualizar os recursos do evento.\nSelecione \"Arquivos numéricos\" se você tiver problemas para atualizar as configurações.\nPor favor, note que atualmente não há como recuperar automaticamente o cache mais recente e temos que carregá-lo manualmente para um espelho.\nUsando espelho: {0}.\nCache atualizado por último: {1}.\nO mantenedor do espelho atual é {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Cache completo";
             textStrings["downloadcachebox_button_numeric_files"] = "Arquivos numéricos";
