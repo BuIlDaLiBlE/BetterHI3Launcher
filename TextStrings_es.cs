@@ -14,7 +14,7 @@ namespace BetterHI3Launcher
             textStrings["button_yes"] = "Sí";
             textStrings["button_download"] = "Descargar";
             textStrings["button_downloading"] = "Descargando";
-            textStrings["button_running"] = "Corriendo";
+            textStrings["button_running"] = "Ejecutando";
             textStrings["button_update"] = "Actualizar";
             textStrings["button_pause"] = "Pausar";
             textStrings["button_launch"] = "Iniciar";
@@ -71,8 +71,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_zipping"] = "Añadiendo archivo {0}/{1} al archivo ZIP...";
             textStrings["progresstext_fetching_hashes"] = "Obteniendo hashes de archivos...";
             textStrings["introbox_title"] = "¡Bienvenido a Better Honkai Impact 3rd launcher!";
-            textStrings["introbox_msg_1"] = "¡¡¡ IMPORTANTE, POR FAVOR LEA CUIDADOSAMENTE !!!";
-            textStrings["introbox_msg_2"] = "Parece que esta es la primera vez que usas este launcher. En primer lugar, me alegra que hayas decidido probarlo, en caso de que quieras darnos tu opinión no dudes en hacerlo.\nEn segundo lugar, es importante que si ya has actualizado el juego con el launcher oficial y todavía no has iniciado el juego (hasta el punto donde estas en el puente) no deberias utilizar este launcher. De lo contrario, el launcher puede detectar la versión de tu juego como una antigua y hacer que tengas que descargar todos los archivos de nuevo.\n\n¿Leíste todo? ¡Genial! Si ya tienes instalado el juego sólo debes de pulsar la opción \"Descargar\" y seleccionar la carpeta donde has instalado el juego. El launcher detectará el juego y no sera necesario de volver a descargarlo.";
+            textStrings["introbox_msg"] = "Al parecer esta es la primera vez que usa este Launcher. Me alegra que haya decidido probarlo, en caso de que quiera darnos su opinión, no dude en hacerlo dando clic en el botón \"Opciones\"y seleccionando \"Enviar comentarios\".\nSi ya ha instalado el juego, presiona el botón \"Descargar\" y selecciona la ubicación donde lo ha instalado. TEl launcher detectara la instalación y no sera necesario descargarlo de nuevo.";
             textStrings["downloadcachebox_msg"] = "Seleccione si desea descargar la caché completa o solo los archivos numéricos.\nElija \"Caché completa\" Si presenta problemas al momento de actualizar los recursos del evento.\nElija \"Archivos numéricos\" si tiene problemas para actualizar la configuración (bucle de update settings).\nTenga en cuenta que actualmente no hay forma de recuperar automáticamente la última caché y tenemos que cargarla manualmente a un espejo.\nEspejo en uso: {0}.\nÚltima actualización de la caché: {1}.\nActual encargado del espejo {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Caché completa";
             textStrings["downloadcachebox_button_numeric_files"] = "Archivos numericos";
@@ -137,6 +136,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstallerror_msg"] = "Ocurrio un error al desinstalar el juego:\n{0}";
             textStrings["msgbox_uninstallerror_title"] = "Error de desinstalación";
             textStrings["msgbox_download_type_1_msg"] = "Esto restablecerá el tipo de descarga de recursos del juego en un intento de solucionar el infame bucle de actualización que no permite ingresar al juego.\n¿Continar?";
+            textStrings["msgbox_download_type_2_msg"] = "Se restableció el tipo de descarga. Inicie el juego y seleccione \"HD assets\".";
+            textStrings["msgbox_download_type_3_msg"] = "El tipo de descarga ya se ha restablecido. Inicie el juego y seleccione \"HD assets\".";
             textStrings["msgbox_fixsubs_1_msg"] = "Esto intentará arreglar los subtítulos CG (y los banners de gacha). Asegúrate de tener ya descargado todos los CG del juego.\n¿Continuar?";
             textStrings["msgbox_fixsubs_2_msg"] = "Descomprimiendo el archivo de subtítulos {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Comprobando archivo de subtítulos {0}/{1}...";
