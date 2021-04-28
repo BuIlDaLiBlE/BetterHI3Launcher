@@ -939,14 +939,14 @@ namespace BetterHI3Launcher
                     {
                         LocalVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])LauncherRegKey.GetValue(RegistryVersionInfo)));
                         GameInstallPath = LocalVersionInfo.game_info.install_path.ToString();
-                        var LocalGameVersion = new GameVersion(LocalVersionInfo.game_info.version.ToString());
                         var config_ini_file = Path.Combine(GameInstallPath, "config.ini");
                         if(File.Exists(config_ini_file))
                         {
                             var data = new FileIniDataParser().ReadFile(config_ini_file);
                             if(data["General"]["game_version"] != null)
-                                LocalGameVersion = new GameVersion(data["General"]["game_version"]);
+                                LocalVersionInfo.game_info.version = data["General"]["game_version"];
                         }
+                        var LocalGameVersion = new GameVersion(LocalVersionInfo.game_info.version.ToString());
                         game_needs_update = GameUpdateCheckSimple(LocalGameVersion);
                         GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
                         GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
@@ -958,7 +958,7 @@ namespace BetterHI3Launcher
                             PatchDownload = false;
                             if(game_needs_update == 2 && Mirror == HI3Mirror.miHoYo)
                             {
-                                var webRequest = BpUtility.CreateWebRequest($"{miHoYoVersionInfo.download_url}/{miHoYoVersionInfo.patch_list[LocalVersionInfo.game_info.version.ToString()].name.ToString()}", "HEAD");
+                                var webRequest = BpUtility.CreateWebRequest($"{miHoYoVersionInfo.download_url}/{miHoYoVersionInfo.patch_list[LocalGameVersion.ToString()].name.ToString()}", "HEAD");
                                 using(var webResponse = (HttpWebResponse)webRequest.GetResponse())
                                 {
                                     download_size = webResponse.ContentLength;
@@ -3842,6 +3842,7 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
+                    DisableLogging = true;
                     Log($"WARNING: Unable to write to log file", true, 2);
                 }
             }
