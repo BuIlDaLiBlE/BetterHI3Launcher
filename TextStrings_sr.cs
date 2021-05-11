@@ -49,6 +49,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_vietnamese"] = "Vijetnamski";
             textStrings["contextmenu_language_serbian"] = "Srpski";
             textStrings["contextmenu_language_contribute"] = "Želiš da pomogneš?";
+            textStrings["contextmenu_sounds"] = "Zvuci";
             textStrings["contextmenu_about"] = "O programu";
             textStrings["progresstext_error"] = "Napravljenje su greške :^(";
             textStrings["progresstext_verifying_files"] = "Verifikacija fajlova...";
@@ -105,7 +106,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_update_title"] = "Ažuriranje u toku";
             textStrings["msgbox_install_msg"] = "Igra će biti instalirana u:\n{0}\nNastavi?";
             textStrings["msgbox_install_title"] = "Instalacija u toku";
-            textStrings["msgbox_installdirerror_msg"] = "Greška pri biranju direktorijuma za instalaciju:\n{0}";
+            textStrings["msgbox_installdirerror_msg"] = "Greška pri biranju direktorijuma za instalaciju.\nZa više informacija pogledaj zapis.";
             textStrings["msgbox_installdirerror_title"] = "Nevalidan direktorijum";
             textStrings["msgbox_abort_1_msg"] = "Da li ste sigurni da želite da prekinete preuzimanje i zatvorite pokretač?";
             textStrings["msgbox_abort_2_msg"] = "Progres neće biti sačuvan.";
@@ -135,7 +136,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_3_msg"] = "Takodje izbriši keš fajlove i podešavanja?";
             textStrings["msgbox_uninstall_4_msg"] = "Ne možeš izbrisati igru dok je pokretač u direktorijumu u kojem se nalazi igra. Premesti pokretač pa probaj ponovo.";
             textStrings["msgbox_uninstall_title"] = "Brisanje";
-            textStrings["msgbox_uninstallerror_msg"] = "Greška pri brisanju igre:\n{0}";
+            textStrings["msgbox_uninstallerror_msg"] = "Greška pri brisanju igre.\nZa više informacija pogledaj zapis.";
             textStrings["msgbox_uninstallerror_title"] = "Greška pri brisanju";
             textStrings["msgbox_download_type_1_msg"] = "Ovo će resetovati tip skidanja resursa igre u pokušaju da popravi problem sa beskonačnim ažuriranjem koji ti ne dozvoljava da udješ u igru.\nAko ovo ne reši problem, probaj ponovo.\nNastavi?";
             textStrings["msgbox_download_type_2_msg"] = "Tip preuzimanja je reseteovan. Pokreni igru i izaberi \"HD assets\".";

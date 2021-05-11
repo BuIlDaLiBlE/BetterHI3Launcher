@@ -21,14 +21,10 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Log**
-Add the output of entire log window.
+If you haven't closed the launcher yet, add the output of entire log window; otherwise search for the appropriate log in this path: `%userprofile%\AppData\LocalLow\Bp\Better HI3 Launcher`.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
-* OS: [e.g. Windows 10]
-* Launcher version [e.g. 1.0.20200116.0]
 
 **Additional context**
 Add any other context about the problem here.

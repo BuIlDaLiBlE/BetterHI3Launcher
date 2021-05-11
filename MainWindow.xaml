@@ -1,26 +1,27 @@
 <Window x:Class="BetterHI3Launcher.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
-        mc:Ignorable="d"
-        WindowStyle="None"
-        ResizeMode="NoResize"
-        AllowsTransparency="True"
-        Background="Transparent"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
+		mc:Ignorable="d"
+		WindowStyle="None"
+		ResizeMode="NoResize"
+		AllowsTransparency="True"
+		Background="{DynamicResource BackgroundShadow}"
 		WindowStartupLocation="CenterScreen"
 		ContentRendered="Window_ContentRendered"
-        Closing="MainWindow_Closing"
-        TextOptions.TextFormattingMode="Display"
-        TextOptions.TextRenderingMode="ClearType"
-        Title="Better HI3 Launcher" Width="1362" Height="698">
+		Closing="MainWindow_Closing"
+		TextOptions.TextFormattingMode="Display"
+		TextOptions.TextRenderingMode="ClearType"
+		Title="Better HI3 Launcher" Width="1362" Height="698">
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>
     <Window.Resources>
         <FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
         <FontFamily x:Key="FontStatic">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
+        <ImageBrush x:Key="BackgroundShadow" ImageSource="/Assets/Images/BackgroundShadow.png"/>
         <ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
         <ImageBrush x:Key="ButtonPressed" ImageSource="/Assets/Images/Button_Pressed.png"/>
         <ImageBrush x:Key="ButtonDisabled" ImageSource="/Assets/Images/Button_Disabled.png"/>
@@ -37,7 +38,7 @@
             <Setter Property="Control.Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Rectangle Margin="2" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="0" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                        <Rectangle UseLayoutRounding="True" StrokeThickness="2" Stroke="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -57,7 +58,13 @@
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="#313131"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Width" Value="218"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="FontFamily" Value="{DynamicResource Font}"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -86,7 +93,13 @@
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="#7FA9A9A9"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="1"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontFamily" Value="{DynamicResource Font}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -114,7 +127,13 @@
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="#7FA9A9A9"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="1"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontFamily" Value="{DynamicResource Font}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -173,29 +192,46 @@
             <Setter Property="Padding" Value="3,1,3,1"/>
             <Setter Property="FontFamily" Value="{DynamicResource Font}"/>
             <Setter Property="FontSize" Value="18"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+        </Style>
+        <Style x:Key="CheckboxStyle" TargetType="{x:Type CheckBox}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image x:Name="checkboxImage" Source="/Assets/Images/Checkbox_On.png"/>
+                            <ContentPresenter/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="checkboxImage" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="checkboxImage" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
-    <Border Name="Border">
-        <Border.Effect>
-            <DropShadowEffect Color="Black" BlurRadius="50" Direction="-90" ShadowDepth="8"/>
-        </Border.Effect>
-        <Border.CacheMode>
-            <BitmapCache/>
-        </Border.CacheMode>
-        <Grid Name="Grid" Width="1280" Height="590">
-            <Rectangle Fill="Transparent"/>
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" FontFamily="{DynamicResource Font}" FontSize="48"/>
+    <Grid>
+        <Grid Name="Grid" Margin="0,0,0,28" Width="1280" Height="590">
             <Image Name="BackgroundImage" Stretch="Fill"/>
-            <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png"/>
-            <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,7,26,0" Width="275" Height="174"/>
+            <Image Name="BackgroundOverlayImage" Source="Assets/Images/BackgroundOverlay.png" HorizontalAlignment="Right"/>
+            <Image Name="HI3LogoImage" Source="Assets/Images/HI3_Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,13,29,0" Width="269" Height="167"/>
             <ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
             <TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
-            <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,27" Foreground="#C8FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12"/>
-            <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1033,0,0,7" Foreground="#C8FFFFFF" FontFamily="{DynamicResource Font}" FontSize="10"/>
-            <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="CloseButton_Click"/>
-            <Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,32,0" Width="32" Height="32" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="16" Click="MinimizeButton_Click"/>
-            <Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,51" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Click="LaunchButton_Click" IsEnabled="False"/>
-            <Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,58,110" Width="214" Height="42" FontFamily="{DynamicResource Font}" FontSize="24" Click="OptionsButton_Click" IsEnabled="False">
+            <TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1034,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12"/>
+            <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1034,0,0,5" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="10"/>
+            <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
+            <Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Margin="0,0,32,0" Click="MinimizeButton_Click"/>
+            <Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,57,48" Click="LaunchButton_Click" IsEnabled="False"/>
+            <Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,57,107" Click="OptionsButton_Click" IsEnabled="False">
                 <Button.ContextMenu>
                     <ContextMenu Name="OptionsContextMenu"/>
                 </Button.ContextMenu>
@@ -205,7 +241,7 @@
                     <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
             </TextBlock>
-            <ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" SelectionChanged="ServerDropdown_Changed">
+            <ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
                 <ComboBoxItem Content="Global"></ComboBoxItem>
                 <ComboBoxItem Content="SEA"></ComboBoxItem>
             </ComboBox>
@@ -214,24 +250,20 @@
                     <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                 </TextBlock.Effect>
             </TextBlock>
-            <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" SelectionChanged="MirrorDropdown_Changed">
+            <ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
                 <ComboBoxItem Content="miHoYo"></ComboBoxItem>
                 <ComboBoxItem Content="MediaFire"></ComboBoxItem>
                 <ComboBoxItem Content="Google Drive"></ComboBoxItem>
             </ComboBox>
             <StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-                <CheckBox Name="ShowLogCheckBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" FocusVisualStyle="{StaticResource FocusVisual}" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked">
-                    <CheckBox.LayoutTransform>
-                        <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
-                    </CheckBox.LayoutTransform>
-                </CheckBox>
+                <CheckBox Name="ShowLogCheckBox" Style="{DynamicResource CheckboxStyle}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="32" Height="24" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Click="ShowLogCheckBox_Click"/>
                 <TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2" RenderingBias="Quality"/>
                     </TextBlock.Effect>
                 </TextBlock>
             </StackPanel>
-            <Grid Name="LogBox" Margin="0,0,316,25" Width="944" Height="520" Visibility="Collapsed">
+            <Grid Name="LogBox" Margin="0,0,316,25" Width="944" Height="520" UseLayoutRounding="True" Visibility="Collapsed">
                 <Border BorderBrush="Black" Background="Transparent">
                     <StackPanel>
                         <ScrollViewer Name="LogBoxScrollViewer" Width="{Binding Path=ActualWidth, ElementName=LogBox, Mode=OneWay}" Height="{Binding Path=ActualHeight, ElementName=LogBox, Mode=OneWay}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -383,5 +415,5 @@
                 </Grid>
             </Grid>
         </Grid>
-    </Border>
+    </Grid>
 </Window>

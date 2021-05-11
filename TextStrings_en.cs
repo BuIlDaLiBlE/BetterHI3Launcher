@@ -61,6 +61,7 @@ namespace BetterHI3Launcher
             textStrings.Add("contextmenu_language_vietnamese", "Vietnamese");
             textStrings.Add("contextmenu_language_serbian", "Serbian");
             textStrings.Add("contextmenu_language_contribute", "Want to help?");
+            textStrings.Add("contextmenu_sounds", "Sounds");
             textStrings.Add("contextmenu_about", "About");
             textStrings.Add("progresstext_error", "Mistakes were made :^(");
             textStrings.Add("progresstext_verifying_files", "Verifying game files...");
@@ -117,7 +118,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_update_title", "Update notice");
             textStrings.Add("msgbox_install_msg", "The game is going to be installed to:\n{0}\nContinue?");
             textStrings.Add("msgbox_install_title", "Installation notice");
-            textStrings.Add("msgbox_installdirerror_msg", "An error occurred while selecting game installation directory:\n{0}");
+            textStrings.Add("msgbox_installdirerror_msg", "An error occurred while selecting game installation directory.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_installdirerror_title", "Invalid directory");
             textStrings.Add("msgbox_abort_1_msg", "Are you sure you want to cancel the download and close the launcher?");
             textStrings.Add("msgbox_abort_2_msg", "Progress will not be saved.");
@@ -126,7 +127,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_registryerror_msg", "An error occurred while accessing registry.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_registryerror_title", "Registry error");
             textStrings.Add("msgbox_registryempty_1_msg", "No value to be tweaked in registry exists.");
-            textStrings.Add("msgbox_registryempty_2_msg", "Did you already run the game?");
+            textStrings.Add("msgbox_registryempty_2_msg", "Have you run the game yet?");
             textStrings.Add("msgbox_registryempty_3_msg", "Try changing video settings in-game first (disabling fullscreen, changing video preset, etc).");
             textStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
             textStrings.Add("msgbox_download_cache_2_msg", "Numeric file cache is about to be downloaded.");
@@ -148,7 +149,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_uninstall_3_msg", "Remove game cache files and settings as well?");
             textStrings.Add("msgbox_uninstall_4_msg", "Cannot uninstall the game while the launcher is inside game directory. Move launcher outside the directory and try again.");
             textStrings.Add("msgbox_uninstall_title", "Uninstall");
-            textStrings.Add("msgbox_uninstallerror_msg", "An error occurred while uninstalling the game:\n{0}");
+            textStrings.Add("msgbox_uninstallerror_msg", "An error occurred while uninstalling the game.\nFor more information take a look at the log.");
             textStrings.Add("msgbox_uninstallerror_title", "Uninstallation error");
             textStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type in an attempt to fix the infamous update loop which doesn't let you enter the game.\nContinue?");
             textStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"HD assets\".");

@@ -51,6 +51,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_vietnamese"] = "Vietnamita";
             textStrings["contextmenu_language_serbian"] = "Sérvia";
             textStrings["contextmenu_language_contribute"] = "Quer ajudar?";
+            textStrings["contextmenu_sounds"] = "Sons";
             textStrings["contextmenu_about"] = "Sobre";
             textStrings["progresstext_error"] = "Erros foram encontrados :^(";
             textStrings["progresstext_verifying_files"] = "Verificando arquivos do jogo...";
@@ -106,7 +107,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_update_title"] = "Aviso de atualização";
             textStrings["msgbox_install_msg"] = "O jogo será instalado em:\n{0}\nContinuar?";
             textStrings["msgbox_install_title"] = "Aviso de instalação";
-            textStrings["msgbox_installdirerror_msg"] = "Ocorreu um erro ao selecionar o diretório de instalação do jogo:\n{0}";
+            textStrings["msgbox_installdirerror_msg"] = "Ocorreu um erro ao selecionar o diretório de instalação do jogo.\nPara mais informações dê uma olhada no log.";
             textStrings["msgbox_installdirerror_title"] = "Diretório inválido";
             textStrings["msgbox_abort_1_msg"] = "Tem certeza de que deseja cancelar o download e fechar o launcher?";
             textStrings["msgbox_abort_2_msg"] = "O progresso não será salvo.";
@@ -136,7 +137,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_3_msg"] = "Remover as configurações e arquivos de cache do jogo também?";
             textStrings["msgbox_uninstall_4_msg"] = "Não é possível desinstalar o jogo enquanto o launcher está dentro do diretório do jogo. Mova o launcher para fora do diretório e tente novamente.";
             textStrings["msgbox_uninstall_title"] = "Desinstalar";
-            textStrings["msgbox_uninstallerror_msg"] = "Ocorreu um erro ao desinstalar o jogo:\n{0}";
+            textStrings["msgbox_uninstallerror_msg"] = "Ocorreu um erro ao desinstalar o jogo.\nPara mais informações dê uma olhada no log.";
             textStrings["msgbox_uninstallerror_title"] = "Erro de desinstalação";
             textStrings["msgbox_download_type_1_msg"] = "Isso irá redefinir o tipo de download de recursos do jogo em uma tentativa de consertar o infame loop de atualização que não permite que você entre no jogo.\nContinuar?";
             textStrings["msgbox_download_type_2_msg"] = "O tipo de download foi redefinido. Inicie o jogo e selecione \"HD assets\".";
