@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -69,6 +71,73 @@ namespace BetterHI3Launcher
             webRequest.Headers.Add("Accept-Language", MainWindow.LauncherLanguage);
             webRequest.Timeout = timeout;
             return webRequest;
+        }
+
+        public static string GetWindowsVersion()
+        {
+            var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+            string name = "Windows";
+            string build = "0";
+            string version = string.Empty;
+            string revision = "0";
+            try
+            {
+                var value = key.GetValue("ProductName").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    name = value;
+                }
+            }
+            catch{}
+            try
+            {
+                var value = key.GetValue("CurrentBuild").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    build = value;
+                }
+            }
+            catch{}
+            try
+            {
+                var value = key.GetValue("DisplayVersion").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    version = value;
+                }
+            }
+            catch{}
+            try
+            {
+                var value = key.GetValue("UBR").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    revision = value;
+                }
+            }
+            catch{}
+            if(Environment.OSVersion.Version.Major == 10)
+            {
+                if(!string.IsNullOrEmpty(version))
+                    return $"{name} (Version {version}, Build {build}.{revision})";
+                else
+                    return $"{name} (Build {build}.{revision})";
+            }
+            else
+            {
+                return $"{name} (Build {build})";
+            }
+        }
+
+        public static void PlaySound(Stream sound)
+        {
+            if(!MainWindow.DisableSounds)
+            {
+                try
+                {
+                    new SoundPlayer(sound).Play();
+                }catch{}
+            }
         }
     }
 

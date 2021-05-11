@@ -50,6 +50,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_vietnamese"] = "Tiếng Việt";
             textStrings["contextmenu_language_serbian"] = "Tiếng Serbia";
             textStrings["contextmenu_language_contribute"] = "Muốn giúp đỡ?";
+            textStrings["contextmenu_sounds"] = "Âm thanh";
             textStrings["contextmenu_about"] = "Thông tin";
             textStrings["progresstext_error"] = "Lỗi ở :^(";
             textStrings["progresstext_verifying_files"] = "Xác minh tệp trò chơi...";
@@ -71,6 +72,7 @@ namespace BetterHI3Launcher
             textStrings["progresstext_zipping"] = "Đang thêm tệp {0}/{1} vào tệp nén...";
             textStrings["progresstext_fetching_hashes"] = "Lấy hash của tệp...";
             textStrings["introbox_title"] = "Chào mừng đến với Better Honkai Impact 3rd launcher!";
+            textStrings["introbox_msg"] = "Có vẻ như đây là lần đầu bạn sử dụng launcher. Tôi rất vui vì bạn đã quyết định thử nó, vì vậy trong trường hợp bạn muốn đưa ra phản hồi, đừng ngần ngại mà hãy nhấp vào nút \"Lựa chọn\" chọn \"Gửi phản hồi\".\nNếu bạn đã cài đặt trò chơi từ trước, hay nhấn \"Tải xuống\" và chọn nơi chứa trò chơi của bạn. Launcher sẽ tự động phát hiện phiên bản trò chơi của bạn và bạn sẽ không phải tải xuống nữa.";
             textStrings["downloadcachebox_msg"] = "Chọn tải xuống gói cache đầy đủ hoặc chỉ một vài tệp.\nChọn \"Gói cache đầy đủ\" nếu bạn gặp vấn đề khi tải tài nguyên sự kiện.\nChọn \"Chỉ một vài tệp\" nếu bạn gặp sự cố khi cập nhật cài đặt.\nXin lưu ý rằng hiện tại không có cách nào để tự động truy xuất cache mới nhất và chúng tôi phải đưa nó lên mirror theo cách thủ công.\nSử dụng mirror: {0}.\nLần cuối cache được cập nhật: {1}.\nNgười bảo trì mirror hiện tại là {2}.";
             textStrings["downloadcachebox_button_full_cache"] = "Gói cache đầy đủ";
             textStrings["downloadcachebox_button_numeric_files"] = "Chỉ một vài tệp";
@@ -104,7 +106,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_update_title"] = "Cập nhật thông báo";
             textStrings["msgbox_install_msg"] = "Trò chơi sẽ được cài đặt vào:\n{0}\nTiếp tục cài đặt?";
             textStrings["msgbox_install_title"] = "Thông báo cài đặt";
-            textStrings["msgbox_installdirerror_msg"] = "Đã xảy ra lỗi khi chọn thư mục cài đặt trò chơi:\n{0}";
+            textStrings["msgbox_installdirerror_msg"] = "Đã xảy ra lỗi khi chọn thư mục cài đặt trò chơi.\nĐể biết thêm thông tin, hãy xem log.";
             textStrings["msgbox_installdirerror_title"] = "Thư mục không hợp lệ";
             textStrings["msgbox_abort_1_msg"] = "Bạn có chắc chắn muốn hủy tải xuống và đóng trình khởi chạy không?";
             textStrings["msgbox_abort_2_msg"] = "Tiến độ sẽ không được lưu lại.";
@@ -133,9 +135,11 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_3_msg"] = "Xóa cả các tệp và cài đặt bộ nhớ cache của trò chơi?";
             textStrings["msgbox_uninstall_4_msg"] = "Không thể gỡ cài đặt trò chơi khi trình khởi chạy nằm trong thư mục trò chơi. Di chuyển trình khởi chạy ra ngoài thư mục và thử lại.";
             textStrings["msgbox_uninstall_title"] = "Gỡ cài đặt";
-            textStrings["msgbox_uninstallerror_msg"] = "Đã xảy ra lỗi khi gỡ cài đặt trò chơi:\n{0}";
+            textStrings["msgbox_uninstallerror_msg"] = "Đã xảy ra lỗi khi gỡ cài đặt trò chơi.\nĐể biết thêm thông tin, hãy xem log.";
             textStrings["msgbox_uninstallerror_title"] = "Lỗi khi gỡ cài đặt";
             textStrings["msgbox_download_type_1_msg"] = "Điều này sẽ đặt lại loại tải xuống tài nguyên của trò chơi nhằm cố gắng sửa lỗi vòng lặp cập nhật không cho phép bạn tham gia trò chơi.\nTiếp tuc?";
+            textStrings["msgbox_download_type_2_msg"] = "Loại tải xuống đã được đặt lại. Khởi động trò chơi và chọn \"Tài nguyên HD\".";
+            textStrings["msgbox_download_type_3_msg"] = "Loại tải xuống đã được đặt lại từ trước. Khởi động trò chơi và chọn \"Tài nguyên HD\".";
             textStrings["msgbox_fixsubs_1_msg"] = "Điều này sẽ cố gắng sửa phụ đề CG (và gacha banner). Đảm bảo rằng bạn đã tải xuống tất cả các CG trong trò chơi.\ntục?";
             textStrings["msgbox_fixsubs_2_msg"] = "Giải nén tệp phụ đề {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Kiểm tra tệp phụ đề {0}/{1}...";

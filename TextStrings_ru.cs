@@ -54,6 +54,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_vietnamese"] = "Вьетнамский";
             textStrings["contextmenu_language_serbian"] = "Сербский";
             textStrings["contextmenu_language_contribute"] = "Хотите помочь?";
+            textStrings["contextmenu_sounds"] = "Звуки";
             textStrings["contextmenu_about"] = "О лаунчере";
             textStrings["progresstext_error"] = "Ошибочка вышла :^(";
             textStrings["progresstext_verifying_files"] = "Проверка игровых файлов...";
@@ -113,7 +114,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_update_title"] = "Уведомление об обновлении";
             textStrings["msgbox_install_msg"] = "Игра будет установлена в путь:\n{0}\nПродолжить?";
             textStrings["msgbox_install_title"] = "Уведомление об установке";
-            textStrings["msgbox_installdirerror_msg"] = "Произошла ошибка выбора игрового пути:\n{0}";
+            textStrings["msgbox_installdirerror_msg"] = "Произошла ошибка выбора игрового пути.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_installdirerror_title"] = "Неверный путь установки";
             textStrings["msgbox_abort_1_msg"] = "Вы точно уверены, что хотите отменить загрузку и выйти?";
             textStrings["msgbox_abort_2_msg"] = "Прогресс не будет сохранён.";
@@ -122,7 +123,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_registryerror_msg"] = "Произошла ошибка доступа к реестру.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_registryerror_title"] = "Ошибка реестра";
             textStrings["msgbox_registryempty_1_msg"] = "Нужное значение в реестре отсутствует.";
-            textStrings["msgbox_registryempty_2_msg"] = "Вы уже запускали игру?";
+            textStrings["msgbox_registryempty_2_msg"] = "Вы ещё не запускали игру?";
             textStrings["msgbox_registryempty_3_msg"] = "Попробуйте изменить настройки видео в игре (выключить полный экран, изменить пресет видео и т. д.).";
             textStrings["msgbox_repair_1_msg"] = "Версия установленной игры отличается от информации исправления на сервере. Так как нам требуется обновлять эту информацию вручную, она может быть недоступна какое-то время.\nПожалуйста, попробуйте позже.";
             textStrings["msgbox_repair_2_msg"] = "Файлы не требуются в исправлении.";
@@ -141,7 +142,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstall_3_msg"] = "Удалить также и настройки игры с кешем?";
             textStrings["msgbox_uninstall_4_msg"] = "Нельзя удалить игру, пока лаунчер находится внутри игровой папки. Переместите лаунчер из папки и попробуйте снова.";
             textStrings["msgbox_uninstall_title"] = "Удаление";
-            textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры:\n{0}";
+            textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_uninstallerror_title"] = "Ошибка удаления";
             textStrings["msgbox_download_type_1_msg"] = "Будет сброшен тип загрузки игровых ресурсов в надежде исправить печально известную проблему с бесконечной загрузкой в игре.\nПродолжить?";
             textStrings["msgbox_download_type_2_msg"] = "Тип загрузки сброшен. Запустите игру и выберете \"HD assets\".";
