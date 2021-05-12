@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using System.Windows.Media;
 
 namespace BetterHI3Launcher
 {
@@ -23,6 +24,10 @@ namespace BetterHI3Launcher
                 ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
                 ConfirmButton.Content = MainWindow.textStrings["button_yes"];
                 CancelButton.Content = MainWindow.textStrings["button_no"];
+            }
+            if(MainWindow.LauncherLanguage != "en")
+            {
+                Resources["Font"] = new FontFamily("Segoe UI Bold");
             }
             Application.Current.MainWindow.WindowState = WindowState.Normal;
             BpUtility.PlaySound(Properties.Resources.Window_Open);

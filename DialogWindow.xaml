@@ -87,9 +87,11 @@
         </Style>
     </Window.Resources>
     <Grid Width="576" Height="307">
-        <Image Source="Assets/Images/Window_Dialog.png" Stretch="None"/>
-        <TextBlock Name="DialogTitle" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="29" MaxWidth="500" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="18"/>
-        <TextBlock Name="DialogMessage" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,25" MaxWidth="500" MaxHeight="147" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"/>
+        <Image Source="Assets/Images/Window_Dialog.png"/>
+        <TextBlock Name="DialogTitle" VerticalAlignment="Top" Margin="85,29,85,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="18" TextAlignment="Center"/>
+        <ScrollViewer VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,25" Width="500" Height="135" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <TextBlock Name="DialogMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="500" MaxHeight="147" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"/>
+        </ScrollViewer>
         <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Margin="0,23,33,0" Click="CloseButton_Click"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="36">
             <Button Name="ConfirmButton" Style="{DynamicResource LaunchButtonStyle}" Click="ConfirmButton_Click"/>

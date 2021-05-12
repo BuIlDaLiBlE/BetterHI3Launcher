@@ -48,6 +48,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_german"] = "Nemački";
             textStrings["contextmenu_language_vietnamese"] = "Vijetnamski";
             textStrings["contextmenu_language_serbian"] = "Srpski";
+            textStrings["contextmenu_language_thai"] = "Tajlandski";
             textStrings["contextmenu_language_contribute"] = "Želiš da pomogneš?";
             textStrings["contextmenu_sounds"] = "Zvuci";
             textStrings["contextmenu_about"] = "O programu";
@@ -87,7 +88,7 @@ namespace BetterHI3Launcher
             textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher je upravo postao još bolji. Evo kako:";
             textStrings["changelogbox_2_msg"] = "Učitavanje zapisa promena...";
             textStrings["changelogbox_3_msg"] = "Nije uspelo da učita zapis promena.";
-            textStrings["aboutbox_msg"] = "Pa mnogo je napredniji, zar ne? :^)\nOvaj projekat je napravljen sa idejom da pomogne mnogim kapetanima da imaju bolje iskustvo.\nNije nikako povezan sa miHoYo-om i kompletno je \"open source\".\nBilo kakve povratne informacije su cenjene.\nSpecijalne pohvale za sledeće GitHub pomagače:\nSinsOfSeven - Posebna rezolucija\nProxy-E23 - Španski prevod\nSpookyKisuy - Portugalski prevod\nbulawin1, Vrontis - Nemački prevod\nKorewaLidesu - Vijetnamski prevod\nSm1leAway - Srpski prevod";
+            textStrings["aboutbox_msg"] = "Pa mnogo je napredniji, zar ne? :^)\nOvaj projekat je napravljen sa idejom da pomogne mnogim kapetanima da imaju bolje iskustvo.\nNije nikako povezan sa miHoYo-om i kompletno je \"open source\".\nBilo kakve povratne informacije su cenjene.\nSpecijalne pohvale za sledeće GitHub pomagače:\nSinsOfSeven - Posebna rezolucija\nProxy-E23 - Španski prevod\nSpookyKisuy - Portugalski prevod\nbulawin1, Vrontis - Nemački prevod\nKorewaLidesu - Vijetnamski prevod\nSm1leAway - Srpski prevod\nSm1leAway - Tajlandski prevod";
             textStrings["msgbox_genericerror_title"] = "Greška";
             textStrings["msgbox_genericerror_msg"] = "Došlo je do greške.\nZa više informacija pogledaj zapis.";
             textStrings["msgbox_neterror_title"] = "Mrežna greška";

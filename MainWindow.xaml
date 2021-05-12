@@ -188,7 +188,7 @@
         </Style>
         <Style x:Key="WhiteButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="White"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Margin" Value="10"/>
             <Setter Property="Padding" Value="3,1,3,1"/>
             <Setter Property="FontFamily" Value="{DynamicResource Font}"/>
             <Setter Property="FontSize" Value="18"/>
@@ -264,152 +264,135 @@
                 </TextBlock>
             </StackPanel>
             <Grid Name="LogBox" Margin="0,0,316,25" Width="944" Height="520" UseLayoutRounding="True" Visibility="Collapsed">
-                <Border BorderBrush="Black" Background="Transparent">
-                    <StackPanel>
-                        <ScrollViewer Name="LogBoxScrollViewer" Width="{Binding Path=ActualWidth, ElementName=LogBox, Mode=OneWay}" Height="{Binding Path=ActualHeight, ElementName=LogBox, Mode=OneWay}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <RichTextBox Name="LogBoxRichTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#C8000000" Foreground="White" FontFamily="Consolas" FocusVisualStyle="{StaticResource FocusVisual}" IsReadOnly="True">
-                                <RichTextBox.Resources>
-                                    <Style TargetType="{x:Type Paragraph}">
-                                        <Setter Property="Margin" Value="0"/>
-                                    </Style>
-                                </RichTextBox.Resources>
-                            </RichTextBox>
-                        </ScrollViewer>
-                    </StackPanel>
-                </Border>
+                <StackPanel>
+                    <ScrollViewer Name="LogBoxScrollViewer" Width="{Binding Path=ActualWidth, ElementName=LogBox, Mode=OneWay}" Height="{Binding Path=ActualHeight, ElementName=LogBox, Mode=OneWay}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <RichTextBox Name="LogBoxRichTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#C8000000" Foreground="White" FontFamily="Consolas" FocusVisualStyle="{StaticResource FocusVisual}" IsReadOnly="True">
+                            <RichTextBox.Resources>
+                                <Style TargetType="{x:Type Paragraph}">
+                                    <Setter Property="Margin" Value="0"/>
+                                </Style>
+                            </RichTextBox.Resources>
+                        </RichTextBox>
+                    </ScrollViewer>
+                </StackPanel>
             </Grid>
-            <Grid Name="IntroBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="170">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
-                        <StackPanel>
-                            <TextBlock Name="IntroBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <TextBlock Name="IntroBoxMessageTextBlock" Margin="150,0,22,5" Height="100" FontFamily="Segoe UI" TextWrapping="Wrap"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="IntroBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="IntroBoxCloseButton_Click"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
+            <Grid Name="IntroBox" Background="#80000000" Visibility="Collapsed">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Background="#C8FFFFFF">
+                    <StackPanel>
+                        <TextBlock Name="IntroBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                        <TextBlock Name="IntroBoxMessageTextBlock" Margin="150,0,22,0" FontFamily="Segoe UI" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Name="IntroBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="IntroBoxCloseButton_Click"/>
+                    </StackPanel>
                     <Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
                     <Button Name="IntroBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="IntroBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
-            <Grid Name="DownloadCacheBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="200">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
+            <Grid Name="DownloadCacheBox" Background="#80000000" Visibility="Collapsed">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Background="#C8FFFFFF">
+                    <StackPanel>
                         <StackPanel>
                             <TextBlock Name="DownloadCacheBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" Height="128" FontFamily="Segoe UI" TextWrapping="Wrap"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="DownloadCacheBoxFullCacheButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxFullCacheButton_Click"/>
-                                <Button Name="DownloadCacheBoxNumericFilesButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxNumericFilesButton_Click"/>
-                                <Button Name="DownloadCacheBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
-                            </StackPanel>
+                            <TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                         </StackPanel>
-                    </Border>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="DownloadCacheBoxFullCacheButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxFullCacheButton_Click"/>
+                            <Button Name="DownloadCacheBoxNumericFilesButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxNumericFilesButton_Click"/>
+                            <Button Name="DownloadCacheBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
                     <Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
-            <Grid Name="RepairBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="200">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
+            <Grid Name="RepairBox" Background="#80000000" Visibility="Collapsed">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Background="#C8FFFFFF">
+                    <StackPanel>
                         <StackPanel>
                             <TextBlock Name="RepairBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <TextBlock Name="RepairBoxMessageTextBlock" Margin="22,0,22,5" Height="128" FontFamily="Segoe UI" TextWrapping="Wrap"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="RepairBoxYesButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxYesButton_Click"/>
-                                <Button Name="RepairBoxNoButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxCloseButton_Click"/>
-                                <Button Name="RepairBoxGenerateButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxGenerateButton_Click"/>
-                            </StackPanel>
+                            <TextBlock Name="RepairBoxMessageTextBlock" Margin="22,0,22,5" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                         </StackPanel>
-                    </Border>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="RepairBoxYesButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxYesButton_Click"/>
+                            <Button Name="RepairBoxNoButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxCloseButton_Click"/>
+                            <Button Name="RepairBoxGenerateButton" Style="{DynamicResource WhiteButtonStyle}" Click="RepairBoxGenerateButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
                     <Button Name="RepairBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="RepairBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
-            <Grid Name="FPSInputBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="250">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
-                        <StackPanel>
-                            <TextBlock Name="FPSInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <DockPanel Height="26" Margin="100,5">
-                                <TextBlock Name="CombatFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="CombatFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
-                            </DockPanel>
-                            <DockPanel Height="26" Margin="100,5">
-                                <TextBlock Name="MenuFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="MenuFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
-                            </DockPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="FPSInputBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="FPSInputBoxOKButton_Click"/>
-                                <Button Name="FPSInputBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="FPSInputBoxCancelButton_Click"/>
-                            </StackPanel>
+            <Grid Name="FPSInputBox" Background="#80000000" Visibility="Collapsed">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Background="#C8FFFFFF">
+                    <StackPanel>
+                        <TextBlock Name="FPSInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                        <DockPanel Height="26" Margin="100,5">
+                            <TextBlock Name="CombatFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBox Name="CombatFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                        </DockPanel>
+                        <DockPanel Height="26" Margin="100,5">
+                            <TextBlock Name="MenuFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBox Name="MenuFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                        </DockPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="FPSInputBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="FPSInputBoxOKButton_Click"/>
+                            <Button Name="FPSInputBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="FPSInputBoxCancelButton_Click"/>
                         </StackPanel>
-                    </Border>
+                    </StackPanel>
                     <Button Name="FPSInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="FPSInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
-            <Grid Name="ResolutionInputBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="250">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
-                        <StackPanel>
-                            <TextBlock Name="ResolutionInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <DockPanel Height="26" Margin="100,5">
-                                <TextBlock Name="ResolutionInputBoxWidthTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="ResolutionInputBoxWidthTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="4" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
-                            </DockPanel>
-                            <DockPanel Height="26" Margin="100,5">
-                                <TextBlock Name="ResolutionInputBoxHeightTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <TextBox Name="ResolutionInputBoxHeightTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="4" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
-                            </DockPanel>
-                            <DockPanel Height="26" Margin="100,5">
-                                <TextBlock Name="ResolutionInputBoxFullscreenTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                                <CheckBox Name="ResolutionInputBoxFullscreenCheckbox" Margin="25,5,25,0" HorizontalAlignment="Right"/>
-                            </DockPanel>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="ResolutionInputBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="ResolutionInputBoxOKButton_Click"/>
-                                <Button Name="ResolutionInputBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="ResolutionInputBoxCancelButton_Click"/>
-                            </StackPanel>
+            <Grid Name="ResolutionInputBox" Background="#80000000" Visibility="Collapsed">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Background="#C8FFFFFF">
+                    <StackPanel>
+                        <TextBlock Name="ResolutionInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                        <DockPanel Height="26" Margin="100,5">
+                            <TextBlock Name="ResolutionInputBoxWidthTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBox Name="ResolutionInputBoxWidthTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="4" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                        </DockPanel>
+                        <DockPanel Height="26" Margin="100,5">
+                            <TextBlock Name="ResolutionInputBoxHeightTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <TextBox Name="ResolutionInputBoxHeightTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="4" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+                        </DockPanel>
+                        <DockPanel Height="26" Margin="100,5">
+                            <TextBlock Name="ResolutionInputBoxFullscreenTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                            <CheckBox Name="ResolutionInputBoxFullscreenCheckbox" Margin="25,5,25,0" HorizontalAlignment="Right"/>
+                        </DockPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="ResolutionInputBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="ResolutionInputBoxOKButton_Click"/>
+                            <Button Name="ResolutionInputBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="ResolutionInputBoxCancelButton_Click"/>
                         </StackPanel>
-                    </Border>
+                    </StackPanel>
                     <Button Name="ResolutionInputBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="ResolutionInputBoxCancelButton_Click"/>
                 </Grid>
             </Grid>
-            <Grid Name="ChangelogBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="844" Height="390">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
-                        <StackPanel>
-                            <TextBlock Name="ChangelogBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-                            <TextBlock Name="ChangelogBoxMessageTextBlock" Margin="22,0,22,5" FontFamily="Segoe UI" Visibility="Collapsed"/>
-                            <ScrollViewer Name="ChangelogBoxScrollViewer" Margin="14,0,14,0" Width="800" Height="325" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                                <TextBox Name="ChangelogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#19000000" FontFamily="Consolas" IsReadOnly="True" TextWrapping="Wrap"/>
-                            </ScrollViewer>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="ChangelogBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="ChangelogBoxCloseButton_Click"/>
-                            </StackPanel>
+            <Grid Name="ChangelogBox" Background="#80000000" Visibility="Collapsed">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="844" Background="#C8FFFFFF">
+                    <StackPanel>
+                        <TextBlock Name="ChangelogBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+                        <TextBlock Name="ChangelogBoxMessageTextBlock" Margin="22,0,22,5" FontFamily="Segoe UI" Visibility="Collapsed"/>
+                        <ScrollViewer Name="ChangelogBoxScrollViewer" Margin="14,0,14,0" Width="800" Height="325" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <TextBox Name="ChangelogBoxTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#19000000" FontFamily="Consolas" IsReadOnly="True" TextWrapping="Wrap"/>
+                        </ScrollViewer>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="ChangelogBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="ChangelogBoxCloseButton_Click"/>
                         </StackPanel>
-                    </Border>
+                    </StackPanel>
                     <Button Name="ChangelogBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="ChangelogBoxCloseButton_Click"/>
                 </Grid>
             </Grid>
-            <Grid Name="AboutBox" Visibility="Collapsed">
-                <Grid Background="#80000000"/>
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Height="300">
-                    <Border BorderBrush="Black" Background="#C8FFFFFF">
+            <Grid Name="AboutBox" Background="#80000000" Visibility="Collapsed">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Background="#C8FFFFFF">
+                    <StackPanel>
                         <StackPanel>
                             <TextBlock Name="AboutBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
                             <TextBlock Margin="150,0,25,0" Text="Better Honkai Impact 3rd Launcher" FontFamily="Segoe UI" FontWeight="Bold" FontSize="15"/>
-                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,5" Height="210" FontFamily="Segoe UI" TextWrapping="Wrap"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Name="AboutBoxGitHubButton" Style="{DynamicResource WhiteButtonStyle}" Click="AboutBoxGitHubButton_Click"/>
-                                <Button Name="AboutBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="AboutBoxCloseButton_Click"/>
-                            </StackPanel>
+                            <TextBlock Name="AboutBoxMessageTextBlock" Margin="150,0,22,0" FontFamily="Segoe UI" TextWrapping="Wrap"/>
                         </StackPanel>
-                    </Border>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Name="AboutBoxGitHubButton" Style="{DynamicResource WhiteButtonStyle}" Click="AboutBoxGitHubButton_Click"/>
+                            <Button Name="AboutBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="AboutBoxCloseButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
                     <Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
                     <Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="AboutBoxCloseButton_Click"/>
                 </Grid>

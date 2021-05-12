@@ -24,6 +24,17 @@ namespace BetterHI3Launcher
             Process.Start(startInfo);
         }
 
+        public static void PlaySound(Stream sound)
+        {
+            if(!MainWindow.DisableSounds)
+            {
+                try
+                {
+                    new SoundPlayer(sound).Play();
+                }catch{}
+            }
+        }
+
         // https://stackoverflow.com/a/10520086/7570821
         public static string CalculateMD5(string filename)
         {
@@ -45,6 +56,58 @@ namespace BetterHI3Launcher
             else unitStr = unitStr.ToUpper();
             int exp = (int)(Math.Log(bytes) / Math.Log(unit));
             return string.Format("{0:##.##} {1}{2}", bytes / Math.Pow(unit, exp), MainWindow.textStrings["binary_prefixes"][exp - 1], unitStr);
+        }
+
+        public static string GetWindowsVersion()
+        {
+            var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+            string name = "Windows";
+            string build = "0";
+            string version = string.Empty;
+            string revision = "0";
+            try
+            {
+                var value = key.GetValue("ProductName").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    name = value;
+                }
+            }catch{}
+            try
+            {
+                var value = key.GetValue("CurrentBuild").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    build = value;
+                }
+            }catch{}
+            try
+            {
+                var value = key.GetValue("DisplayVersion").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    version = value;
+                }
+            }catch{}
+            try
+            {
+                var value = key.GetValue("UBR").ToString();
+                if(!string.IsNullOrEmpty(value))
+                {
+                    revision = value;
+                }
+            }catch{}
+            if(Environment.OSVersion.Version.Major == 10)
+            {
+                if(!string.IsNullOrEmpty(version))
+                    return $"{name} (Version {version}, Build {build}.{revision})";
+                else
+                    return $"{name} (Build {build}.{revision})";
+            }
+            else
+            {
+                return $"{name} (Build {build})";
+            }
         }
 
         public static bool IsFileLocked(FileInfo file)
@@ -71,73 +134,6 @@ namespace BetterHI3Launcher
             webRequest.Headers.Add("Accept-Language", MainWindow.LauncherLanguage);
             webRequest.Timeout = timeout;
             return webRequest;
-        }
-
-        public static string GetWindowsVersion()
-        {
-            var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-            string name = "Windows";
-            string build = "0";
-            string version = string.Empty;
-            string revision = "0";
-            try
-            {
-                var value = key.GetValue("ProductName").ToString();
-                if(!string.IsNullOrEmpty(value))
-                {
-                    name = value;
-                }
-            }
-            catch{}
-            try
-            {
-                var value = key.GetValue("CurrentBuild").ToString();
-                if(!string.IsNullOrEmpty(value))
-                {
-                    build = value;
-                }
-            }
-            catch{}
-            try
-            {
-                var value = key.GetValue("DisplayVersion").ToString();
-                if(!string.IsNullOrEmpty(value))
-                {
-                    version = value;
-                }
-            }
-            catch{}
-            try
-            {
-                var value = key.GetValue("UBR").ToString();
-                if(!string.IsNullOrEmpty(value))
-                {
-                    revision = value;
-                }
-            }
-            catch{}
-            if(Environment.OSVersion.Version.Major == 10)
-            {
-                if(!string.IsNullOrEmpty(version))
-                    return $"{name} (Version {version}, Build {build}.{revision})";
-                else
-                    return $"{name} (Build {build}.{revision})";
-            }
-            else
-            {
-                return $"{name} (Build {build})";
-            }
-        }
-
-        public static void PlaySound(Stream sound)
-        {
-            if(!MainWindow.DisableSounds)
-            {
-                try
-                {
-                    new SoundPlayer(sound).Play();
-                }catch{}
-            }
         }
     }
 

@@ -49,6 +49,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_german"] = "Tiếng Đức";
             textStrings["contextmenu_language_vietnamese"] = "Tiếng Việt";
             textStrings["contextmenu_language_serbian"] = "Tiếng Serbia";
+            textStrings["contextmenu_language_thai"] = "Tiếng Thái";
             textStrings["contextmenu_language_contribute"] = "Muốn giúp đỡ?";
             textStrings["contextmenu_sounds"] = "Âm thanh";
             textStrings["contextmenu_about"] = "Thông tin";
@@ -87,7 +88,7 @@ namespace BetterHI3Launcher
             textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher vừa trở nên tốt hơn. Đây là những gì đã xảy ra:";
             textStrings["changelogbox_2_msg"] = "Lấy changelog...";
             textStrings["changelogbox_3_msg"] = "Không thể lấy changelog.";
-            textStrings["aboutbox_msg"] = "Chà, nó cao cấp hơn nhiều phải không? :^)\nDự án này được thực hiện với hy vọng nhiều thuyền trưởng sẽ có trải nghiệm tốt hơn với trò chơi.\nNó không liên kết với miHoYo và hoàn toàn là mã nguồn mở.\nBất kỳ thông tin phản hồi đều được đánh giá rất cao.\nĐặc biệt cảm ơn những cộng tác viên GitHub:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation";
+            textStrings["aboutbox_msg"] = "Chà, nó cao cấp hơn nhiều phải không? :^)\nDự án này được thực hiện với hy vọng nhiều thuyền trưởng sẽ có trải nghiệm tốt hơn với trò chơi.\nNó không liên kết với miHoYo và hoàn toàn là mã nguồn mở.\nBất kỳ thông tin phản hồi đều được đánh giá rất cao.\nĐặc biệt cảm ơn những cộng tác viên GitHub:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation";
             textStrings["msgbox_genericerror_title"] = "Lỗi";
             textStrings["msgbox_genericerror_msg"] = "Đã có lỗi xảy ra.\nĐể biết thêm thông tin, hãy xem log.";
             textStrings["msgbox_neterror_title"] = "Lỗi mạng";

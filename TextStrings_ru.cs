@@ -53,6 +53,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_german"] = "Немецкий";
             textStrings["contextmenu_language_vietnamese"] = "Вьетнамский";
             textStrings["contextmenu_language_serbian"] = "Сербский";
+            textStrings["contextmenu_language_thai"] = "Тайский";
             textStrings["contextmenu_language_contribute"] = "Хотите помочь?";
             textStrings["contextmenu_sounds"] = "Звуки";
             textStrings["contextmenu_about"] = "О лаунчере";
@@ -92,7 +93,7 @@ namespace BetterHI3Launcher
             textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
             textStrings["changelogbox_2_msg"] = "Загрузка истории изменений...";
             textStrings["changelogbox_3_msg"] = "Не удалось загрузить историю изменений.";
-            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам с GitHub:\nSinsOfSeven - Задавание своего разрешения экрана игры\nProxy-E23 - Перевод на испанский язык\nSpookyKisuy - Перевод на португальский язык\nbulawin1, Vrontis - Перевод на немецкий язык\nKorewaLidesu - Перевод на вьетнамский язык\nSm1leAway - Перевод на сербский язык";
+            textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам с GitHub:\nSinsOfSeven - Задавание своего разрешения экрана игры\nProxy-E23 - Перевод на испанский язык\nSpookyKisuy - Перевод на португальский язык\nbulawin1, Vrontis - Перевод на немецкий язык\nKorewaLidesu - Перевод на вьетнамский язык\nSm1leAway - Перевод на сербский язык\nVoRTeXStarz - Перевод на тайский язык";
             textStrings["msgbox_download_cache_1_msg"] = "Сейчас начнётся загрузка полного кеша.";
             textStrings["msgbox_download_cache_2_msg"] = "Сейчас начнётся загрузка кеша числовых файлов.";
             textStrings["msgbox_download_cache_3_msg"] = "Размер загрузки: {0}.\nПродолжить?";
@@ -145,8 +146,8 @@ namespace BetterHI3Launcher
             textStrings["msgbox_uninstallerror_msg"] = "Произошла ошибка удаления игры.\nДля дополнительной информации посмотрите лог.";
             textStrings["msgbox_uninstallerror_title"] = "Ошибка удаления";
             textStrings["msgbox_download_type_1_msg"] = "Будет сброшен тип загрузки игровых ресурсов в надежде исправить печально известную проблему с бесконечной загрузкой в игре.\nПродолжить?";
-            textStrings["msgbox_download_type_2_msg"] = "Тип загрузки сброшен. Запустите игру и выберете \"HD assets\".";
-            textStrings["msgbox_download_type_3_msg"] = "Тип загрузки уже был сброшен. Запустите игру и выберете \"HD assets\".";
+            textStrings["msgbox_download_type_2_msg"] = "Тип загрузки сброшен. Запустите игру и выберите \"HD assets\".";
+            textStrings["msgbox_download_type_3_msg"] = "Тип загрузки уже был сброшен. Запустите игру и выберите \"HD assets\".";
             textStrings["msgbox_fixsubs_1_msg"] = "Будет произведена попытка исправить субтитры к видео (и гача баннеры). Убедитесь, что все видеофайлы были загружены в игре.\nПродолжить?";
             textStrings["msgbox_fixsubs_2_msg"] = "Распаковка субтитров к видео {0}/{1}...";
             textStrings["msgbox_fixsubs_3_msg"] = "Проверка файла субтитров {0}/{1}...";
