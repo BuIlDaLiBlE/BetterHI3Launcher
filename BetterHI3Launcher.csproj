@@ -225,6 +225,7 @@
     <Compile Include="TextStrings_pt.cs" />
     <Compile Include="TextStrings_ru.cs" />
     <Compile Include="TextStrings_sr.cs" />
+    <Compile Include="TextStrings_th.cs" />
     <Compile Include="TextStrings_vi.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />

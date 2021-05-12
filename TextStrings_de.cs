@@ -42,6 +42,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_german"] = "Deutsch";
             textStrings["contextmenu_language_vietnamese"] = "Vietnamesisch";
             textStrings["contextmenu_language_serbian"] = "Serbisch";
+            textStrings["contextmenu_language_thai"] = "Thailändisch";
             textStrings["contextmenu_language_contribute"] = "Willst du helfen?";
             textStrings["contextmenu_about"] = "Über";
             textStrings["progresstext_error"] = "Ein Fehler ist aufgetreten :^(";
@@ -79,7 +80,7 @@ namespace BetterHI3Launcher
             textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher wurde aktualisiert, hier siehst du die letzten Änderungen:";
             textStrings["changelogbox_2_msg"] = "Lade Changelog...";
             textStrings["changelogbox_3_msg"] = "Fehler beim Laden der Changelog.";
-            textStrings["aboutbox_msg"] = "Es hat sich einiges verbessert oder nicht? :^)\nDieses Projekt ist entstanden, um euch Captains eine bessere Spielerfahrung zu bieten.\nDieser Launcher steht in keinem Zusammenhang mit miHoYo und ist ein OpenSource Projekt.\nJedes Feedback wird freundlich begrüßt.\nBesonderen Dank gehen an diese GitHub-Contributors:\nSinsOfSeven - Beitrag zur benutzerdefinierten Auflösung\nProxy-E23 - Beitrag der spanischen Sprache\nSpookyKisuy - Beitrag der portugiesischen Sprache\nbulawin1, Vrontis - Beitrag der deutscher Sprache\nKorewaLidesu - Beitrag der vietnamesischen Sprache";
+            textStrings["aboutbox_msg"] = "Es hat sich einiges verbessert oder nicht? :^)\nDieses Projekt ist entstanden, um euch Captains eine bessere Spielerfahrung zu bieten.\nDieser Launcher steht in keinem Zusammenhang mit miHoYo und ist ein OpenSource Projekt.\nJedes Feedback wird freundlich begrüßt.\nBesonderen Dank gehen an diese GitHub-Contributors:\nSinsOfSeven - Beitrag zur benutzerdefinierten Auflösung\nProxy-E23 - Beitrag der spanischen Sprache\nSpookyKisuy - Beitrag der portugiesischen Sprache\nbulawin1, Vrontis - Beitrag der deutscher Sprache\nKorewaLidesu - Beitrag der vietnamesischen Sprache\nVoRTeXStarz - Beitrag der thailändischen Sprache";
             textStrings["msgbox_genericerror_title"] = "Fehler";
             textStrings["msgbox_genericerror_msg"] = "Ein Fehler ist aufgetreten.\nFür mehr Informationen schaue im Log nach.";
             textStrings["msgbox_neterror_title"] = "Netzwerkfehler";

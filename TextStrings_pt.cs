@@ -50,6 +50,7 @@ namespace BetterHI3Launcher
             textStrings["contextmenu_language_german"] = "Alemã";
             textStrings["contextmenu_language_vietnamese"] = "Vietnamita";
             textStrings["contextmenu_language_serbian"] = "Sérvia";
+            textStrings["contextmenu_language_thai"] = "Tailandês";
             textStrings["contextmenu_language_contribute"] = "Quer ajudar?";
             textStrings["contextmenu_sounds"] = "Sons";
             textStrings["contextmenu_about"] = "Sobre";
@@ -88,7 +89,7 @@ namespace BetterHI3Launcher
             textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher acaba de se tornar ainda melhor. Aqui está o que aconteceu:";
             textStrings["changelogbox_2_msg"] = "Carregando o changelog...";
             textStrings["changelogbox_3_msg"] = "Não foi possível carregar o changelog.";
-            textStrings["aboutbox_msg"] = "Bem, é muito mais avançado, não é? :^)\nEste projeto foi feito com a esperança de que muitos capitães tivessem uma melhor experiência com o jogo.\nEle não é afiliado à miHoYo e é totalmente código-aberto.\nQualquer comentário será muito bem vindo.\nAgradecimentos especiais à esses contribuidores do GitHub:\nSinsOfSeven - Contribuição de resolução personalizada\nProxy-E23 - Tradução da idioma espanhola\nSpookyKisuy - Tradução da idioma portuguêsa\nbulawin1, Vrontis - Tradução da idioma alemã\nKorewaLidesu - Tradução da idioma vietnamita\nSm1leAway - Tradução da idioma sérvia";
+            textStrings["aboutbox_msg"] = "Bem, é muito mais avançado, não é? :^)\nEste projeto foi feito com a esperança de que muitos capitães tivessem uma melhor experiência com o jogo.\nEle não é afiliado à miHoYo e é totalmente código-aberto.\nQualquer comentário será muito bem vindo.\nAgradecimentos especiais à esses contribuidores do GitHub:\nSinsOfSeven - Contribuição de resolução personalizada\nProxy-E23 - Tradução da idioma espanhola\nSpookyKisuy - Tradução da idioma portuguêsa\nbulawin1, Vrontis - Tradução da idioma alemã\nKorewaLidesu - Tradução da idioma vietnamita\nSm1leAway - Tradução da idioma sérvia\nVoRTeXStarz - Tradução da idioma tailandesa";
             textStrings["msgbox_genericerror_title"] = "Erro";
             textStrings["msgbox_genericerror_msg"] = "Ocorreu um erro.\nPara obter informações dê uma olhada no log.";
             textStrings["msgbox_neterror_title"] = "Erro de rede";

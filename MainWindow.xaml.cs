@@ -45,7 +45,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version LocalLauncherVersion = new Version("1.1.20210511.0");
+        public static readonly Version LocalLauncherVersion = new Version("1.1.20210513.0");
         public static readonly string RootPath = Directory.GetCurrentDirectory();
         public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -349,6 +349,9 @@ namespace BetterHI3Launcher
                 case "sr-Latn-RS":
                     LauncherLanguage = "sr";
                     break;
+                case "th-TH":
+                    LauncherLanguage = "th";
+                    break;
                 case "vi-VN":
                     LauncherLanguage = "vi";
                     break;
@@ -507,6 +510,9 @@ namespace BetterHI3Launcher
             var CMLanguageSerbian = new MenuItem{Header = textStrings["contextmenu_language_serbian"]};
             CMLanguageSerbian.Click += (sender, e) => CM_Language_Click(sender, e);
             CMLanguage.Items.Add(CMLanguageSerbian);
+            var CMLanguageThai = new MenuItem {Header = textStrings["contextmenu_language_thai"]};
+            CMLanguageThai.Click += (sender, e) => CM_Language_Click(sender, e);
+            CMLanguage.Items.Add(CMLanguageThai);
             CMLanguage.Items.Add(new Separator());
             var CMLanguageContribute = new MenuItem{Header = textStrings["contextmenu_language_contribute"]};
             CMLanguageContribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contibuting-translations", null, RootPath, true);
@@ -543,6 +549,9 @@ namespace BetterHI3Launcher
                         break;
                     case "sr":
                         CMLanguageSerbian.IsChecked = true;
+                        break;
+                    case "th":
+                        CMLanguageThai.IsChecked = true;
                         break;
                     default:
                         CMLanguageEnglish.IsChecked = true;
@@ -1829,7 +1838,6 @@ namespace BetterHI3Launcher
             {
                 ChangelogBox.Visibility = Visibility.Visible;
                 ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
-                ChangelogBoxScrollViewer.Height -= 20;
                 FetchChangelog();
             }
             try
@@ -2061,9 +2069,12 @@ namespace BetterHI3Launcher
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            BpUtility.PlaySound(Properties.Resources.Click);
-            OptionsContextMenu.PlacementTarget = sender as Button;
+            var button = sender as Button;
+            OptionsContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
+            OptionsContextMenu.PlacementTarget = button;
+            OptionsContextMenu.VerticalOffset = button.Height;
             OptionsContextMenu.IsOpen = true;
+            BpUtility.PlaySound(Properties.Resources.Click);
         }
 
         private async Task CM_DownloadCache_Click(object sender, RoutedEventArgs e)
@@ -2882,52 +2893,47 @@ namespace BetterHI3Launcher
                 {
                     try{LauncherRegKey.DeleteValue("Language");}catch{}
                 }
-                else if(lang == textStrings["contextmenu_language_english"])
-                {
-                    LauncherLanguage = "en";
-                }
-                else if(lang == textStrings["contextmenu_language_russian"])
-                {
-                    LauncherLanguage = "ru";
-                }
-                else if(lang == textStrings["contextmenu_language_spanish"])
-                {
-                    LauncherLanguage = "es";
-                }
-                else if(lang == textStrings["contextmenu_language_portuguese"])
-                {
-                    LauncherLanguage = "pt";
-                }
-                else if(lang == textStrings["contextmenu_language_german"])
-                {
-                    LauncherLanguage = "de";
-                }
-                else if(lang == textStrings["contextmenu_language_vietnamese"])
-                {
-                    LauncherLanguage = "vi";
-                }
-                else if(lang == textStrings["contextmenu_language_serbian"])
-                {
-                    LauncherLanguage = "sr";
-                }
                 else
                 {
-                    Log($"ERROR: Translation for {lang} doesn't exist", true, 1);
-                    return;
-                }
-                if(lang != textStrings["contextmenu_language_system"])
-                {
-                    SetLanguage(LauncherLanguage);
+                    if(lang == textStrings["contextmenu_language_english"])
+                    {
+                        LauncherLanguage = "en";
+                    }
+                    else if(lang == textStrings["contextmenu_language_russian"])
+                    {
+                        LauncherLanguage = "ru";
+                    }
+                    else if(lang == textStrings["contextmenu_language_spanish"])
+                    {
+                        LauncherLanguage = "es";
+                    }
+                    else if(lang == textStrings["contextmenu_language_portuguese"])
+                    {
+                        LauncherLanguage = "pt";
+                    }
+                    else if(lang == textStrings["contextmenu_language_german"])
+                    {
+                        LauncherLanguage = "de";
+                    }
+                    else if(lang == textStrings["contextmenu_language_vietnamese"])
+                    {
+                        LauncherLanguage = "vi";
+                    }
+                    else if(lang == textStrings["contextmenu_language_serbian"])
+                    {
+                        LauncherLanguage = "sr";
+                    }
+                    else if(lang == textStrings["contextmenu_language_thai"])
+                    {
+                        LauncherLanguage = "th";
+                    }
+                    else
+                    {
+                        Log($"ERROR: Translation for {lang} doesn't exist", true, 1);
+                        return;
+                    }
                     LauncherRegKey.SetValue("Language", LauncherLanguage);
                 }
-                var parent = (MenuItem)item.Parent;
-                foreach(dynamic i in parent.Items)
-                {
-                    if(i.GetType() != typeof(MenuItem) || i == item)
-                        continue;
-                    i.IsChecked = false;
-                }
-                item.IsChecked = true;
                 Log($"Set language to {lang}");
                 BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
                 Application.Current.Shutdown();
@@ -3091,7 +3097,9 @@ namespace BetterHI3Launcher
         {
             IntroBox.Visibility = Visibility.Collapsed;
             if(FirstLaunch)
+            {
                 GameUpdateCheck();
+            }
         }
 
         private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
@@ -3526,7 +3534,6 @@ namespace BetterHI3Launcher
         {
             ChangelogBox.Visibility = Visibility.Collapsed;
             ChangelogBoxMessageTextBlock.Visibility = Visibility.Collapsed;
-            ChangelogBoxScrollViewer.Height = 325;
         }
 
         private void ShowLogCheckBox_Checked(object sender, RoutedEventArgs e)
@@ -3749,6 +3756,10 @@ namespace BetterHI3Launcher
                     LauncherLanguage = lang;
                     TextStrings_Serbian();
                     break;
+                case "th":
+                    LauncherLanguage = lang;
+                    TextStrings_Thai();
+                    break;
                 case "vi":
                     LauncherLanguage = lang;
                     TextStrings_Vietnamese();
@@ -3760,29 +3771,7 @@ namespace BetterHI3Launcher
             }
             if(LauncherLanguage != "en")
             {
-                var IntroBoxGrid = VisualTreeHelper.GetChild(IntroBox, 1) as Grid;
-                var ChangelogBoxGrid = VisualTreeHelper.GetChild(ChangelogBox, 1) as Grid;
-                var AboutBoxGrid = VisualTreeHelper.GetChild(AboutBox, 1) as Grid;
-                IntroBoxGrid.Height += 8;
-                ChangelogBoxGrid.Height += 8;
-                AboutBoxGrid.Height += 8;
-                DownloadCacheBoxMessageTextBlock.Height -= 5;
                 Resources["Font"] = new FontFamily("Segoe UI Bold");
-                if(LauncherLanguage == "de")
-                {
-                    AboutBoxGrid.Height -= 10;
-                    AboutBoxMessageTextBlock.Height -= 10;
-                }
-                else if(LauncherLanguage == "es" || LauncherLanguage == "pt" || LauncherLanguage == "sr" || LauncherLanguage == "vi")
-                {
-                    RepairBoxMessageTextBlock.Height -= 5;
-                }
-                else if(LauncherLanguage == "ru")
-                {
-                    RepairBoxMessageTextBlock.Height -= 5;
-                    AboutBoxGrid.Height -= 10;
-                    AboutBoxMessageTextBlock.Height -= 10;
-                }
             }
         }
 
