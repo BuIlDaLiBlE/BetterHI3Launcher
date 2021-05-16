@@ -16,7 +16,6 @@
         Title="DialogWindow" Width="1280" Height="590">
     <Window.Resources>
         <FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
-        <FontFamily x:Key="FontStatic">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
         <ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
         <ImageBrush x:Key="ButtonPressed" ImageSource="/Assets/Images/Button_Pressed.png"/>
         <ImageBrush x:Key="ButtonDisabled" ImageSource="/Assets/Images/Button_Disabled.png"/>
@@ -29,7 +28,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="LaunchButtonStyle" TargetType="{x:Type Button}">
+        <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
             <Setter Property="Background" Value="{StaticResource Button}"/>
             <Setter Property="BorderBrush" Value="{x:Null}"/>
@@ -94,8 +93,8 @@
         </ScrollViewer>
         <Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Margin="0,23,33,0" Click="CloseButton_Click"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="36">
-            <Button Name="ConfirmButton" Style="{DynamicResource LaunchButtonStyle}" Click="ConfirmButton_Click"/>
-            <Button Name="CancelButton" Style="{DynamicResource LaunchButtonStyle}" Click="CloseButton_Click"/>
+            <Button Name="ConfirmButton" Style="{DynamicResource ButtonStyle}" Click="ConfirmButton_Click"/>
+            <Button Name="CancelButton" Style="{DynamicResource ButtonStyle}" Click="CloseButton_Click"/>
         </StackPanel>
     </Grid>
 </Window>

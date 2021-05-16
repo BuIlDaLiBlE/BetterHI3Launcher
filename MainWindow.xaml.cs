@@ -271,14 +271,14 @@ namespace BetterHI3Launcher
                 {
                     if(File.Exists(LauncherLogFile))
                     {
-                        string old_log_path_1 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old1.log");
+                        string old_log_path_1 = Path.Combine(LauncherDataPath, "BetterHI3Launcher-old1.log");
                         for(int i = 9; i > 0; i--)
                         {
                             string old_log_path_2 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old{i}.log");
                             if(File.Exists(old_log_path_2))
                             {
                                 string old_log_path_3 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old{i + 1}.log");
-                                string old_log_path_4 = Path.Combine(LauncherDataPath, $"BetterHI3Launcher-old10.log");
+                                string old_log_path_4 = Path.Combine(LauncherDataPath, "BetterHI3Launcher-old10.log");
                                 if(File.Exists(old_log_path_4))
                                 {
                                     File.Delete(old_log_path_4);
@@ -291,7 +291,7 @@ namespace BetterHI3Launcher
                 }
                 catch
                 {
-                    Log($"WARNING: Unable to rename log files", true, 2);
+                    Log("WARNING: Unable to rename log files", true, 2);
                 }
             }
             DeleteFile(LauncherLogFile, true);
@@ -992,7 +992,7 @@ namespace BetterHI3Launcher
                         }
                         else if(!File.Exists(GameExePath))
                         {
-                            Log($"WARNING: Game executable is missing, resetting game version info...", true, 2);
+                            Log("WARNING: Game executable is missing, resetting game version info...", true, 2);
                             DeleteGameFiles();
                             GameUpdateCheck();
                             return;
@@ -1219,7 +1219,7 @@ namespace BetterHI3Launcher
                     if(!mediafire_metadata.title.Contains(miHoYoVersionInfo.cur_version.ToString().Substring(0, 17)))
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Mirror is outdated!", true, 1);
+                        Log("ERROR: Mirror is outdated!", true, 1);
                         new DialogWindow(textStrings["msgbox_gamedownloaderror_title"], textStrings["msgbox_gamedownloadmirrorold_msg"]).ShowDialog();
                         Status = LauncherStatus.Ready;
                         return;
@@ -1255,7 +1255,7 @@ namespace BetterHI3Launcher
                     if(DateTime.Compare(DateTime.Parse(miHoYoVersionInfo.last_modified.ToString()), DateTime.Parse(gd_metadata.modifiedDate.ToString())) > 0)
                     {
                         Status = LauncherStatus.Error;
-                        Log($"ERROR: Mirror is outdated!", true, 1);
+                        Log("ERROR: Mirror is outdated!", true, 1);
                         new DialogWindow(textStrings["msgbox_gamedownloaderror_title"], textStrings["msgbox_gamedownloadmirrorold_msg"]).ShowDialog();
                         Status = LauncherStatus.Ready;
                         return;
@@ -1834,11 +1834,14 @@ namespace BetterHI3Launcher
             {
                 IntroBox.Visibility = Visibility.Visible;
             }
-            if(LauncherRegKey != null && LauncherRegKey.GetValue("LauncherVersion") != null && LauncherRegKey.GetValue("LauncherVersion").ToString() != LocalLauncherVersion.ToString())
+            if(LauncherRegKey != null && LauncherRegKey.GetValue("LauncherVersion") != null)
             {
-                ChangelogBox.Visibility = Visibility.Visible;
-                ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
-                FetchChangelog();
+                if(new Version(LocalLauncherVersion.ToString()).IsNewerThan(new Version(LauncherRegKey.GetValue("LauncherVersion").ToString())))
+                {
+                    ChangelogBox.Visibility = Visibility.Visible;
+                    ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
+                    FetchChangelog();
+                }
             }
             try
             {
@@ -2355,7 +2358,7 @@ namespace BetterHI3Launcher
                     return;
 
                 Status = LauncherStatus.Uninstalling;
-                Log($"Deleting game files...");
+                Log("Deleting game files...");
                 await Task.Run(() =>
                 {
                     try
@@ -2934,7 +2937,7 @@ namespace BetterHI3Launcher
                     }
                     LauncherRegKey.SetValue("Language", LauncherLanguage);
                 }
-                Log($"Set language to {lang}");
+                Log($"Set language to {LauncherLanguage}");
                 BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
                 Application.Current.Shutdown();
             }
@@ -3287,7 +3290,7 @@ namespace BetterHI3Launcher
                     }
                     else
                     {
-                        Log($"Finished verifying files, no files need repair");
+                        Log("Finished verifying files, no files need repair");
                         Dispatcher.Invoke(() =>
                         {
                             ProgressText.Text = string.Empty;
@@ -3855,7 +3858,7 @@ namespace BetterHI3Launcher
                 catch
                 {
                     DisableLogging = true;
-                    Log($"WARNING: Unable to write to log file", true, 2);
+                    Log("WARNING: Unable to write to log file", true, 2);
                 }
             }
         }
@@ -3925,6 +3928,27 @@ namespace BetterHI3Launcher
                     return true;
                 }
                 else if(hotfix != _otherVersion.hotfix)
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            internal bool IsNewerThan(Version _otherVersion)
+            {
+                if(major > _otherVersion.major)
+                {
+                    return true;
+                }
+                else if(minor > _otherVersion.minor)
+                {
+                    return true;
+                }
+                else if(date > _otherVersion.date)
+                {
+                    return true;
+                }
+                else if(hotfix > _otherVersion.hotfix)
                 {
                     return true;
                 }
