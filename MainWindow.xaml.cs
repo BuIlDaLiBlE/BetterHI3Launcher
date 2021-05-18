@@ -897,7 +897,7 @@ namespace BetterHI3Launcher
         private bool LauncherUpdateCheck()
         {
             var OnlineLauncherVersion = new Version(OnlineVersionInfo.launcher_info.version.ToString());
-            if(LocalLauncherVersion.IsDifferentThan(OnlineLauncherVersion))
+            if(OnlineLauncherVersion.IsNewerThan(LocalLauncherVersion))
             {
                 return true;
             }
@@ -1771,6 +1771,7 @@ namespace BetterHI3Launcher
                     return;
                 }
                 DeleteFile(Path.Combine(RootPath, oldExeName), true);
+                DeleteFile(Path.Combine(RootPath, "BetterHI3Launcher.exe.bak"), true); // legacy name
                 await Task.Run(() =>
                 {
                     if(DisableAutoUpdate)
@@ -2124,6 +2125,43 @@ namespace BetterHI3Launcher
                         }
                     }
                 });
+                if(GameCacheMetadata == null || GameCacheMetadataNumeric == null)
+                {
+                    Status = LauncherStatus.Ready;
+                    return;
+                }
+                Dispatcher.Invoke(() =>
+                {
+                    DownloadCacheBox.Visibility = Visibility.Visible;
+                    string mirror;
+                    string time;
+                    string last_updated;
+                    if(Mirror == HI3Mirror.GoogleDrive)
+                    {
+                        mirror = "Google Drive";
+                        time = GameCacheMetadataNumeric.modifiedDate.ToString();
+                    }
+                    else
+                    {
+                        mirror = "MediaFire";
+                        time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)OnlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
+                    }
+                    try
+                    {
+                        if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(time)) >= 0)
+                            last_updated = $"{DateTime.Parse(time).ToLocalTime()} ({textStrings["outdated"].ToLower()})";
+                        else
+                            last_updated = DateTime.Parse(time).ToLocalTime().ToString();
+                    }
+                    catch
+                    {
+                        last_updated = textStrings["msgbox_genericerror_title"];
+                        Log("WARNING: Failed to load last cache update time", true, 2);
+                    }
+                    DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+                    Log("success!", false);
+                    Status = LauncherStatus.Ready;
+                });
             }
             catch(Exception ex)
             {
@@ -2133,35 +2171,6 @@ namespace BetterHI3Launcher
                 Status = LauncherStatus.Ready;
                 return;
             }
-            if(GameCacheMetadata == null || GameCacheMetadataNumeric == null)
-            {
-                Status = LauncherStatus.Ready;
-                return;
-            }
-            Dispatcher.Invoke(() =>
-            {
-                DownloadCacheBox.Visibility = Visibility.Visible;
-                string mirror;
-                string time;
-                string last_updated;
-                if(Mirror == HI3Mirror.GoogleDrive)
-                {
-                    mirror = "Google Drive";
-                    time = GameCacheMetadataNumeric.modifiedDate.ToString();
-                }
-                else
-                {
-                    mirror = "MediaFire";
-                    time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)OnlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
-                }
-                if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(time)) >= 0)
-                    last_updated = $"{DateTime.Parse(time).ToLocalTime()} ({textStrings["outdated"].ToLower()})";
-                else
-                    last_updated = DateTime.Parse(time).ToLocalTime().ToString();
-                DownloadCacheBoxMessageTextBlock.Text = string.Format(textStrings["downloadcachebox_msg"], mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
-                Log("success!", false);
-                Status = LauncherStatus.Ready;
-            });
         }
 
         private async Task CM_Repair_Click(object sender, RoutedEventArgs e)
@@ -3911,27 +3920,6 @@ namespace BetterHI3Launcher
                 minor = int.Parse(_versionStrings[1]);
                 date = int.Parse(_versionStrings[2]);
                 hotfix = int.Parse(_versionStrings[3]);
-            }
-
-            internal bool IsDifferentThan(Version _otherVersion)
-            {
-                if(major != _otherVersion.major)
-                {
-                    return true;
-                }
-                else if(minor != _otherVersion.minor)
-                {
-                    return true;
-                }
-                else if(date != _otherVersion.date)
-                {
-                    return true;
-                }
-                else if(hotfix != _otherVersion.hotfix)
-                {
-                    return true;
-                }
-                return false;
             }
 
             internal bool IsNewerThan(Version _otherVersion)
