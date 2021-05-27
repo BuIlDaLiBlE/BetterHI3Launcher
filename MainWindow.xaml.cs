@@ -48,7 +48,7 @@ namespace BetterHI3Launcher
 
     public partial class MainWindow : Window
     {
-        public static readonly Version LocalLauncherVersion = new Version("1.2.20210527.1");
+        public static readonly Version LocalLauncherVersion = new Version("1.2.20210528.0");
         public static readonly string RootPath = Directory.GetCurrentDirectory();
         public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
         public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -1013,6 +1013,10 @@ namespace BetterHI3Launcher
                             var data = new FileIniDataParser().ReadFile(config_ini_file);
                             if(data["General"]["game_version"] != null)
                             {
+                                if(data["General"]["game_version"] == miHoYoVersionInfo.game.latest.version.ToString())
+                                {
+                                    LocalVersionInfo.game_info.installed = true;
+                                }
                                 LocalVersionInfo.game_info.version = data["General"]["game_version"];
                             }
                         }
@@ -1360,6 +1364,7 @@ namespace BetterHI3Launcher
                         Log("ERROR: Mirror is outdated!", true, 1);
                         new DialogWindow(textStrings["msgbox_gamedownloaderror_title"], textStrings["msgbox_gamedownloadmirrorold_msg"]).ShowDialog();
                         Status = LauncherStatus.Ready;
+                        GameUpdateCheck();
                         return;
                     }
                     try
@@ -1373,6 +1378,7 @@ namespace BetterHI3Launcher
                         Log($"ERROR: Failed to download from MediaFire:\n{ex}", true, 1);
                         new DialogWindow(textStrings["msgbox_gamedownloaderror_title"], textStrings["msgbox_gamedownloadmirrorerror_msg"]).ShowDialog();
                         Status = LauncherStatus.Ready;
+                        GameUpdateCheck();
                         return;
                     }
                 }
@@ -1396,6 +1402,7 @@ namespace BetterHI3Launcher
                         Log("ERROR: Mirror is outdated!", true, 1);
                         new DialogWindow(textStrings["msgbox_gamedownloaderror_title"], textStrings["msgbox_gamedownloadmirrorold_msg"]).ShowDialog();
                         Status = LauncherStatus.Ready;
+                        GameUpdateCheck();
                         return;
                     }
                     try
@@ -1420,6 +1427,7 @@ namespace BetterHI3Launcher
                                 Log($"ERROR: Failed to download from Google Drive:\n{msg}", true, 1);
                                 new DialogWindow(textStrings["msgbox_gamedownloaderror_title"], textStrings["msgbox_gamedownloadmirrorerror_msg"]).ShowDialog();
                                 Status = LauncherStatus.Ready;
+                                GameUpdateCheck();
                             }
                         }
                         return;
@@ -1442,7 +1450,9 @@ namespace BetterHI3Launcher
                     while(download != null && !download.Done)
                     {
                         if(DownloadPaused)
+                        {
                             continue;
+                        }
                         tracker.SetProgress(download.BytesWritten, download.ContentLength);
                         eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
                         Dispatcher.Invoke(() =>
@@ -1540,7 +1550,9 @@ namespace BetterHI3Launcher
                                     });
                                     reader.WriteEntryToDirectory(GameInstallPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
                                     if(!reader.Entry.IsDirectory)
+                                    {
                                         unpackedFiles++;
+                                    }
                                 }
                                 catch
                                 {
@@ -2222,7 +2234,17 @@ namespace BetterHI3Launcher
                     LaunchButton.IsEnabled = true;
                     LaunchButton.Content = textStrings["button_pause"];
                     TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-                    await download.Start();
+                    try
+                    {
+                        await download.Start();
+                    }
+                    catch(Exception ex)
+                    {
+                        Status = LauncherStatus.Error;
+                        Log($"ERROR: Failed to download the game:\n{ex}", true, 1);
+                        new DialogWindow(textStrings["msgbox_gamedownloaderror_title"], textStrings["msgbox_gamedownloaderror_msg"]).ShowDialog();
+                        Status = LauncherStatus.Ready;
+                    }
                 }
             }
         }
@@ -3664,7 +3686,7 @@ namespace BetterHI3Launcher
                         ProgressBar.IsIndeterminate = false;
                         TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
                         Log("Generating game file hashes...");
-                        var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && x.Name != "config.ini" && x.Name != "UniFairy.sys" && x.Name != "Version.txt" && x.Name != "blockVerifiedVersion.txt" && !x.Name.Contains("Blocks_") && !x.Name.Contains("AUDIO_DLC") && !x.Name.Contains("AUDIO_EVENT") && !x.DirectoryName.Contains("Video") && !x.DirectoryName.Contains("webCaches") && x.Extension != ".log").ToList();
+                        var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && x.Name != "config.ini" && x.Name != "UniFairy.sys" && x.Name != "Version.txt" && x.Name != "blockVerifiedVersion.txt" && !x.Name.Contains("Blocks_") && !x.Name.Contains("AUDIO_DLC") && !x.Name.Contains("AUDIO_EVENT") && !x.Name.Contains("AUDIO_BGM") && !x.Name.Contains("AUDIO_Main") && !x.Name.Contains("AUDIO_Ex") && !x.Name.Contains("AUDIO_Dialog") && !x.Name.Contains("AUDIO_Avatar") && !x.DirectoryName.Contains("Video") && !x.DirectoryName.Contains("webCaches") && x.Extension != ".log").ToList();
                         dynamic json = new ExpandoObject();
                         json.repair_info = new ExpandoObject();
                         json.repair_info.game_version = miHoYoVersionInfo.game.latest.version;
