@@ -26,6 +26,7 @@ namespace BetterHI3Launcher
             textStrings["button_github"] = "Idi na GitHub repozitorijum";
             textStrings["button_generate"] = "Generiši";
             textStrings["label_log"] = "Pokaži zapis";
+            textStrings["label_preload"] = "Učitaj unapred igru";
             textStrings["contextmenu_downloadcache"] = "Preuzmi keš";
             textStrings["contextmenu_repair"] = "Popravi fajlove igre";
             textStrings["contextmenu_move"] = "Premesti fajlove igre";

@@ -101,6 +101,7 @@
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=5.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Diagnostics.DiagnosticSource.5.0.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Globalization.Calendars, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Globalization.Calendars.4.3.0\lib\net46\System.Globalization.Calendars.dll</HintPath>
       <Private>True</Private>
@@ -175,6 +176,7 @@
     <Reference Include="System.Text.Encoding.CodePages, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Text.Encoding.CodePages.5.0.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -188,6 +190,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="UIAutomationProvider" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -281,48 +284,34 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Assets\Images\Icon.ico" />
     <Resource Include="Assets\Images\Button.png" />
     <Resource Include="Assets\Images\Button_Disabled.png" />
     <Resource Include="Assets\Images\Button_Pressed.png" />
-    <Resource Include="Assets\Images\Icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Assets\Images\HI3_Logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Assets\Images\BackgroundOverlay.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\Images\Button_Close.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\Images\Button_Close_Pressed.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\Images\Button_Close_Highlighted.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Assets\Images\Button_Minimize.png" />
-    <Resource Include="Assets\Images\Button_Minimize_Highlighted.png" />
-    <Resource Include="Assets\Images\Button_Minimize_Pressed.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Assets\Images\HoV_Dance.gif" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\Images\Button_Box_Close.png" />
     <Resource Include="Assets\Images\Button_Box_Close_Highlighted.png" />
     <Resource Include="Assets\Images\Button_Box_Close_Pressed.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <Resource Include="Assets\Images\Button_Minimize.png" />
+    <Resource Include="Assets\Images\Button_Minimize_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Minimize_Pressed.png" />
     <Resource Include="Assets\Images\BackgroundShadow.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <Resource Include="Assets\Images\BackgroundOverlay.png" />
+    <Resource Include="Assets\Images\BackgroundImage.png" />
+    <Resource Include="Assets\Images\HI3_Logo.png" />
+    <Resource Include="Assets\Images\HoV_Dance.gif" />
     <Resource Include="Assets\Images\Window_Dialog.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Assets\Images\Checkbox_Off.png" />
     <Resource Include="Assets\Images\Checkbox_On.png" />
+    <Resource Include="Assets\Images\Button_Preload.png" />
+    <Resource Include="Assets\Images\Button_Preload_Checkmark.png" />
+    <Resource Include="Assets\Images\Button_Preload_Circle.png" />
+    <Resource Include="Assets\Images\Button_Preload_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Preload_Pressed.png" />
+    <Resource Include="Assets\Images\Button_Preload_Pause.png" />
+    <Resource Include="Assets\Images\Button_Preload_Resume.png" />
     <Content Include="Assets\Sounds\Click.wav" />
     <Content Include="Assets\Sounds\Window_Close.wav" />
     <Content Include="Assets\Sounds\Window_Open.wav" />

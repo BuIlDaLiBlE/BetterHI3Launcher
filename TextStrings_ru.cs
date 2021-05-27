@@ -31,6 +31,16 @@ namespace BetterHI3Launcher
             textStrings["label_server"] = "Сервер";
             textStrings["label_mirror"] = "Зеркало";
             textStrings["label_log"] = "Показать лог";
+            textStrings["label_preload"] = "Предзагрузить игру";
+            textStrings["label_get_now"] = "Получить";
+            textStrings["label_verifying"] = "Проверка";
+            textStrings["label_paused"] = "Приостановлено";
+            textStrings["label_done"] = "Завершено";
+            textStrings["label_retry"] = "Попробовать снова";
+            textStrings["label_downloaded_1"] = "Загружено {0}%";
+            textStrings["label_downloaded_2"] = "Загрузка ресурсов:";
+            textStrings["label_eta"] = "Осталось времени:";
+            textStrings["label_speed"] = "Скорость загрузки:";
             textStrings["contextmenu_downloadcache"] = "Загрузить кеш";
             textStrings["contextmenu_repair"] = "Починить игровые файлы";
             textStrings["contextmenu_move"] = "Переместить игровые файлы";
@@ -189,6 +199,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_language_msg"] = "Язык изменится на {0} и лаунчер будет перезапущен.\nПродолжить?";
             textStrings["msgbox_conn_bp_error_msg"] = "Не удаётся подключиться к Bp Network:";
             textStrings["msgbox_conn_mihoyo_error_msg"] = "Не удаётся подключиться к серверам miHoYo:";
+            textStrings["msgbox_preload_msg"] = "Вы можете зайти в игру во время предзагрузки. Вы уверены, что хотите загрузить игру?";
         }
     }
 }

@@ -27,7 +27,7 @@ namespace BetterHI3Launcher
             textStrings.Add("button_running", "Running");
             textStrings.Add("button_update", "Update");
             textStrings.Add("button_pause", "Pause");
-            textStrings.Add("button_launch", "Start");
+            textStrings.Add("button_launch", "Launch");
             textStrings.Add("button_options", "Options");
             textStrings.Add("button_resume", "Resume");
             textStrings.Add("button_ok", "OK");
@@ -38,6 +38,16 @@ namespace BetterHI3Launcher
             textStrings.Add("label_server", "Server");
             textStrings.Add("label_mirror", "Mirror");
             textStrings.Add("label_log", "Show log");
+            textStrings.Add("label_preload", "Game Pre-Installation");
+            textStrings.Add("label_get_now", "Get Now");
+            textStrings.Add("label_verifying", "Verifying");
+            textStrings.Add("label_paused", "Paused");
+            textStrings.Add("label_done", "Done");
+            textStrings.Add("label_retry", "Retry");
+            textStrings.Add("label_downloaded_1", "Downloaded {0}%");
+            textStrings.Add("label_downloaded_2", "Download resources:");
+            textStrings.Add("label_eta", "Time remaining:");
+            textStrings.Add("label_speed", "Download speed:");
             textStrings.Add("contextmenu_downloadcache", "Download cache");
             textStrings.Add("contextmenu_repair", "Repair game files");
             textStrings.Add("contextmenu_move", "Move game files");
@@ -196,6 +206,7 @@ namespace BetterHI3Launcher
             textStrings.Add("msgbox_language_msg", "Language is going to be changed to {0} and launcher will be restarted.\nContinue?");
             textStrings.Add("msgbox_conn_bp_error_msg", "Cannot connect to Bp Network:");
             textStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to miHoYo servers:");
+            textStrings.Add("msgbox_preload_msg", "You can still enter the game when pre-installing. Are you sure you want to download?");
         }
     }
 }
