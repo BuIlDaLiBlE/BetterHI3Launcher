@@ -27,6 +27,16 @@ namespace BetterHI3Launcher
             textStrings["button_generate"] = "Tạo";
             textStrings["label_server"] = "Máy chủ";
             textStrings["label_log"] = "Hiện log";
+            textStrings["label_preload"] = "Tải trước trò chơi";
+            textStrings["label_get_now"] = "Tải ngay";
+            textStrings["label_verifying"] = "Đang xác nhận";
+            textStrings["label_paused"] = "Đã tạm dừng";
+            textStrings["label_done"] = "Đã hoàn thành";
+            textStrings["label_retry"] = "Thử Lại";
+            textStrings["label_downloaded_1"] = "Đã tải {0}%";
+            textStrings["label_downloaded_2"] = "Tải tài nguyên:";
+            textStrings["label_eta"] = "Thời gian dự kiến:";
+            textStrings["label_speed"] = "Tốc độ tải:";
             textStrings["contextmenu_downloadcache"] = "Tải cache";
             textStrings["contextmenu_repair"] = "Sửa chữa tệp trò chơi";
             textStrings["contextmenu_move"] = "Di chuyển tệp trò chơi";
@@ -182,6 +192,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_language_msg"] = "Ngôn ngữ sẽ chuyển sang {0} và trình khởi chạy sẽ được khởi động lại.\nTiếp tục?";
             textStrings["msgbox_conn_bp_error_msg"] = "Không thể kết nối với Bp Network:";
             textStrings["msgbox_conn_mihoyo_error_msg"] = "Không thể kết nối với máy chủ miHoYo:";
+            textStrings["msgbox_preload_msg"] = "Khi tải trước vẫn có thể vào trò chơi. Xác nhận tải xuống?";
         }
     }
 }

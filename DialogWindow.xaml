@@ -13,7 +13,7 @@
 		TextOptions.TextRenderingMode="ClearType"
         ShowInTaskbar="False"
         UseLayoutRounding="True"
-        Title="DialogWindow" Width="1280" Height="590">
+        Title="DialogWindow" Width="1280" Height="730">
     <Window.Resources>
         <FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
         <ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>

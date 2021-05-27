@@ -14,6 +14,7 @@ namespace BetterHI3Launcher
             textStrings["button_download"] = "Herunterladen";
             textStrings["button_downloading"] = "Lädt herunter";
             textStrings["button_running"] = "Läuft";
+            textStrings["button_launch"] = "Start";
             textStrings["button_options"] = "Optionen";
             textStrings["button_resume"] = "Fortsetzen";
             textStrings["button_confirm"] = "Bestätigen";
@@ -21,6 +22,16 @@ namespace BetterHI3Launcher
             textStrings["button_github"] = "GitHub-Repository öffnen";
             textStrings["button_generate"] = "Generiere";
             textStrings["label_log"] = "Log anzeigen";
+            textStrings["label_preload"] = "Vorzeitiges Herunterladen des Spiels";
+            textStrings["label_get_now"] = "Jetzt herunterladen";
+            textStrings["label_verifying"] = "Überprüfung läuft";
+            textStrings["label_paused"] = "Angehalten";
+            textStrings["label_done"] = "Abgeschlossen";
+            textStrings["label_retry"] = "Erneut versuchen";
+            textStrings["label_downloaded_1"] = "Heruntergeladen {0}%";
+            textStrings["label_downloaded_2"] = "Daten Herunterladen:";
+            textStrings["label_eta"] = "Geschätzte verbleibende Zeit:";
+            textStrings["label_speed"] = "Download-Geschwindigkeit:";
             textStrings["contextmenu_repair"] = "Repariere Spieldateien";
             textStrings["contextmenu_move"] = "Verschiebe Spieldateien";
             textStrings["contextmenu_uninstall"] = "Spiel deinstallieren";
@@ -175,6 +186,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_language_msg"] = "Die Sprache wird zu {0} geändert und der Launcher neu gestartet.\nFortfahren?";
             textStrings["msgbox_conn_bp_error_msg"] = "Es konnte keine Verbindung zum Bp Network hergestellt werden:";
             textStrings["msgbox_conn_mihoyo_error_msg"] = "Es konnte keine Verbindung zum miHoYo Server hergestellt werden:";
+            textStrings["msgbox_preload_msg"] = "Während des vorzeitigen Herunterladens kann das Spiel gestartet werden. Willst du jetzt herunterladen?";
         }
     }
 }

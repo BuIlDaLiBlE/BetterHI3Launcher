@@ -28,6 +28,16 @@ namespace BetterHI3Launcher
             textStrings["label_server"] = "Servidor";
             textStrings["label_mirror"] = "Espelho";
             textStrings["label_log"] = "Mostrar log";
+            textStrings["label_preload"] = "Pré-download do jogo";
+            textStrings["label_get_now"] = "Obter já";
+            textStrings["label_verifying"] = "Examinando";
+            textStrings["label_paused"] = "Em pausa";
+            textStrings["label_done"] = "Concluído";
+            textStrings["label_retry"] = "Tentar de novo";
+            textStrings["label_downloaded_1"] = "Baixado {0}%";
+            textStrings["label_downloaded_2"] = "Baixando recursos:";
+            textStrings["label_eta"] = "Tempo estimado:";
+            textStrings["label_speed"] = "Velocidade de baixada:";
             textStrings["contextmenu_downloadcache"] = "Baixar cache";
             textStrings["contextmenu_repair"] = "Reparar arquivos do jogo";
             textStrings["contextmenu_move"] = "Mover arquivos do jogo";
@@ -184,6 +194,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_language_msg"] = "O idioma será alterado para {0} e o launcher será reiniciado.\nContinuar?";
             textStrings["msgbox_conn_bp_error_msg"] = "Não foi possível conectar-se ao Bp Network:";
             textStrings["msgbox_conn_mihoyo_error_msg"] = "Não foi possível conectar-se aos servidores miHoYo:";
+            textStrings["msgbox_preload_msg"] = "É possível entrar no jogo durante o pré-download dos recursos. Deseja mesmo fazer o pré-download?";
         }
     }
 }

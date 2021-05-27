@@ -9,8 +9,8 @@ namespace BetterHI3Launcher
         public DialogWindow(string title, string message, bool question = false)
         {
             Owner = Application.Current.MainWindow;
-            Left = Application.Current.MainWindow.Left + 41;
-            Top = Application.Current.MainWindow.Top + 40;
+            Left = Application.Current.MainWindow.Left;
+            Top = Application.Current.MainWindow.Top;
             InitializeComponent();
             DialogTitle.Text = title;
             DialogMessage.Text = message;

@@ -29,6 +29,16 @@ namespace BetterHI3Launcher
             textStrings["label_server"] = "เซิร์ฟเวอร์";
             textStrings["label_mirror"] = "ไฟล์สำรอง";
             textStrings["label_log"] = "แสดงการบันทึก";
+            textStrings["label_preload"] = "ดาวน์โหลดเกมล่วงหน้า";
+            textStrings["label_get_now"] = "ดาวน์โหลดทันที";
+            textStrings["label_verifying"] = "กำลังตรวจสอบ";
+            textStrings["label_paused"] = "หยุดชั่วคราว";
+            textStrings["label_done"] = "เสร็จสิ้น";
+            textStrings["label_retry"] = "ลองใหม่";
+            textStrings["label_downloaded_1"] = "ดาวน์โหลด {0}%";
+            textStrings["label_downloaded_2"] = "ดาวน์โหลดทรัพยากร:";
+            textStrings["label_eta"] = "เวลาที่เหลือโดยประมาณ:";
+            textStrings["label_speed"] = "ความเร็วดาวน์โหลด:";
             textStrings["contextmenu_downloadcache"] = "ดาวน์โหลดไฟล์แคช";
             textStrings["contextmenu_repair"] = "ซ่อมไฟล์เกม";
             textStrings["contextmenu_move"] = "ย้ายไฟล์เกม";
@@ -187,6 +197,7 @@ namespace BetterHI3Launcher
             textStrings["msgbox_language_msg"] = "ภาษาที่ใช้กำลังจะเปลี่ยนเป็น{0}และตัวโปรแกรมกำลังจะถูกรีสตาร์ท\nดำเนินการต่อ?";
             textStrings["msgbox_conn_bp_error_msg"] = "ไม่สามารถเชื่อมต่อกับเครือข่าย Bp:";
             textStrings["msgbox_conn_mihoyo_error_msg"] = "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ miHoYo:";
+            textStrings["msgbox_preload_msg"] = "ระหว่างทำการดาวน์โหลดล่วงหน้า สามารถเข้าเกมไปพร้อมกันได้ ต้องการดาวน์โหลดหรือไม่?";
         }
     }
 }
