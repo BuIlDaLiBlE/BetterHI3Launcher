@@ -1958,8 +1958,7 @@ namespace BetterHI3Launcher
                             Status = LauncherStatus.Error;
                             Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
                             DeleteFile(LauncherArchivePath, true);
-                            MessageBox.Show(textStrings["msgbox_verifyerror_1_msg"], textStrings["msgbox_verifyerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                            Dispatcher.Invoke(() => {Application.Current.Shutdown();});
+                            Dispatcher.Invoke(() => {new DialogWindow(textStrings["msgbox_verifyerror_title"], textStrings["msgbox_verifyerror_1_msg"]).ShowDialog();});
                             return;
                         }
                         Log("success!", false);
@@ -1992,8 +1991,8 @@ namespace BetterHI3Launcher
             catch(Exception ex)
             {
                 Status = LauncherStatus.Error;
-                MessageBox.Show(string.Format(textStrings["msgbox_starterror_msg"], ex), textStrings["msgbox_starterror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                Application.Current.Shutdown();
+                Log($"ERROR: Failed to start the launcher:\n{ex}", true, 1);
+                new DialogWindow(textStrings["msgbox_starterror_title"], string.Format(textStrings["msgbox_starterror_msg"], ex.Message)).ShowDialog();
                 return;
             }
 
@@ -2024,8 +2023,7 @@ namespace BetterHI3Launcher
             {
                 Status = LauncherStatus.Error;
                 Log($"ERROR: Failed to write critical registry info:\n{ex}", true, 1);
-                MessageBox.Show(textStrings["msgbox_registryerror_msg"], textStrings["msgbox_registryerror_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-                Application.Current.Shutdown();
+                new DialogWindow(textStrings["msgbox_registryerror_title"], textStrings["msgbox_registryerror_msg"]).ShowDialog();
                 return;
             }
             if(!FirstLaunch)
