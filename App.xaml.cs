@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,6 +9,8 @@ namespace BetterHI3Launcher
 {
     public partial class App : Application
     {
+        public static readonly string OSVersion = BpUtility.GetWindowsVersion();
+        public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
         static Mutex mutex = null;
 
         public App() : base()
@@ -17,6 +20,7 @@ namespace BetterHI3Launcher
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            var culture = CultureInfo.InvariantCulture;
             bool createdNew = false;
 
             try
@@ -32,6 +36,10 @@ namespace BetterHI3Launcher
             {
                 throw;
             }
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
             base.OnStartup(e);
         }
 
@@ -71,7 +79,7 @@ namespace BetterHI3Launcher
             if(unhandledExceptionType == "TaskScheduler.UnobservedTaskException")
                 return;
 
-            MessageBox.Show($"Unhandled exception occurred:\n{e}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show($"Unhandled exception occurred. Please report this.\n\n{e}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Current.Shutdown();
         }
     }

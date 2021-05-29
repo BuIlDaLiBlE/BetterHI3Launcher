@@ -195,7 +195,7 @@ namespace BetterHI3Launcher
         {
             double speed = GetBytesPerSecond();
             string[] prefix;
-            switch(MainWindow.OSLanguage)
+            switch(App.OSLanguage)
             {
                 case "ru-RU":
                 case "uk-UA":

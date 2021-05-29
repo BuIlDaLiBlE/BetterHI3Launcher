@@ -27,6 +27,16 @@ namespace BetterHI3Launcher
             textStrings["button_generate"] = "Generiši";
             textStrings["label_log"] = "Pokaži zapis";
             textStrings["label_preload"] = "Učitaj unapred igru";
+            textStrings["label_get_now"] = "Preuzmi sada";
+            textStrings["label_verifying"] = "Verifikujem";
+            textStrings["label_paused"] = "Pauzirano";
+            textStrings["label_done"] = "Gotovo";
+            textStrings["label_retry"] = "Pokušaj ponovo";
+            textStrings["label_downloaded_1"] = "Preuzeto {0}%";
+            textStrings["label_downloaded_2"] = "Resursi:";
+            textStrings["label_eta"] = "Preostalo:";
+            textStrings["label_speed"] = "Brzina preuzimanja:";
+            textStrings["msgbox_preload_msg"] = "Još uvek možeš da udješ u igru tokom preinstalacije. Da li si siguran da želiš da počneš sa preuzimanjem?";
             textStrings["contextmenu_downloadcache"] = "Preuzmi keš";
             textStrings["contextmenu_repair"] = "Popravi fajlove igre";
             textStrings["contextmenu_move"] = "Premesti fajlove igre";

@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -55,8 +54,6 @@ namespace BetterHI3Launcher
         public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
         public static readonly string miHoYoPath = Path.Combine(LocalLowPath, "miHoYo");
         public static readonly string GameExeName = "BH3.exe";
-        public static readonly string OSVersion = BpUtility.GetWindowsVersion();
-        public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
         public static string UserAgent = $"BetterHI3Launcher v{LocalLauncherVersion}";
         public static string LauncherLanguage;
         public static string GameInstallPath, GameArchivePath, GameArchiveName, GameExePath, CacheArchivePath, LauncherExeName, LauncherPath, LauncherArchivePath;
@@ -323,10 +320,10 @@ namespace BetterHI3Launcher
             DeleteFile(LauncherLogFile, true);
             Log(UserAgent, false);
             Log($"Working directory: {RootPath}");
-            Log($"OS version: {OSVersion}");
-            Log($"OS language: {OSLanguage}");
+            Log($"OS version: {App.OSVersion}");
+            Log($"OS language: {App.OSLanguage}");
             SetLanguage(null);
-            switch(OSLanguage)
+            switch(App.OSLanguage)
             {
                 case "de-AT":
                 case "de-CH":
@@ -398,8 +395,7 @@ namespace BetterHI3Launcher
                 SetLanguage(LauncherLanguage);
             }
             Log($"Launcher language: {LauncherLanguage}");
-            UserAgent += $" [{LauncherLanguage}] [{OSVersion}]";
-
+            UserAgent += $" [{LauncherLanguage}] [{App.OSVersion}]";
             #if !DEBUG
             if(args.Contains("NOUPDATE"))
             {
