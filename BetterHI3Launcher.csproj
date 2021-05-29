@@ -297,10 +297,7 @@
     <Resource Include="Assets\Images\Button_Minimize.png" />
     <Resource Include="Assets\Images\Button_Minimize_Highlighted.png" />
     <Resource Include="Assets\Images\Button_Minimize_Pressed.png" />
-    <Resource Include="Assets\Images\BackgroundShadow.png" />
-    <Resource Include="Assets\Images\BackgroundOverlay.png" />
     <Resource Include="Assets\Images\BackgroundImage.png" />
-    <Resource Include="Assets\Images\HI3_Logo.png" />
     <Resource Include="Assets\Images\HoV_Dance.gif" />
     <Resource Include="Assets\Images\Window_Dialog.png" />
     <Resource Include="Assets\Images\Checkbox_Off.png" />

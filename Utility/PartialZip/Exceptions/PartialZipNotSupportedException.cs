@@ -2,8 +2,8 @@
 
 namespace PartialZip.Exceptions
 {
-    public class PartialZipNotSupportedException : Exception
-    {
-        public PartialZipNotSupportedException(string msg) : base(msg) {}
-    }
+	public class PartialZipNotSupportedException : Exception
+	{
+		public PartialZipNotSupportedException(string msg) : base(msg) {}
+	}
 }
