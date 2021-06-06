@@ -1563,16 +1563,11 @@ namespace BetterHI3Launcher
 						{
 							Status = LauncherStatus.Error;
 							Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
-							Dispatcher.Invoke(() =>
-							{
-								if(new DialogWindow(textStrings["msgbox_verifyerror_title"], textStrings["msgbox_verifyerror_2_msg"], true).ShowDialog() == false)
-								{
-									DeleteFile(GameArchivePath);
-									abort = true;
-									Status = LauncherStatus.Ready;
-									GameUpdateCheck();
-								}
-							});
+							DeleteFile(GameArchivePath);
+							abort = true;
+							Dispatcher.Invoke(() => {new DialogWindow(textStrings["msgbox_verifyerror_title"], textStrings["msgbox_verifyerror_1_msg"]).ShowDialog();});
+							Status = LauncherStatus.Ready;
+							GameUpdateCheck();
 						}
 						else
 						{
