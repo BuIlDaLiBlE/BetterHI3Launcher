@@ -1281,23 +1281,44 @@ namespace BetterHI3Launcher
 
 		private void DownloadLauncherUpdate()
 		{
-			try
+			Log("Downloading update...");
+            Dispatcher.Invoke(() =>
+            {
+                ProgressText.Text = textStrings["progresstext_updating_launcher"];
+                ProgressBar.IsIndeterminate = false;
+                TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+            });
+            try
 			{
-				var web_request = BpUtility.CreateWebRequest(OnlineVersionInfo.launcher_info.url.ToString());
-				using(var web_response = (HttpWebResponse)web_request.GetResponse())
+				tracker.NewFile();
+				var eta_calc = new ETACalculator();
+				var download = new DownloadPauseable(OnlineVersionInfo.launcher_info.url.ToString(), LauncherArchivePath);
+				download.Start();
+				while(!download.Done)
 				{
-					using(var data = new MemoryStream())
+					tracker.SetProgress(download.BytesWritten, download.ContentLength);
+					eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+					Dispatcher.Invoke(() =>
 					{
-						web_response.GetResponseStream().CopyTo(data);
-						data.Seek(0, SeekOrigin.Begin);
-						using(FileStream file = new FileStream(LauncherArchivePath, FileMode.Create))
-						{
-							data.CopyTo(file);
-							file.Flush();
-						}
-					}
+						var progress = tracker.GetProgress();
+						ProgressBar.Value = progress;
+						TaskbarItemInfo.ProgressValue = progress;
+						ProgressText.Text = $"{textStrings["progresstext_updating_launcher"]}\n{BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)} ({tracker.GetBytesPerSecondString()})\n{string.Format(textStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"))}";
+					});
+					Thread.Sleep(100);
 				}
-			}
+				Log("success!", false);
+                Dispatcher.Invoke(() =>
+                {
+                    ProgressText.Text = textStrings["progresstext_updating_launcher"];
+                    ProgressBar.IsIndeterminate = true;
+                    TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
+                });
+				while(BpUtility.IsFileLocked(new FileInfo(LauncherArchivePath)))
+				{
+					Thread.Sleep(10);
+				}
+            }
 			catch(Exception ex)
 			{
 				Status = LauncherStatus.Error;
@@ -1506,7 +1527,7 @@ namespace BetterHI3Launcher
 				await Task.Run(() =>
 				{
 					tracker.NewFile();
-					var eta_calc = new ETACalculator(1, 1);
+					var eta_calc = new ETACalculator();
 					download = new DownloadPauseable(url, GameArchivePath);
 					download.Start();
 					Dispatcher.Invoke(() =>
@@ -1824,7 +1845,7 @@ namespace BetterHI3Launcher
 				await Task.Run(() =>
 				{
 					tracker.NewFile();
-					var eta_calc = new ETACalculator(1, 1);
+					var eta_calc = new ETACalculator();
 					var download = new DownloadPauseable(url, CacheArchivePath);
 					download.Start();
 					while(!download.Done)
@@ -1842,7 +1863,9 @@ namespace BetterHI3Launcher
 					}
 					Log("Successfully downloaded game cache");
 					while(BpUtility.IsFileLocked(new FileInfo(CacheArchivePath)))
+					{
 						Thread.Sleep(10);
+					}
 					Dispatcher.Invoke(() =>
 					{
 						ProgressText.Text = string.Empty;
@@ -2028,20 +2051,17 @@ namespace BetterHI3Launcher
 						return;
 					}
 
-                    if(BpUtility.CalculateMD5(LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
-                    {
-                        Log($"ERROR: Launcher integrity error, attempting self-repair...", true, 1);
-                        launcher_needs_update = true;
-                    }
-                    if(launcher_needs_update)
+					if(BpUtility.CalculateMD5(LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
+					{
+						Log($"ERROR: Launcher integrity error, attempting self-repair...", true, 1);
+						launcher_needs_update = true;
+					}
+					if(launcher_needs_update)
 					{
 						Log("A newer version of the launcher is available!");
-						Log("Downloading update...");
-						Status = LauncherStatus.Working;
-						Dispatcher.Invoke(() => {ProgressText.Text = textStrings["progresstext_updating_launcher"];});
+                        Status = LauncherStatus.Working;
 						DownloadLauncherUpdate();
-						Log("success!", false);
-						Log("Validating update...");
+                        Log("Validating update...");
 						string md5 = OnlineVersionInfo.launcher_info.md5.ToString().ToUpper();
 						string actual_md5 = BpUtility.CalculateMD5(LauncherArchivePath);
 						if(actual_md5 != md5)
@@ -2076,7 +2096,7 @@ namespace BetterHI3Launcher
 						{
 							File.Copy(Path.Combine(RootPath, exe_name), LauncherPath, true);
 						}
-                    }
+					}
 				});
 			}
 			catch(Exception ex)
@@ -2409,7 +2429,7 @@ namespace BetterHI3Launcher
 				await Task.Run(() =>
 				{
 					tracker.NewFile();
-					var eta_calc = new ETACalculator(1, 1);
+					var eta_calc = new ETACalculator();
 					download = new DownloadPauseable(url, path);
 					download.Start();
 					while(download != null && !download.Done)
@@ -2901,7 +2921,7 @@ namespace BetterHI3Launcher
 				int value_after;
 				if((int)value_before != 0)
 				{
-                    value_after = 0;
+					value_after = 0;
 				}
 				else
 				{

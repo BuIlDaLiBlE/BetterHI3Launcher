@@ -517,7 +517,7 @@ namespace BetterHI3Launcher
 		/// <param name="maximumDuration">
 		/// Determines how many seconds of data will be used to calculate the ETA.
 		/// </param>
-		public ETACalculator(int minimumData, double maximumDuration)
+		public ETACalculator(int minimumData = 1, double maximumDuration = 1)
 		{
 			this.minimumData = minimumData;
 			this.maximumTicks = (long)(maximumDuration * Stopwatch.Frequency);
