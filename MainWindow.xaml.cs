@@ -463,6 +463,7 @@ namespace BetterHI3Launcher
 			PreloadStatusMiddleLeftText.Text = textStrings["label_eta"];
 			PreloadStatusBottomLeftText.Text = textStrings["label_speed"];
 
+			BackgroundImage.Source = (BitmapImage)Resources["BackgroundImage"];
 			Grid.MouseLeftButtonDown += delegate{DragMove();};
 			PreloadGrid.Visibility = Visibility.Collapsed;
 			LogBox.Visibility = Visibility.Collapsed;
@@ -794,7 +795,6 @@ namespace BetterHI3Launcher
 			{
 				url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.os.ToString();
 			}
-
 			var web_request = BpUtility.CreateWebRequest(url);
 			using(var web_response = (HttpWebResponse)web_request.GetResponse())
 			{
@@ -1282,13 +1282,13 @@ namespace BetterHI3Launcher
 		private void DownloadLauncherUpdate()
 		{
 			Log("Downloading update...");
-            Dispatcher.Invoke(() =>
-            {
-                ProgressText.Text = textStrings["progresstext_updating_launcher"];
-                ProgressBar.IsIndeterminate = false;
-                TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-            });
-            try
+			Dispatcher.Invoke(() =>
+			{
+				ProgressText.Text = textStrings["progresstext_updating_launcher"];
+				ProgressBar.IsIndeterminate = false;
+				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+			});
+			try
 			{
 				tracker.NewFile();
 				var eta_calc = new ETACalculator();
@@ -1308,17 +1308,17 @@ namespace BetterHI3Launcher
 					Thread.Sleep(100);
 				}
 				Log("success!", false);
-                Dispatcher.Invoke(() =>
-                {
-                    ProgressText.Text = textStrings["progresstext_updating_launcher"];
-                    ProgressBar.IsIndeterminate = true;
-                    TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
-                });
+				Dispatcher.Invoke(() =>
+				{
+					ProgressText.Text = textStrings["progresstext_updating_launcher"];
+					ProgressBar.IsIndeterminate = true;
+					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
+				});
 				while(BpUtility.IsFileLocked(new FileInfo(LauncherArchivePath)))
 				{
 					Thread.Sleep(10);
 				}
-            }
+			}
 			catch(Exception ex)
 			{
 				Status = LauncherStatus.Error;
@@ -1336,9 +1336,18 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
-				string url = miHoYoVersionInfo.data.adv.background.ToString();
+				string url;
+				if(Server == HI3Server.Global)
+				{
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString();
+				}
+				else
+				{
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString();
+				}
 				string background_image_url;
-				var web_request = BpUtility.CreateWebRequest(url);
+				string background_image_md5;
+				var web_request = BpUtility.CreateWebRequest(url, "GET", 10000);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					using(var data = new MemoryStream())
@@ -1347,49 +1356,51 @@ namespace BetterHI3Launcher
 						var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
 						if(json.retcode == 0)
 						{
-							if(json.data.adv.background != null)
+							if(json.data != null && json.data.adv != null && json.data.adv.background != null)
 							{
 								background_image_url = json.data.adv.background.ToString();
 							}
 							else
 							{
-								throw new WebException();
+								return;
 							}
 						}
 						else
 						{
 							Log($"WARNING: Failed to fetch background image info: {json.message.ToString()}", true, 2);
-							throw new WebException();
+							return;
 						}
 					}
 				}
 				string background_image_name = Path.GetFileName(HttpUtility.UrlDecode(background_image_url));
 				string background_image_path = Path.Combine(LauncherDataPath, background_image_name);
-				if(File.Exists(background_image_path))
-				{
-					Dispatcher.Invoke(() => {BackgroundImage.Source = new BitmapImage(new Uri(background_image_path));});
-				}
-				else
+				background_image_md5 = background_image_name.Split('_')[0].ToUpper();
+				if(!File.Exists(background_image_path))
 				{
 					Log("Downloading background image...");
-					try
+					var web_client = new BpWebClient();
+					Directory.CreateDirectory(LauncherDataPath);
+					web_client.DownloadFile(background_image_url, background_image_path);
+					Log("success!", false);
+				}
+				if(File.Exists(background_image_path))
+				{
+					string actual_md5 = BpUtility.CalculateMD5(background_image_path);
+					if(actual_md5 != background_image_md5)
 					{
-						var web_client = new BpWebClient();
-						Directory.CreateDirectory(LauncherDataPath);
-						web_client.DownloadFile(background_image_url, background_image_path);
-						Dispatcher.Invoke(() => {BackgroundImage.Source = new BitmapImage(new Uri(background_image_path));});
-						Log("success!", false);
+						Log($"WARNING: Background image validation failed. Expected MD5: {background_image_md5}, got MD5: {actual_md5}", true, 2);
+						DeleteFile(background_image_path, true);
+						DownloadBackgroundImage();
 					}
-					catch(Exception ex)
+					else
 					{
-						Log($"WARNING: Failed to download background image:\n{ex}", true, 2);
-						throw new WebException();
+						Dispatcher.Invoke(() => {BackgroundImage.Source = new BitmapImage(new Uri(background_image_path));});
 					}
 				}
 			}
-			catch
+			catch(Exception ex)
 			{
-				Dispatcher.Invoke(() => {BackgroundImage.Source = (BitmapImage)Resources["BackgroundImage"];});
+				Log($"WARNING: Failed to download background image: {ex.Message}", true, 2);
 			}
 		}
 
@@ -1996,7 +2007,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				var data = Encoding.ASCII.GetBytes($"save_stats={server}&mirror={mirror}&file={file}&time={time}");
-				var web_request = BpUtility.CreateWebRequest(OnlineVersionInfo.launcher_info.stat_url.ToString(), "POST", 3000);
+				var web_request = BpUtility.CreateWebRequest(OnlineVersionInfo.launcher_info.stat_url.ToString(), "POST", 10000);
 				web_request.ContentType = "application/x-www-form-urlencoded";
 				web_request.ContentLength = data.Length;
 				using(var stream = web_request.GetRequestStream())
@@ -2059,9 +2070,9 @@ namespace BetterHI3Launcher
 					if(launcher_needs_update)
 					{
 						Log("A newer version of the launcher is available!");
-                        Status = LauncherStatus.Working;
+						Status = LauncherStatus.Working;
 						DownloadLauncherUpdate();
-                        Log("Validating update...");
+						Log("Validating update...");
 						string md5 = OnlineVersionInfo.launcher_info.md5.ToString().ToUpper();
 						string actual_md5 = BpUtility.CalculateMD5(LauncherArchivePath);
 						if(actual_md5 != md5)

@@ -9,13 +9,13 @@
 		WindowStyle="None"
 		ResizeMode="CanMinimize"
 		AllowsTransparency="True"
-		Background="Transparent"
+		Background="{DynamicResource BackgroundShadow}"
 		WindowStartupLocation="CenterScreen"
 		ContentRendered="Window_ContentRendered"
 		Closing="MainWindow_Closing"
 		TextOptions.TextFormattingMode="Display"
 		TextOptions.TextRenderingMode="ClearType"
-		Title="Better HI3 Launcher" Width="1280" Height="730">
+		Title="Better HI3 Launcher" Width="1300" Height="750">
 	<Window.TaskbarItemInfo>
 		<TaskbarItemInfo/>
 	</Window.TaskbarItemInfo>
@@ -26,6 +26,7 @@
 		<BitmapImage x:Key="BackgroundImage" UriSource="/Assets/Images/BackgroundImage.png"/>
 		<BitmapImage x:Key="PreloadCircle" UriSource="/Assets/Images/Button_Preload_Circle.png"/>
 		<BitmapImage x:Key="PreloadCheckmark" UriSource="/Assets/Images/Button_Preload_Checkmark.png"/>
+		<ImageBrush x:Key="BackgroundShadow" ImageSource="/Assets/Images/BackgroundShadow.png"/>
 		<ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
 		<ImageBrush x:Key="ButtonPressed" ImageSource="/Assets/Images/Button_Pressed.png"/>
 		<ImageBrush x:Key="ButtonDisabled" ImageSource="/Assets/Images/Button_Disabled.png"/>
