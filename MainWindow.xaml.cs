@@ -2028,7 +2028,12 @@ namespace BetterHI3Launcher
 						return;
 					}
 
-					if(launcher_needs_update)
+                    if(BpUtility.CalculateMD5(LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
+                    {
+                        Log($"ERROR: Launcher integrity error, attempting self-repair...", true, 1);
+                        launcher_needs_update = true;
+                    }
+                    if(launcher_needs_update)
 					{
 						Log("A newer version of the launcher is available!");
 						Log("Downloading update...");
@@ -2071,7 +2076,7 @@ namespace BetterHI3Launcher
 						{
 							File.Copy(Path.Combine(RootPath, exe_name), LauncherPath, true);
 						}
-					}
+                    }
 				});
 			}
 			catch(Exception ex)
