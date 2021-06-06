@@ -82,7 +82,7 @@ namespace BetterHI3Launcher
 			textStrings["progresstext_generating_hash"] = "Tạo hash cho tệp {0}/{1}...";
 			textStrings["progresstext_zipping"] = "Đang thêm tệp {0}/{1} vào tệp nén...";
 			textStrings["progresstext_fetching_hashes"] = "Lấy hash của tệp...";
-			textStrings["introbox_title"] = "Chào mừng đến với Better Honkai Impact 3rd launcher!";
+			textStrings["introbox_title"] = "Chào mừng đến với Better HI3 Launcher!";
 			textStrings["introbox_msg"] = "Có vẻ như đây là lần đầu bạn sử dụng launcher. Tôi rất vui vì bạn đã quyết định thử nó, vì vậy trong trường hợp bạn muốn đưa ra phản hồi, đừng ngần ngại mà hãy nhấp vào nút \"Lựa chọn\" chọn \"Gửi phản hồi\".\nNếu bạn đã cài đặt trò chơi từ trước, hay nhấn \"Tải xuống\" và chọn nơi chứa trò chơi của bạn. Launcher sẽ tự động phát hiện phiên bản trò chơi của bạn và bạn sẽ không phải tải xuống nữa.";
 			textStrings["downloadcachebox_msg"] = "Chọn tải xuống gói cache đầy đủ hoặc chỉ một vài tệp.\nChọn \"Gói cache đầy đủ\" nếu bạn gặp vấn đề khi tải tài nguyên sự kiện.\nChọn \"Chỉ một vài tệp\" nếu bạn gặp sự cố khi cập nhật cài đặt.\nXin lưu ý rằng hiện tại không có cách nào để tự động truy xuất cache mới nhất và chúng tôi phải đưa nó lên mirror theo cách thủ công.\nSử dụng mirror: {0}.\nLần cuối cache được cập nhật: {1}.\nNgười bảo trì mirror hiện tại là {2}.";
 			textStrings["downloadcachebox_button_full_cache"] = "Gói cache đầy đủ";
@@ -95,7 +95,7 @@ namespace BetterHI3Launcher
 			textStrings["resolutioninputbox_label_width"] = "Chiều rộng";
 			textStrings["resolutioninputbox_label_height"] = "Chiều cao";
 			textStrings["resolutioninputbox_label_fullscreen"] = "Toàn màn hình";
-			textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher vừa trở nên tốt hơn. Đây là những gì đã xảy ra:";
+			textStrings["changelogbox_1_msg"] = "Better HI3 Launcher vừa trở nên tốt hơn. Đây là những gì đã xảy ra:";
 			textStrings["changelogbox_2_msg"] = "Lấy changelog...";
 			textStrings["changelogbox_3_msg"] = "Không thể lấy changelog.";
 			textStrings["aboutbox_msg"] = "Chà, nó cao cấp hơn nhiều phải không? :^)\nDự án này được thực hiện với hy vọng nhiều thuyền trưởng sẽ có trải nghiệm tốt hơn với trò chơi.\nNó không liên kết với miHoYo và hoàn toàn là mã nguồn mở.\nBất kỳ thông tin phản hồi đều được đánh giá rất cao.\nĐặc biệt cảm ơn những cộng tác viên GitHub:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation";

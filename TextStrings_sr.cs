@@ -36,7 +36,6 @@ namespace BetterHI3Launcher
 			textStrings["label_downloaded_2"] = "Resursi:";
 			textStrings["label_eta"] = "Preostalo:";
 			textStrings["label_speed"] = "Brzina preuzimanja:";
-			textStrings["msgbox_preload_msg"] = "Još uvek možeš da udješ u igru tokom preinstalacije. Da li si siguran da želiš da počneš sa preuzimanjem?";
 			textStrings["contextmenu_downloadcache"] = "Preuzmi keš";
 			textStrings["contextmenu_repair"] = "Popravi fajlove igre";
 			textStrings["contextmenu_move"] = "Premesti fajlove igre";
@@ -82,7 +81,7 @@ namespace BetterHI3Launcher
 			textStrings["progresstext_generating_hash"] = "Generacija heša za fajl {0}/{1}...";
 			textStrings["progresstext_zipping"] = "Dodavanje fajla {0}/{1} u ZIP arhivu...";
 			textStrings["progresstext_fetching_hashes"] = "Dohvatanje heševa...";
-			textStrings["introbox_title"] = "Dobrodošli u Better Honkai Impact 3rd pokretač!";
+			textStrings["introbox_title"] = "Dobrodošli u Better HI3 Launcher!";
 			textStrings["introbox_msg"] = "Izgleda da je ovo prvi put da koristiš pokretač. drago mi je da si odlučio da ga isprobaš, i ako imaš bilo kakav predlog slobodno ga podeli sa mnom tako što ćeš kliknuti dugme \"Opcije\" i izabrati \"Pošalji povratne informacije\".\nAko već imaš instaliranu igru, samo klikni dugme \"Preuzmi\" i izaberi direktorijum u kojem ti se nalazi igra. Pokretač će automatski detektovati verziju igre i nećeš morati ponovo da je preuzimaš.";
 			textStrings["downloadcachebox_msg"] = "Izaberi da li želiš da preuzmeš ceo keš paket ili samo numeričke fajlove.\nIzaberi \"Ceo keš\" ako imš problema sa \"updating game resources\".\nIzaberi \"Numerički fajlovi\" ako imaš problem sa \"updating settings\".\nImaj na umu da trenutno ne postoji način da se automatski preuzme najnoviji keš i da moramo ručno da ga optremimo na server: {0}.\nKeš poslednji put ažuriran: {1}.\nTrenutni održavač preslikanog keša: {2}.";
 			textStrings["downloadcachebox_button_full_cache"] = "Ceo keš";
@@ -96,7 +95,7 @@ namespace BetterHI3Launcher
 			textStrings["resolutioninputbox_label_height"] = "Visina";
 			textStrings["resolutioninputbox_label_fullscreen"] = "Ceo ekran";
 			textStrings["changelogbox_title"] = "Zapis promena";
-			textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher je upravo postao još bolji. Evo kako:";
+			textStrings["changelogbox_1_msg"] = "Better HI3 Launcher je upravo postao još bolji. Evo kako:";
 			textStrings["changelogbox_2_msg"] = "Učitavanje zapisa promena...";
 			textStrings["changelogbox_3_msg"] = "Nije uspelo da učita zapis promena.";
 			textStrings["aboutbox_msg"] = "Pa mnogo je napredniji, zar ne? :^)\nOvaj projekat je napravljen sa idejom da pomogne mnogim kapetanima da imaju bolje iskustvo.\nNije nikako povezan sa miHoYo-om i kompletno je \"open source\".\nBilo kakve povratne informacije su cenjene.\nSpecijalne pohvale za sledeće GitHub pomagače:\nSinsOfSeven - Posebna rezolucija\nProxy-E23 - Španski prevod\nSpookyKisuy - Portugalski prevod\nbulawin1, Vrontis - Nemački prevod\nKorewaLidesu - Vijetnamski prevod\nSm1leAway - Srpski prevod\nSm1leAway - Tajlandski prevod";
@@ -194,6 +193,7 @@ namespace BetterHI3Launcher
 			textStrings["msgbox_language_msg"] = "Jezik će biti promenjen na {0} i pokretač će se restartovati.\nNastavi?";
 			textStrings["msgbox_conn_bp_error_msg"] = "Neuspešna konekcija na Bp Network:";
 			textStrings["msgbox_conn_mihoyo_error_msg"] = "Neuspešna konekcija na miHoYo servere:";
-		}
+            textStrings["msgbox_preload_msg"] = "Još uvek možeš da udješ u igru tokom preinstalacije. Da li si siguran da želiš da počneš sa preuzimanjem?";
+        }
 	}
 }

@@ -75,7 +75,7 @@ namespace BetterHI3Launcher
 			textStrings["progresstext_generating_hash"] = "Generiere Hash für die Datei {0}/{1}...";
 			textStrings["progresstext_zipping"] = "Archiviere Datei {0}/{1} zu einem ZIP Archiv...";
 			textStrings["progresstext_fetching_hashes"] = "Hole Datei-Hashes...";
-			textStrings["introbox_title"] = "Herzlich Willkommen zum Better Honkai Impact 3rd launcher!";
+			textStrings["introbox_title"] = "Herzlich Willkommen zum Better HI3 Launcher!";
 			textStrings["introbox_msg"] = "Es sieht so aus als würdest du den Launcher zum ersten mal benutzen. Als erstes freue ich mich das du diesem Launcher eine Chance gibst. In diesem Fall würde ich mich über ein Feedback freuen in dem du bei \"Optionen\" unter dem Reiter \"Feedback senden\".\n Falls du das Spiel bereits installiert hast, drücke einfach auf den \"Herunterladen\" Knopf und wähle das Installationsverzeichnis aus. Der Launcher wird dann automatisch deine Spieleversion erkennen und du musst es nicht erneut herunterladen.";
 			textStrings["downloadcachebox_msg"] = "Wähle zwischen einem Cachedownload oder dem Herunterladen numerischer Dateien.\nWähle \"Komplettes Cache\", falls du Probleme hast die Eventdateien zu aktualisieren.\nWähle \"Numerische Dateien\", falls du Probleme hast die Einstellungen zu aktualisieren.\nBitte verstehe, dass es aktuell keinen Weg gibt den Cache von den offiziellen miHoYo Server zu downloaden, aber es ist möglich es von den Mirror-Servern herunterzuladen.\nBenutze Mirror-Server: {0}.\nCache zuletzt aktualisiert: {1}.\nDer aktuelle Mirror-Maintainer ist {2}.";
 			textStrings["downloadcachebox_button_full_cache"] = "Kompletter Cache";
@@ -88,7 +88,7 @@ namespace BetterHI3Launcher
 			textStrings["resolutioninputbox_label_width"] = "Breite";
 			textStrings["resolutioninputbox_label_height"] = "Höhe";
 			textStrings["resolutioninputbox_label_fullscreen"] = "Vollbild";
-			textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher wurde aktualisiert, hier siehst du die letzten Änderungen:";
+			textStrings["changelogbox_1_msg"] = "Better HI3 Launcher wurde aktualisiert, hier siehst du die letzten Änderungen:";
 			textStrings["changelogbox_2_msg"] = "Lade Changelog...";
 			textStrings["changelogbox_3_msg"] = "Fehler beim Laden der Changelog.";
 			textStrings["aboutbox_msg"] = "Es hat sich einiges verbessert oder nicht? :^)\nDieses Projekt ist entstanden, um euch Captains eine bessere Spielerfahrung zu bieten.\nDieser Launcher steht in keinem Zusammenhang mit miHoYo und ist ein OpenSource Projekt.\nJedes Feedback wird freundlich begrüßt.\nBesonderen Dank gehen an diese GitHub-Contributors:\nSinsOfSeven - Beitrag zur benutzerdefinierten Auflösung\nProxy-E23 - Beitrag der spanischen Sprache\nSpookyKisuy - Beitrag der portugiesischen Sprache\nbulawin1, Vrontis - Beitrag der deutscher Sprache\nKorewaLidesu - Beitrag der vietnamesischen Sprache\nVoRTeXStarz - Beitrag der thailändischen Sprache";

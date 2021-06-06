@@ -93,7 +93,7 @@ namespace BetterHI3Launcher
 			textStrings.Add("progresstext_generating_hash", "Generating hash for file {0}/{1}...");
 			textStrings.Add("progresstext_zipping", "Adding file {0}/{1} to ZIP archive...");
 			textStrings.Add("progresstext_fetching_hashes", "Fetching file hashes...");
-			textStrings.Add("introbox_title", "Welcome to Better Honkai Impact 3rd launcher!");
+			textStrings.Add("introbox_title", "Welcome to Better HI3 Launcher!");
 			textStrings.Add("introbox_msg", "Seems like this is your first time using the launcher. I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so by clicking \"Options\" button and selecting \"Send feedback\".\nIf you already have the game installed just press the \"Download\" button and point to where your game is. The launcher will detect your game version automatically and you won't have to download the game again.");
 			textStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is {2}.");
 			textStrings.Add("downloadcachebox_button_full_cache", "Full cache");
@@ -107,7 +107,7 @@ namespace BetterHI3Launcher
 			textStrings.Add("resolutioninputbox_label_height", "Height");
 			textStrings.Add("resolutioninputbox_label_fullscreen", "Fullscreen");
 			textStrings.Add("changelogbox_title", "Changelog");
-			textStrings.Add("changelogbox_1_msg", "Better Honkai Impact 3rd Launcher has just become even better. Here's what happened:");
+			textStrings.Add("changelogbox_1_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
 			textStrings.Add("changelogbox_2_msg", "Loading changelog...");
 			textStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
 			textStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation");

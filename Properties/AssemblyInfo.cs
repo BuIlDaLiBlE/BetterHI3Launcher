@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("BetterHI3Launcher")]
-[assembly: AssemblyDescription("Better Honkai Impact 3rd Launcher")]
+[assembly: AssemblyDescription("Better HI3 Launcher")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Bp")]
 [assembly: AssemblyProduct("BetterHI3Launcher")]

@@ -84,7 +84,7 @@ namespace BetterHI3Launcher
 			textStrings["progresstext_generating_hash"] = "กำลังสร้างแฮชสำหรับไฟล์ {0}/{1}...";
 			textStrings["progresstext_zipping"] = "กำลังเพิ่มไฟล์ {0}/{1} ลงในไฟล์ZIP...";
 			textStrings["progresstext_fetching_hashes"] = "กำลังดึงไฟล์แฮช...";
-			textStrings["introbox_title"] = "ยินดีต้อนรับสู่ Better Honkai Impact 3rd launcher!";
+			textStrings["introbox_title"] = "ยินดีต้อนรับสู่ Better HI3 Launcher!";
 			textStrings["introbox_msg"] = "ดูเหมือนว่านี่จะเป็นครั้งแรกที่คุณใช้โปรแกรมนี้นะ ผมดีใจที่คุณตัดสินใจทดลองใช้ ในกรณีที่คุณต้องการแสดงความคิดเห็นอย่าลังเลที่จะดำเนินการดังกล่าวโดยคลิกปุ่ม \"ตั้งค่า\" แล้วเลือก \"ส่งความคิดเห็น\"\n หากคุณติดตั้งเกมในเครื่องไปก่อนหน้านี้แล้วแล้วเพียงแค่กดปุ่ม \"ดาวน์โหลด\" แล้วเลือกไฟล์เกมที่คุณติดตั้งไว้  ตัวโปรแกรมจะตรวจจับเวอร์ชันเกมของคุณโดยอัตโนมัติและคุณจะไม่ต้องดาวน์โหลดเกมใหม่";
 			textStrings["downloadcachebox_msg"] = "เลือกว่าจะดาวน์โหลดไฟล์แคชแบบเต็มหรือแค่ไฟล์แคชขนาดเล็ก\nเลือก \"ไฟล์แคชแบบเต็ม\" ถ้าคุณมีปัญหาในการโหลดไฟล์ทรัพยากรต่างๆ\nเลือก \"ไฟล์แคชขนาดเล็ก\" ถ้าคุณมีปัญหาตอนช่วงกำลังดาวน์โหลดการตั้งค่า\nโปรดทราบว่าขณะนี้ยังไม่มีวิธีการดึงแคชล่าสุดมาใช้โดยโดยอัตโนมัติและทางเราต้องอัปโหลดไปยังเว็บสำรองไฟล์ด้วยตนเอง\nเว็บที่ลงไฟล์สำรอง: {0}\nไฟล์แคชอัพเดตล่าสุดเมื่อ: {1}\nผู้ดูแลไฟล์สำรองปัจจุบันคือ {2}";
 			textStrings["downloadcachebox_button_full_cache"] = "ไฟล์แคชแบบเต็ม";
@@ -98,7 +98,7 @@ namespace BetterHI3Launcher
 			textStrings["resolutioninputbox_label_height"] = "ความสูง";
 			textStrings["resolutioninputbox_label_fullscreen"] = "โหมดเต็มเจอ";
 			textStrings["changelogbox_title"] = "บันทึกการเปลี่ยนแปลง";
-			textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcherได้กลายเป็นดียิ่งขึ้นและนี่คือสิ่งที่เกิดขึ้นยังไงล่ะ:";
+			textStrings["changelogbox_1_msg"] = "Better HI3 Launcherได้กลายเป็นดียิ่งขึ้นและนี่คือสิ่งที่เกิดขึ้นยังไงล่ะ:";
 			textStrings["changelogbox_2_msg"] = "กำลังโหลดบันทึกการเปลี่ยนแปลง...";
 			textStrings["changelogbox_3_msg"] = "ไม่สามารถโหลดบันทึกการเปลี่ยนแปลงได้";
 			textStrings["aboutbox_msg"] = "มันก้าวหน้ามามากเลย ใช่ไหมล่ะ? :^)\nโปรเจ็กต์นี้จัดทำขึ้นโดยหวังให้กัปตันหลายๆคนได้รับประสบการณ์ที่ดีขึ้นกับเกม\nโปรแกรมนี้ไม่มีส่วนเกี่ยวข้องกับMiHoYoและเป็นโอเพ่นซอร์สแบบสมบูรณ์ \nขอบคุณสำหรับการติชม\nขอขอบคุณเป็นพิเศษสำหรับผู้ร่วมให้ข้อมูลGitHubเหล่านี้:\nSinsOfSeven - ข้อมูลเกี่ยวกับการปรับความระเอียด\nProxy-E23 - แปลภาษาสเปน\nSpookyKisuy - แปลภาษาโปรตุเกส\nbulawin1, Vrontis - แปลภาษาเยอรมัน\nKorewaLidesu - แปลภาษาเวียดนาม\nSm1leAway - แปลภาษาเซอร์เบีย\nVoRTeXStarz - แปลภาษาไทย";

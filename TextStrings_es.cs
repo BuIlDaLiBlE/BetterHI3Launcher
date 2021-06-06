@@ -82,7 +82,7 @@ namespace BetterHI3Launcher
 			textStrings["progresstext_generating_hash"] = "Generando hash para archivo {0}/{1}...";
 			textStrings["progresstext_zipping"] = "Añadiendo archivo {0}/{1} al archivo ZIP...";
 			textStrings["progresstext_fetching_hashes"] = "Obteniendo hashes de archivos...";
-			textStrings["introbox_title"] = "¡Bienvenido a Better Honkai Impact 3rd launcher!";
+			textStrings["introbox_title"] = "¡Bienvenido a Better HI3 Launcher!";
 			textStrings["introbox_msg"] = "Al parecer esta es la primera vez que usa este Launcher. Me alegra que haya decidido probarlo, en caso de que quiera darnos su opinión, no dude en hacerlo dando clic en el botón \"Opciones\"y seleccionando \"Enviar comentarios\".\nSi ya ha instalado el juego, presiona el botón \"Descargar\" y selecciona la ubicación donde lo ha instalado. TEl launcher detectara la instalación y no sera necesario descargarlo de nuevo.";
 			textStrings["downloadcachebox_msg"] = "Seleccione si desea descargar la caché completa o solo los archivos numéricos.\nElija \"Caché completa\" Si presenta problemas al momento de actualizar los recursos del evento.\nElija \"Archivos numéricos\" si tiene problemas para actualizar la configuración (bucle de update settings).\nTenga en cuenta que actualmente no hay forma de recuperar automáticamente la última caché y tenemos que cargarla manualmente a un espejo.\nEspejo en uso: {0}.\nÚltima actualización de la caché: {1}.\nActual encargado del espejo {2}.";
 			textStrings["downloadcachebox_button_full_cache"] = "Caché completa";
@@ -95,7 +95,7 @@ namespace BetterHI3Launcher
 			textStrings["resolutioninputbox_label_width"] = "Ancho";
 			textStrings["resolutioninputbox_label_height"] = "Altura";
 			textStrings["changelogbox_title"] = "Log de cambios";
-			textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher se ha vuelto mejor. Esto es lo que paso:";
+			textStrings["changelogbox_1_msg"] = "Better HI3 Launcher se ha vuelto mejor. Esto es lo que paso:";
 			textStrings["changelogbox_2_msg"] = "Cargando el changelog...";
 			textStrings["changelogbox_3_msg"] = "No se pudo cargar el changelog.";
 			textStrings["aboutbox_msg"] = "Bueno, es mucho más avanzado, ¿no?:^)\nEste proyecto se creo con la intención de que los capitanes tuvieran una mejor experiencia con el juego..\nBetterHI3Launcher no está afiliado a miHoYo y es completamente de código abierto..\nAgradecemos mucho todo el feedback.\nUn agradecimiento especial a los contribuidores de GitHub:\nSinsOfSeven - Contribución de resolución personalizada\nProxy-E23 - Traducción al idioma español\nSpookyKisuy - Traducción al idioma portugués\nbulawin1, Vrontis - Traducción al idioma alemán\nKorewaLidesu - Traducción al idioma vietnamita\nSm1leAway - Traducción al idioma sérvia\nVoRTeXStarz - Traducción al idioma tailandés";

@@ -86,7 +86,7 @@ namespace BetterHI3Launcher
 			textStrings["progresstext_generating_hash"] = "Генерация хэша для файла {0}/{1}...";
 			textStrings["progresstext_zipping"] = "Добавление файла {0}/{1} в ZIP архив...";
 			textStrings["progresstext_fetching_hashes"] = "Получение хэшей файлов....";
-			textStrings["introbox_title"] = "Добро пожаловать в Better Honkai Impact 3rd launcher!";
+			textStrings["introbox_title"] = "Добро пожаловать в Better HI3 Launcher!";
 			textStrings["introbox_msg"] = "Похоже, вы впервые запустили этот лаунчер. Я рад, что вы решили попробовать его, так что не стесняйтесь высказывать своё мнение по поводу него, это можно сделать если нажать на кнопку \"Опции\" и выбрать \"Отправить отзыв\".\nЕсли игра уже установлена, то просто нажмите \"Загрузить\" и укажите путь до игры. Лаунчер определит версию игры автоматически и ничего скачивать заново будет не нужно.";
 			textStrings["downloadcachebox_msg"] = "Здесь вы можете загрузить игровой кеш.\nВыберите \"Полный кеш\", если игра застревает на \"Updating event resources\".\nВыберите \"Числовые файлы\", если игра застревает на \"Updating settings\".\nУчтите, что на данный момент нет способа автоматически загружать новейший кеш, а потому нам приходится загружать его вручную на зеркало.\nИспользуемое зеркало: {0}.\nДата обновления кеша: {1}.\nОтветственный за зеркало: {2}.";
 			textStrings["downloadcachebox_button_full_cache"] = "Полный кеш";
@@ -100,7 +100,7 @@ namespace BetterHI3Launcher
 			textStrings["resolutioninputbox_label_height"] = "Высота";
 			textStrings["resolutioninputbox_label_fullscreen"] = "Полный экран";
 			textStrings["changelogbox_title"] = "История изменений";
-			textStrings["changelogbox_1_msg"] = "Better Honkai Impact 3rd Launcher только что стал ещё лучше. Вот что произошло:";
+			textStrings["changelogbox_1_msg"] = "Better HI3 Launcher только что стал ещё лучше. Вот что произошло:";
 			textStrings["changelogbox_2_msg"] = "Загрузка истории изменений...";
 			textStrings["changelogbox_3_msg"] = "Не удалось загрузить историю изменений.";
 			textStrings["aboutbox_msg"] = "Ну он и правда лучше же, верно? :^)\nДанный проект был сделан с целью улучшить игровой опыт множества капитанов.\nОн не связан с miHoYo и исходный код полностью открыт.\nЛюбой отзыв глубоко приветствуется.\nОсобая благодарность данным добровольцам с GitHub:\nSinsOfSeven - Задавание своего разрешения экрана игры\nProxy-E23 - Перевод на испанский язык\nSpookyKisuy - Перевод на португальский язык\nbulawin1, Vrontis - Перевод на немецкий язык\nKorewaLidesu - Перевод на вьетнамский язык\nSm1leAway - Перевод на сербский язык\nVoRTeXStarz - Перевод на тайский язык";
