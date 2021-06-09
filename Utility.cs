@@ -138,6 +138,23 @@ namespace BetterHI3Launcher
 			webRequest.Timeout = timeout;
 			return webRequest;
 		}
+
+		public static void WriteToRegistry(string name, dynamic value, RegistryValueKind valueKind = RegistryValueKind.Unknown)
+		{
+			MainWindow.LauncherRegKey.SetValue(name, value, valueKind);
+			MainWindow.LauncherRegKey.Close();
+			MainWindow.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
+		}
+
+		public static void DeleteFromRegistry(string name)
+		{
+			if(MainWindow.LauncherRegKey.GetValue(name) != null)
+			{
+				MainWindow.LauncherRegKey.DeleteValue(name);
+				MainWindow.LauncherRegKey.Close();
+				MainWindow.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
+			}
+		}
 	}
 
 	// https://stackoverflow.com/a/42725580/7570821
