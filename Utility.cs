@@ -27,6 +27,13 @@ namespace BetterHI3Launcher
 			Process.Start(startInfo);
 		}
 
+		public static void RestartApp()
+		{
+			App.Mutex.Dispose();
+			Application.Current.Shutdown();
+			StartProcess(MainWindow.LauncherExeName, string.Join(" ", MainWindow.CommandLineArgs), MainWindow.RootPath, true);
+		}
+
 		public static void PlaySound(Stream sound)
 		{
 			if(!MainWindow.DisableSounds)

@@ -1394,8 +1394,7 @@ namespace BetterHI3Launcher
 						}
 						if(Validate())
 						{
-							BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
-							Application.Current.Shutdown();
+							BpUtility.RestartApp();
 							break;
 						}
 						else
@@ -2173,8 +2172,7 @@ namespace BetterHI3Launcher
 					Status = LauncherStatus.Error;
 					DeleteFile(LauncherPath, true);
 					File.Move(Path.Combine(RootPath, exe_name), LauncherPath);
-					BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
-					Dispatcher.Invoke(() => {Application.Current.Shutdown();});
+					BpUtility.RestartApp();
 					return;
 				}
 				DeleteFile(Path.Combine(RootPath, old_exe_name), true);
@@ -2219,8 +2217,7 @@ namespace BetterHI3Launcher
 							}
 						}
 						Log("success!", false);
-						BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
-						Dispatcher.Invoke(() => {Application.Current.Shutdown();});
+						BpUtility.RestartApp();
 						return;
 					}
 					else
@@ -3656,8 +3653,7 @@ namespace BetterHI3Launcher
 					BpUtility.WriteToRegistry("Language", LauncherLanguage);
 				}
 				Log($"Set language to {LauncherLanguage}");
-				BpUtility.StartProcess(LauncherExeName, string.Join(" ", CommandLineArgs), RootPath, true);
-				Application.Current.Shutdown();
+				BpUtility.RestartApp();
 			}
 			catch(Exception ex)
 			{

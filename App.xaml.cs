@@ -11,7 +11,7 @@ namespace BetterHI3Launcher
 	{
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
-		static Mutex mutex = null;
+		public static Mutex Mutex = null;
 
 		public App() : base()
 		{
@@ -25,7 +25,7 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				mutex = new Mutex(true, "BetterHI3Launcher", out createdNew);
+				Mutex = new Mutex(true, "BetterHI3Launcher", out createdNew);
 
 				if(!createdNew)
 				{
@@ -45,9 +45,9 @@ namespace BetterHI3Launcher
 
 		protected override void OnExit(ExitEventArgs e)
 		{
-			if(mutex != null)
+			if(Mutex != null)
 			{
-				mutex.Dispose();
+				Mutex.Dispose();
 			}
 			base.OnExit(e);
 		}
@@ -55,12 +55,10 @@ namespace BetterHI3Launcher
 		private void SetupUnhandledExceptionHandling()
 		{
 			// Catch exceptions from all threads in the AppDomain.
-			AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
-				ShowUnhandledException(args.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException");
+			AppDomain.CurrentDomain.UnhandledException += (sender, args) => ShowUnhandledException(args.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException");
 
 			// Catch exceptions from each AppDomain that uses a task scheduler for async operations.
-			TaskScheduler.UnobservedTaskException += (sender, args) =>
-				ShowUnhandledException(args.Exception, "TaskScheduler.UnobservedTaskException");
+			TaskScheduler.UnobservedTaskException += (sender, args) => ShowUnhandledException(args.Exception, "TaskScheduler.UnobservedTaskException");
 
 			// Catch exceptions from a single specific UI dispatcher thread.
 			Dispatcher.UnhandledException += (sender, args) =>
@@ -74,10 +72,12 @@ namespace BetterHI3Launcher
 			};
 		}
 
-		void ShowUnhandledException(Exception e, string unhandledExceptionType)
+		private void ShowUnhandledException(Exception e, string unhandledExceptionType)
 		{
 			if(unhandledExceptionType == "TaskScheduler.UnobservedTaskException")
+			{
 				return;
+			}
 
 			MessageBox.Show($"Unhandled exception occurred. Please report this.\n\n{e}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			Current.Shutdown();
