@@ -263,15 +263,18 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type CheckBox}">
 						<StackPanel Orientation="Horizontal">
-							<Image x:Name="checkboxImage" Source="/Assets/Images/Checkbox_On.png"/>
+							<Image x:Name="CheckboxImage" Source="/Assets/Images/Checkbox_On.png"/>
 							<ContentPresenter/>
 						</StackPanel>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsChecked" Value="True">
-								<Setter TargetName="checkboxImage" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
+								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
 							</Trigger>
 							<Trigger Property="IsChecked" Value="False">
-								<Setter TargetName="checkboxImage" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
+								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_Disabled.png"/>
 							</Trigger>
 						</ControlTemplate.Triggers>
 					</ControlTemplate>
