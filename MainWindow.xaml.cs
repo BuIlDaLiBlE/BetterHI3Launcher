@@ -3891,6 +3891,13 @@ namespace BetterHI3Launcher
 
 		private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(DownloadCacheBoxMessageTextBlock.Text.Contains(App.TextStrings["outdated"].ToLower()))
+			{
+				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_download_cache_4_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+				{
+					return;
+				}
+			}
 			if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], $"{App.TextStrings["msgbox_download_cache_1_msg"]}\n{string.Format(App.TextStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)GameCacheMetadata.fileSize))}", DialogWindow.DialogType.Question).ShowDialog() == false)
 			{
 				return;
@@ -3901,6 +3908,13 @@ namespace BetterHI3Launcher
 
 		private void DownloadCacheBoxNumericFilesButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(DownloadCacheBoxMessageTextBlock.Text.Contains(App.TextStrings["outdated"].ToLower()))
+			{
+				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_download_cache_4_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+				{
+					return;
+				}
+			}
 			if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], $"{App.TextStrings["msgbox_download_cache_2_msg"]}\n{string.Format(App.TextStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)GameCacheMetadataNumeric.fileSize))}", DialogWindow.DialogType.Question).ShowDialog() == false)
 			{
 				return;
