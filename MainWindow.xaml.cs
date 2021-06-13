@@ -495,7 +495,7 @@ namespace BetterHI3Launcher
 			CM_Language.Items.Add(CM_Language_Thai);
 			CM_Language.Items.Add(new Separator());
 			var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
-			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contibuting-translations", null, App.LauncherRootPath, true);
+			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contributing-translations", null, App.LauncherRootPath, true);
 			CM_Language.Items.Add(CM_Language_Contribute);
 			OptionsContextMenu.Items.Add(CM_Language);
 			var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"]};
