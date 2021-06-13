@@ -322,6 +322,8 @@ namespace BetterHI3Launcher
 		{
 			var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
 			request.Method = "HEAD";
+			request.UserAgent = App.UserAgent;
+			request.Headers.Add("Accept-Language", App.LauncherLanguage);
 
 			using(var response = request.GetResponse())
 				return response.ContentLength;
@@ -338,6 +340,7 @@ namespace BetterHI3Launcher
 
 			var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
 			request.UserAgent = App.UserAgent;
+			request.Headers.Add("Accept-Language", App.LauncherLanguage);
 			request.AddRange(range);
 
 			using(var response = await request.GetResponseAsync())
