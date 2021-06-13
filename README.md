@@ -10,6 +10,7 @@ A much better Honkai Impact 3rd launcher. Here are the key points:
   * Repairing game files (only bad files will be downloaded!)
   * Moving the game
   * Setting custom resolution, custom FPS, resetting download type (to reselect assets download option)
+  * Customizable background (supports still images, GIFs, and even videos!)
 
 Works on 64-bit version of Windows 10 (7 and 8.1 should work too if .NET Framework 4.6.1 or newer is installed).
 
@@ -17,7 +18,7 @@ I made this with hope to help people have a better experience with the game.
 
 This project is actively supported, however you are always welcome to [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) or even directly contribute to the project via [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/compare).
 
-## Contibuting translations
+## Contributing translations
 Want to contribute to the project by translating the launcher into a language you speak? Great! Here's how to do it:
 1. [Download this file](https://raw.githubusercontent.com/BuIlDaLiBlE/BetterHI3Launcher/dev/TextStrings_en.cs) (Ctrl+S to save)
 2. You will see a bunch of lines with text, on each line there are two strings: you don't need to touch the one on the left, only translate the one on the right. Please do not touch special characters or backslashes such as `{0}`, `\n`, or `\"`.
