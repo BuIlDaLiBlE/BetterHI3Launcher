@@ -4535,6 +4535,7 @@ namespace BetterHI3Launcher
 					   item.Header.ToString() == App.TextStrings["contextmenu_feedback"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_changelog"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_language"] ||
+					   item.Header.ToString() == App.TextStrings["contextmenu_custom_background"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_sounds"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_about"])
 					{
