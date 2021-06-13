@@ -29,7 +29,10 @@ namespace BetterHI3Launcher
 
 		public static void RestartApp()
 		{
-			App.Mutex.Dispose();
+			if(App.Mutex != null)
+			{
+				App.Mutex.Dispose();
+			}
 			Application.Current.Shutdown();
 			StartProcess(MainWindow.LauncherExeName, string.Join(" ", MainWindow.CommandLineArgs), App.LauncherRootPath, true);
 		}
