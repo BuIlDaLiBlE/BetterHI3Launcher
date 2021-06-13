@@ -84,27 +84,56 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-		<Style x:Key="CheckboxStyle" TargetType="{x:Type CheckBox}">
+		<Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
-			<Setter Property="Width" Value="48"/>
-			<Setter Property="Height" Value="36"/>
+			<Setter Property="Width" Value="24"/>
+			<Setter Property="Height" Value="16"/>
+			<Setter Property="Margin" Value="5"/>
 			<Setter Property="UseLayoutRounding" Value="True"/>
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type CheckBox}">
 						<StackPanel Orientation="Horizontal">
-							<Image x:Name="CheckboxImage" Source="/Assets/Images/Checkbox_On.png"/>
+							<Image x:Name="Image" Source="/Assets/Images/Checkbox_On.png"/>
 							<ContentPresenter/>
 						</StackPanel>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsChecked" Value="True">
-								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
 							</Trigger>
 							<Trigger Property="IsChecked" Value="False">
-								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
 							</Trigger>
 							<Trigger Property="IsEnabled" Value="False">
-								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_Disabled.png"/>
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_Disabled.png"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">
+			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+			<Setter Property="Width" Value="21"/>
+			<Setter Property="Height" Value="16"/>
+			<Setter Property="Margin" Value="5"/>
+			<Setter Property="UseLayoutRounding" Value="True"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type RadioButton}">
+						<StackPanel Orientation="Horizontal">
+							<Image x:Name="Image" Source="/Assets/Images/Checkbox_On.png"/>
+							<ContentPresenter/>
+						</StackPanel>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
+							</Trigger>
+							<Trigger Property="IsChecked" Value="False">
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_Disabled.png"/>
 							</Trigger>
 						</ControlTemplate.Triggers>
 					</ControlTemplate>
@@ -120,16 +149,26 @@
 		</ScrollViewer>
 		<StackPanel Name="UninstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,25,0,0" Visibility="Collapsed">
 			<StackPanel Orientation="Horizontal">
-				<CheckBox Name="UninstallGameFilesCheckBox" Style="{DynamicResource CheckboxStyle}" Width="24" Height="16" Margin="5" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
-				<TextBlock Name="UninstallGameFilesLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="16" Foreground="White"/>
+				<CheckBox Name="UninstallGameFilesCheckBox" Style="{DynamicResource CheckBoxStyle}" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
+				<TextBlock Name="UninstallGameFilesLabel" VerticalAlignment="Center" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 			<StackPanel Orientation="Horizontal">
-				<CheckBox Name="UninstallGameCacheCheckBox" Style="{DynamicResource CheckboxStyle}" Width="24" Height="16" Margin="5" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
-				<TextBlock Name="UninstallGameCacheLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="16" Foreground="White"/>
+				<CheckBox Name="UninstallGameCacheCheckBox" Style="{DynamicResource CheckBoxStyle}" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
+				<TextBlock Name="UninstallGameCacheLabel" VerticalAlignment="Center" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 			<StackPanel Orientation="Horizontal">
-				<CheckBox Name="UninstallGameSettingsCheckBox" Style="{DynamicResource CheckboxStyle}" Width="24" Height="16" Margin="5" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
-				<TextBlock Name="UninstallGameSettingsLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="16" Foreground="White"/>
+				<CheckBox Name="UninstallGameSettingsCheckBox" Style="{DynamicResource CheckBoxStyle}" Width="24" Height="16" Margin="5" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
+				<TextBlock Name="UninstallGameSettingsLabel" VerticalAlignment="Center" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16"/>
+			</StackPanel>
+		</StackPanel>
+		<StackPanel Name="CustomBackgroundStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,35,0,0" Visibility="Collapsed">
+			<StackPanel Orientation="Horizontal">
+				<RadioButton Name="CustomBackgroundEditRadioButton" GroupName="CustomBackgroundActionChoice" Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Click="CustomBackgroundRadioButton_Click" x:FieldModifier="public"/>
+				<TextBlock Name="CustomBackgroundEditLabel" Foreground="White" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="16"/>
+			</StackPanel>
+			<StackPanel Orientation="Horizontal">
+				<RadioButton Name="CustomBackgroundDeleteRadioButton" GroupName="CustomBackgroundActionChoice" Style="{DynamicResource RadioButtonStyle}" Click="CustomBackgroundRadioButton_Click" x:FieldModifier="public"/>
+				<TextBlock Name="CustomBackgroundDeleteLabel" Foreground="White" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 		</StackPanel>
 		<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Margin="0,23,33,0" Click="CloseButton_Click"/>

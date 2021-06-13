@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace BetterHI3Launcher
@@ -10,7 +11,7 @@ namespace BetterHI3Launcher
 	{
 		public enum DialogType
 		{
-			Confirmation, Question, Uninstall
+			Confirmation, Question, Uninstall, CustomBackground
 		}
 
 		public DialogWindow(string title, string message, DialogType type = DialogType.Confirmation)
@@ -21,8 +22,8 @@ namespace BetterHI3Launcher
 			InitializeComponent();
 			DialogTitle.Text = title;
 			DialogMessage.Text = message;
-			ConfirmButton.Content = MainWindow.textStrings["button_confirm"];
-			CancelButton.Content = MainWindow.textStrings["button_cancel"];
+			ConfirmButton.Content = App.TextStrings["button_confirm"];
+			CancelButton.Content = App.TextStrings["button_cancel"];
 			switch(type)
 			{
 				case DialogType.Confirmation:
@@ -30,17 +31,17 @@ namespace BetterHI3Launcher
 					break;
 				case DialogType.Question:
 					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
-					ConfirmButton.Content = MainWindow.textStrings["button_yes"];
-					CancelButton.Content = MainWindow.textStrings["button_no"];
+					ConfirmButton.Content = App.TextStrings["button_yes"];
+					CancelButton.Content = App.TextStrings["button_no"];
 					break;
 				case DialogType.Uninstall:
 					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
 					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 100);
 					DialogMessageScrollViewer.Height = 50;
 					UninstallStackPanel.Visibility = Visibility.Visible;
-					UninstallGameFilesLabel.Text = MainWindow.textStrings["msgbox_uninstall_game_files"];
-					UninstallGameCacheLabel.Text = MainWindow.textStrings["msgbox_uninstall_game_cache"];
-					UninstallGameSettingsLabel.Text = MainWindow.textStrings["msgbox_uninstall_game_settings"];
+					UninstallGameFilesLabel.Text = App.TextStrings["msgbox_uninstall_game_files"];
+					UninstallGameCacheLabel.Text = App.TextStrings["msgbox_uninstall_game_cache"];
+					UninstallGameSettingsLabel.Text = App.TextStrings["msgbox_uninstall_game_settings"];
 					if(!Directory.Exists(MainWindow.GameCachePath))
 					{
 						UninstallGameCacheCheckBox.IsChecked = false;
@@ -52,8 +53,16 @@ namespace BetterHI3Launcher
 						UninstallGameSettingsCheckBox.IsEnabled = false;
 					}
 					break;
+				case DialogType.CustomBackground:
+					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
+					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 75);
+					DialogMessageScrollViewer.Height = 80;
+					CustomBackgroundStackPanel.Visibility = Visibility.Visible;
+					CustomBackgroundEditLabel.Text = App.TextStrings["msgbox_custom_background_edit"];
+					CustomBackgroundDeleteLabel.Text = App.TextStrings["msgbox_custom_background_delete"];
+					break;
 			}
-			if(MainWindow.LauncherLanguage != "en")
+			if(App.LauncherLanguage != "en")
 			{
 				Resources["Font"] = new FontFamily("Segoe UI Bold");
 			}
@@ -85,6 +94,11 @@ namespace BetterHI3Launcher
 			{
 				ConfirmButton.IsEnabled = true;
 			}
+		}
+
+		private void CustomBackgroundRadioButton_Click(object sender, RoutedEventArgs e)
+		{
+			BpUtility.PlaySound(Properties.Resources.Click);
 		}
 
 		private void DialogWindow_Closing(object sender, CancelEventArgs e)

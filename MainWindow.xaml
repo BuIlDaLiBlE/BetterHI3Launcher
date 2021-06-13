@@ -254,7 +254,7 @@
 			<Setter Property="FontSize" Value="18"/>
 			<Setter Property="UseLayoutRounding" Value="True"/>
 		</Style>
-		<Style x:Key="CheckboxStyle" TargetType="{x:Type CheckBox}">
+		<Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Width" Value="48"/>
 			<Setter Property="Height" Value="36"/>
@@ -263,18 +263,18 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type CheckBox}">
 						<StackPanel Orientation="Horizontal">
-							<Image x:Name="CheckboxImage" Source="/Assets/Images/Checkbox_On.png"/>
+							<Image x:Name="Image" Source="/Assets/Images/Checkbox_On.png"/>
 							<ContentPresenter/>
 						</StackPanel>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsChecked" Value="True">
-								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_On.png"/>
 							</Trigger>
 							<Trigger Property="IsChecked" Value="False">
-								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_Off.png"/>
 							</Trigger>
 							<Trigger Property="IsEnabled" Value="False">
-								<Setter TargetName="CheckboxImage" Property="Source" Value="/Assets/Images/Checkbox_Disabled.png"/>
+								<Setter TargetName="Image" Property="Source" Value="/Assets/Images/Checkbox_Disabled.png"/>
 							</Trigger>
 						</ControlTemplate.Triggers>
 					</ControlTemplate>
@@ -309,7 +309,8 @@
 	</Window.Resources>
 	<Grid>
 		<Grid Name="Grid" Width="1280" Height="730">
-			<Image Name="BackgroundImage" Stretch="Fill"/>
+			<Image Name="BackgroundImage" Stretch="Fill" Source="{DynamicResource BackgroundImage}"/>
+			<MediaElement Name="BackgroundMedia" IsMuted="True" Stretch="Fill" Focusable="False" ScrubbingEnabled="True" Visibility="Collapsed"/>
 			<ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
 			<TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
 			<TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1072,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12"/>
@@ -416,7 +417,7 @@
 				</Grid>
 			</Grid>
 			<StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-				<CheckBox Name="ShowLogCheckBox" Style="{DynamicResource CheckboxStyle}" Width="32" Height="24" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Click="ShowLogCheckBox_Click"/>
+				<CheckBox Name="ShowLogCheckBox" Style="{DynamicResource CheckBoxStyle}" Width="32" Height="24" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Click="ShowLogCheckBox_Click"/>
 				<TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White">
 					<TextBlock.Effect>
 						<DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2"/>

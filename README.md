@@ -1,14 +1,21 @@
 # BetterHI3Launcher
-A much better Honkai Impact 3rd launcher. Here's its key points:
+A much better Honkai Impact 3rd launcher. Here are the key points:
 * No need to install, everything's in one executable
-* Doesn't have a weird dependency on 3rd party archivers in the system
-* Can install both Global and SEA clients at the same time (with mirror support)
-* Has lots of useful features such as repairing game files (no need to redownload the whole game for that), downloading game cache (the loading thing that you get when stuck in the elevator), moving the game, fixing subtitles, setting custom resolution and FPS and potentially more (I'm always listening to your feedback!)
-* Automatically updates itself
+* Supports both Global and SEA clients installation at the same time
+* Has mirror support so you have more download sources to choose from
+* Automatically updates itself, so you're always getting the latest and greatest!
+* Has lots of useful features, such as:
+  * Downloading game cache (fixes the "stuck on updating settings" problem)
+  * Fixing the notoriously broken subtitles
+  * Repairing game files (only bad files will be downloaded!)
+  * Moving the game
+  * Setting custom resolution, custom FPS, resetting download type (to reselect assets download option)
 
-System requirements: 64-bit version of Windows 10 (should run on 7 and 8.1 too if .NET Framework 4.6.1 or newer is installed).
+Works on 64-bit version of Windows 10 (7 and 8.1 should work too if .NET Framework 4.6.1 or newer is installed).
 
-I made this with hope to help people have a better experience with the game. I will actively support this project, but you are welcome to [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues) if something's wrong or improve upon my code via [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/compare).
+I made this with hope to help people have a better experience with the game.
+
+This project is actively supported, however you are always welcome to [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) or even directly contribute to the project via [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/compare).
 
 ## Contibuting translations
 Want to contribute to the project by translating the launcher into a language you speak? Great! Here's how to do it:
