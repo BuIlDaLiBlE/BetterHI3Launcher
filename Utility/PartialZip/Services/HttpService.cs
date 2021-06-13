@@ -36,7 +36,7 @@ namespace PartialZip.Services
 			request.AllowAutoRedirect = true;
 			request.KeepAlive = true;
 			request.Method = "HEAD";
-			request.UserAgent = MainWindow.UserAgent;
+			request.UserAgent = App.UserAgent;
 
 			using(WebResponse response = await request.GetResponseAsync())
 			{
@@ -53,7 +53,7 @@ namespace PartialZip.Services
 				request.KeepAlive = true;
 				request.AddRange((long)startBytes, (long)endBytes);
 				request.Method = "GET";
-				request.UserAgent = MainWindow.UserAgent;
+				request.UserAgent = App.UserAgent;
 
 				using(WebResponse response = await request.GetResponseAsync())
 				{

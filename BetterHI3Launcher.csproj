@@ -89,8 +89,8 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="SharpCompress, Version=0.28.2.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
-      <HintPath>packages\SharpCompress.0.28.2\lib\netstandard2.0\SharpCompress.dll</HintPath>
+    <Reference Include="SharpCompress, Version=0.28.3.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
+      <HintPath>packages\SharpCompress.0.28.3\lib\netstandard2.0\SharpCompress.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -194,8 +194,8 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="XamlAnimatedGif, Version=1.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\XamlAnimatedGif.1.2.3\lib\net45\XamlAnimatedGif.dll</HintPath>
+    <Reference Include="XamlAnimatedGif, Version=2.0.0.0, Culture=neutral, PublicKeyToken=20a987d8023d9690, processorArchitecture=MSIL">
+      <HintPath>packages\XamlAnimatedGif.2.0.0\lib\net45\XamlAnimatedGif.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -222,14 +222,7 @@
     <Compile Include="DialogWindow.xaml.cs">
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TextStrings_de.cs" />
     <Compile Include="TextStrings_en.cs" />
-    <Compile Include="TextStrings_es.cs" />
-    <Compile Include="TextStrings_pt.cs" />
-    <Compile Include="TextStrings_ru.cs" />
-    <Compile Include="TextStrings_sr.cs" />
-    <Compile Include="TextStrings_th.cs" />
-    <Compile Include="TextStrings_vi.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipParsingException.cs" />
@@ -297,11 +290,13 @@
     <Resource Include="Assets\Images\Button_Minimize.png" />
     <Resource Include="Assets\Images\Button_Minimize_Highlighted.png" />
     <Resource Include="Assets\Images\Button_Minimize_Pressed.png" />
+    <Resource Include="Assets\Images\BackgroundShadow.png" />
     <Resource Include="Assets\Images\BackgroundImage.png" />
     <Resource Include="Assets\Images\HoV_Dance.gif" />
     <Resource Include="Assets\Images\Window_Dialog.png" />
-    <Resource Include="Assets\Images\Checkbox_Off.png" />
     <Resource Include="Assets\Images\Checkbox_On.png" />
+    <Resource Include="Assets\Images\Checkbox_Off.png" />
+    <Resource Include="Assets\Images\Checkbox_Disabled.png" />
     <Resource Include="Assets\Images\Button_Preload.png" />
     <Resource Include="Assets\Images\Button_Preload_Checkmark.png" />
     <Resource Include="Assets\Images\Button_Preload_Circle.png" />

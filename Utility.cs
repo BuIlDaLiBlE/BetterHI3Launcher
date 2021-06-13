@@ -27,6 +27,16 @@ namespace BetterHI3Launcher
 			Process.Start(startInfo);
 		}
 
+		public static void RestartApp()
+		{
+			if(App.Mutex != null)
+			{
+				App.Mutex.Dispose();
+			}
+			Application.Current.Shutdown();
+			StartProcess(MainWindow.LauncherExeName, string.Join(" ", MainWindow.CommandLineArgs), App.LauncherRootPath, true);
+		}
+
 		public static void PlaySound(Stream sound)
 		{
 			if(!MainWindow.DisableSounds)
@@ -54,11 +64,11 @@ namespace BetterHI3Launcher
 		public static string ToBytesCount(long bytes)
 		{
 			int unit = 1024;
-			string unitStr = MainWindow.textStrings["binary_prefix_byte"];
+			string unitStr = App.TextStrings["byte_short"];
 			if(bytes < unit) return string.Format("{0} {1}", bytes, unitStr);
 			else unitStr = unitStr.ToUpper();
 			int exp = (int)(Math.Log(bytes) / Math.Log(unit));
-			return string.Format("{0:##.##} {1}{2}", bytes / Math.Pow(unit, exp), MainWindow.textStrings["binary_prefixes"][exp - 1], unitStr);
+			return string.Format("{0:##.##} {1}{2}", bytes / Math.Pow(unit, exp), App.TextStrings["binary_prefixes"][exp - 1], unitStr);
 		}
 
 		public static string GetWindowsVersion()
@@ -133,10 +143,27 @@ namespace BetterHI3Launcher
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);
 			webRequest.Method = method;
-			webRequest.UserAgent = MainWindow.UserAgent;
-			webRequest.Headers.Add("Accept-Language", MainWindow.LauncherLanguage);
+			webRequest.UserAgent = App.UserAgent;
+			webRequest.Headers.Add("Accept-Language", App.LauncherLanguage);
 			webRequest.Timeout = timeout;
 			return webRequest;
+		}
+
+		public static void WriteToRegistry(string name, dynamic value, RegistryValueKind valueKind = RegistryValueKind.Unknown)
+		{
+			MainWindow.LauncherRegKey.SetValue(name, value, valueKind);
+			MainWindow.LauncherRegKey.Close();
+			MainWindow.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
+		}
+
+		public static void DeleteFromRegistry(string name)
+		{
+			if(MainWindow.LauncherRegKey.GetValue(name) != null)
+			{
+				MainWindow.LauncherRegKey.DeleteValue(name);
+				MainWindow.LauncherRegKey.Close();
+				MainWindow.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
+			}
 		}
 	}
 
@@ -219,7 +246,7 @@ namespace BetterHI3Launcher
 			if(decimals < 0)
 				decimals = 0;
 
-			string format = string.Format("{{0:F{0}}}", decimals) + " {1}" + MainWindow.textStrings["bytes_per_second"];
+			string format = string.Format("{{0:F{0}}}", decimals) + " {1}" + App.TextStrings["bytes_per_second"];
 
 			return string.Format(format, speed, prefix[index]);
 		}
@@ -298,6 +325,8 @@ namespace BetterHI3Launcher
 		{
 			var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
 			request.Method = "HEAD";
+			request.UserAgent = App.UserAgent;
+			request.Headers.Add("Accept-Language", App.LauncherLanguage);
 
 			using(var response = request.GetResponse())
 				return response.ContentLength;
@@ -313,7 +342,8 @@ namespace BetterHI3Launcher
 				return;
 
 			var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
-			request.UserAgent = MainWindow.UserAgent;
+			request.UserAgent = App.UserAgent;
+			request.Headers.Add("Accept-Language", App.LauncherLanguage);
 			request.AddRange(range);
 
 			using(var response = await request.GetResponseAsync())
@@ -360,8 +390,8 @@ namespace BetterHI3Launcher
 		{
 			Encoding = Encoding.UTF8;
 			Timeout = 10000;
-			Headers.Set(HttpRequestHeader.UserAgent, MainWindow.UserAgent);
-			Headers.Set(HttpRequestHeader.AcceptLanguage, MainWindow.LauncherLanguage);
+			Headers.Set(HttpRequestHeader.UserAgent, App.UserAgent);
+			Headers.Set(HttpRequestHeader.AcceptLanguage, App.LauncherLanguage);
 		}
 
 		protected override WebRequest GetWebRequest(Uri address)
@@ -517,7 +547,7 @@ namespace BetterHI3Launcher
 		/// <param name="maximumDuration">
 		/// Determines how many seconds of data will be used to calculate the ETA.
 		/// </param>
-		public ETACalculator(int minimumData, double maximumDuration)
+		public ETACalculator(int minimumData = 1, double maximumDuration = 1)
 		{
 			this.minimumData = minimumData;
 			this.maximumTicks = (long)(maximumDuration * Stopwatch.Frequency);
