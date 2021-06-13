@@ -1406,6 +1406,7 @@ namespace BetterHI3Launcher
 				{
 					url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString();
 				}
+				Directory.CreateDirectory(App.LauncherBackgroundsPath);
 				string background_image_url;
 				string background_image_md5;
 				var web_request = BpUtility.CreateWebRequest(url, "GET", 10000);
@@ -1434,8 +1435,7 @@ namespace BetterHI3Launcher
 					}
 				}
 				string background_image_name = Path.GetFileName(HttpUtility.UrlDecode(background_image_url));
-				string background_image_dir = Path.Combine(App.LauncherDataPath, "Backgrounds");
-				string background_image_path = Path.Combine(background_image_dir, background_image_name);
+				string background_image_path = Path.Combine(App.LauncherBackgroundsPath, background_image_name);
 				background_image_md5 = background_image_name.Split('_')[0].ToUpper();
 				bool Validate()
 				{
@@ -1454,12 +1454,11 @@ namespace BetterHI3Launcher
 					}
 					return false;
 				}
-				Directory.CreateDirectory(background_image_dir);
 				try
 				{
 					foreach(var file in Directory.GetFiles(App.LauncherDataPath, "*.png"))
 					{
-						File.Move(file, Path.Combine(background_image_dir, Path.GetFileName(file)));
+						File.Move(file, Path.Combine(App.LauncherBackgroundsPath, Path.GetFileName(file)));
 					}
 				}catch{}
 				if(!Validate())
@@ -2157,10 +2156,13 @@ namespace BetterHI3Launcher
 						return;
 					}
 
-					if(BpUtility.CalculateMD5(LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
+					if(!launcher_needs_update)
 					{
-						Log($"ERROR: Launcher integrity error, attempting self-repair...", true, 1);
-						launcher_needs_update = true;
+						if(BpUtility.CalculateMD5(LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
+						{
+							Log($"ERROR: Launcher integrity error, attempting self-repair...", true, 1);
+							launcher_needs_update = true;
+						}
 					}
 					if(launcher_needs_update)
 					{
@@ -2190,7 +2192,7 @@ namespace BetterHI3Launcher
 							}
 						}
 						Log("success!", false);
-						BpUtility.RestartApp();
+						Dispatcher.Invoke(() => {BpUtility.RestartApp();});
 						return;
 					}
 					else
