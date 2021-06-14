@@ -4298,7 +4298,7 @@ namespace BetterHI3Launcher
 				ResolutionInputBoxWidthTextBox.Text = string.Concat(ResolutionInputBoxWidthTextBox.Text.Where(c => !char.IsWhiteSpace(c)));
 				if(string.IsNullOrEmpty(ResolutionInputBoxHeightTextBox.Text) || string.IsNullOrEmpty(ResolutionInputBoxWidthTextBox.Text))
 				{
-					new DialogWindow(App.TextStrings["contextmenu_customresolution"], App.TextStrings["msgbox_custom_fps_1_msg"]).ShowDialog();
+					new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], App.TextStrings["msgbox_custom_fps_1_msg"]).ShowDialog();
 					return;
 				}
 				bool fullscreen = (bool)ResolutionInputBoxFullscreenCheckbox.IsChecked;
@@ -4306,13 +4306,13 @@ namespace BetterHI3Launcher
 				int width = int.Parse(ResolutionInputBoxWidthTextBox.Text);
 				if(height < 1 || width < 1)
 				{
-					new DialogWindow(App.TextStrings["contextmenu_customresolution"], App.TextStrings["msgbox_custom_fps_2_msg"]).ShowDialog();
+					new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], App.TextStrings["msgbox_custom_fps_2_msg"]).ShowDialog();
 					return;
 				}
 				else if(height > width)
 				{
 
-					if(new DialogWindow(App.TextStrings["contextmenu_customresolution"], App.TextStrings["msgbox_custom_resolution_1_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+					if(new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], App.TextStrings["msgbox_custom_resolution_1_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
@@ -4343,7 +4343,7 @@ namespace BetterHI3Launcher
 				string is_fullscreen = fullscreen ? "enabled" : "disabled";
 				Log($"Set game resolution to {width}x{height}, fullscreen {is_fullscreen}");
 				is_fullscreen = fullscreen ? App.TextStrings["enabled"].ToLower() : App.TextStrings["disabled"].ToLower();
-				new DialogWindow(App.TextStrings["contextmenu_customresolution"], string.Format(App.TextStrings["msgbox_custom_resolution_2_msg"], width, height, is_fullscreen)).ShowDialog();
+				new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], string.Format(App.TextStrings["msgbox_custom_resolution_2_msg"], width, height, is_fullscreen)).ShowDialog();
 			}
 			catch(Exception ex)
 			{
