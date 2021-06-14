@@ -194,6 +194,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_repair_5_msg", "{0} file(s) failed to be repaired. Consider checking your storage device, it may be faulty.");
 			TextStrings.Add("msgbox_repair_6_msg", "Going to generate a JSON file containing the list of game files and their hashes, then create a ZIP archive with those files.\nContinue?");
 			TextStrings.Add("msgbox_repair_7_msg", "Continue to create ZIP file? It definitely takes a while.");
+			TextStrings.Add("msgbox_repair_8_msg", "Repair data from the server has a different game version.\nAre you sure you want to run the check?");
 			TextStrings.Add("msgbox_reset_game_settings_moved_msg", "This option has been moved to uninstallation.\nWould you like to go there now?");
 			TextStrings.Add("msgbox_start_error_msg", "An error occurred while starting the launcher:\n{0}");
 			TextStrings.Add("msgbox_start_error_title", "Startup error");

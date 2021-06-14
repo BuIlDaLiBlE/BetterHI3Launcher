@@ -3941,6 +3941,10 @@ namespace BetterHI3Launcher
 					long corrupted_files_size = 0;
 
 					Log("Verifying game files...");
+					if(AdvancedFeatures)
+					{
+						Log($"Repair data game version: {OnlineRepairInfo.game_version}");
+					}
 					await Task.Run(() =>
 					{
 						for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
@@ -4113,6 +4117,17 @@ namespace BetterHI3Launcher
 					}
 					Status = LauncherStatus.Ready;
 				}
+
+				if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version)
+				{
+					if(AdvancedFeatures)
+					{
+						if(new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_8_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+						{
+							return;
+						}
+					}
+				}
 				RepairBox.Visibility = Visibility.Collapsed;
 				Status = LauncherStatus.Working;
 				ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];
@@ -4132,11 +4147,6 @@ namespace BetterHI3Launcher
 
 		private async void RepairBoxGenerateButton_Click(object sender, RoutedEventArgs e)
 		{
-			if(new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_6_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-			{
-				return;
-			}
-
 			async Task Generate()
 			{
 				string server;
@@ -4228,6 +4238,11 @@ namespace BetterHI3Launcher
 						Status = LauncherStatus.Ready;
 					}
 				}
+			}
+
+			if(new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_6_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+			{
+				return;
 			}
 			RepairBox.Visibility = Visibility.Collapsed;
 			await Generate();
