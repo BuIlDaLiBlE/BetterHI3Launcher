@@ -4492,7 +4492,7 @@ namespace BetterHI3Launcher
 				Path.Combine(path, "Honkai Impact 3rd", "Games"),
 				Path.Combine(path, "Honkai Impact 3", "Games"),
 				Path.Combine(path, "Honkai Impact 3rd glb", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd sea", "Games")
+				Path.Combine(path, "Honkai Impact 3 sea", "Games")
 			});
 			if(path.Length >= 16)
 			{
