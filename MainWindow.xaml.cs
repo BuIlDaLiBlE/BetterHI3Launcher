@@ -493,6 +493,9 @@ namespace BetterHI3Launcher
 			var CM_Language_Thai = new MenuItem {Header = App.TextStrings["contextmenu_language_thai"]};
 			CM_Language_Thai.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_Thai);
+			var CM_Language_French = new MenuItem {Header = App.TextStrings["contextmenu_language_french"]};
+			CM_Language_French.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_French);
 			CM_Language.Items.Add(new Separator());
 			var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
 			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contributing-translations", null, App.LauncherRootPath, true);
@@ -532,6 +535,9 @@ namespace BetterHI3Launcher
 							break;
 						case "th":
 							CM_Language_Thai.IsChecked = true;
+							break;
+						case "fr":
+							CM_Language_French.IsChecked = true;
 							break;
 						default:
 							CM_Language_English.IsChecked = true;
@@ -1308,7 +1314,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				string translations_url = OnlineVersionInfo.launcher_info.translations.url.ToString();
-				string translations_md5 = OnlineVersionInfo.launcher_info.translations.md5.ToString();
+				string translations_md5 = OnlineVersionInfo.launcher_info.translations.md5.ToString().ToUpper();
 				string translations_version = OnlineVersionInfo.launcher_info.translations.version;
 				bool Validate()
 				{
@@ -3722,6 +3728,10 @@ namespace BetterHI3Launcher
 					else if(lang == App.TextStrings["contextmenu_language_thai"])
 					{
 						App.LauncherLanguage = "th";
+					}
+					else if(lang == App.TextStrings["contextmenu_language_french"])
+					{
+						App.LauncherLanguage = "fr";
 					}
 					else
 					{

@@ -11,7 +11,7 @@ namespace BetterHI3Launcher
 {
 	public partial class App : Application
 	{
-		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.2.20210613.0");
+		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.2.20210620.0");
 		public static readonly string LauncherRootPath = AppDomain.CurrentDomain.BaseDirectory;
 		public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
 		public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -83,6 +83,14 @@ namespace BetterHI3Launcher
 				case "es-US":
 				case "es-UY":
 					LauncherLanguage = "es";
+					break;
+				case "fr-BE":
+				case "fr-CA":
+				case "fr-CH":
+				case "fr-FR":
+				case "fr-LU":
+				case "fr-MC":
+					LauncherLanguage = "fr";
 					break;
 				case "pt-BR":
 				case "pt-PT":
