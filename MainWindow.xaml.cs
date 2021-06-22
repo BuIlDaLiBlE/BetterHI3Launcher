@@ -347,7 +347,7 @@ namespace BetterHI3Launcher
 			{
 				RepairBoxGenerateButton.Visibility = Visibility.Collapsed;
 			}
-			string language_log_msg = $"Launcher language: {App.LauncherLanguage}";
+			string language_log_msg = "Launcher language: {0}";
 			var language_reg = LauncherRegKey.GetValue("Language");
 			if(!DisableTranslations)
 			{
@@ -364,6 +364,7 @@ namespace BetterHI3Launcher
 					language_log_msg += " (autodetect)";
 				}
 			}
+			language_log_msg = string.Format(language_log_msg, App.LauncherLanguage);
 			Log(language_log_msg);
 			App.UserAgent += $" [{App.LauncherLanguage}] [{App.OSVersion}]";
 
@@ -472,30 +473,33 @@ namespace BetterHI3Launcher
 			var CM_Language_English = new MenuItem{Header = App.TextStrings["contextmenu_language_english"]};
 			CM_Language_English.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_English);
-			var CM_Language_Russian = new MenuItem{Header = App.TextStrings["contextmenu_language_russian"]};
-			CM_Language_Russian.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Russian);
-			var CM_Language_Spanish = new MenuItem{Header = App.TextStrings["contextmenu_language_spanish"]};
-			CM_Language_Spanish.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Spanish);
-			var CM_Language_Portuguese = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese"]};
-			CM_Language_Portuguese.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Portuguese);
-			var CM_Language_German = new MenuItem{Header = App.TextStrings["contextmenu_language_german"]};
-			CM_Language_German.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_German);
-			var CM_Language_Vietnamese = new MenuItem{Header = App.TextStrings["contextmenu_language_vietnamese"]};
-			CM_Language_Vietnamese.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Vietnamese);
-			var CM_Language_Serbian = new MenuItem{Header = App.TextStrings["contextmenu_language_serbian"]};
-			CM_Language_Serbian.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Serbian);
-			var CM_Language_Thai = new MenuItem {Header = App.TextStrings["contextmenu_language_thai"]};
-			CM_Language_Thai.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Thai);
 			var CM_Language_French = new MenuItem {Header = App.TextStrings["contextmenu_language_french"]};
 			CM_Language_French.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_French);
+			var CM_Language_German = new MenuItem{Header = App.TextStrings["contextmenu_language_german"]};
+			CM_Language_German.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_German);
+			var CM_Language_Portuguese_Brazil = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_brazil"]};
+			CM_Language_Portuguese_Brazil.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Portuguese_Brazil);
+			var CM_Language_Portuguese_Portugal = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_portugal"]};
+			CM_Language_Portuguese_Portugal.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Portuguese_Portugal);
+			var CM_Language_Russian = new MenuItem{Header = App.TextStrings["contextmenu_language_russian"]};
+			CM_Language_Russian.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Russian);
+			var CM_Language_Serbian = new MenuItem{Header = App.TextStrings["contextmenu_language_serbian"]};
+			CM_Language_Serbian.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Serbian);
+			var CM_Language_Spanish = new MenuItem{Header = App.TextStrings["contextmenu_language_spanish"]};
+			CM_Language_Spanish.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Spanish);
+			var CM_Language_Thai = new MenuItem {Header = App.TextStrings["contextmenu_language_thai"]};
+			CM_Language_Thai.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Thai);
+			var CM_Language_Vietnamese = new MenuItem{Header = App.TextStrings["contextmenu_language_vietnamese"]};
+			CM_Language_Vietnamese.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Vietnamese);
 			CM_Language.Items.Add(new Separator());
 			var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
 			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contributing-translations", null, App.LauncherRootPath, true);
@@ -515,29 +519,32 @@ namespace BetterHI3Launcher
 				{
 					switch(language_reg.ToString())
 					{
-						case "ru":
-							CM_Language_Russian.IsChecked = true;
-							break;
-						case "es":
-							CM_Language_Spanish.IsChecked = true;
-							break;
-						case "pt":
-							CM_Language_Portuguese.IsChecked = true;
+						case "fr":
+							CM_Language_French.IsChecked = true;
 							break;
 						case "de":
 							CM_Language_German.IsChecked = true;
 							break;
-						case "vi":
-							CM_Language_Vietnamese.IsChecked = true;
+						case "pt-BR":
+							CM_Language_Portuguese_Brazil.IsChecked = true;
+							break;
+						case "pt-PT":
+							CM_Language_Portuguese_Portugal.IsChecked = true;
+							break;
+						case "ru":
+							CM_Language_Russian.IsChecked = true;
 							break;
 						case "sr":
 							CM_Language_Serbian.IsChecked = true;
 							break;
+						case "es":
+							CM_Language_Spanish.IsChecked = true;
+							break;
 						case "th":
 							CM_Language_Thai.IsChecked = true;
 							break;
-						case "fr":
-							CM_Language_French.IsChecked = true;
+						case "vi":
+							CM_Language_Vietnamese.IsChecked = true;
 							break;
 						default:
 							CM_Language_English.IsChecked = true;
@@ -969,7 +976,6 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-
 			Status = LauncherStatus.CheckingUpdates;
 			Log("Checking for game update...");
 			LocalVersionInfo = null;
@@ -1222,6 +1228,8 @@ namespace BetterHI3Launcher
 						new DialogWindow(App.TextStrings["msgbox_update_check_error_title"], App.TextStrings["msgbox_update_check_error_msg"]).ShowDialog();
 						return;
 					});
+					Status = LauncherStatus.Ready;
+					GameUpdateCheck();
 				}
 			});
 		}
@@ -3664,16 +3672,17 @@ namespace BetterHI3Launcher
 			string msg;
 			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "de" && App.LauncherLanguage != "vi")
 			{
-				msg = string.Format(App.TextStrings["msgbox_language_msg"], lang.ToLower());
+				if(lang != App.TextStrings["contextmenu_language_portuguese_brazil"] && lang != App.TextStrings["contextmenu_language_portuguese_portugal"])
+				{
+					lang = lang.ToLower();
+				}
 			}
-			else
+			if(lang == App.TextStrings["contextmenu_language_portuguese_brazil"] || lang == App.TextStrings["contextmenu_language_portuguese_portugal"] || App.LauncherLanguage == "vi")
 			{
-				msg = string.Format(App.TextStrings["msgbox_language_msg"], lang);
+				lang = char.ToLower(lang[0]) + lang.Substring(1);
 			}
-			if(App.LauncherLanguage == "vi")
-			{
-				msg = string.Format(App.TextStrings["msgbox_language_msg"], char.ToLower(lang[0]) + lang.Substring(1));
-			}
+			msg = string.Format(App.TextStrings["msgbox_language_msg"], lang);
+			lang = item.Header.ToString();
 			if(new DialogWindow(App.TextStrings["contextmenu_language"], msg, DialogWindow.DialogType.Question).ShowDialog() == false)
 			{
 				return;
@@ -3709,9 +3718,13 @@ namespace BetterHI3Launcher
 					{
 						App.LauncherLanguage = "es";
 					}
-					else if(lang == App.TextStrings["contextmenu_language_portuguese"])
+					else if(lang == App.TextStrings["contextmenu_language_portuguese_brazil"])
 					{
-						App.LauncherLanguage = "pt";
+						App.LauncherLanguage = "pt-BR";
+					}
+					else if(lang == App.TextStrings["contextmenu_language_portuguese_portugal"])
+					{
+						App.LauncherLanguage = "pt-PT";
 					}
 					else if(lang == App.TextStrings["contextmenu_language_german"])
 					{
