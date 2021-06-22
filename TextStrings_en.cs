@@ -58,7 +58,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("changelogbox_1_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
 			TextStrings.Add("changelogbox_2_msg", "Loading changelog...");
 			TextStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
-			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation");
+			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
 			TextStrings.Add("contextmenu_fix_subtitles", "Fix subtitles");
 			TextStrings.Add("contextmenu_repair", "Repair game files");
@@ -77,13 +77,15 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_language", "Language");
 			TextStrings.Add("contextmenu_language_system", "System Default");
 			TextStrings.Add("contextmenu_language_english", "English");
-			TextStrings.Add("contextmenu_language_russian", "Russian");
-			TextStrings.Add("contextmenu_language_spanish", "Spanish");
-			TextStrings.Add("contextmenu_language_portuguese", "Portuguese");
+			TextStrings.Add("contextmenu_language_french", "French");
 			TextStrings.Add("contextmenu_language_german", "German");
-			TextStrings.Add("contextmenu_language_vietnamese", "Vietnamese");
+			TextStrings.Add("contextmenu_language_portuguese_brazil", "Portuguese (Brazil)");
+			TextStrings.Add("contextmenu_language_portuguese_portugal", "Portuguese (Portugal)");
+			TextStrings.Add("contextmenu_language_russian", "Russian");
 			TextStrings.Add("contextmenu_language_serbian", "Serbian");
+			TextStrings.Add("contextmenu_language_spanish", "Spanish");
 			TextStrings.Add("contextmenu_language_thai", "Thai");
+			TextStrings.Add("contextmenu_language_vietnamese", "Vietnamese");
 			TextStrings.Add("contextmenu_language_contribute", "Want to help?");
 			TextStrings.Add("contextmenu_about", "About");
 			TextStrings.Add("progresstext_checking_update", "Checking for update...");
