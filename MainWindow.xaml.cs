@@ -981,11 +981,12 @@ namespace BetterHI3Launcher
 			LocalVersionInfo = null;
 			await Task.Run(() =>
 			{
-				FetchOnlineVersionInfo();
 				try
 				{
 					int game_needs_update;
 					long download_size = 0;
+
+					FetchOnlineVersionInfo();
 					if(Mirror == HI3Mirror.miHoYo)
 					{
 						// space_usage is probably when archive is unpacked, here I get the download size instead
