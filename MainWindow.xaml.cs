@@ -1569,6 +1569,7 @@ namespace BetterHI3Launcher
 					time = ((DateTimeOffset)mediafire_metadata.modifiedDate).ToUnixTimeSeconds();
 					url = mediafire_metadata.downloadUrl.ToString();
 					md5 = mediafire_metadata.md5Checksum.ToString();
+					GameArchivePath = Path.Combine(GameInstallPath, title);
 					if(!mediafire_metadata.title.Contains(miHoYoVersionInfo.game.latest.version.ToString()))
 					{
 						Status = LauncherStatus.Error;
@@ -1612,6 +1613,7 @@ namespace BetterHI3Launcher
 					time = ((DateTimeOffset)gd_metadata.modifiedDate).ToUnixTimeSeconds();
 					url = gd_metadata.downloadUrl.ToString();
 					md5 = gd_metadata.md5Checksum.ToString();
+					GameArchivePath = Path.Combine(GameInstallPath, title);
 					if(DateTime.Compare(DateTime.Parse(miHoYoVersionInfo.last_modified.ToString()), DateTime.Parse(gd_metadata.modifiedDate.ToString())) > 0)
 					{
 						Status = LauncherStatus.Error;
@@ -1653,7 +1655,16 @@ namespace BetterHI3Launcher
 						return;
 					}
 				}
-				GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
+				if(!File.Exists(GameArchivePath))
+				{ 
+					GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
+				}
+				else if(new FileInfo(GameArchivePath).Length != size)
+				{
+					string tmp_path = Path.Combine(GameInstallPath, $"{title}_tmp");
+					File.Move(GameArchivePath, tmp_path);
+					GameArchivePath = tmp_path;
+				}
 
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
@@ -1716,7 +1727,7 @@ namespace BetterHI3Launcher
 						string actual_md5 = BpUtility.CalculateMD5(GameArchivePath);
 						if(actual_md5 == md5.ToUpper())
 						{
-							var new_path = GameArchivePath.Substring(0, GameArchivePath.Length - 4);
+							string new_path = GameArchivePath.Substring(0, GameArchivePath.Length - 4);
 							if(!File.Exists(new_path))
 							{
 								File.Move(GameArchivePath, new_path);
@@ -2287,7 +2298,6 @@ namespace BetterHI3Launcher
 				if(LauncherRegKey.GetValueKind("CustomBackgroundName") == RegistryValueKind.String)
 				{
 					string path = Path.Combine(App.LauncherBackgroundsPath, custom_background_name_reg.ToString());
-					Log(path);
 					if(File.Exists(path))
 					{
 						SetCustomBackgroundFile(path);
@@ -2653,7 +2663,7 @@ namespace BetterHI3Launcher
 						if(actual_md5 == md5.ToUpper())
 						{
 							Log("success!", false);
-							var new_path = path.Substring(0, path.Length - 4);
+							string new_path = path.Substring(0, path.Length - 4);
 							if(!File.Exists(new_path))
 							{
 								File.Move(path, new_path);
@@ -3621,9 +3631,12 @@ namespace BetterHI3Launcher
 					BackgroundImage.Visibility = Visibility.Visible;
 					BackgroundMedia.Visibility = Visibility.Collapsed;
 					BackgroundMedia.Source = null;
-					DeleteFile(Path.Combine(App.LauncherBackgroundsPath, LauncherRegKey.GetValue("CustomBackgroundName").ToString()));	
+					string custom_background_path = Path.Combine(App.LauncherBackgroundsPath, LauncherRegKey.GetValue("CustomBackgroundName").ToString());
 					BpUtility.DeleteFromRegistry("CustomBackgroundName");
-					Log("success!", false);
+					if(DeleteFile(custom_background_path))
+					{
+						Log("success!", false);
+					}
 					return;
 				}
 			}
@@ -4645,10 +4658,16 @@ namespace BetterHI3Launcher
 			bool check_media = false;
 			if(!string.IsNullOrEmpty(path) && Path.HasExtension(path))
 			{ 
-				BitmapImage image;
 				try
 				{
-					image = new BitmapImage(new Uri(path));
+					var image = new BitmapImage();
+					using(FileStream fs = new FileStream(path, FileMode.Open))
+					{
+						image.BeginInit();
+						image.StreamSource = fs;
+						image.CacheOption = BitmapCacheOption.OnLoad;
+						image.EndInit();
+					}
 					if(Path.GetExtension(path) != ".gif")
 					{
 						format = 1;
@@ -4725,7 +4744,9 @@ namespace BetterHI3Launcher
 							DeleteFile(Path.Combine(App.LauncherBackgroundsPath, LauncherRegKey.GetValue("CustomBackgroundName").ToString()));
 						}
 						Log($"Setting custom background: {path}");
-						File.Copy(path, Path.Combine(App.LauncherBackgroundsPath, name), true);
+						string new_path = Path.Combine(App.LauncherBackgroundsPath, name);
+						File.Copy(path, new_path, true);
+						path = new_path;
 						BpUtility.WriteToRegistry("CustomBackgroundName", name);
 					}
 					BackgroundImage.Visibility = Visibility.Collapsed;
@@ -4747,7 +4768,15 @@ namespace BetterHI3Launcher
 						break;
 					case 1:
 						BackgroundImage.Visibility = Visibility.Visible;
-						BackgroundImage.Source = new BitmapImage(new Uri(path));
+						using(FileStream fs = new FileStream(path, FileMode.Open))
+						{
+							var image = new BitmapImage();
+							image.BeginInit();
+							image.StreamSource = fs;
+							image.CacheOption = BitmapCacheOption.OnLoad;
+							image.EndInit();
+							BackgroundImage.Source = image;
+						}
 						break;
 					case 2:
 						BackgroundImage.Visibility = Visibility.Visible;
@@ -4896,7 +4925,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		public void DeleteFile(string path, bool ignore_read_only = false)
+		public bool DeleteFile(string path, bool ignore_read_only = false)
 		{
 			try
 			{
@@ -4908,10 +4937,12 @@ namespace BetterHI3Launcher
 					}
 					File.Delete(path);
 				}
+				return true;
 			}
 			catch
 			{
 				Log($"WARNING: Failed to delete {path}", true, 2);
+				return false;
 			}
 		}
 

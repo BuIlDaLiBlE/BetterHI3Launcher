@@ -23,7 +23,7 @@
 		<local:ProgressToAngleConverter x:Key="ProgressConverter"/>
 		<FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
 		<FontFamily x:Key="FontStatic">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
-		<BitmapImage x:Key="BackgroundImage" UriSource="/Assets/Images/BackgroundImage.png"/>
+		<BitmapImage x:Key="BackgroundImage" UriSource=""/>
 		<BitmapImage x:Key="PreloadCircle" UriSource="/Assets/Images/Button_Preload_Circle.png"/>
 		<BitmapImage x:Key="PreloadCheckmark" UriSource="/Assets/Images/Button_Preload_Checkmark.png"/>
 		<ImageBrush x:Key="BackgroundShadow" ImageSource="/Assets/Images/BackgroundShadow.png"/>
