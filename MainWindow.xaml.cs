@@ -403,7 +403,7 @@ namespace BetterHI3Launcher
 			AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
 			AboutBoxOKButton.Content = App.TextStrings["button_ok"];
 			ShowLogLabel.Text = App.TextStrings["label_log"];
-			PreloadTopText.Text = App.TextStrings["label_preload"];
+			PreloadTopText.Text = App.TextStrings["label_pre_install"];
 			PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
 			PreloadStatusBottomLeftText.Text = App.TextStrings["label_speed"];
@@ -1463,7 +1463,7 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							Resources["BackgroundImage"] = new BitmapImage(new Uri(background_image_path));
+							Dispatcher.Invoke(() => {Resources["BackgroundImage"] = new BitmapImage(new Uri(background_image_path));});
 							return true;
 						}
 					}
@@ -1521,6 +1521,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				string title;
+				long size = 0;
 				long time;
 				string url;
 				string md5;
@@ -1558,7 +1559,6 @@ namespace BetterHI3Launcher
 					time = ((DateTimeOffset)mediafire_metadata.modifiedDate).ToUnixTimeSeconds();
 					url = mediafire_metadata.downloadUrl.ToString();
 					md5 = mediafire_metadata.md5Checksum.ToString();
-					GameArchivePath = Path.Combine(GameInstallPath, title);
 					if(!mediafire_metadata.title.Contains(miHoYoVersionInfo.game.latest.version.ToString()))
 					{
 						Status = LauncherStatus.Error;
@@ -1602,7 +1602,6 @@ namespace BetterHI3Launcher
 					time = ((DateTimeOffset)gd_metadata.modifiedDate).ToUnixTimeSeconds();
 					url = gd_metadata.downloadUrl.ToString();
 					md5 = gd_metadata.md5Checksum.ToString();
-					GameArchivePath = Path.Combine(GameInstallPath, title);
 					if(DateTime.Compare(DateTime.Parse(miHoYoVersionInfo.last_modified.ToString()), DateTime.Parse(gd_metadata.modifiedDate.ToString())) > 0)
 					{
 						Status = LauncherStatus.Error;
@@ -1644,6 +1643,7 @@ namespace BetterHI3Launcher
 						return;
 					}
 				}
+				GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
 
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
@@ -1664,6 +1664,7 @@ namespace BetterHI3Launcher
 						{
 							continue;
 						}
+						size = download.ContentLength;
 						tracker.SetProgress(download.BytesWritten, download.ContentLength);
 						eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
 						Dispatcher.Invoke(() =>
@@ -1703,7 +1704,22 @@ namespace BetterHI3Launcher
 						Log("Validating game archive...");
 						Status = LauncherStatus.Verifying;
 						string actual_md5 = BpUtility.CalculateMD5(GameArchivePath);
-						if(actual_md5 != md5.ToUpper())
+						if(actual_md5 == md5.ToUpper())
+						{
+							var new_path = GameArchivePath.Substring(0, GameArchivePath.Length - 4);
+							if(!File.Exists(new_path))
+							{
+								File.Move(GameArchivePath, new_path);
+							}
+							else if(File.Exists(new_path) && size != 0 && new FileInfo(new_path).Length != size)
+							{
+								DeleteFile(new_path);
+								File.Move(GameArchivePath, new_path);
+							}
+							GameArchivePath = new_path;
+							Log("success!", false);
+						}
+						else
 						{
 							Status = LauncherStatus.Error;
 							Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
@@ -1712,10 +1728,6 @@ namespace BetterHI3Launcher
 							Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_verify_error_title"], App.TextStrings["msgbox_verify_error_1_msg"]).ShowDialog();});
 							Status = LauncherStatus.Ready;
 							GameUpdateCheck();
-						}
-						else
-						{
-							Log("success!", false);
 						}
 						if(abort)
 						{
@@ -2541,7 +2553,7 @@ namespace BetterHI3Launcher
 				}
 				if(!File.Exists(path))
 				{
-					if(new DialogWindow(App.TextStrings["label_preload"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{App.TextStrings["progresstext_download_size"]}: {BpUtility.ToBytesCount(size)}", DialogWindow.DialogType.Question).ShowDialog() == false)
+					if(new DialogWindow(App.TextStrings["label_pre_install"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{App.TextStrings["progresstext_download_size"]}: {BpUtility.ToBytesCount(size)}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
@@ -2553,11 +2565,11 @@ namespace BetterHI3Launcher
 							return;
 						}
 					}
-					Log($"Starting to preload game: {title} ({url})");
+					Log($"Starting to pre-download game: {title} ({url})");
 				}
 				else
 				{
-					Log("Preload resumed");
+					Log("Pre-download resumed");
 				}
 				Status = LauncherStatus.Preloading;
 				await Task.Run(() =>
@@ -2588,7 +2600,7 @@ namespace BetterHI3Launcher
 						Status = LauncherStatus.Ready;
 						return;
 					}
-					Log("Downloaded preload archive");
+					Log("Downloaded pre-download archive");
 					while(BpUtility.IsFileLocked(new FileInfo(path)))
 					{
 						Thread.Sleep(10);
@@ -2603,7 +2615,7 @@ namespace BetterHI3Launcher
 				{
 					await Task.Run(() =>
 					{
-						Log("Validating preload archive...");
+						Log("Validating pre-download archive...");
 						string actual_md5 = BpUtility.CalculateMD5(path);
 						if(actual_md5 == md5.ToUpper())
 						{
@@ -2618,11 +2630,7 @@ namespace BetterHI3Launcher
 								DeleteFile(new_path, true);
 								File.Move(path, new_path);
 							}
-							else
-							{
-								DeleteFile(path);
-							}
-							Log("Successfully preloaded the game");
+							Log("Successfully pre-downloaded the game");
 							GameUpdateCheck();
 						}
 						else
@@ -2641,7 +2649,7 @@ namespace BetterHI3Launcher
 				catch(Exception ex)
 				{
 					Status = LauncherStatus.Error;
-					Log($"ERROR: Failed to preload the game:\n{ex}", true, 1);
+					Log($"ERROR: Failed to pre-download the game:\n{ex}", true, 1);
 					new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_error_msg"]).ShowDialog();
 					Status = LauncherStatus.Ready;
 				}
@@ -2649,7 +2657,7 @@ namespace BetterHI3Launcher
 			catch(Exception ex)
 			{
 				Status = LauncherStatus.Error;
-				Log($"ERROR: Failed to download game preload archive:\n{ex}", true, 1);
+				Log($"ERROR: Failed to download game pre-download archive:\n{ex}", true, 1);
 				new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_error_msg"]).ShowDialog();
 				Status = LauncherStatus.Ready;
 			}
@@ -2661,7 +2669,7 @@ namespace BetterHI3Launcher
 		{
 			if(download != null)
 			{
-				Log("Preload paused");
+				Log("Pre-download paused");
 				download.Pause();
 				download = null;
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
@@ -2680,7 +2688,7 @@ namespace BetterHI3Launcher
 				}
 				catch(Exception ex)
 				{
-					Log($"ERROR: Failed to resume preloading:\n{ex}", true, 1);
+					Log($"ERROR: Failed to resume pre-download:\n{ex}", true, 1);
 				}
 			}
 		}
