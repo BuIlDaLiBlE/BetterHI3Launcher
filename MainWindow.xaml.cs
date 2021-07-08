@@ -55,7 +55,7 @@ namespace BetterHI3Launcher
 		public static string GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
 		public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
 		public static bool FirstLaunch = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher") == null ? true : false;
-		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, DownloadPaused, PatchDownload;
+		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, DownloadPaused, PatchDownload, PreloadDownload;
 		public static int PatchDownloadInt;
 		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
 		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
@@ -88,7 +88,6 @@ namespace BetterHI3Launcher
 					}
 
 					_status = value;
-					WindowState = WindowState.Normal;
 					switch(_status)
 					{
 						case LauncherStatus.Ready:
@@ -403,7 +402,7 @@ namespace BetterHI3Launcher
 			AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
 			AboutBoxOKButton.Content = App.TextStrings["button_ok"];
 			ShowLogLabel.Text = App.TextStrings["label_log"];
-			PreloadTopText.Text = App.TextStrings["label_preload"];
+			PreloadTopText.Text = App.TextStrings["label_pre_install"];
 			PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
 			PreloadStatusBottomLeftText.Text = App.TextStrings["label_speed"];
@@ -981,11 +980,12 @@ namespace BetterHI3Launcher
 			LocalVersionInfo = null;
 			await Task.Run(() =>
 			{
-				FetchOnlineVersionInfo();
 				try
 				{
 					int game_needs_update;
 					long download_size = 0;
+
+					FetchOnlineVersionInfo();
 					if(Mirror == HI3Mirror.miHoYo)
 					{
 						// space_usage is probably when archive is unpacked, here I get the download size instead
@@ -1052,7 +1052,7 @@ namespace BetterHI3Launcher
 						var local_game_version = new GameVersion(LocalVersionInfo.game_info.version.ToString());
 						game_needs_update = GameVersionUpdateCheck(local_game_version);
 						GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
-						GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
+						GameExePath = Path.Combine(GameInstallPath, GameExeName);
 
 						Log($"Game version: {local_game_version}");
 						Log($"Game directory: {GameInstallPath}");
@@ -1093,7 +1093,18 @@ namespace BetterHI3Launcher
 							{
 								process[0].EnableRaisingEvents = true;
 								process[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
-								Status = LauncherStatus.Running;
+								if(PreloadDownload)
+								{
+									Dispatcher.Invoke(() =>
+									{ 
+										LaunchButton.Content = App.TextStrings["button_running"];
+										LaunchButton.IsEnabled = false;
+									});
+								}
+								else
+								{
+									Status = LauncherStatus.Running;
+								}
 							}
 							else
 							{
@@ -1462,7 +1473,7 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							Resources["BackgroundImage"] = new BitmapImage(new Uri(background_image_path));
+							Dispatcher.Invoke(() => {Resources["BackgroundImage"] = new BitmapImage(new Uri(background_image_path));});
 							return true;
 						}
 					}
@@ -1520,6 +1531,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				string title;
+				long size = 0;
 				long time;
 				string url;
 				string md5;
@@ -1643,6 +1655,16 @@ namespace BetterHI3Launcher
 						return;
 					}
 				}
+				if(!File.Exists(GameArchivePath))
+				{ 
+					GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
+				}
+				else if(new FileInfo(GameArchivePath).Length != size)
+				{
+					string tmp_path = Path.Combine(GameInstallPath, $"{title}_tmp");
+					File.Move(GameArchivePath, tmp_path);
+					GameArchivePath = tmp_path;
+				}
 
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
@@ -1663,6 +1685,7 @@ namespace BetterHI3Launcher
 						{
 							continue;
 						}
+						size = download.ContentLength;
 						tracker.SetProgress(download.BytesWritten, download.ContentLength);
 						eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
 						Dispatcher.Invoke(() =>
@@ -1702,7 +1725,22 @@ namespace BetterHI3Launcher
 						Log("Validating game archive...");
 						Status = LauncherStatus.Verifying;
 						string actual_md5 = BpUtility.CalculateMD5(GameArchivePath);
-						if(actual_md5 != md5.ToUpper())
+						if(actual_md5 == md5.ToUpper())
+						{
+							string new_path = GameArchivePath.Substring(0, GameArchivePath.Length - 4);
+							if(!File.Exists(new_path))
+							{
+								File.Move(GameArchivePath, new_path);
+							}
+							else if(File.Exists(new_path) && size != 0 && new FileInfo(new_path).Length != size)
+							{
+								DeleteFile(new_path);
+								File.Move(GameArchivePath, new_path);
+							}
+							GameArchivePath = new_path;
+							Log("success!", false);
+						}
+						else
 						{
 							Status = LauncherStatus.Error;
 							Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
@@ -1711,10 +1749,6 @@ namespace BetterHI3Launcher
 							Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_verify_error_title"], App.TextStrings["msgbox_verify_error_1_msg"]).ShowDialog();});
 							Status = LauncherStatus.Ready;
 							GameUpdateCheck();
-						}
-						else
-						{
-							Log("success!", false);
 						}
 						if(abort)
 						{
@@ -2264,7 +2298,6 @@ namespace BetterHI3Launcher
 				if(LauncherRegKey.GetValueKind("CustomBackgroundName") == RegistryValueKind.String)
 				{
 					string path = Path.Combine(App.LauncherBackgroundsPath, custom_background_name_reg.ToString());
-					Log(path);
 					if(File.Exists(path))
 					{
 						SetCustomBackgroundFile(path);
@@ -2318,7 +2351,18 @@ namespace BetterHI3Launcher
 						{
 							processes[0].EnableRaisingEvents = true;
 							processes[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
-							Status = LauncherStatus.Running;
+							if(PreloadDownload)
+							{
+								Dispatcher.Invoke(() =>
+								{
+									LaunchButton.Content = App.TextStrings["button_running"];
+									LaunchButton.IsEnabled = false;
+								});
+							}
+							else
+							{
+								Status = LauncherStatus.Running;
+							}
 							return;
 						}
 						var start_info = new ProcessStartInfo(GameExePath);
@@ -2339,7 +2383,18 @@ namespace BetterHI3Launcher
 								OnGameExit();
 							}
 						});
-						Status = LauncherStatus.Running;
+						if(PreloadDownload)
+						{
+							Dispatcher.Invoke(() =>
+							{
+								LaunchButton.Content = App.TextStrings["button_running"];
+								LaunchButton.IsEnabled = false;
+							});
+						}
+						else
+						{
+							Status = LauncherStatus.Running;
+						}
 						WindowState = WindowState.Minimized;
 					}
 					catch(Exception ex)
@@ -2447,7 +2502,7 @@ namespace BetterHI3Launcher
 						}
 						Directory.CreateDirectory(GameInstallPath);
 						GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
-						GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
+						GameExePath = Path.Combine(GameInstallPath, GameExeName);
 						Log($"Install dir selected: {GameInstallPath}");
 						await DownloadGameFile();
 					}
@@ -2540,7 +2595,7 @@ namespace BetterHI3Launcher
 				}
 				if(!File.Exists(path))
 				{
-					if(new DialogWindow(App.TextStrings["label_preload"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{App.TextStrings["progresstext_download_size"]}: {BpUtility.ToBytesCount(size)}", DialogWindow.DialogType.Question).ShowDialog() == false)
+					if(new DialogWindow(App.TextStrings["label_pre_install"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{App.TextStrings["progresstext_download_size"]}: {BpUtility.ToBytesCount(size)}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
@@ -2552,12 +2607,13 @@ namespace BetterHI3Launcher
 							return;
 						}
 					}
-					Log($"Starting to preload game: {title} ({url})");
+					Log($"Starting to pre-download game: {title} ({url})");
 				}
 				else
 				{
-					Log("Preload resumed");
+					Log("Pre-download resumed");
 				}
+				PreloadDownload = true;
 				Status = LauncherStatus.Preloading;
 				await Task.Run(() =>
 				{
@@ -2587,7 +2643,7 @@ namespace BetterHI3Launcher
 						Status = LauncherStatus.Ready;
 						return;
 					}
-					Log("Downloaded preload archive");
+					Log("Downloaded pre-download archive");
 					while(BpUtility.IsFileLocked(new FileInfo(path)))
 					{
 						Thread.Sleep(10);
@@ -2602,12 +2658,12 @@ namespace BetterHI3Launcher
 				{
 					await Task.Run(() =>
 					{
-						Log("Validating preload archive...");
+						Log("Validating pre-download archive...");
 						string actual_md5 = BpUtility.CalculateMD5(path);
 						if(actual_md5 == md5.ToUpper())
 						{
 							Log("success!", false);
-							var new_path = path.Substring(0, path.Length - 4);
+							string new_path = path.Substring(0, path.Length - 4);
 							if(!File.Exists(new_path))
 							{
 								File.Move(path, new_path);
@@ -2617,11 +2673,8 @@ namespace BetterHI3Launcher
 								DeleteFile(new_path, true);
 								File.Move(path, new_path);
 							}
-							else
-							{
-								DeleteFile(path);
-							}
-							Log("Successfully preloaded the game");
+							Log("Successfully pre-downloaded the game");
+							PreloadDownload = false;
 							GameUpdateCheck();
 						}
 						else
@@ -2640,7 +2693,7 @@ namespace BetterHI3Launcher
 				catch(Exception ex)
 				{
 					Status = LauncherStatus.Error;
-					Log($"ERROR: Failed to preload the game:\n{ex}", true, 1);
+					Log($"ERROR: Failed to pre-download the game:\n{ex}", true, 1);
 					new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_error_msg"]).ShowDialog();
 					Status = LauncherStatus.Ready;
 				}
@@ -2648,7 +2701,7 @@ namespace BetterHI3Launcher
 			catch(Exception ex)
 			{
 				Status = LauncherStatus.Error;
-				Log($"ERROR: Failed to download game preload archive:\n{ex}", true, 1);
+				Log($"ERROR: Failed to download game pre-download archive:\n{ex}", true, 1);
 				new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_error_msg"]).ShowDialog();
 				Status = LauncherStatus.Ready;
 			}
@@ -2660,7 +2713,7 @@ namespace BetterHI3Launcher
 		{
 			if(download != null)
 			{
-				Log("Preload paused");
+				Log("Pre-download paused");
 				download.Pause();
 				download = null;
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
@@ -2679,7 +2732,7 @@ namespace BetterHI3Launcher
 				}
 				catch(Exception ex)
 				{
-					Log($"ERROR: Failed to resume preloading:\n{ex}", true, 1);
+					Log($"ERROR: Failed to resume pre-download:\n{ex}", true, 1);
 				}
 			}
 		}
@@ -3578,9 +3631,12 @@ namespace BetterHI3Launcher
 					BackgroundImage.Visibility = Visibility.Visible;
 					BackgroundMedia.Visibility = Visibility.Collapsed;
 					BackgroundMedia.Source = null;
-					DeleteFile(Path.Combine(App.LauncherBackgroundsPath, LauncherRegKey.GetValue("CustomBackgroundName").ToString()));	
+					string custom_background_path = Path.Combine(App.LauncherBackgroundsPath, LauncherRegKey.GetValue("CustomBackgroundName").ToString());
 					BpUtility.DeleteFromRegistry("CustomBackgroundName");
-					Log("success!", false);
+					if(DeleteFile(custom_background_path))
+					{
+						Log("success!", false);
+					}
 					return;
 				}
 			}
@@ -4494,8 +4550,10 @@ namespace BetterHI3Launcher
 			Dispatcher.Invoke(() =>
 			{
 				LaunchButton.Content = App.TextStrings["button_launch"];
-				Status = LauncherStatus.Ready;
-				WindowState = WindowState.Normal;
+				if(!PreloadDownload)
+				{
+					Status = LauncherStatus.Ready;
+				}
 			});
 		}
 
@@ -4600,10 +4658,16 @@ namespace BetterHI3Launcher
 			bool check_media = false;
 			if(!string.IsNullOrEmpty(path) && Path.HasExtension(path))
 			{ 
-				BitmapImage image;
 				try
 				{
-					image = new BitmapImage(new Uri(path));
+					var image = new BitmapImage();
+					using(FileStream fs = new FileStream(path, FileMode.Open))
+					{
+						image.BeginInit();
+						image.StreamSource = fs;
+						image.CacheOption = BitmapCacheOption.OnLoad;
+						image.EndInit();
+					}
 					if(Path.GetExtension(path) != ".gif")
 					{
 						format = 1;
@@ -4680,7 +4744,9 @@ namespace BetterHI3Launcher
 							DeleteFile(Path.Combine(App.LauncherBackgroundsPath, LauncherRegKey.GetValue("CustomBackgroundName").ToString()));
 						}
 						Log($"Setting custom background: {path}");
-						File.Copy(path, Path.Combine(App.LauncherBackgroundsPath, name), true);
+						string new_path = Path.Combine(App.LauncherBackgroundsPath, name);
+						File.Copy(path, new_path, true);
+						path = new_path;
 						BpUtility.WriteToRegistry("CustomBackgroundName", name);
 					}
 					BackgroundImage.Visibility = Visibility.Collapsed;
@@ -4702,7 +4768,15 @@ namespace BetterHI3Launcher
 						break;
 					case 1:
 						BackgroundImage.Visibility = Visibility.Visible;
-						BackgroundImage.Source = new BitmapImage(new Uri(path));
+						using(FileStream fs = new FileStream(path, FileMode.Open))
+						{
+							var image = new BitmapImage();
+							image.BeginInit();
+							image.StreamSource = fs;
+							image.CacheOption = BitmapCacheOption.OnLoad;
+							image.EndInit();
+							BackgroundImage.Source = image;
+						}
 						break;
 					case 2:
 						BackgroundImage.Visibility = Visibility.Visible;
@@ -4851,7 +4925,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		public void DeleteFile(string path, bool ignore_read_only = false)
+		public bool DeleteFile(string path, bool ignore_read_only = false)
 		{
 			try
 			{
@@ -4863,10 +4937,12 @@ namespace BetterHI3Launcher
 					}
 					File.Delete(path);
 				}
+				return true;
 			}
 			catch
 			{
 				Log($"WARNING: Failed to delete {path}", true, 2);
+				return false;
 			}
 		}
 
