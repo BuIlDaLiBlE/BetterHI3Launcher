@@ -55,7 +55,7 @@ namespace BetterHI3Launcher
 		public static string GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
 		public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
 		public static bool FirstLaunch = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher") == null ? true : false;
-		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, DownloadPaused, PatchDownload;
+		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, DownloadPaused, PatchDownload, PreloadDownload;
 		public static int PatchDownloadInt;
 		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
 		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
@@ -88,7 +88,6 @@ namespace BetterHI3Launcher
 					}
 
 					_status = value;
-					WindowState = WindowState.Normal;
 					switch(_status)
 					{
 						case LauncherStatus.Ready:
@@ -1053,7 +1052,7 @@ namespace BetterHI3Launcher
 						var local_game_version = new GameVersion(LocalVersionInfo.game_info.version.ToString());
 						game_needs_update = GameVersionUpdateCheck(local_game_version);
 						GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
-						GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
+						GameExePath = Path.Combine(GameInstallPath, GameExeName);
 
 						Log($"Game version: {local_game_version}");
 						Log($"Game directory: {GameInstallPath}");
@@ -1094,7 +1093,18 @@ namespace BetterHI3Launcher
 							{
 								process[0].EnableRaisingEvents = true;
 								process[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
-								Status = LauncherStatus.Running;
+								if(PreloadDownload)
+								{
+									Dispatcher.Invoke(() =>
+									{ 
+										LaunchButton.Content = App.TextStrings["button_running"];
+										LaunchButton.IsEnabled = false;
+									});
+								}
+								else
+								{
+									Status = LauncherStatus.Running;
+								}
 							}
 							else
 							{
@@ -2331,7 +2341,18 @@ namespace BetterHI3Launcher
 						{
 							processes[0].EnableRaisingEvents = true;
 							processes[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
-							Status = LauncherStatus.Running;
+							if(PreloadDownload)
+							{
+								Dispatcher.Invoke(() =>
+								{
+									LaunchButton.Content = App.TextStrings["button_running"];
+									LaunchButton.IsEnabled = false;
+								});
+							}
+							else
+							{
+								Status = LauncherStatus.Running;
+							}
 							return;
 						}
 						var start_info = new ProcessStartInfo(GameExePath);
@@ -2352,7 +2373,18 @@ namespace BetterHI3Launcher
 								OnGameExit();
 							}
 						});
-						Status = LauncherStatus.Running;
+						if(PreloadDownload)
+						{
+							Dispatcher.Invoke(() =>
+							{
+								LaunchButton.Content = App.TextStrings["button_running"];
+								LaunchButton.IsEnabled = false;
+							});
+						}
+						else
+						{
+							Status = LauncherStatus.Running;
+						}
 						WindowState = WindowState.Minimized;
 					}
 					catch(Exception ex)
@@ -2460,7 +2492,7 @@ namespace BetterHI3Launcher
 						}
 						Directory.CreateDirectory(GameInstallPath);
 						GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
-						GameExePath = Path.Combine(GameInstallPath, "BH3.exe");
+						GameExePath = Path.Combine(GameInstallPath, GameExeName);
 						Log($"Install dir selected: {GameInstallPath}");
 						await DownloadGameFile();
 					}
@@ -2571,6 +2603,7 @@ namespace BetterHI3Launcher
 				{
 					Log("Pre-download resumed");
 				}
+				PreloadDownload = true;
 				Status = LauncherStatus.Preloading;
 				await Task.Run(() =>
 				{
@@ -2631,6 +2664,7 @@ namespace BetterHI3Launcher
 								File.Move(path, new_path);
 							}
 							Log("Successfully pre-downloaded the game");
+							PreloadDownload = false;
 							GameUpdateCheck();
 						}
 						else
@@ -4503,8 +4537,10 @@ namespace BetterHI3Launcher
 			Dispatcher.Invoke(() =>
 			{
 				LaunchButton.Content = App.TextStrings["button_launch"];
-				Status = LauncherStatus.Ready;
-				WindowState = WindowState.Normal;
+				if(!PreloadDownload)
+				{
+					Status = LauncherStatus.Ready;
+				}
 			});
 		}
 
