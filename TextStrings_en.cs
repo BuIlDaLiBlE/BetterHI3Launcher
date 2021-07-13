@@ -182,7 +182,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_no_game_exe_title", "No game executable");
 			TextStrings.Add("msgbox_no_video_dir_msg", "Video directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_notice_title", "Notice");
-			TextStrings.Add("msgbox_pre_install_msg", "You can still enter the game when pre-installing. Are you sure you want to download?\nYou can only download from the miHoYo server.");
+			TextStrings.Add("msgbox_pre_install_msg", "You can still enter the game when pre-installing. Are you sure you want to download?\nYou can only download from the miHoYo servers.");
 			TextStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_registry_empty_1_msg", "No value to be tweaked in registry exists.");
 			TextStrings.Add("msgbox_registry_empty_2_msg", "Have you run the game yet?");
