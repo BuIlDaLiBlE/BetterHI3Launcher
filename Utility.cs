@@ -34,12 +34,12 @@ namespace BetterHI3Launcher
 				App.Mutex.Dispose();
 			}
 			Application.Current.Shutdown();
-			StartProcess(MainWindow.LauncherExeName, string.Join(" ", MainWindow.CommandLineArgs), App.LauncherRootPath, true);
+			StartProcess(App.LauncherExeName, string.Join(" ", App.CommandLineArgs), App.LauncherRootPath, true);
 		}
 
 		public static void PlaySound(Stream sound)
 		{
-			if(!MainWindow.DisableSounds)
+			if(!App.DisableSounds)
 			{
 				try
 				{
@@ -151,18 +151,18 @@ namespace BetterHI3Launcher
 
 		public static void WriteToRegistry(string name, dynamic value, RegistryValueKind valueKind = RegistryValueKind.Unknown)
 		{
-			MainWindow.LauncherRegKey.SetValue(name, value, valueKind);
-			MainWindow.LauncherRegKey.Close();
-			MainWindow.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
+			App.LauncherRegKey.SetValue(name, value, valueKind);
+			App.LauncherRegKey.Close();
+			App.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
 		}
 
 		public static void DeleteFromRegistry(string name)
 		{
-			if(MainWindow.LauncherRegKey.GetValue(name) != null)
+			if(App.LauncherRegKey.GetValue(name) != null)
 			{
-				MainWindow.LauncherRegKey.DeleteValue(name);
-				MainWindow.LauncherRegKey.Close();
-				MainWindow.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
+				App.LauncherRegKey.DeleteValue(name);
+				App.LauncherRegKey.Close();
+				App.LauncherRegKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Bp\Better HI3 Launcher", true);
 			}
 		}
 	}

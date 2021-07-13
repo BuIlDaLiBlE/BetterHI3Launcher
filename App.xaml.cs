@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -11,7 +12,7 @@ namespace BetterHI3Launcher
 {
 	public partial class App : Application
 	{
-		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.2.20210708.0");
+		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.2.20210713.0");
 		public static readonly string LauncherRootPath = AppDomain.CurrentDomain.BaseDirectory;
 		public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
 		public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -19,9 +20,13 @@ namespace BetterHI3Launcher
 		public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
 		public static readonly string LauncherTranslationsFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-translations.json");
 		public static string UserAgent = $"BetterHI3Launcher v{LocalLauncherVersion}";
-		public static string LauncherLanguage;
+		public static string LauncherExeName, LauncherPath, LauncherArchivePath, LauncherLanguage;
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
+		public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
+		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
+		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures;
+		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
 		public static Dictionary<string, string> TextStrings = new Dictionary<string, string>();
 		public static Mutex Mutex = null;
 
