@@ -1085,11 +1085,11 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							var process = Process.GetProcessesByName("BH3");
-							if(process.Length > 0)
+							var processes = Process.GetProcessesByName("BH3");
+							if(processes.Length > 0)
 							{
-								process[0].EnableRaisingEvents = true;
-								process[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
+								processes[0].EnableRaisingEvents = true;
+								processes[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
 								if(PreloadDownload)
 								{
 									Dispatcher.Invoke(() =>
@@ -1750,6 +1750,17 @@ namespace BetterHI3Launcher
 						if(abort)
 						{
 							return;
+						}
+						var processes = Process.GetProcessesByName("BH3");
+						if(processes.Length > 0)
+						{
+							foreach(var process in processes)
+							{
+								if(process.MainModule.FileName.Contains(GameInstallPath))
+								{
+									process.Kill();
+								}
+							}
 						}
 						if(!PatchDownload)
 						{
