@@ -850,7 +850,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private dynamic FetchMediaFireFileMetadata(string id, bool numeric)
+		private dynamic FetchMediaFireFileMetadata(string id, int type = 0)
 		{
 			if(string.IsNullOrEmpty(id))
 			{
@@ -868,27 +868,39 @@ namespace BetterHI3Launcher
 					metadata.modifiedDate = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 					metadata.downloadUrl = url;
 					metadata.fileSize = web_response.ContentLength;
-					if(!numeric)
+					metadata.md5Checksum = null;
+					switch(type)
 					{
-						if(Server == HI3Server.Global)
-						{
-							metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
-						}
-						else
-						{
-							metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
-						}
-					}
-					else
-					{
-						if(Server == HI3Server.Global)
-						{
-							metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.md5.ToString();
-						}
-						else
-						{
-							metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.md5.ToString();
-						}
+						case 0:
+							if(Server == HI3Server.Global)
+							{
+								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.md5;
+							}
+							else
+							{
+								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.md5;
+							}
+							break;
+						case 1:
+							if(Server == HI3Server.Global)
+							{
+								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
+							}
+							else
+							{
+								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
+							}
+							break;
+						case 2:
+							if(Server == HI3Server.Global)
+							{
+								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.md5.ToString();
+							}
+							else
+							{
+								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.md5.ToString();
+							}
+							break;
 					}
 					return metadata;
 				}
@@ -994,11 +1006,11 @@ namespace BetterHI3Launcher
 						dynamic mediafire_metadata;
 						if(Server == HI3Server.Global)
 						{
-							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString(), false);
+							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
 						}
 						else
 						{
-							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString(), false);
+							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
 						}
 						if(mediafire_metadata == null)
 						{
@@ -1085,11 +1097,11 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							var processes = Process.GetProcessesByName("BH3");
-							if(processes.Length > 0)
+							var process = Process.GetProcessesByName("BH3");
+							if(process.Length > 0)
 							{
-								processes[0].EnableRaisingEvents = true;
-								processes[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
+								process[0].EnableRaisingEvents = true;
+								process[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
 								if(PreloadDownload)
 								{
 									Dispatcher.Invoke(() =>
@@ -1552,11 +1564,11 @@ namespace BetterHI3Launcher
 					dynamic mediafire_metadata;
 					if(Server == HI3Server.Global)
 					{
-						mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString(), false);
+						mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
 					}
 					else
 					{
-						mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString(), false);
+						mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
 					}
 					if(mediafire_metadata == null)
 					{
@@ -1652,6 +1664,7 @@ namespace BetterHI3Launcher
 						return;
 					}
 				}
+				md5 = md5.ToUpper();
 				if(!File.Exists(GameArchivePath))
 				{ 
 					GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
@@ -1722,7 +1735,7 @@ namespace BetterHI3Launcher
 						Log("Validating game archive...");
 						Status = LauncherStatus.Verifying;
 						string actual_md5 = BpUtility.CalculateMD5(GameArchivePath);
-						if(actual_md5 == md5.ToUpper())
+						if(actual_md5 == md5)
 						{
 							string new_path = GameArchivePath.Substring(0, GameArchivePath.Length - 4);
 							if(!File.Exists(new_path))
@@ -1750,17 +1763,6 @@ namespace BetterHI3Launcher
 						if(abort)
 						{
 							return;
-						}
-						var processes = Process.GetProcessesByName("BH3");
-						if(processes.Length > 0)
-						{
-							foreach(var process in processes)
-							{
-								if(process.MainModule.FileName.Contains(GameInstallPath))
-								{
-									process.Kill();
-								}
-							}
 						}
 						if(!PatchDownload)
 						{
@@ -1973,6 +1975,7 @@ namespace BetterHI3Launcher
 					md5 = GameCacheMetadataNumeric.md5Checksum.ToString();
 					size = (long)GameCacheMetadataNumeric.fileSize;
 				}
+				md5 = md5.ToUpper();
 				CacheArchivePath = Path.Combine(miHoYoPath, title);
 
 				var game_cache_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(CacheArchivePath) && x.IsReady).FirstOrDefault();
@@ -2045,7 +2048,7 @@ namespace BetterHI3Launcher
 						Log("Validating game cache...");
 						Status = LauncherStatus.Verifying;
 						string actual_md5 = BpUtility.CalculateMD5(CacheArchivePath);
-						if(actual_md5 != md5.ToUpper())
+						if(actual_md5 != md5)
 						{
 							Status = LauncherStatus.Error;
 							Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
@@ -2778,10 +2781,10 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), false);
+							GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
 							if(GameCacheMetadata != null)
 							{
-								GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), true);
+								GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
 							}
 						}
 					}
@@ -2797,10 +2800,10 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), false);
+							GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
 							if(GameCacheMetadata != null)
 							{
-								GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), true);
+								GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
 							}
 						}
 					}
@@ -4118,7 +4121,7 @@ namespace BetterHI3Launcher
 											}
 											else if(urls[j].Contains("www.mediafire.com"))
 											{
-												var metadata = FetchMediaFireFileMetadata(urls[j].Substring(31, 15), false);
+												var metadata = FetchMediaFireFileMetadata(urls[j].Substring(31, 15));
 												url = metadata.downloadUrl.ToString();
 											}
 											else
@@ -4261,7 +4264,27 @@ namespace BetterHI3Launcher
 						ProgressBar.IsIndeterminate = false;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 						Log("Generating game file hashes...");
-						var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && x.Name != "config.ini" && x.Name != "UniFairy.sys" && x.Name != "Version.txt" && x.Name != "blockVerifiedVersion.txt" && !x.Name.Contains("Blocks_") && !x.Name.Contains("AUDIO_DLC") && !x.Name.Contains("AUDIO_EVENT") && !x.Name.Contains("AUDIO_BGM") && !x.Name.Contains("AUDIO_Main") && !x.Name.Contains("AUDIO_Ex") && !x.Name.Contains("AUDIO_Dialog") && !x.Name.Contains("AUDIO_Avatar") && !x.DirectoryName.Contains("Video") && !x.DirectoryName.Contains("webCaches") && x.Extension != ".log").ToList();
+						var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x =>
+						!x.Attributes.HasFlag(FileAttributes.Hidden) &&
+						x.Extension != ".log" &&
+						x.Name != "blockVerifiedVersion.txt" &&
+						x.Name != "config.ini" &&
+						x.Name != "manifest.m" &&
+						x.Name != "UniFairy.sys" &&
+						x.Name != "Version.txt" &&
+						!x.Name.Contains("Blocks_") &&
+						!x.Name.Contains("AUDIO_Avatar") &&
+						!x.Name.Contains("AUDIO_BGM") &&
+						!x.Name.Contains("AUDIO_Dialog") &&
+						!x.Name.Contains("AUDIO_DLC") &&
+						!x.Name.Contains("AUDIO_EVENT") &&
+						!x.Name.Contains("AUDIO_Ex") &&
+						!x.Name.Contains("AUDIO_Main") &&
+						!x.Name.Contains("AUDIO_Story") &&
+						!x.Name.Contains("AUDIO_Vanilla") &&
+						!x.DirectoryName.Contains("Video") &&
+						!x.DirectoryName.Contains("webCaches")
+						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
 						json.repair_info.game_version = miHoYoVersionInfo.game.latest.version;

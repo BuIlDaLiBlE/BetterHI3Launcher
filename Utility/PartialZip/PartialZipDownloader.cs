@@ -121,7 +121,7 @@ namespace PartialZip
 				}
 			}
 
-			throw new PartialZipFileNotFoundException($"Could not find file {filePath} in archive.");
+			throw new PartialZipFileNotFoundException($"Could not find file in archive.");
 		}
 
 		internal struct Systime
