@@ -649,6 +649,7 @@ namespace BetterHI3Launcher
 					return;
 				}
 
+				Mirror = HI3Mirror.miHoYo;
 				var last_selected_mirror_reg = App.LauncherRegKey.GetValue("LastSelectedMirror");
 				if(last_selected_mirror_reg != null)
 				{
@@ -668,7 +669,7 @@ namespace BetterHI3Launcher
 						}
 					}
 				}
-				else
+				if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 				{
 					Mirror = HI3Mirror.miHoYo;
 				}
@@ -1277,41 +1278,6 @@ namespace BetterHI3Launcher
 							LaunchButton.Content = App.TextStrings["button_download"];
 							ProgressText.Text = $"{App.TextStrings["progresstext_download_size"]}: {BpUtility.ToBytesCount(download_size)}";
 							ToggleContextMenuItems(false);
-							var path = CheckForExistingGameDirectory(App.LauncherRootPath);
-							if(string.IsNullOrEmpty(path))
-							{
-								path = CheckForExistingGameDirectory(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
-							}
-							if(path.Length < 4)
-							{
-								path = string.Empty;
-							}
-							if(!string.IsNullOrEmpty(path))
-							{
-								if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
-								{
-									Log($"Existing install directory selected: {path}");
-									GameInstallPath = path;
-									var server = CheckForExistingGameClientServer();
-									if(server >= 0)
-									{
-										if((int)Server != server)
-										{
-											ServerDropdown.SelectedIndex = server;
-										}
-										WriteVersionInfo(true, true);
-										GameUpdateCheck();
-									}
-									else
-									{
-										Status = LauncherStatus.Error;
-										Log($"ERROR: Directory {GameInstallPath} doesn't contain a valid installation of the game.\nThis launcher only supports Global and SEA clients!", true, 1);
-										new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_existing_dir_invalid_msg"]).ShowDialog();
-										Status = LauncherStatus.Ready;
-										return;
-									}
-								}
-							}
 						});
 					}
 					if(server_changed)
@@ -2369,11 +2335,12 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			#if !DEBUG
+			
 			if(App.FirstLaunch)
 			{
 				IntroBox.Visibility = Visibility.Visible;
 			}
+			#if !DEBUG
 			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
 			{
 				if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
@@ -2518,6 +2485,37 @@ namespace BetterHI3Launcher
 				{
 					try
 					{
+						var path = CheckForExistingGameDirectory(App.LauncherRootPath);
+						if(string.IsNullOrEmpty(path))
+						{
+							path = CheckForExistingGameDirectory(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
+						}
+						if(path.Length < 4)
+						{
+							path = string.Empty;
+						}
+						if(!string.IsNullOrEmpty(path))
+						{
+							var server = CheckForExistingGameClientServer(path);
+							if(server >= 0)
+							{
+								if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
+								{
+									Log($"Existing install directory selected: {path}");
+									GameInstallPath = path;
+									if((int)Server != server)
+									{
+										ServerDropdown.SelectedIndex = server;
+									}
+									WriteVersionInfo(true, true);
+									GameUpdateCheck();
+									return;
+								}
+							}
+						}
+					}catch{}
+					try
+					{
 						string SelectGameInstallDirectory()
 						{
 							// https://stackoverflow.com/a/17712949/7570821
@@ -2558,29 +2556,22 @@ namespace BetterHI3Launcher
 								}
 								if(!string.IsNullOrEmpty(path))
 								{
-									if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
+									var server = CheckForExistingGameClientServer(path);
+									if(server >= 0)
 									{
-										Log($"Existing install directory selected: {path}");
-										GameInstallPath = path;
-										var server = CheckForExistingGameClientServer();
-										if(server >= 0)
+										if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
 										{
+											Log($"Existing install directory selected: {path}");
+											GameInstallPath = path;
 											if((int)Server != server)
 											{
 												ServerDropdown.SelectedIndex = server;
 											}
 											WriteVersionInfo(true, true);
 											GameUpdateCheck();
-										}
-										else
-										{
-											Status = LauncherStatus.Error;
-											Log($"ERROR: Directory {GameInstallPath} doesn't contain a valid installation of the game. This launcher only supports Global and SEA clients.", true, 1);
-											new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_existing_dir_invalid_msg"]).ShowDialog();
-											Status = LauncherStatus.Ready;
+											return string.Empty;
 										}
 									}
-									return string.Empty;
 								}
 								return GameInstallPath;
 							}
@@ -2959,7 +2950,7 @@ namespace BetterHI3Launcher
 			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
-				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
+				new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
 			}
 
@@ -3252,6 +3243,11 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			{
+				new DialogWindow(App.TextStrings["contextmenu_fix_subtitles"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
+				return;
+			}
 			if(new DialogWindow(App.TextStrings["contextmenu_fix_subtitles"], App.TextStrings["msgbox_fix_subtitles_1_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 			{
 				return;
@@ -3536,10 +3532,13 @@ namespace BetterHI3Launcher
 				string value = "GENERAL_DATA_V2_PersonalGraphicsSetting_h906361411";
 				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
 				{
-					if(key.GetValue(value) != null)
+					try
 					{
-						key.DeleteValue(value);
-					}
+						if(key.GetValue(value) != null)
+						{
+							key.DeleteValue(value);
+						}
+					}catch{}
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
@@ -3593,10 +3592,13 @@ namespace BetterHI3Launcher
 				string value = "GENERAL_DATA_V2_ScreenSettingData_h1916288658";
 				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
 				{
-					if(key.GetValue(value) != null)
+					try
 					{
-						key.DeleteValue(value);
-					}
+						if(key.GetValue(value) != null)
+						{
+							key.DeleteValue(value);
+						}
+					}catch{}
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
@@ -3665,10 +3667,13 @@ namespace BetterHI3Launcher
 				string value = "GENERAL_DATA_V2_ResourceDownloadType_h2238376574";
 				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
 				{
-					if(key.GetValue(value) != null)
+					try
 					{
-						key.DeleteValue(value);
-					}
+						if(key.GetValue(value) != null)
+						{
+							key.DeleteValue(value);
+						}
+					}catch{}
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_2_msg"]}").ShowDialog();
 					return;
 				}
@@ -3996,6 +4001,10 @@ namespace BetterHI3Launcher
 					Server = HI3Server.KR;
 					break;
 			}
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			{
+				Mirror = HI3Mirror.miHoYo;
+			}
 			try
 			{
 				BpUtility.WriteToRegistry("LastSelectedServer", index, RegistryValueKind.DWord);
@@ -4011,6 +4020,11 @@ namespace BetterHI3Launcher
 		private void MirrorDropdown_Opened(object sender, EventArgs e)
 		{
 			BpUtility.PlaySound(Properties.Resources.Click);
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			{
+				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
+				return;
+			}
 		}
 
 		private void MirrorDropdown_Changed(object sender, SelectionChangedEventArgs e)
@@ -4018,6 +4032,12 @@ namespace BetterHI3Launcher
 			var index = MirrorDropdown.SelectedIndex;
 			if((int)Mirror == index)
 			{
+				return;
+			}
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			{
+				MirrorDropdown.SelectedIndex = 0;
+				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
 			}
 
@@ -4724,19 +4744,16 @@ namespace BetterHI3Launcher
 				Path.Combine(path, "Games"),
 				Path.Combine(path, "Honkai Impact 3rd"),
 				Path.Combine(path, "Honkai Impact 3"),
+				Path.Combine(path, "崩坏3"),
+				Path.Combine(path, "崩壞3"),
+				Path.Combine(path, "붕괴3rd"),
 				Path.Combine(path, "Honkai Impact 3rd", "Games"),
 				Path.Combine(path, "Honkai Impact 3", "Games"),
 				Path.Combine(path, "Honkai Impact 3rd glb", "Games"),
-				Path.Combine(path, "Honkai Impact 3 sea", "Games")
+				Path.Combine(path, "Honkai Impact 3 sea", "Games"),
+				Path.Combine(path, "Honkai Impact 3rd tw", "Games"),
+				Path.Combine(path, "Honkai Impact 3rd kr", "Games")
 			});
-			if(path.Length >= 16)
-			{
-				path_variants.Add(path.Substring(0, path.Length - 16));
-			}
-			if(path.Length >= 18)
-			{
-				path_variants.Add(path.Substring(0, path.Length - 18));
-			}
 
 			foreach(var variant in path_variants)
 			{
@@ -4753,23 +4770,47 @@ namespace BetterHI3Launcher
 			return string.Empty;
 		}
 
-		private int CheckForExistingGameClientServer()
+		private int CheckForExistingGameClientServer(string path)
 		{
-			var path = Path.Combine(GameInstallPath, @"BH3_Data\app.info");
+			path = Path.Combine(path, @"BH3_Data\app.info");
 			if(File.Exists(path))
 			{
 				var game_title_line = File.ReadLines(path).Skip(1).Take(1).First();
 				if(!string.IsNullOrEmpty(game_title_line))
 				{
-					if(game_title_line.Contains("Honkai Impact 3rd"))
+					switch(game_title_line)
 					{
-						return 0;
+						case "Honkai Impact 3rd":
+							if(App.LauncherRegKey.GetValue("VersionInfoGlobal") == null)
+							{
+								return 0;
+							}
+							break;
+						case "Honkai Impact 3":
+							if(App.LauncherRegKey.GetValue("VersionInfoSEA") == null)
+							{
+								return 1;
+							}
+							break;
+						case "崩坏3":
+							if(App.LauncherRegKey.GetValue("VersionInfoCN") == null)
+							{
+								return 2;
+							}
+							break;
+						case "崩壞3":
+							if(App.LauncherRegKey.GetValue("VersionInfoTW") == null)
+							{
+								return 3;
+							}
+							break;
+						case "붕괴3rd":
+							if(App.LauncherRegKey.GetValue("VersionInfoKR") == null)
+							{
+								return 4;
+							}
+							break;
 					}
-					else if(game_title_line.Contains("Honkai Impact 3"))
-					{
-						return 1;
-					}
-
 				}
 			}
 			return -1;

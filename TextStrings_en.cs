@@ -156,7 +156,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_install_dir_error_title", "Invalid directory");
 			TextStrings.Add("msgbox_install_error_msg", "An error occurred while installing game files.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_install_error_title", "Installation error");
-			TextStrings.Add("msgbox_install_existing_dir_invalid_msg", "The selected directory does not contain a valid installation of the game. This launcher only supports Global and SEA clients.");
 			TextStrings.Add("msgbox_install_existing_dir_msg", "The game appears to have already been installed to:\n{0}\nUse this directory?");
 			TextStrings.Add("msgbox_install_existing_no_local_version_msg", "Local version could not be determined.\nIs your game updated already? Please choose wisely!\nSelecting \"Yes\" will make you be able to launch the game.\nSelecting \"No\" will make you have to download the game.");
 			TextStrings.Add("msgbox_install_little_space_msg", "There is potentially not enough free space on selected device, it is recommended to free up some space or installation may result in failure.\nContinue?");
