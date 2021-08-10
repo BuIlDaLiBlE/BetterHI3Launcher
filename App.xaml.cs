@@ -55,8 +55,8 @@ namespace BetterHI3Launcher
 			CultureInfo.DefaultThreadCurrentCulture = culture;
 			CultureInfo.DefaultThreadCurrentUICulture = culture;
 			#if DEBUG
-				WinConsole.Initialize();
-				UserAgent += " [DEBUG]";
+			WinConsole.Initialize();
+			UserAgent += " [DEBUG]";
 			#endif
 			TextStrings_English();
 			switch(OSLanguage)

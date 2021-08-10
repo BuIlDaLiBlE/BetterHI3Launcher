@@ -314,11 +314,10 @@
 			<ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
 			<TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center">
 				<TextBlock.Effect>
-					<DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2"/>
+					<DropShadowEffect ShadowDepth="0"/>
 				</TextBlock.Effect>
 			</TextBlock>
 			<TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1072,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12"/>
-			<TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1034,0,0,5" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="10" Visibility="Collapsed"/>
 			<Rectangle VerticalAlignment="Top" HorizontalAlignment="Right" Width="64" Height="32" Fill="#C8141414"/>
 			<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
 			<Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Margin="0,0,32,0" Click="MinimizeButton_Click"/>
@@ -330,7 +329,7 @@
 			</Button>
 			<TextBlock Name="ServerLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,197,189" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
 				<TextBlock.Effect>
-					<DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2"/>
+					<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
 				</TextBlock.Effect>
 			</TextBlock>
 			<ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
@@ -342,7 +341,7 @@
 			</ComboBox>
 			<TextBlock Name="MirrorLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,164" FontFamily="{DynamicResource Font}">
 				<TextBlock.Effect>
-					<DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2"/>
+					<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
 				</TextBlock.Effect>
 			</TextBlock>
 			<ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
@@ -428,7 +427,7 @@
 				<CheckBox Name="ShowLogCheckBox" Style="{DynamicResource CheckBoxStyle}" Width="32" Height="24" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Click="ShowLogCheckBox_Click"/>
 				<TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White">
 					<TextBlock.Effect>
-						<DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2"/>
+						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
 					</TextBlock.Effect>
 				</TextBlock>
 			</StackPanel>

@@ -721,19 +721,41 @@ namespace BetterHI3Launcher
 		private void FetchOnlineVersionInfo()
 		{
 			#if DEBUG
-				var version_info_url = new[]{"https://bpnet.host/bh3?launcher_status=debug"};
+			var version_info_url = "https://bpnet.host/bh3?launcher_status=debug";
 			#else
-				var version_info_url = new[]{"https://bpnet.host/bh3?launcher_status=prod", "https://serioussam.ucoz.ru/bbh3l_prod.json"};
+			var version_info_url = "https://bpnet.host/bh3?launcher_status=prod";
 			#endif
-			string version_info;
-			var web_client = new BpWebClient();
-			try
+			string version_info = null;
+			void Get()
 			{
-				version_info = web_client.DownloadString(version_info_url[0]);
+				var web_client = new BpWebClient();
+				version_info = web_client.DownloadString(version_info_url);
 			}
-			catch
+			int attempts = 6;
+			for(int i = 0; i < attempts; i++)
 			{
-				version_info = web_client.DownloadString(version_info_url[1]);
+				if(i == attempts - 1)
+				{
+					Get();
+				}
+				else
+				{
+					try
+					{
+						Get();
+						break;
+					}
+					catch
+					{
+						#if !DEBUG
+						if(i == 3)
+						{
+							// fallback server with basic information needed to start the launcher
+							version_info_url = "https://serioussam.ucoz.ru/bbh3l_prod.json";
+						}
+						#endif
+					}
+				}
 			}
 			OnlineVersionInfo = JsonConvert.DeserializeObject<dynamic>(version_info);
 			if(OnlineVersionInfo.status == "success")
@@ -807,36 +829,55 @@ namespace BetterHI3Launcher
 					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.kr.ToString();
 					break;
 			}
-			var web_request = BpUtility.CreateWebRequest(url);
-			using(var web_response = (HttpWebResponse)web_request.GetResponse())
+			void Get()
 			{
-				using(var data = new MemoryStream())
+				var web_request = BpUtility.CreateWebRequest(url);
+				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
-					web_response.GetResponseStream().CopyTo(data);
-					miHoYoVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
-					if(miHoYoVersionInfo.retcode == 0)
+					using(var data = new MemoryStream())
 					{
-						if(miHoYoVersionInfo.data != null)
+						web_response.GetResponseStream().CopyTo(data);
+						miHoYoVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
+						if(miHoYoVersionInfo.retcode == 0)
 						{
-							miHoYoVersionInfo = miHoYoVersionInfo.data;
+							if(miHoYoVersionInfo.data != null)
+							{
+								miHoYoVersionInfo = miHoYoVersionInfo.data;
+							}
+							else
+							{
+								throw new WebException();
+							}
 						}
 						else
 						{
-							throw new WebException();
+							throw new WebException(miHoYoVersionInfo.message.ToString());
 						}
 					}
-					else
-					{
-						throw new WebException(miHoYoVersionInfo.message.ToString());
-					}
+				}
+				GameArchiveName = Path.GetFileName(HttpUtility.UrlDecode(miHoYoVersionInfo.game.latest.path.ToString()));
+				web_request = BpUtility.CreateWebRequest(miHoYoVersionInfo.game.latest.path.ToString(), "HEAD");
+				using(var web_response = (HttpWebResponse)web_request.GetResponse())
+				{
+					miHoYoVersionInfo.size = web_response.ContentLength;
+					miHoYoVersionInfo.last_modified = web_response.LastModified.ToUniversalTime().ToString();
 				}
 			}
-			GameArchiveName = Path.GetFileName(HttpUtility.UrlDecode(miHoYoVersionInfo.game.latest.path.ToString()));
-			web_request = BpUtility.CreateWebRequest(miHoYoVersionInfo.game.latest.path.ToString(), "HEAD");
-			using(var web_response = (HttpWebResponse)web_request.GetResponse())
+			int attempts = 6;
+			for(int i = 0; i < attempts; i++)
 			{
-				miHoYoVersionInfo.size = web_response.ContentLength;
-				miHoYoVersionInfo.last_modified = web_response.LastModified.ToUniversalTime().ToString();
+				if(i == attempts - 1)
+				{
+					Get();
+				}
+				else
+				{
+					try
+					{
+						Get();
+						break;
+					}catch{}
+				}
 			}
 			Dispatcher.Invoke(() =>
 			{
@@ -2245,7 +2286,7 @@ namespace BetterHI3Launcher
 		private async void Window_ContentRendered(object sender, EventArgs e)
 		{
 			#if DEBUG
-				App.DisableAutoUpdate = true;
+			App.DisableAutoUpdate = true;
 			#endif
 			try
 			{
@@ -4956,39 +4997,39 @@ namespace BetterHI3Launcher
 
 			Color color;
 			#if DEBUG
-				ConsoleColor ccolor;
+			ConsoleColor ccolor;
 			#endif
 			switch(type)
 			{
 				case 1:
 					color = Colors.Red;
 					#if DEBUG
-						ccolor = ConsoleColor.Red;
+					ccolor = ConsoleColor.Red;
 					#endif
 					break;
 				case 2:
 					color = Colors.Yellow;
 					#if DEBUG
-						ccolor = ConsoleColor.Yellow;
+					ccolor = ConsoleColor.Yellow;
 					#endif
 					break;
 				default:
 					color = Colors.White;
 					#if DEBUG
-						ccolor = ConsoleColor.Gray;
+					ccolor = ConsoleColor.Gray;
 					#endif
 					break;
 			}
 			#if DEBUG
-				Console.ForegroundColor = ccolor;
-				if(newline)
-				{
-					Console.Write('\n' + msg);
-				}
-				else
-				{
-					Console.Write(msg);
-				}
+			Console.ForegroundColor = ccolor;
+			if(newline)
+			{
+				Console.Write('\n' + msg);
+			}
+			else
+			{
+				Console.Write(msg);
+			}
 			#endif
 			Dispatcher.Invoke(() =>
 			{

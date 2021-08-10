@@ -139,7 +139,7 @@ namespace BetterHI3Launcher
 			return false;
 		}
 
-		public static HttpWebRequest CreateWebRequest(string url, string method = "GET", int timeout = 30000)
+		public static HttpWebRequest CreateWebRequest(string url, string method = "GET", int timeout = 10000)
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);
 			webRequest.Method = method;
@@ -669,7 +669,7 @@ namespace BetterHI3Launcher
 		}
 	}
 
-#if DEBUG
+	#if DEBUG
 	// https://stackoverflow.com/a/48864902/7570821
 	static class WinConsole
 	{
