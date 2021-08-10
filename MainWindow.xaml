@@ -312,9 +312,14 @@
 			<Image Name="BackgroundImage" Stretch="Fill" Source="{DynamicResource BackgroundImage}"/>
 			<MediaElement Name="BackgroundMedia" IsMuted="True" Stretch="Fill" Focusable="False" ScrubbingEnabled="True" Visibility="Collapsed"/>
 			<ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
-			<TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center"/>
+			<TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center">
+				<TextBlock.Effect>
+					<DropShadowEffect Color="Black" BlurRadius="1" ShadowDepth="2"/>
+				</TextBlock.Effect>
+			</TextBlock>
 			<TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1072,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12"/>
 			<TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1034,0,0,5" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="10" Visibility="Collapsed"/>
+			<Rectangle VerticalAlignment="Top" HorizontalAlignment="Right" Width="64" Height="32" Fill="#C8141414"/>
 			<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
 			<Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Margin="0,0,32,0" Click="MinimizeButton_Click"/>
 			<Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,57,48" Click="LaunchButton_Click" IsEnabled="False"/>
@@ -331,6 +336,9 @@
 			<ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" FontFamily="{StaticResource FontStatic}" FocusVisualStyle="{StaticResource FocusVisual}" SelectedIndex="0" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
 				<ComboBoxItem Content="Global"></ComboBoxItem>
 				<ComboBoxItem Content="SEA"></ComboBoxItem>
+				<ComboBoxItem Content="CN"></ComboBoxItem>
+				<ComboBoxItem Content="TW/HK/MO"></ComboBoxItem>
+				<ComboBoxItem Content="KR"></ComboBoxItem>
 			</ComboBox>
 			<TextBlock Name="MirrorLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,164" FontFamily="{DynamicResource Font}">
 				<TextBlock.Effect>

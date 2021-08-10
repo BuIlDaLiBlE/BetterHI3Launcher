@@ -138,6 +138,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"HD assets\".");
 			TextStrings.Add("msgbox_extract_skip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_extract_skip_title", "File skip notice");
+			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available for selected server.");
 			TextStrings.Add("msgbox_fix_subtitles_1_msg", "This will attempt to fix CG subtitles (and gacha banners). Make sure you have already downloaded all CGs in the game.\nContinue?");
 			TextStrings.Add("msgbox_fix_subtitles_2_msg", "Unpacking subtitle file {0}/{1}...");
 			TextStrings.Add("msgbox_fix_subtitles_3_msg", "Checking subtitle file {0}/{1}...");

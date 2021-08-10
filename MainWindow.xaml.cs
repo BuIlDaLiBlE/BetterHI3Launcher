@@ -39,7 +39,7 @@ namespace BetterHI3Launcher
 	}
 	enum HI3Server
 	{
-		Global, SEA
+		GLB, SEA, CN, TW, KR
 	}
 	enum HI3Mirror
 	{
@@ -53,7 +53,7 @@ namespace BetterHI3Launcher
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
 		public static string GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
-		public static bool DownloadPaused, PatchDownload, PreloadDownload;
+		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading;
 		public static int PatchDownloadInt;
 		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
 		LauncherStatus _status;
@@ -195,7 +195,7 @@ namespace BetterHI3Launcher
 				_gameserver = value;
 				switch(_gameserver)
 				{
-					case HI3Server.Global:
+					case HI3Server.GLB:
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
 						GameWebProfileURL = "https://global.user.honkaiimpact3.com";
@@ -205,6 +205,22 @@ namespace BetterHI3Launcher
 						GameFullName = "Honkai Impact 3";
 						GameWebProfileURL = "https://asia.user.honkaiimpact3.com";
 						break;
+					case HI3Server.CN:
+						RegistryVersionInfo = "VersionInfoCN";
+						GameFullName = "崩坏3";
+						GameWebProfileURL = "https://user.mihoyo.com";
+						break;
+					case HI3Server.TW:
+						RegistryVersionInfo = "VersionInfoTW";
+						GameFullName = "崩壞3";
+						GameWebProfileURL = "https://tw-user.bh3.com";
+						break;
+					case HI3Server.KR:
+						RegistryVersionInfo = "VersionInfoKR";
+						GameFullName = "붕괴3rd";
+						GameWebProfileURL = "https://kr.user.honkaiimpact3.com";
+						break;
+
 				}
 				GameRegistryPath = $@"SOFTWARE\miHoYo\{GameFullName}";
 				GameCachePath = Path.Combine(miHoYoPath, GameFullName);
@@ -572,6 +588,7 @@ namespace BetterHI3Launcher
 				return;
 			}
 
+			Server = HI3Server.GLB;
 			try
 			{
 				var last_selected_server_reg = App.LauncherRegKey.GetValue("LastSelectedServer");
@@ -579,19 +596,25 @@ namespace BetterHI3Launcher
 				{
 					if(App.LauncherRegKey.GetValueKind("LastSelectedServer") == RegistryValueKind.DWord)
 					{
-						if((int)last_selected_server_reg == 0)
+						switch((int)last_selected_server_reg)
 						{
-							Server = HI3Server.Global;
-						}
-						else if((int)last_selected_server_reg == 1)
-						{
-							Server = HI3Server.SEA;
+							case 0:
+								Server = HI3Server.GLB;
+								break;
+							case 1:
+								Server = HI3Server.SEA;
+								break;
+							case 2:
+								Server = HI3Server.CN;
+								break;
+							case 3:
+								Server = HI3Server.TW;
+								break;
+							case 4:
+								Server = HI3Server.KR;
+								break;
 						}
 					}
-				}
-				else
-				{
-					Server = HI3Server.Global;
 				}
 				ServerDropdown.SelectedIndex = (int)Server;
 
@@ -765,14 +788,24 @@ namespace BetterHI3Launcher
 
 		private void FetchmiHoYoVersionInfo()
 		{
-			string url;
-			if(Server == HI3Server.Global)
+			string url = null;
+			switch(Server)
 			{
-				url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.global.ToString();
-			}
-			else
-			{
-				url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.os.ToString();
+				case HI3Server.GLB:
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.global.ToString();
+					break;
+				case HI3Server.SEA:
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.os.ToString();
+					break;
+				case HI3Server.CN:
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.cn.ToString();
+					break;
+				case HI3Server.TW:
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.tw.ToString();
+					break;
+				case HI3Server.KR:
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.kr.ToString();
+					break;
 			}
 			var web_request = BpUtility.CreateWebRequest(url);
 			using(var web_response = (HttpWebResponse)web_request.GetResponse())
@@ -815,15 +848,16 @@ namespace BetterHI3Launcher
 		{
 			var url = new string[2];
 			var time = new DateTime[2];
-			if(Server == HI3Server.Global)
+			switch(Server)
 			{
-				url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[0].ToString();
-				url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[1].ToString();
-			}
-			else
-			{
-				url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[0].ToString();
-				url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[1].ToString();
+				case HI3Server.GLB:
+					url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[0].ToString();
+					url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[1].ToString();
+					break;
+				case HI3Server.SEA:
+					url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[0].ToString();
+					url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[1].ToString();
+					break;
 			}
 			try
 			{
@@ -872,33 +906,36 @@ namespace BetterHI3Launcher
 					switch(type)
 					{
 						case 0:
-							if(Server == HI3Server.Global)
+							switch(Server)
 							{
-								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.md5;
-							}
-							else
-							{
-								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.md5;
+								case HI3Server.GLB:
+									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.md5;
+									break;
+								case HI3Server.SEA:
+									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.md5;
+									break;
 							}
 							break;
 						case 1:
-							if(Server == HI3Server.Global)
+							switch(Server)
 							{
-								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
-							}
-							else
-							{
-								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
+								case HI3Server.GLB:
+									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
+									break;
+								case HI3Server.SEA:
+									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
+									break;
 							}
 							break;
 						case 2:
-							if(Server == HI3Server.Global)
+							switch(Server)
 							{
-								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.md5.ToString();
-							}
-							else
-							{
-								metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.md5.ToString();
+								case HI3Server.GLB:
+									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.md5.ToString();
+									break;
+								case HI3Server.SEA:
+									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.md5.ToString();
+									break;
 							}
 							break;
 					}
@@ -1003,14 +1040,15 @@ namespace BetterHI3Launcher
 					}
 					else if(Mirror == HI3Mirror.MediaFire)
 					{
-						dynamic mediafire_metadata;
-						if(Server == HI3Server.Global)
+						dynamic mediafire_metadata = null;
+						switch(Server)
 						{
-							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
-						}
-						else
-						{
-							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+							case HI3Server.GLB:
+								mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
+								break;
+							case HI3Server.SEA:
+								mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+								break;
 						}
 						if(mediafire_metadata == null)
 						{
@@ -1023,14 +1061,15 @@ namespace BetterHI3Launcher
 					}
 					else if(Mirror == HI3Mirror.GoogleDrive)
 					{
-						dynamic gd_metadata;
-						if(Server == HI3Server.Global)
+						dynamic gd_metadata = null;
+						switch(Server)
 						{
-							gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.global.ToString());
-						}
-						else
-						{
-							gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.os.ToString());
+							case HI3Server.GLB:
+								gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.global.ToString());
+								break;
+							case HI3Server.SEA:
+								gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.os.ToString());
+								break;
 						}
 						if(gd_metadata == null)
 						{
@@ -1429,16 +1468,27 @@ namespace BetterHI3Launcher
 
 		private void DownloadBackgroundImage()
 		{
+			BackgroundImageDownloading = true;
 			try
 			{
-				string url;
-				if(Server == HI3Server.Global)
+				string url = null;
+				switch(Server)
 				{
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString();
-				}
-				else
-				{
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString();
+					case HI3Server.GLB:
+						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString();
+						break;
+					case HI3Server.SEA:
+						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString();
+						break;
+					case HI3Server.CN:
+						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.cn.ToString();
+						break;
+					case HI3Server.TW:
+						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.tw.ToString();
+						break;
+					case HI3Server.KR:
+						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.kr.ToString();
+						break;
 				}
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
 				string background_image_url;
@@ -1458,12 +1508,14 @@ namespace BetterHI3Launcher
 							}
 							else
 							{
+								BackgroundImageDownloading = false;
 								return;
 							}
 						}
 						else
 						{
 							Log($"WARNING: Failed to fetch background image info: {json.message.ToString()}", true, 2);
+							BackgroundImageDownloading = false;
 							return;
 						}
 					}
@@ -1533,6 +1585,7 @@ namespace BetterHI3Launcher
 			{
 				Log($"WARNING: Failed to download background image: {ex.Message}", true, 2);
 			}
+			BackgroundImageDownloading = false;
 		}
 
 		private async Task DownloadGameFile()
@@ -1561,14 +1614,15 @@ namespace BetterHI3Launcher
 				}
 				else if(Mirror == HI3Mirror.MediaFire)
 				{
-					dynamic mediafire_metadata;
-					if(Server == HI3Server.Global)
+					dynamic mediafire_metadata = null;
+					switch(Server)
 					{
-						mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
-					}
-					else
-					{
-						mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+						case HI3Server.GLB:
+							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
+							break;
+						case HI3Server.SEA:
+							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
+							break;
 					}
 					if(mediafire_metadata == null)
 					{
@@ -1605,14 +1659,15 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					dynamic gd_metadata;
-					if(Server == HI3Server.Global)
+					dynamic gd_metadata = null;
+					switch(Server)
 					{
-						gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.global.ToString());
-					}
-					else
-					{
-						gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.os.ToString());
+						case HI3Server.GLB:
+							gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.global.ToString());
+							break;
+						case HI3Server.SEA:
+							gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.os.ToString());
+							break;
 					}
 					if(gd_metadata == null)
 					{
@@ -2756,6 +2811,11 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			{
+				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
+				return;
+			}
 
 			Status = LauncherStatus.CheckingUpdates;
 			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_mirror_connect"];});
@@ -2769,43 +2829,44 @@ namespace BetterHI3Launcher
 				await Task.Run(() =>
 				{
 					FetchOnlineVersionInfo();
-					if(Server == HI3Server.Global)
+					switch(Server)
 					{
-						if(Mirror == HI3Mirror.GoogleDrive)
-						{
-							GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
-							if(GameCacheMetadata != null)
+						case HI3Server.GLB:
+							if(Mirror == HI3Mirror.GoogleDrive)
 							{
-								GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
+								GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
+								if(GameCacheMetadata != null)
+								{
+									GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
+								}
 							}
-						}
-						else
-						{
-							GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
-							if(GameCacheMetadata != null)
+							else
 							{
-								GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
+								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
+								if(GameCacheMetadata != null)
+								{
+									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
+								}
 							}
-						}
-					}
-					else
-					{
-						if(Mirror == HI3Mirror.GoogleDrive)
-						{
-							GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
-							if(GameCacheMetadata != null)
+							break;
+						case HI3Server.SEA:
+							if(Mirror == HI3Mirror.GoogleDrive)
 							{
-								GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
+								GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
+								if(GameCacheMetadata != null)
+								{
+									GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
+								}
 							}
-						}
-						else
-						{
-							GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
-							if(GameCacheMetadata != null)
+							else
 							{
-								GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
+								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
+								if(GameCacheMetadata != null)
+								{
+									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
+								}
 							}
-						}
+							break;
 					}
 					if(GameCacheMetadata == null || GameCacheMetadataNumeric == null)
 					{
@@ -2853,6 +2914,11 @@ namespace BetterHI3Launcher
 		{
 			if(Status != LauncherStatus.Ready)
 			{
+				return;
+			}
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			{
+				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
 			}
 
@@ -3223,7 +3289,7 @@ namespace BetterHI3Launcher
 								if(skipped_files.Count > 0)
 								{
 									ShowLogCheckBox.IsChecked = true;
-									if(Server == HI3Server.Global && skipped_files.Count == 1)
+									if(Server == HI3Server.GLB && skipped_files.Count == 1)
 									{
 									}
 									else
@@ -3346,7 +3412,7 @@ namespace BetterHI3Launcher
 						});
 						Log($"Parsed {subtitles_parsed} subtitles, fixed {subs_fixed.Count} of them");
 					}
-					if(Server == HI3Server.Global)
+					if(Server == HI3Server.GLB)
 					{
 						ProgressBar.IsIndeterminate = true;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
@@ -3850,6 +3916,11 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(BackgroundImageDownloading)
+			{
+				ServerDropdown.SelectedIndex = (int)Server;
+				return;
+			}
 
 			if(DownloadPaused)
 			{
@@ -3869,10 +3940,19 @@ namespace BetterHI3Launcher
 			switch(index)
 			{
 				case 0:
-					Server = HI3Server.Global;
+					Server = HI3Server.GLB;
 					break;
 				case 1:
 					Server = HI3Server.SEA;
+					break;
+				case 2:
+					Server = HI3Server.CN;
+					break;
+				case 3:
+					Server = HI3Server.TW;
+					break;
+				case 4:
+					Server = HI3Server.KR;
 					break;
 			}
 			try
@@ -4241,12 +4321,12 @@ namespace BetterHI3Launcher
 		{
 			async Task Generate()
 			{
-				string server;
-				if(Server == HI3Server.Global)
+				string server = null;
+				if(Server == HI3Server.GLB)
 				{
 					server = "global";
 				}
-				else
+				else if(Server == HI3Server.SEA)
 				{
 					server = "os";
 				}
