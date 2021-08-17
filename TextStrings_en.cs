@@ -30,7 +30,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("button_generate", "Generate");
 			TextStrings.Add("label_server", "Server");
 			TextStrings.Add("label_mirror", "Mirror");
-			TextStrings.Add("label_log", "Show log");
 			TextStrings.Add("label_pre_install", "Game Pre-Installation");
 			TextStrings.Add("label_get_now", "Get Now");
 			TextStrings.Add("label_verifying", "Verifying");
@@ -43,7 +42,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("label_speed", "Download speed:");
 			TextStrings.Add("introbox_title", "Welcome to Better HI3 Launcher!");
 			TextStrings.Add("introbox_msg", "Seems like this is your first time using the launcher. I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so by clicking \"Options\" button and selecting \"Send feedback\".\nIf you already have the game installed just press the \"Download\" button and point to where your game is. The launcher will detect your game version automatically and you won't have to download the game again.");
-			TextStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\nChoose \"Full cache\" if you have a problem updating event resources.\nChoose \"Numeric files\" if you have a problem updating settings.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is {2}.");
+			TextStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\n\"Full cache\" contains the entire cache, including event pictures and settings.\n\"Numeric files\" contains settings only, those files are updated most frequently.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is {2}.");
 			TextStrings.Add("downloadcachebox_button_full_cache", "Full cache");
 			TextStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
 			TextStrings.Add("repairbox_msg", "This will check every game file and attempt to repair if any is broken. It can take a while.\nContinue?\nAvailable mirrors: {0}.\nCurrent mirror maintainer is {1}.");
@@ -73,6 +72,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_feedback", "Send feedback");
 			TextStrings.Add("contextmenu_changelog", "Show changelog");
 			TextStrings.Add("contextmenu_custom_background", "Set custom background");
+			TextStrings.Add("contextmenu_show_log", "Show log");
 			TextStrings.Add("contextmenu_sounds", "Sounds");
 			TextStrings.Add("contextmenu_language", "Language");
 			TextStrings.Add("contextmenu_language_system", "System Default");

@@ -19,6 +19,20 @@
 	<Window.TaskbarItemInfo>
 		<TaskbarItemInfo/>
 	</Window.TaskbarItemInfo>
+	<Window.CommandBindings>
+		<CommandBinding Command="{x:Static local:MainWindow.DownloadCacheCommand}" Executed="DownloadCacheCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.FixSubtitlesCommand}" Executed="FixSubtitlesCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.RepairGameCommand}" Executed="RepairGameCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.MoveGameCommand}" Executed="MoveGameCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.UninstallGameCommand}" Executed="UninstallGameCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.WebProfileCommand}" Executed="WebProfileCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.FeedbackCommand}" Executed="FeedbackCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.ChangelogCommand}" Executed="ChangelogCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.CustomBackgroundCommand}" Executed="CustomBackgroundCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.ToggleLogCommand}" Executed="ToggleLogCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.ToggleSoundsCommand}" Executed="ToggleSoundsCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.AboutCommand}" Executed="AboutCommand_Executed"/>
+	</Window.CommandBindings>
 	<Window.Resources>
 		<local:ProgressToAngleConverter x:Key="ProgressConverter"/>
 		<FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
@@ -281,7 +295,67 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+		<Style TargetType="{x:Type ProgressBar}" x:Key="ProgressBarStyle">
+			<Setter Property="Maximum" Value="1"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ProgressBar}">
+						<Grid>
+							<VisualStateManager.VisualStateGroups>
+								<VisualStateGroup x:Name="CommonStates">
+									<VisualState x:Name="Determinate" />
+									<VisualState x:Name="Indeterminate">
+										<Storyboard>
+											<ObjectAnimationUsingKeyFrames Duration="00:00:00"
+                                                 Storyboard.TargetName="PART_Indicator"
+                                                 Storyboard.TargetProperty="Background">
+												<DiscreteObjectKeyFrame KeyTime="00:00:00">
+													<DiscreteObjectKeyFrame.Value>
+														<SolidColorBrush>Transparent</SolidColorBrush>
+													</DiscreteObjectKeyFrame.Value>
+												</DiscreteObjectKeyFrame>
+											</ObjectAnimationUsingKeyFrames>
+										</Storyboard>
+									</VisualState>
+								</VisualStateGroup>
+							</VisualStateManager.VisualStateGroups>
+							<Border Name="PART_Track" Background="#7FFFFFFF" BorderBrush="White" BorderThickness="1"/>
+							<Border Name="PART_Indicator" Background="Green" BorderThickness="1" HorizontalAlignment="Left">
+								<Border.BorderBrush>
+									<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+										<GradientBrush.GradientStops>
+											<GradientStopCollection>
+												<GradientStop Color="{DynamicResource BorderLightColor}" Offset="0.0" />
+												<GradientStop Color="{DynamicResource BorderMediumColor}" Offset="1.0" />
+											</GradientStopCollection>
+										</GradientBrush.GradientStops>
+									</LinearGradientBrush>
+								</Border.BorderBrush>
+								<Grid ClipToBounds="True" x:Name="Animation">
+									<Rectangle x:Name="PART_GlowRect" Width="50" HorizontalAlignment="Left" Fill="Green" Margin="-50,0,0,0"/>
+								</Grid>
+							</Border>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style TargetType="{x:Type ProgressBar}" x:Key="DownloadProgressBarStyle">
+			<Setter Property="Maximum" Value="1"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ProgressBar}">
+						<Grid>
+							<Border BorderBrush="#7FFFFFFF" BorderThickness="2"/>
+							<Border Name="PART_Track" Background="#32FFFFFF" Margin="4"/>
+							<Border Name="PART_Indicator" Background="White" HorizontalAlignment="Left" Margin="4"/>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 		<Style TargetType="{x:Type ProgressBar}" x:Key="RadialProgressBarStyle">
+			<Setter Property="Maximum" Value="1"/>
 			<Setter Property="BorderBrush" Value="#FFCD0C"/>
 			<Setter Property="Template">
 				<Setter.Value>
@@ -311,13 +385,17 @@
 		<Grid Name="Grid" Width="1280" Height="730">
 			<Image Name="BackgroundImage" Stretch="Fill" Source="{DynamicResource BackgroundImage}"/>
 			<MediaElement Name="BackgroundMedia" IsMuted="True" Stretch="Fill" Focusable="False" ScrubbingEnabled="True" Visibility="Collapsed"/>
-			<ProgressBar Name="ProgressBar" Minimum="0" Maximum="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
+			<ProgressBar Name="ProgressBar" Style="{StaticResource ProgressBarStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
 			<TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center">
 				<TextBlock.Effect>
 					<DropShadowEffect ShadowDepth="0"/>
 				</TextBlock.Effect>
 			</TextBlock>
-			<TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1072,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12"/>
+			<TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1072,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12">
+				<TextBlock.Effect>
+					<DropShadowEffect ShadowDepth="0"/>
+				</TextBlock.Effect>
+			</TextBlock>
 			<Rectangle VerticalAlignment="Top" HorizontalAlignment="Right" Width="64" Height="32" Fill="#C8141414"/>
 			<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
 			<Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Margin="0,0,32,0" Click="MinimizeButton_Click"/>
@@ -360,7 +438,7 @@
 							<Button Name="PreloadButton" Style="{DynamicResource PreloadButtonStyle}" Click="PreloadButton_Click"/>
 							<Image Name="PreloadCircle" Source="{StaticResource PreloadCircle}" Visibility="Collapsed"/>
 							<Viewbox>
-								<ProgressBar Name="PreloadCircleProgressBar" Style="{StaticResource RadialProgressBarStyle}" Margin="20" Width="400" Height="400" Minimum="0" Maximum="1" Visibility="Collapsed"/>
+								<ProgressBar Name="PreloadCircleProgressBar" Style="{StaticResource RadialProgressBarStyle}" Margin="20" Width="400" Height="400" Visibility="Collapsed"/>
 							</Viewbox>
 							<Button Name="PreloadPauseButton" Style="{DynamicResource PreloadPauseButtonStyle}" Click="PreloadPauseButton_Click" Visibility="Collapsed"/>
 							<Image Name="PreloadCheckmark" Source="{StaticResource PreloadCheckmark}" Visibility="Collapsed"/>
@@ -423,9 +501,19 @@
 					</StackPanel>
 				</Grid>
 			</Grid>
-			<StackPanel Name="ShowLogStackPanel" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5">
-				<CheckBox Name="ShowLogCheckBox" Style="{DynamicResource CheckBoxStyle}" Width="32" Height="24" Margin="5" Checked="ShowLogCheckBox_Checked" Unchecked="ShowLogCheckBox_Unchecked" Click="ShowLogCheckBox_Click"/>
-				<TextBlock Name="ShowLogLabel" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="20" Foreground="White">
+			<StackPanel Name="DownloadProgressBarStackPanel" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="50,36" Visibility="Collapsed">
+				<TextBlock Name="DownloadProgressText" VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="{DynamicResource Font}" FontSize="14" Foreground="White">
+					<TextBlock.Effect>
+						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
+					</TextBlock.Effect>
+				</TextBlock>
+				<TextBlock Name="DownloadETAText" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-15,3,0" FontFamily="{DynamicResource Font}" FontSize="14" Foreground="#FFD847">
+					<TextBlock.Effect>
+						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
+					</TextBlock.Effect>
+				</TextBlock>
+				<ProgressBar Name="DownloadProgressBar" Style="{StaticResource DownloadProgressBarStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,4,0,8" Width="776" Height="24" Visibility="Visible"/>
+				<TextBlock Name="DownloadSpeedText" VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="{DynamicResource Font}" FontSize="14" Foreground="#C8FFFFFF">
 					<TextBlock.Effect>
 						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
 					</TextBlock.Effect>

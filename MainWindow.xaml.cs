@@ -55,6 +55,18 @@ namespace BetterHI3Launcher
 		public static string GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading;
 		public static int PatchDownloadInt;
+		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
+		public static RoutedCommand FixSubtitlesCommand = new RoutedCommand();
+		public static RoutedCommand RepairGameCommand = new RoutedCommand();
+		public static RoutedCommand MoveGameCommand = new RoutedCommand();
+		public static RoutedCommand UninstallGameCommand = new RoutedCommand();
+		public static RoutedCommand WebProfileCommand = new RoutedCommand();
+		public static RoutedCommand FeedbackCommand = new RoutedCommand();
+		public static RoutedCommand ChangelogCommand = new RoutedCommand();
+		public static RoutedCommand CustomBackgroundCommand = new RoutedCommand();
+		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
+		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
+		public static RoutedCommand AboutCommand = new RoutedCommand();
 		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
 		LauncherStatus _status;
 		HI3Server _gameserver;
@@ -76,6 +88,9 @@ namespace BetterHI3Launcher
 						ServerDropdown.IsEnabled = val;
 						MirrorDropdown.IsEnabled = val;
 						ToggleContextMenuItems(val);
+						DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+						DownloadETAText.Visibility = Visibility.Visible;
+						DownloadSpeedText.Visibility = Visibility.Visible;
 					}
 					void ToggleProgressBar(bool val)
 					{
@@ -98,7 +113,7 @@ namespace BetterHI3Launcher
 							ToggleUI(false);
 							ToggleProgressBar(false);
 							ProgressBar.IsIndeterminate = false;
-							ShowLogCheckBox.IsChecked = true;
+							ToggleLog(true);
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
 							break;
 						case LauncherStatus.CheckingUpdates:
@@ -164,9 +179,12 @@ namespace BetterHI3Launcher
 							ToggleProgressBar(true);
 							break;
 						case LauncherStatus.Unpacking:
-							ProgressText.Text = App.TextStrings["progresstext_unpacking_1"];
-							ToggleProgressBar(true);
-							ProgressBar.IsIndeterminate = false;
+							ProgressText.Text = string.Empty;
+							ToggleProgressBar(false);
+							DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+							DownloadProgressText.Text = App.TextStrings["progresstext_unpacking_1"];
+							DownloadETAText.Visibility = Visibility.Collapsed;
+							DownloadSpeedText.Visibility = Visibility.Collapsed;
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 							break;
 						case LauncherStatus.CleaningUp:
@@ -414,7 +432,6 @@ namespace BetterHI3Launcher
 			AboutBoxMessageTextBlock.Text = $"{App.TextStrings["aboutbox_msg"]}\n\nMade by Bp (BuIlDaLiBlE production).";
 			AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
 			AboutBoxOKButton.Content = App.TextStrings["button_ok"];
-			ShowLogLabel.Text = App.TextStrings["label_log"];
 			PreloadTopText.Text = App.TextStrings["label_pre_install"];
 			PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
@@ -422,6 +439,7 @@ namespace BetterHI3Launcher
 
 			Grid.MouseLeftButtonDown += delegate{DragMove();};
 			PreloadGrid.Visibility = Visibility.Collapsed;
+			DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 			LogBox.Visibility = Visibility.Collapsed;
 			LogBoxRichTextBox.Document.PageWidth = LogBox.Width;
 			IntroBox.Visibility = Visibility.Collapsed;
@@ -433,19 +451,19 @@ namespace BetterHI3Launcher
 			AboutBox.Visibility = Visibility.Collapsed;
 
 			OptionsContextMenu.Items.Clear();
-			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"]};
+			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
 			CM_Download_Cache.Click += async (sender, e) => await CM_DownloadCache_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Download_Cache);
-			var CM_Fix_Subtitles = new MenuItem{Header = App.TextStrings["contextmenu_fix_subtitles"]};
+			var CM_Fix_Subtitles = new MenuItem{Header = App.TextStrings["contextmenu_fix_subtitles"], InputGestureText = "Ctrl+S"};
 			CM_Fix_Subtitles.Click += async (sender, e) => await CM_FixSubtitles_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Fix_Subtitles);
-			var CM_Repair = new MenuItem{Header = App.TextStrings["contextmenu_repair"]};
+			var CM_Repair = new MenuItem{Header = App.TextStrings["contextmenu_repair"], InputGestureText = "Ctrl+R"};
 			CM_Repair.Click += async (sender, e) => await CM_Repair_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Repair);
-			var CM_Move = new MenuItem{Header = App.TextStrings["contextmenu_move"]};
+			var CM_Move = new MenuItem{Header = App.TextStrings["contextmenu_move"], InputGestureText = "Ctrl+M"};
 			CM_Move.Click += async (sender, e) => await CM_Move_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Move);
-			var CM_Uninstall = new MenuItem{Header = App.TextStrings["contextmenu_uninstall"]};
+			var CM_Uninstall = new MenuItem{Header = App.TextStrings["contextmenu_uninstall"], InputGestureText = "Ctrl+U"};
 			CM_Uninstall.Click += async (sender, e) => await CM_Uninstall_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Uninstall);
 			var CM_Game_Settings = new MenuItem{Header = App.TextStrings["contextmenu_game_settings"]};
@@ -463,19 +481,22 @@ namespace BetterHI3Launcher
 			CM_Game_Settings.Items.Add(CM_Reset_Game_Settings);
 			OptionsContextMenu.Items.Add(CM_Game_Settings);
 			OptionsContextMenu.Items.Add(new Separator());
-			var CM_Web_Profile = new MenuItem{Header = App.TextStrings["contextmenu_web_profile"]};
+			var CM_Web_Profile = new MenuItem{Header = App.TextStrings["contextmenu_web_profile"], InputGestureText = "Ctrl+P"};
 			CM_Web_Profile.Click += (sender, e) => BpUtility.StartProcess(GameWebProfileURL, null, App.LauncherRootPath, true);
 			OptionsContextMenu.Items.Add(CM_Web_Profile);
-			var CM_Feedback = new MenuItem{Header = App.TextStrings["contextmenu_feedback"]};
+			var CM_Feedback = new MenuItem{Header = App.TextStrings["contextmenu_feedback"], InputGestureText = "Ctrl+F"};
 			CM_Feedback.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose", null, App.LauncherRootPath, true);
 			OptionsContextMenu.Items.Add(CM_Feedback);
-			var CM_Changelog = new MenuItem{Header = App.TextStrings["contextmenu_changelog"]};
+			var CM_Changelog = new MenuItem{Header = App.TextStrings["contextmenu_changelog"], InputGestureText = "Ctrl+C"};
 			CM_Changelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Changelog);
-			var CM_Custom_Background = new MenuItem{Header = App.TextStrings["contextmenu_custom_background"]};
+			var CM_Custom_Background = new MenuItem{Header = App.TextStrings["contextmenu_custom_background"], InputGestureText = "Ctrl+B"};
 			CM_Custom_Background.Click += (sender, e) => CM_CustomBackground_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Custom_Background);
-			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], IsChecked = true};
+			var CM_ShowLog = new MenuItem{Header = App.TextStrings["contextmenu_show_log"], InputGestureText = "Ctrl+L"};
+			CM_ShowLog.Click += (sender, e) => CM_ShowLog_Click(sender, e);
+			OptionsContextMenu.Items.Add(CM_ShowLog);
+			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+Shift+S", IsChecked = true};
 			CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Sounds);
 			var CM_Language = new MenuItem{Header = App.TextStrings["contextmenu_language"]};
@@ -485,7 +506,7 @@ namespace BetterHI3Launcher
 			var CM_Language_English = new MenuItem{Header = App.TextStrings["contextmenu_language_english"]};
 			CM_Language_English.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_English);
-			var CM_Language_French = new MenuItem {Header = App.TextStrings["contextmenu_language_french"]};
+			var CM_Language_French = new MenuItem{Header = App.TextStrings["contextmenu_language_french"]};
 			CM_Language_French.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_French);
 			var CM_Language_German = new MenuItem{Header = App.TextStrings["contextmenu_language_german"]};
@@ -506,7 +527,7 @@ namespace BetterHI3Launcher
 			var CM_Language_Spanish = new MenuItem{Header = App.TextStrings["contextmenu_language_spanish"]};
 			CM_Language_Spanish.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_Spanish);
-			var CM_Language_Thai = new MenuItem {Header = App.TextStrings["contextmenu_language_thai"]};
+			var CM_Language_Thai = new MenuItem{Header = App.TextStrings["contextmenu_language_thai"]};
 			CM_Language_Thai.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_Thai);
 			var CM_Language_Vietnamese = new MenuItem{Header = App.TextStrings["contextmenu_language_vietnamese"]};
@@ -517,7 +538,7 @@ namespace BetterHI3Launcher
 			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contributing-translations", null, App.LauncherRootPath, true);
 			CM_Language.Items.Add(CM_Language_Contribute);
 			OptionsContextMenu.Items.Add(CM_Language);
-			var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"]};
+			var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"], InputGestureText = "Ctrl+A"};
 			CM_About.Click += (sender, e) => CM_About_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_About);
 
@@ -682,7 +703,8 @@ namespace BetterHI3Launcher
 					{
 						if((int)show_log_reg == 1)
 						{
-							ShowLogCheckBox.IsChecked = true;
+							ToggleLog(true);
+							CM_ShowLog.IsChecked = true;
 						}
 					}
 				}
@@ -700,13 +722,26 @@ namespace BetterHI3Launcher
 					}
 				}
 
-				Log($"Using server: {((ComboBoxItem)ServerDropdown.SelectedItem).Content as string}");
-				Log($"Using mirror: {((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string}");
+				DownloadCacheCommand.InputGestures.Add(new KeyGesture(Key.D, ModifierKeys.Control));
+				FixSubtitlesCommand.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
+				RepairGameCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
+				MoveGameCommand.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
+				UninstallGameCommand.InputGestures.Add(new KeyGesture(Key.U, ModifierKeys.Control));
+				WebProfileCommand.InputGestures.Add(new KeyGesture(Key.P, ModifierKeys.Control));
+				FeedbackCommand.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
+				ChangelogCommand.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control));
+				CustomBackgroundCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
+				ToggleLogCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
+				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift));
+				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
 				if(!App.DisableTranslations)
 				{
 					DownloadLauncherTranslations();
 				}
+
+				Log($"Using server: {((ComboBoxItem)ServerDropdown.SelectedItem).Content as string}");
+				Log($"Using mirror: {((ComboBoxItem)MirrorDropdown.SelectedItem).Content as string}");
 
 				DownloadBackgroundImage();
 			}
@@ -1355,7 +1390,7 @@ namespace BetterHI3Launcher
 						TaskbarItemInfo.ProgressValue = progress;
 						ProgressText.Text = $"{App.TextStrings["progresstext_updating_launcher"]}\n{BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)} ({tracker.GetBytesPerSecondString()})\n{string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"))}";
 					});
-					Thread.Sleep(100);
+					Thread.Sleep(500);
 				}
 				Log("success!", false);
 				Dispatcher.Invoke(() =>
@@ -1748,6 +1783,9 @@ namespace BetterHI3Launcher
 					download.Start();
 					Dispatcher.Invoke(() =>
 					{
+						ProgressText.Text = string.Empty;
+						ProgressBar.Visibility = Visibility.Hidden;
+						DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 						LaunchButton.IsEnabled = true;
 						LaunchButton.Content = App.TextStrings["button_pause"];
 					});
@@ -1763,11 +1801,13 @@ namespace BetterHI3Launcher
 						Dispatcher.Invoke(() =>
 						{
 							var progress = tracker.GetProgress();
-							ProgressBar.Value = progress;
+							DownloadProgressBar.Value = progress;
 							TaskbarItemInfo.ProgressValue = progress;
-							ProgressText.Text = $"{string.Format(App.TextStrings["progresstext_downloaded"], BpUtility.ToBytesCount(download.BytesWritten), BpUtility.ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString())}\n{string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"))}";
+							DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
+							DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
+							DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
 						});
-						Thread.Sleep(100);
+						Thread.Sleep(500);
 					}
 					if(download == null)
 					{
@@ -1783,6 +1823,7 @@ namespace BetterHI3Launcher
 					Dispatcher.Invoke(() =>
 					{
 						ProgressText.Text = string.Empty;
+						DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 						LaunchButton.Content = App.TextStrings["button_launch"];
 					});
 				});
@@ -1858,9 +1899,9 @@ namespace BetterHI3Launcher
 								{
 									Dispatcher.Invoke(() =>
 									{
-										ProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count);
+										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count);
 										var progress = (unpacked_files + 1f) / file_count;
-										ProgressBar.Value = progress;
+										DownloadProgressBar.Value = progress;
 										TaskbarItemInfo.ProgressValue = progress;
 									});
 									reader.WriteEntryToDirectory(GameInstallPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
@@ -2075,6 +2116,14 @@ namespace BetterHI3Launcher
 					var eta_calc = new ETACalculator();
 					var download = new DownloadPauseable(url, CacheArchivePath);
 					download.Start();
+					Dispatcher.Invoke(() =>
+					{
+						ProgressText.Text = string.Empty;
+						ProgressBar.Visibility = Visibility.Hidden;
+						DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+						LaunchButton.IsEnabled = true;
+						LaunchButton.Content = App.TextStrings["button_cancel"];
+					});
 					while(!download.Done)
 					{
 						tracker.SetProgress(download.BytesWritten, download.ContentLength);
@@ -2082,11 +2131,13 @@ namespace BetterHI3Launcher
 						Dispatcher.Invoke(() =>
 						{
 							var progress = tracker.GetProgress();
-							ProgressBar.Value = progress;
+							DownloadProgressBar.Value = progress;
 							TaskbarItemInfo.ProgressValue = progress;
-							ProgressText.Text = $"{string.Format(App.TextStrings["progresstext_downloaded"], BpUtility.ToBytesCount(download.BytesWritten), BpUtility.ToBytesCount(download.ContentLength), tracker.GetBytesPerSecondString())}\n{string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"))}";
+							DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
+							DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
+							DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
 						});
-						Thread.Sleep(100);
+						Thread.Sleep(500);
 					}
 					Log("Successfully downloaded game cache");
 					while(BpUtility.IsFileLocked(new FileInfo(CacheArchivePath)))
@@ -2096,6 +2147,7 @@ namespace BetterHI3Launcher
 					Dispatcher.Invoke(() =>
 					{
 						ProgressText.Text = string.Empty;
+						DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 						LaunchButton.Content = App.TextStrings["button_launch"];
 					});
 				});
@@ -2163,9 +2215,9 @@ namespace BetterHI3Launcher
 								{
 									Dispatcher.Invoke(() =>
 									{
-										ProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count);
+										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count);
 										var progress = (unpacked_files + 1f) / file_count;
-										ProgressBar.Value = progress;
+										DownloadProgressBar.Value = progress;
 										TaskbarItemInfo.ProgressValue = progress;
 									});
 									reader.WriteEntryToDirectory(miHoYoPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
@@ -2644,6 +2696,9 @@ namespace BetterHI3Launcher
 				else
 				{
 					Status = LauncherStatus.Downloading;
+					ProgressText.Text = string.Empty;
+					ProgressBar.Visibility = Visibility.Hidden;
+					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 					LaunchButton.IsEnabled = true;
 					LaunchButton.Content = App.TextStrings["button_pause"];
 					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
@@ -2657,6 +2712,7 @@ namespace BetterHI3Launcher
 						Log($"ERROR: Failed to download the game:\n{ex}", true, 1);
 						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_error_msg"]).ShowDialog();
 						Status = LauncherStatus.Ready;
+						GameUpdateCheck();
 					}
 				}
 			}
@@ -2735,7 +2791,7 @@ namespace BetterHI3Launcher
 							PreloadStatusMiddleRightText.Text = eta_calc.ETR.ToString("hh\\:mm\\:ss");
 							PreloadStatusBottomRightText.Text = tracker.GetBytesPerSecondString();
 						});
-						Thread.Sleep(100);
+						Thread.Sleep(500);
 					}
 					if(download == null)
 					{
@@ -3325,7 +3381,7 @@ namespace BetterHI3Launcher
 							{
 								if(skipped_files.Count > 0)
 								{
-									ShowLogCheckBox.IsChecked = true;
+									ToggleLog(true);
 									if(Server == HI3Server.GLB && skipped_files.Count == 1)
 									{
 									}
@@ -3713,16 +3769,9 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			foreach(dynamic item in OptionsContextMenu.Items)
-			{
-				if(item.GetType() == typeof(MenuItem) && item.Header.ToString() == App.TextStrings["contextmenu_uninstall"])
-				{
-					var peer = new MenuItemAutomationPeer(item);
-					var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-					inv_prov.Invoke();
-					break;
-				}
-			}
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_uninstall"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
 		}
 
 		private void CM_Changelog_Click(object sender, RoutedEventArgs e)
@@ -3814,6 +3863,13 @@ namespace BetterHI3Launcher
 			}
 		}
 
+		private void CM_ShowLog_Click(object sender, RoutedEventArgs e)
+		{
+			var item = sender as MenuItem;
+			item.IsChecked = !item.IsChecked;
+			ToggleLog(item.IsChecked);
+		}
+
 		private void CM_Sounds_Click(object sender, RoutedEventArgs e)
 		{
 			var item = sender as MenuItem;
@@ -3857,8 +3913,12 @@ namespace BetterHI3Launcher
 				{
 					lang = lang.ToLower();
 				}
+				else
+				{
+					lang = char.ToLower(lang[0]) + lang.Substring(1);
+				}
 			}
-			if(lang == App.TextStrings["contextmenu_language_portuguese_brazil"] || lang == App.TextStrings["contextmenu_language_portuguese_portugal"] || App.LauncherLanguage == "vi")
+			if(App.LauncherLanguage == "vi")
 			{
 				lang = char.ToLower(lang[0]) + lang.Substring(1);
 			}
@@ -4003,6 +4063,7 @@ namespace BetterHI3Launcher
 			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
+				MirrorDropdown.SelectedIndex = 0;
 				Mirror = HI3Mirror.miHoYo;
 			}
 			try
@@ -4037,7 +4098,6 @@ namespace BetterHI3Launcher
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				MirrorDropdown.SelectedIndex = 0;
-				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
 			}
 
@@ -4408,6 +4468,7 @@ namespace BetterHI3Launcher
 						var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x =>
 						!x.Attributes.HasFlag(FileAttributes.Hidden) &&
 						x.Extension != ".log" &&
+						x.Extension != ".bat" &&
 						x.Name != "blockVerifiedVersion.txt" &&
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
@@ -4420,6 +4481,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_DLC") &&
 						!x.Name.Contains("AUDIO_EVENT") &&
 						!x.Name.Contains("AUDIO_Ex") &&
+						!x.Name.Contains("AUDIO_HOT_FIX") &&
 						!x.Name.Contains("AUDIO_Main") &&
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
@@ -4634,37 +4696,6 @@ namespace BetterHI3Launcher
 			ChangelogBoxMessageTextBlock.Visibility = Visibility.Collapsed;
 		}
 
-		private void ShowLogCheckBox_Checked(object sender, RoutedEventArgs e)
-		{
-			LogBox.Visibility = Visibility.Visible;
-			try
-			{
-				BpUtility.WriteToRegistry("ShowLog", 1, RegistryValueKind.DWord);
-			}
-			catch(Exception ex)
-			{
-				Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}", true, 1);
-			}
-		}
-
-		private void ShowLogCheckBox_Unchecked(object sender, RoutedEventArgs e)
-		{
-			LogBox.Visibility = Visibility.Collapsed;
-			try
-			{
-				BpUtility.WriteToRegistry("ShowLog", 0, RegistryValueKind.DWord);
-			}
-			catch(Exception ex)
-			{
-				Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}", true, 1);
-			}
-		}
-
-		private void ShowLogCheckBox_Click(object sender, RoutedEventArgs e)
-		{
-			BpUtility.PlaySound(Properties.Resources.Click);
-		}
-
 		private void AboutBoxGitHubButton_Click(object sender, RoutedEventArgs e)
 		{
 			AboutBox.Visibility = Visibility.Collapsed;
@@ -4674,6 +4705,90 @@ namespace BetterHI3Launcher
 		private void AboutBoxCloseButton_Click(object sender, RoutedEventArgs e)
 		{
 			AboutBox.Visibility = Visibility.Collapsed;
+		}
+
+		private void DownloadCacheCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_download_cache"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void FixSubtitlesCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_fix_subtitles"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void RepairGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_repair"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void MoveGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_move"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void UninstallGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_uninstall"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void WebProfileCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_web_profile"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void FeedbackCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_feedback"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void ChangelogCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_changelog"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void CustomBackgroundCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_custom_background"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void ToggleLogCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_show_log"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void ToggleSoundsCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_sounds"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
+		}
+
+		private void AboutCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_about"]));
+			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+			inv_prov.Invoke();
 		}
 
 		private void MainWindow_Closing(object sender, CancelEventArgs e)
@@ -4827,6 +4942,7 @@ namespace BetterHI3Launcher
 					   item.Header.ToString() == App.TextStrings["contextmenu_changelog"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_language"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_custom_background"] ||
+					   item.Header.ToString() == App.TextStrings["contextmenu_show_log"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_sounds"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_about"])
 					{
@@ -4842,6 +4958,19 @@ namespace BetterHI3Launcher
 				}
 					
 				item.IsEnabled = val;
+			}
+		}
+
+		private void ToggleLog(bool val)
+		{
+			LogBox.Visibility = val ? Visibility.Visible : Visibility.Collapsed;
+			try
+			{
+				BpUtility.WriteToRegistry("ShowLog", val ? 1 : 0, RegistryValueKind.DWord);
+			}
+			catch(Exception ex)
+			{
+				Log($"ERROR: Failed to write value with key ShowLog to registry:\n{ex}", true, 1);
 			}
 		}
 

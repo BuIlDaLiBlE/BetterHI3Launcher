@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using ProgressItem = System.Collections.Generic.KeyValuePair<long, float>;
@@ -137,6 +138,18 @@ namespace BetterHI3Launcher
 				return true;
 			}
 			return false;
+		}
+
+		public static MenuItem GetMenuItem(dynamic menu, string name)
+		{
+			foreach(dynamic item in menu)
+			{
+				if(item.GetType() == typeof(MenuItem) && item.Header.ToString() == name)
+				{
+					return item;
+				}
+			}
+			return null;
 		}
 
 		public static HttpWebRequest CreateWebRequest(string url, string method = "GET", int timeout = 10000)
