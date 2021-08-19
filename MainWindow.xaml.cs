@@ -53,7 +53,7 @@ namespace BetterHI3Launcher
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
 		public static string GameRegistryLocalVersionRegValue, GameWebProfileURL, GameFullName;
-		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading;
+		public static bool DownloadCancelled, DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
 		public static RoutedCommand FixSubtitlesCommand = new RoutedCommand();
@@ -77,133 +77,135 @@ namespace BetterHI3Launcher
 		internal LauncherStatus Status
 		{
 			get => _status;
-			set
+			set => Dispatcher.Invoke(() =>
 			{
-				Dispatcher.Invoke(() =>
+				void ToggleUI(bool val)
 				{
-					void ToggleUI(bool val)
-					{
-						LaunchButton.IsEnabled = val;
-						OptionsButton.IsEnabled = val;
-						ServerDropdown.IsEnabled = val;
-						MirrorDropdown.IsEnabled = val;
-						ToggleContextMenuItems(val);
-						DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-						DownloadETAText.Visibility = Visibility.Visible;
-						DownloadSpeedText.Visibility = Visibility.Visible;
-					}
-					void ToggleProgressBar(bool val)
-					{
-						ProgressBar.Visibility = val ? Visibility.Visible : Visibility.Hidden;
-						ProgressBar.IsIndeterminate = true;
-						TaskbarItemInfo.ProgressState = val ? TaskbarItemProgressState.Indeterminate : TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
-					}
+					LaunchButton.IsEnabled = val;
+					OptionsButton.IsEnabled = val;
+					ServerDropdown.IsEnabled = val;
+					MirrorDropdown.IsEnabled = val;
+					ToggleContextMenuItems(val);
+					DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+					DownloadETAText.Visibility = Visibility.Visible;
+					DownloadSpeedText.Visibility = Visibility.Visible;
+				}
+				void ToggleProgressBar(bool val)
+				{
+					ProgressBar.Visibility = val ? Visibility.Visible : Visibility.Hidden;
+					ProgressBar.IsIndeterminate = true;
+					TaskbarItemInfo.ProgressState = val ? TaskbarItemProgressState.Indeterminate : TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+				}
 
-					_status = value;
-					switch(_status)
-					{
-						case LauncherStatus.Ready:
-							ProgressText.Text = string.Empty;
-							ToggleUI(true);
-							ToggleProgressBar(false);
-							ProgressBar.IsIndeterminate = false;
-							break;
-						case LauncherStatus.Error:
-							ProgressText.Text = App.TextStrings["progresstext_error"];
-							ToggleUI(false);
-							ToggleProgressBar(false);
-							ProgressBar.IsIndeterminate = false;
-							ToggleLog(true);
-							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
-							break;
-						case LauncherStatus.CheckingUpdates:
-							ProgressText.Text = App.TextStrings["progresstext_checking_update"];
-							PreloadGrid.Visibility = Visibility.Collapsed;
-							ToggleUI(false);
-							ToggleProgressBar(true);
-							break;
-						case LauncherStatus.Downloading:
-							DownloadPaused = false;
-							ProgressText.Text = App.TextStrings["progresstext_initiating_download"];
-							LaunchButton.Content = App.TextStrings["button_downloading"];
-							ToggleUI(false);
-							ToggleProgressBar(true);
-							ProgressBar.IsIndeterminate = false;
-							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-							break;
-						case LauncherStatus.DownloadPaused:
-							DownloadPaused = true;
-							ProgressText.Text = string.Empty;
-							ToggleUI(true);
-							ToggleProgressBar(false);
-							ToggleContextMenuItems(false);
-							ProgressBar.IsIndeterminate = false;
-							break;
-						case LauncherStatus.Preloading:
-							PreloadBottomText.Text = App.TextStrings["button_downloading"];
-							PreloadButton.Visibility = Visibility.Collapsed;
-							PreloadPauseButton.IsEnabled = true;
-							PreloadPauseButton.Visibility = Visibility.Visible;
-							PreloadPauseButton.Background = (ImageBrush)Resources["PreloadPauseButton"];
-							PreloadCircle.Visibility = Visibility.Visible;
-							PreloadCircleProgressBar.Visibility = Visibility.Visible;
-							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-							ServerDropdown.IsEnabled = false;
-							MirrorDropdown.IsEnabled = false;
-							ToggleContextMenuItems(false);
-							break;
-						case LauncherStatus.PreloadVerifying:
-							PreloadPauseButton.IsEnabled = false;
-							PreloadCircleProgressBar.Value = 0;
-							PreloadBottomText.Text = App.TextStrings["label_verifying"];
-							PreloadStatusMiddleRightText.Text = string.Empty;
-							PreloadStatusBottomRightText.Text = string.Empty;
-							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
-							break;
-						case LauncherStatus.Working:
-							ToggleUI(false);
-							ToggleProgressBar(true);
-							break;
-						case LauncherStatus.Running:
-							ProgressText.Text = string.Empty;
-							LaunchButton.Content = App.TextStrings["button_running"];
-							ToggleUI(false);
-							OptionsButton.IsEnabled = true;
-							ToggleProgressBar(false);
-							ToggleContextMenuItems(false);
-							ProgressBar.IsIndeterminate = false;
-							break;
-						case LauncherStatus.Verifying:
-							ProgressText.Text = App.TextStrings["progresstext_verifying_files"];
-							ToggleUI(false);
-							ToggleProgressBar(true);
-							break;
-						case LauncherStatus.Unpacking:
-							ProgressText.Text = string.Empty;
-							ToggleProgressBar(false);
-							DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-							DownloadProgressText.Text = App.TextStrings["progresstext_unpacking_1"];
-							DownloadETAText.Visibility = Visibility.Collapsed;
-							DownloadSpeedText.Visibility = Visibility.Collapsed;
-							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-							break;
-						case LauncherStatus.CleaningUp:
-							ProgressText.Text = App.TextStrings["progresstext_cleaning_up"];
-							break;
-						case LauncherStatus.UpdateAvailable:
-							ToggleUI(true);
-							ToggleProgressBar(false);
-							ToggleContextMenuItems(false, true);
-							ProgressBar.IsIndeterminate = false;
-							break;
-						case LauncherStatus.Uninstalling:
-							ProgressText.Text = App.TextStrings["progresstext_uninstalling"];
-							ToggleUI(false);
-							ToggleProgressBar(true);
-							break;
-					}
-				});
-			}
+				_status = value;
+				switch(_status)
+				{
+					case LauncherStatus.Ready:
+						ProgressText.Text = string.Empty;
+						ToggleUI(true);
+						ToggleProgressBar(false);
+						ProgressBar.IsIndeterminate = false;
+						break;
+					case LauncherStatus.Error:
+						ProgressText.Text = App.TextStrings["progresstext_error"];
+						ToggleUI(false);
+						ToggleProgressBar(false);
+						ProgressBar.IsIndeterminate = false;
+						ToggleLog(true);
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
+						break;
+					case LauncherStatus.CheckingUpdates:
+						ProgressText.Text = App.TextStrings["progresstext_checking_update"];
+						PreloadGrid.Visibility = Visibility.Collapsed;
+						ToggleUI(false);
+						OptionsButton.IsEnabled = true;
+						ToggleProgressBar(true);
+						break;
+					case LauncherStatus.Downloading:
+						DownloadCancelled = false;
+						DownloadPaused = false;
+						ProgressText.Text = App.TextStrings["progresstext_initiating_download"];
+						LaunchButton.Content = App.TextStrings["button_downloading"];
+						ToggleUI(false);
+						OptionsButton.IsEnabled = true;
+						ToggleProgressBar(true);
+						ProgressBar.IsIndeterminate = false;
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+						break;
+					case LauncherStatus.DownloadPaused:
+						DownloadPaused = true;
+						ProgressText.Text = string.Empty;
+						ToggleUI(true);
+						ToggleProgressBar(false);
+						ToggleContextMenuItems(false);
+						ProgressBar.IsIndeterminate = false;
+						break;
+					case LauncherStatus.Preloading:
+						PreloadBottomText.Text = App.TextStrings["button_downloading"];
+						PreloadButton.Visibility = Visibility.Collapsed;
+						PreloadPauseButton.IsEnabled = true;
+						PreloadPauseButton.Visibility = Visibility.Visible;
+						PreloadPauseButton.Background = (ImageBrush)Resources["PreloadPauseButton"];
+						PreloadCircle.Visibility = Visibility.Visible;
+						PreloadCircleProgressBar.Visibility = Visibility.Visible;
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+						ServerDropdown.IsEnabled = false;
+						MirrorDropdown.IsEnabled = false;
+						ToggleContextMenuItems(false);
+						break;
+					case LauncherStatus.PreloadVerifying:
+						PreloadPauseButton.IsEnabled = false;
+						PreloadCircleProgressBar.Value = 0;
+						PreloadBottomText.Text = App.TextStrings["label_verifying"];
+						PreloadStatusMiddleRightText.Text = string.Empty;
+						PreloadStatusBottomRightText.Text = string.Empty;
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
+						break;
+					case LauncherStatus.Working:
+						ToggleUI(false);
+						ToggleProgressBar(true);
+						break;
+					case LauncherStatus.Running:
+						ProgressText.Text = string.Empty;
+						LaunchButton.Content = App.TextStrings["button_running"];
+						ToggleUI(false);
+						OptionsButton.IsEnabled = true;
+						ToggleProgressBar(false);
+						ToggleContextMenuItems(false);
+						ProgressBar.IsIndeterminate = false;
+						break;
+					case LauncherStatus.Verifying:
+						ProgressText.Text = App.TextStrings["progresstext_verifying_files"];
+						ToggleUI(false);
+						OptionsButton.IsEnabled = true;
+						ToggleProgressBar(true);
+						break;
+					case LauncherStatus.Unpacking:
+						ProgressText.Text = string.Empty;
+						ToggleProgressBar(false);
+						DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+						DownloadProgressText.Text = App.TextStrings["progresstext_unpacking_1"];
+						DownloadETAText.Visibility = Visibility.Collapsed;
+						DownloadSpeedText.Visibility = Visibility.Collapsed;
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+						break;
+					case LauncherStatus.CleaningUp:
+						ProgressText.Text = App.TextStrings["progresstext_cleaning_up"];
+						break;
+					case LauncherStatus.UpdateAvailable:
+						ToggleUI(true);
+						ToggleProgressBar(false);
+						ToggleContextMenuItems(false, true);
+						ProgressBar.IsIndeterminate = false;
+						break;
+					case LauncherStatus.Uninstalling:
+						ProgressText.Text = App.TextStrings["progresstext_uninstalling"];
+						ToggleUI(false);
+						OptionsButton.IsEnabled = true;
+						ToggleProgressBar(true);
+						break;
+				}
+			});
 		}
 		internal HI3Server Server
 		{
@@ -2126,6 +2128,11 @@ namespace BetterHI3Launcher
 					});
 					while(!download.Done)
 					{
+						if(DownloadCancelled)
+						{
+							abort = true;
+							break;
+						}
 						tracker.SetProgress(download.BytesWritten, download.ContentLength);
 						eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
 						Dispatcher.Invoke(() =>
@@ -2138,6 +2145,10 @@ namespace BetterHI3Launcher
 							DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
 						});
 						Thread.Sleep(500);
+					}
+					if(abort)
+					{
+						return;
 					}
 					Log("Successfully downloaded game cache");
 					while(BpUtility.IsFileLocked(new FileInfo(CacheArchivePath)))
@@ -2686,7 +2697,13 @@ namespace BetterHI3Launcher
 			}
 			else if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
 			{
-				if(!DownloadPaused)
+				if(DownloadCancelled)
+				{
+					download.Pause();
+					DeleteFile(CacheArchivePath, true);
+					Log("Download cancelled");
+				}
+				else if(!DownloadPaused)
 				{
 					download.Pause();
 					Status = LauncherStatus.DownloadPaused;
@@ -4709,86 +4726,134 @@ namespace BetterHI3Launcher
 
 		private void DownloadCacheCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_download_cache"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_download_cache"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void FixSubtitlesCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_fix_subtitles"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_fix_subtitles"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void RepairGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_repair"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_repair"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void MoveGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_move"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_move"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void UninstallGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_uninstall"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_uninstall"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void WebProfileCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_web_profile"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_web_profile"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void FeedbackCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_feedback"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_feedback"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void ChangelogCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_changelog"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_changelog"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void CustomBackgroundCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_custom_background"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_custom_background"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void ToggleLogCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_show_log"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_show_log"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void ToggleSoundsCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_sounds"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_sounds"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void AboutCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			var peer = new MenuItemAutomationPeer(BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_about"]));
-			var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-			inv_prov.Invoke();
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_about"]);
+			if(item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
 		}
 
 		private void MainWindow_Closing(object sender, CancelEventArgs e)
