@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\Costura.Fody.5.3.0\build\Costura.Fody.props" Condition="Exists('packages\Costura.Fody.5.3.0\build\Costura.Fody.props')" />
+  <Import Project="packages\Costura.Fody.5.4.0\build\Costura.Fody.props" Condition="Exists('packages\Costura.Fody.5.4.0\build\Costura.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -74,8 +74,8 @@
     <ManifestKeyFile>BetterHI3Launcher_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Costura, Version=5.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Costura.Fody.5.3.0\lib\netstandard1.0\Costura.dll</HintPath>
+    <Reference Include="Costura, Version=5.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Costura.Fody.5.4.0\lib\netstandard1.0\Costura.dll</HintPath>
     </Reference>
     <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
       <HintPath>packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
@@ -290,12 +290,6 @@
     <Resource Include="Assets\Images\Button_Minimize.png" />
     <Resource Include="Assets\Images\Button_Minimize_Highlighted.png" />
     <Resource Include="Assets\Images\Button_Minimize_Pressed.png" />
-    <Resource Include="Assets\Images\BackgroundShadow.png" />
-    <Resource Include="Assets\Images\HoV_Dance.gif" />
-    <Resource Include="Assets\Images\Window_Dialog.png" />
-    <Resource Include="Assets\Images\Checkbox_On.png" />
-    <Resource Include="Assets\Images\Checkbox_Off.png" />
-    <Resource Include="Assets\Images\Checkbox_Disabled.png" />
     <Resource Include="Assets\Images\Button_Preload.png" />
     <Resource Include="Assets\Images\Button_Preload_Checkmark.png" />
     <Resource Include="Assets\Images\Button_Preload_Circle.png" />
@@ -303,6 +297,18 @@
     <Resource Include="Assets\Images\Button_Preload_Pressed.png" />
     <Resource Include="Assets\Images\Button_Preload_Pause.png" />
     <Resource Include="Assets\Images\Button_Preload_Resume.png" />
+    <Resource Include="Assets\Images\Button_Pause.png" />
+    <Resource Include="Assets\Images\Button_Pause_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Pause_Pressed.png" />
+    <Resource Include="Assets\Images\Button_Resume.png" />
+    <Resource Include="Assets\Images\Button_Resume_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Resume_Pressed.png" />
+    <Resource Include="Assets\Images\BackgroundShadow.png" />
+    <Resource Include="Assets\Images\HoV_Dance.gif" />
+    <Resource Include="Assets\Images\Window_Dialog.png" />
+    <Resource Include="Assets\Images\Checkbox_On.png" />
+    <Resource Include="Assets\Images\Checkbox_Off.png" />
+    <Resource Include="Assets\Images\Checkbox_Disabled.png" />
     <Content Include="Assets\Sounds\Click.wav" />
     <Content Include="Assets\Sounds\Window_Close.wav" />
     <Content Include="Assets\Sounds\Window_Open.wav" />
@@ -313,11 +319,11 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
-    <Error Condition="!Exists('packages\Fody.6.5.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fody.6.5.1\build\Fody.targets'))" />
-    <Error Condition="!Exists('packages\Costura.Fody.5.3.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.5.3.0\build\Costura.Fody.props'))" />
-    <Error Condition="!Exists('packages\Costura.Fody.5.3.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.5.3.0\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('packages\Fody.6.5.2\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fody.6.5.2\build\Fody.targets'))" />
+    <Error Condition="!Exists('packages\Costura.Fody.5.4.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.5.4.0\build\Costura.Fody.props'))" />
+    <Error Condition="!Exists('packages\Costura.Fody.5.4.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.5.4.0\build\Costura.Fody.targets'))" />
   </Target>
   <Import Project="packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
-  <Import Project="packages\Fody.6.5.1\build\Fody.targets" Condition="Exists('packages\Fody.6.5.1\build\Fody.targets')" />
-  <Import Project="packages\Costura.Fody.5.3.0\build\Costura.Fody.targets" Condition="Exists('packages\Costura.Fody.5.3.0\build\Costura.Fody.targets')" />
+  <Import Project="packages\Fody.6.5.2\build\Fody.targets" Condition="Exists('packages\Fody.6.5.2\build\Fody.targets')" />
+  <Import Project="packages\Costura.Fody.5.4.0\build\Costura.Fody.targets" Condition="Exists('packages\Costura.Fody.5.4.0\build\Costura.Fody.targets')" />
 </Project>

@@ -36,8 +36,6 @@
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Center"/>
 			<Setter Property="VerticalAlignment" Value="Bottom"/>
-			<Setter Property="Width" Value="189"/>
-			<Setter Property="Height" Value="44"/>
 			<Setter Property="FontFamily" Value="{DynamicResource Font}"/>
 			<Setter Property="FontSize" Value="20"/>
 			<Setter Property="Template">
@@ -84,7 +82,7 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-		<Style x:Key="CheckBoxStyle" TargetType="{x:Type CheckBox}">
+		<Style TargetType="{x:Type CheckBox}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Width" Value="24"/>
 			<Setter Property="Height" Value="16"/>
@@ -112,7 +110,7 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-		<Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">
+		<Style TargetType="{x:Type RadioButton}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Width" Value="21"/>
 			<Setter Property="Height" Value="16"/>
@@ -140,6 +138,24 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+		<Style TargetType="{x:Type TextBox}">
+			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="FontFamily" Value="{DynamicResource Font}"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type TextBoxBase}">
+						<Border Name="Border" CornerRadius="3" Padding="1">
+							<Border.Background>
+								<SolidColorBrush Color="White" />
+							</Border.Background>
+							<ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 	</Window.Resources>
 	<Grid Width="576" Height="307">
 		<Image Source="Assets/Images/Window_Dialog.png"/>
@@ -147,34 +163,40 @@
 		<ScrollViewer Name="DialogMessageScrollViewer" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,25" Width="500" Height="135" ScrollViewer.VerticalScrollBarVisibility="Hidden">
 			<TextBlock Name="DialogMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="500" MaxHeight="147" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"/>
 		</ScrollViewer>
+		<StackPanel Name="InstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,50,0,0" Visibility="Collapsed">
+			<StackPanel Orientation="Horizontal">
+				<TextBox Name="InstallPathTextBox" Width="400" Height="20" TextChanged="InstallPathTextBox_TextChanged"/>
+				<Button Style="{DynamicResource ButtonStyle}" Height="20" Margin="5,0" FontSize="16" Content="..." Click="BrowseButton_Click"/>
+			</StackPanel>
+		</StackPanel>
 		<StackPanel Name="UninstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,25,0,0" Visibility="Collapsed">
 			<StackPanel Orientation="Horizontal">
-				<CheckBox Name="UninstallGameFilesCheckBox" Style="{DynamicResource CheckBoxStyle}" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
+				<CheckBox Name="UninstallGameFilesCheckBox" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
 				<TextBlock Name="UninstallGameFilesLabel" VerticalAlignment="Center" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 			<StackPanel Orientation="Horizontal">
-				<CheckBox Name="UninstallGameCacheCheckBox" Style="{DynamicResource CheckBoxStyle}" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
+				<CheckBox Name="UninstallGameCacheCheckBox" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
 				<TextBlock Name="UninstallGameCacheLabel" VerticalAlignment="Center" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 			<StackPanel Orientation="Horizontal">
-				<CheckBox Name="UninstallGameSettingsCheckBox" Style="{DynamicResource CheckBoxStyle}" Width="24" Height="16" Margin="5" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
+				<CheckBox Name="UninstallGameSettingsCheckBox" IsChecked="True" Click="UninstallCheckBox_Click" x:FieldModifier="public"/>
 				<TextBlock Name="UninstallGameSettingsLabel" VerticalAlignment="Center" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 		</StackPanel>
 		<StackPanel Name="CustomBackgroundStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,35,0,0" Visibility="Collapsed">
 			<StackPanel Orientation="Horizontal">
-				<RadioButton Name="CustomBackgroundEditRadioButton" GroupName="CustomBackgroundActionChoice" Style="{DynamicResource RadioButtonStyle}" IsChecked="True" Click="CustomBackgroundRadioButton_Click" x:FieldModifier="public"/>
+				<RadioButton Name="CustomBackgroundEditRadioButton" GroupName="CustomBackgroundActionChoice" IsChecked="True" Click="CustomBackgroundRadioButton_Click" x:FieldModifier="public"/>
 				<TextBlock Name="CustomBackgroundEditLabel" Foreground="White" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 			<StackPanel Orientation="Horizontal">
-				<RadioButton Name="CustomBackgroundDeleteRadioButton" GroupName="CustomBackgroundActionChoice" Style="{DynamicResource RadioButtonStyle}" Click="CustomBackgroundRadioButton_Click" x:FieldModifier="public"/>
+				<RadioButton Name="CustomBackgroundDeleteRadioButton" GroupName="CustomBackgroundActionChoice" Click="CustomBackgroundRadioButton_Click" x:FieldModifier="public"/>
 				<TextBlock Name="CustomBackgroundDeleteLabel" Foreground="White" VerticalAlignment="Center" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 		</StackPanel>
 		<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Margin="0,23,33,0" Click="CloseButton_Click"/>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="36">
-			<Button Name="ConfirmButton" Style="{DynamicResource ButtonStyle}" Click="ConfirmButton_Click"/>
-			<Button Name="CancelButton" Style="{DynamicResource ButtonStyle}" Click="CloseButton_Click"/>
+			<Button Name="ConfirmButton" Style="{DynamicResource ButtonStyle}" Width="189" Height="44" Click="ConfirmButton_Click"/>
+			<Button Name="CancelButton" Style="{DynamicResource ButtonStyle}" Width="189" Height="44" Click="CloseButton_Click"/>
 		</StackPanel>
 	</Grid>
 </Window>
