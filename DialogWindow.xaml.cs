@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -11,7 +12,7 @@ namespace BetterHI3Launcher
 	{
 		public enum DialogType
 		{
-			Confirmation, Question, Uninstall, CustomBackground
+			Confirmation, Question, Install, Uninstall, CustomBackground
 		}
 
 		public DialogWindow(string title, string message, DialogType type = DialogType.Confirmation)
@@ -33,6 +34,12 @@ namespace BetterHI3Launcher
 					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
 					ConfirmButton.Content = App.TextStrings["button_yes"];
 					CancelButton.Content = App.TextStrings["button_no"];
+					break;
+				case DialogType.Install:
+					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
+					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 75);
+					DialogMessageScrollViewer.Height = 100;
+					InstallStackPanel.Visibility = Visibility.Visible;
 					break;
 				case DialogType.Uninstall:
 					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
@@ -81,6 +88,38 @@ namespace BetterHI3Launcher
 		{
 			BpUtility.PlaySound(Properties.Resources.Click);
 			Close();
+		}
+
+		private void BrowseButton_Click(object sender, RoutedEventArgs e)
+		{
+			BpUtility.PlaySound(Properties.Resources.Click);
+			var dialog = new CommonOpenFileDialog
+			{
+				IsFolderPicker = true,
+				Multiselect = false,
+				DefaultDirectory = InstallPathTextBox.Text,
+				AddToMostRecentlyUsedList = false,
+				AllowNonFileSystemItems = false,
+				EnsurePathExists = true,
+				EnsureReadOnly = false,
+				EnsureValidNames = true
+			};
+			if(dialog.ShowDialog() == CommonFileDialogResult.Ok)
+			{
+				InstallPathTextBox.Text = Path.Combine(dialog.FileName, MainWindow.GameFullName);
+			}
+		}
+
+		private void InstallPathTextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			if(string.IsNullOrEmpty(InstallPathTextBox.Text))
+			{
+				ConfirmButton.IsEnabled = false;
+			}
+			else
+			{
+				ConfirmButton.IsEnabled = true;
+			}
 		}
 
 		private void UninstallCheckBox_Click(object sender, RoutedEventArgs e)

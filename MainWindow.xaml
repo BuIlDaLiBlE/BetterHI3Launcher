@@ -58,6 +58,12 @@
 		<ImageBrush x:Key="PreloadButtonPressed" ImageSource="/Assets/Images/Button_Preload_Pressed.png"/>
 		<ImageBrush x:Key="PreloadPauseButton" ImageSource="/Assets/Images/Button_Preload_Pause.png"/>
 		<ImageBrush x:Key="PreloadResumeButton" ImageSource="/Assets/Images/Button_Preload_Resume.png"/>
+		<ImageBrush x:Key="DownloadPauseButton" ImageSource="/Assets/Images/Button_Pause.png"/>
+		<ImageBrush x:Key="DownloadPauseButtonHighlighted" ImageSource="/Assets/Images/Button_Pause_Highlighted.png"/>
+		<ImageBrush x:Key="DownloadPauseButtonPressed" ImageSource="/Assets/Images/Button_Pause_Pressed.png"/>
+		<ImageBrush x:Key="DownloadResumeButton" ImageSource="/Assets/Images/Button_Resume.png"/>
+		<ImageBrush x:Key="DownloadResumeButtonHighlighted" ImageSource="/Assets/Images/Button_Resume_Highlighted.png"/>
+		<ImageBrush x:Key="DownloadResumeButtonPressed" ImageSource="/Assets/Images/Button_Resume_Pressed.png"/>
 		<Style x:Key="FocusVisual">
 			<Setter Property="Control.Template">
 				<Setter.Value>
@@ -67,7 +73,7 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-		<Style x:Key="ComboBoxStyle" TargetType="{x:Type ComboBox}">
+		<Style TargetType="{x:Type ComboBox}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="FontFamily" Value="{StaticResource FontStatic}"/>
 			<Setter Property="SelectedIndex" Value="0"/>
@@ -161,10 +167,65 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+		<Style x:Key="DownloadPauseButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+			<Setter Property="Background" Value="{StaticResource DownloadPauseButton}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Width" Value="30"/>
+			<Setter Property="Height" Value="30"/>
+			<Setter Property="UseLayoutRounding" Value="True"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsDefaulted" Value="True">
+								<Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource DownloadPauseButtonHighlighted}"/>
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource DownloadPauseButtonPressed}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="DownloadResumeButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+			<Setter Property="Background" Value="{StaticResource DownloadResumeButton}"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Width" Value="30"/>
+			<Setter Property="Height" Value="30"/>
+			<Setter Property="UseLayoutRounding" Value="True"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsDefaulted" Value="True">
+								<Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource DownloadResumeButtonHighlighted}"/>
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource DownloadResumeButtonPressed}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 		<Style x:Key="PreloadButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Background" Value="{StaticResource PreloadButton}"/>
-			<Setter Property="BorderBrush" Value="{x:Null}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="Width" Value="50"/>
 			<Setter Property="Height" Value="50"/>
@@ -192,7 +253,6 @@
 		<Style x:Key="PreloadPauseButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Background" Value="{StaticResource PreloadPauseButton}"/>
-			<Setter Property="BorderBrush" Value="{x:Null}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="Width" Value="50"/>
 			<Setter Property="Height" Value="50"/>
@@ -214,7 +274,6 @@
 		<Style x:Key="CloseButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Background" Value="{StaticResource CloseButton}"/>
-			<Setter Property="BorderBrush" Value="{x:Null}"/>
 			<Setter Property="Foreground" Value="#7FA9A9A9"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Right"/>
@@ -248,7 +307,6 @@
 		<Style x:Key="MinimizeButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Background" Value="{StaticResource MinimizeButton}"/>
-			<Setter Property="BorderBrush" Value="{x:Null}"/>
 			<Setter Property="Foreground" Value="#7FA9A9A9"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Right"/>
@@ -282,7 +340,6 @@
 		<Style x:Key="BoxCloseButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Background" Value="{StaticResource BoxCloseButton}"/>
-			<Setter Property="BorderBrush" Value="{x:Null}"/>
 			<Setter Property="Foreground" Value="#7FA9A9A9"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Right"/>
@@ -483,7 +540,7 @@
 					<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
 				</TextBlock.Effect>
 			</TextBlock>
-			<ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" Style="{DynamicResource ComboBoxStyle}" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
+			<ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
 				<ComboBoxItem Content="Global"></ComboBoxItem>
 				<ComboBoxItem Content="SEA"></ComboBoxItem>
 				<ComboBoxItem Content="CN"></ComboBoxItem>
@@ -495,7 +552,7 @@
 					<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
 				</TextBlock.Effect>
 			</TextBlock>
-			<ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" Style="{DynamicResource ComboBoxStyle}" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
+			<ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
 				<ComboBoxItem Content="miHoYo"></ComboBoxItem>
 				<ComboBoxItem Content="MediaFire"></ComboBoxItem>
 				<ComboBoxItem Content="Google Drive"></ComboBoxItem>
@@ -582,7 +639,7 @@
 					</StackPanel>
 				</Grid>
 			</Grid>
-			<StackPanel Name="DownloadProgressBarStackPanel" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="50,36" Visibility="Collapsed">
+			<StackPanel Name="DownloadProgressBarStackPanel" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="50,36">
 				<TextBlock Name="DownloadProgressText" VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="{DynamicResource Font}" FontSize="14" Foreground="White">
 					<TextBlock.Effect>
 						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
@@ -593,7 +650,11 @@
 						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
 					</TextBlock.Effect>
 				</TextBlock>
-				<ProgressBar Name="DownloadProgressBar" Style="{StaticResource DownloadProgressBarStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,4,0,8" Width="776" Height="24" Visibility="Visible"/>
+				<StackPanel Orientation="Horizontal">
+					<ProgressBar Name="DownloadProgressBar" Style="{StaticResource DownloadProgressBarStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,4,0,8" Width="776" Height="24"/>
+					<Button Name="DownloadPauseButton" Style="{DynamicResource DownloadPauseButtonStyle}" Margin="10,0,0,4" Click="DownloadPauseButton_Click"/>
+					<Button Name="DownloadResumeButton" Style="{DynamicResource DownloadResumeButtonStyle}" Margin="10,0,0,4" Click="DownloadPauseButton_Click" Visibility="Collapsed"/>
+				</StackPanel>
 				<TextBlock Name="DownloadSpeedText" VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="{DynamicResource Font}" FontSize="14" Foreground="#C8FFFFFF">
 					<TextBlock.Effect>
 						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
