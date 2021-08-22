@@ -3062,7 +3062,7 @@ namespace BetterHI3Launcher
 			}
 			if(App.LauncherRootPath.Contains($@"{GameInstallPath}\"))
 			{
-				new DialogWindow(App.TextStrings["msgbox_move_title"], App.TextStrings["msgbox_move_4_msg"]).ShowDialog();
+				new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_4_msg"]).ShowDialog();
 				return;
 			}
 
@@ -3077,7 +3077,7 @@ namespace BetterHI3Launcher
 				string path = dialog.InstallPathTextBox.Text;
 				if($@"{path}\".Contains($@"{GameInstallPath}\"))
 				{
-					new DialogWindow(App.TextStrings["msgbox_move_title"], App.TextStrings["msgbox_move_3_msg"]).ShowDialog();
+					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_3_msg"]).ShowDialog();
 					continue;
 				}
 				try
@@ -4462,6 +4462,7 @@ namespace BetterHI3Launcher
 					try
 					{
 						Status = LauncherStatus.Working;
+						OptionsButton.Visibility = Visibility.Visible;
 						ProgressBar.IsIndeterminate = false;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 						Log("Generating game file hashes...");

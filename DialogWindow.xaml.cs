@@ -104,9 +104,18 @@ namespace BetterHI3Launcher
 				EnsureReadOnly = false,
 				EnsureValidNames = true
 			};
-			if(dialog.ShowDialog() == CommonFileDialogResult.Ok)
+			if(dialog.ShowDialog(this) == CommonFileDialogResult.Ok)
 			{
 				InstallPathTextBox.Text = Path.Combine(dialog.FileName, MainWindow.GameFullName);
+				string[] game_full_names = {"Honkai Impact 3rd", "Honkai Impact 3", "崩坏3", "崩壞3", "붕괴3rd", "Honkai Impact 3rd glb", "Honkai Impact 3 sea", "Honkai Impact 3rd tw", "Honkai Impact 3rd kr"};
+				foreach(string game_full_name in game_full_names)
+				{
+					if(dialog.FileName.Contains(game_full_name))
+					{
+						InstallPathTextBox.Text = dialog.FileName;
+						break;
+					}
+				}
 			}
 		}
 
