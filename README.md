@@ -1,7 +1,7 @@
 # BetterHI3Launcher
 A much better Honkai Impact 3rd launcher. Here are the key points:
 * No need to install, everything's in one executable
-* Supports both Global and SEA clients installation at the same time
+* Supports all game clients (Global, SEA, CN, TW/HK/MO and KR), can switch between them freely
 * Has mirror support so you have more download sources to choose from
 * Automatically updates itself, so you're always getting the latest and greatest!
 * Has lots of useful features, such as:
