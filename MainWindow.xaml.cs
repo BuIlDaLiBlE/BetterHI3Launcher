@@ -53,7 +53,7 @@ namespace BetterHI3Launcher
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
 		public static string GameWebProfileURL, GameFullName;
-		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading;
+		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
 		public static RoutedCommand FixSubtitlesCommand = new RoutedCommand();
@@ -2357,6 +2357,7 @@ namespace BetterHI3Launcher
 			
 			if(App.FirstLaunch)
 			{
+				LegacyBoxActive = true;
 				IntroBox.Visibility = Visibility.Visible;
 			}
 			#if !DEBUG
@@ -2364,6 +2365,7 @@ namespace BetterHI3Launcher
 			{
 				if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
 				{
+					LegacyBoxActive = true;
 					ChangelogBox.Visibility = Visibility.Visible;
 					ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
 					FetchChangelog();
@@ -2888,6 +2890,7 @@ namespace BetterHI3Launcher
 				return;
 			}
 
+			LegacyBoxActive = true;
 			Status = LauncherStatus.CheckingUpdates;
 			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_mirror_connect"];});
 			Log("Fetching mirror data...");
@@ -2941,6 +2944,7 @@ namespace BetterHI3Launcher
 					}
 					if(GameCacheMetadata == null || GameCacheMetadataNumeric == null)
 					{
+						LegacyBoxActive = false;
 						Status = LauncherStatus.Ready;
 						return;
 					}
@@ -2973,6 +2977,7 @@ namespace BetterHI3Launcher
 			}
 			catch(Exception ex)
 			{
+				LegacyBoxActive = false;
 				Status = LauncherStatus.Error;
 				Log($"ERROR: Failed to fetch cache metadata:\n{ex}", true, 1);
 				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_mirror_error_msg"], ex.Message)).ShowDialog();});
@@ -2993,6 +2998,7 @@ namespace BetterHI3Launcher
 				return;
 			}
 
+			LegacyBoxActive = true;
 			Status = LauncherStatus.CheckingUpdates;
 			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];});
 			Log("Fetching repair data...");
@@ -3027,6 +3033,7 @@ namespace BetterHI3Launcher
 			}
 			catch(Exception ex)
 			{
+				LegacyBoxActive = false;
 				Status = LauncherStatus.Error;
 				Log($"ERROR: Failed to fetch repair data:\n{ex}", true, 1);
 				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog();});
@@ -3759,6 +3766,7 @@ namespace BetterHI3Launcher
 
 		private void CM_Changelog_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = true;
 			ChangelogBox.Visibility = Visibility.Visible;
 			ChangelogBoxScrollViewer.ScrollToHome();
 			FetchChangelog();
@@ -3991,6 +3999,7 @@ namespace BetterHI3Launcher
 		private void CM_About_Click(object sender, RoutedEventArgs e)
 		{
 			AboutBox.Visibility = Visibility.Visible;
+			LegacyBoxActive = true;
 		}
 
 		private void ServerDropdown_Opened(object sender, EventArgs e)
@@ -4162,6 +4171,7 @@ namespace BetterHI3Launcher
 
 		private void IntroBoxCloseButton_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = false;
 			IntroBox.Visibility = Visibility.Collapsed;
 			if(App.FirstLaunch)
 			{
@@ -4182,6 +4192,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			LegacyBoxActive = false;
 			DownloadCacheBox.Visibility = Visibility.Collapsed;
 			DownloadGameCache(true);
 		}
@@ -4199,12 +4210,14 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			LegacyBoxActive = false;
 			DownloadCacheBox.Visibility = Visibility.Collapsed;
 			DownloadGameCache(false);
 		}
 
 		private void DownloadCacheBoxCloseButton_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = false;
 			DownloadCacheBox.Visibility = Visibility.Collapsed;
 		}
 
@@ -4406,8 +4419,10 @@ namespace BetterHI3Launcher
 						}
 					}
 				}
+				LegacyBoxActive = false;
 				RepairBox.Visibility = Visibility.Collapsed;
 				Status = LauncherStatus.Working;
+				OptionsButton.IsEnabled = true;
 				ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];
 				ProgressBar.IsIndeterminate = false;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
@@ -4544,12 +4559,14 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			LegacyBoxActive = false;
 			RepairBox.Visibility = Visibility.Collapsed;
 			await Generate();
 		}
 
 		private void RepairBoxCloseButton_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = false;
 			RepairBox.Visibility = Visibility.Collapsed;
 		}
 
@@ -4677,6 +4694,7 @@ namespace BetterHI3Launcher
 
 		private void ChangelogBoxCloseButton_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = false;
 			ChangelogBox.Visibility = Visibility.Collapsed;
 			ChangelogBoxMessageTextBlock.Visibility = Visibility.Collapsed;
 		}
@@ -4689,13 +4707,14 @@ namespace BetterHI3Launcher
 
 		private void AboutBoxCloseButton_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = false;
 			AboutBox.Visibility = Visibility.Collapsed;
 		}
 
 		private void DownloadCacheCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_download_cache"]);
-			if(item.IsEnabled)
+			if(item.IsEnabled && !LegacyBoxActive)
 			{
 				var peer = new MenuItemAutomationPeer(item);
 				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
@@ -4717,7 +4736,7 @@ namespace BetterHI3Launcher
 		private void RepairGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_repair"]);
-			if(item.IsEnabled)
+			if(item.IsEnabled && !LegacyBoxActive)
 			{
 				var peer = new MenuItemAutomationPeer(item);
 				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
@@ -4772,7 +4791,7 @@ namespace BetterHI3Launcher
 		private void ChangelogCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_changelog"]);
-			if(item.IsEnabled)
+			if(item.IsEnabled && !LegacyBoxActive)
 			{
 				var peer = new MenuItemAutomationPeer(item);
 				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
@@ -4816,7 +4835,7 @@ namespace BetterHI3Launcher
 		private void AboutCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_about"]);
-			if(item.IsEnabled)
+			if(item.IsEnabled && !LegacyBoxActive)
 			{
 				var peer = new MenuItemAutomationPeer(item);
 				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
