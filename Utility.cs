@@ -30,12 +30,15 @@ namespace BetterHI3Launcher
 
 		public static void RestartApp()
 		{
-			if(App.Mutex != null)
+			try
 			{
-				App.Mutex.Dispose();
-			}
-			Application.Current.Shutdown();
-			StartProcess(App.LauncherExeName, string.Join(" ", App.CommandLineArgs), App.LauncherRootPath, true);
+				if(App.Mutex != null)
+				{
+					App.Mutex.Dispose();
+				}
+				Application.Current.Shutdown();
+				StartProcess(App.LauncherExeName, string.Join(" ", App.CommandLineArgs), App.LauncherRootPath, true);
+			}catch{}
 		}
 
 		public static void PlaySound(Stream sound)
