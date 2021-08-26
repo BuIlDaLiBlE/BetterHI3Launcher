@@ -1,6 +1,5 @@
 ﻿using IniParser;
 using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using PartialZip;
 using SharpCompress.Archives;
@@ -84,7 +83,14 @@ namespace BetterHI3Launcher
 					LaunchButton.IsEnabled = val;
 					OptionsButton.IsEnabled = val;
 					ServerDropdown.IsEnabled = val;
-					MirrorDropdown.IsEnabled = val;
+					if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+					{
+						MirrorDropdown.IsEnabled = false;
+					}
+					else
+					{
+						MirrorDropdown.IsEnabled = val;
+					}
 					ToggleContextMenuItems(val);
 					DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 					DownloadETAText.Visibility = Visibility.Visible;
@@ -717,27 +723,29 @@ namespace BetterHI3Launcher
 			var version_info_url = "https://bpnet.host/bh3?launcher_status=prod";
 			#endif
 			string version_info = null;
-			void Get()
+			void Get(int timeout)
 			{
-				var web_client = new BpWebClient();
+				var web_client = new BpWebClient{Timeout = timeout};
 				version_info = web_client.DownloadString(version_info_url);
 			}
 			int attempts = 6;
+			int timeout_add = 2500;
 			for(int i = 0; i < attempts; i++)
 			{
 				if(i == attempts - 1)
 				{
-					Get();
+					Get(timeout_add);
 				}
 				else
 				{
 					try
 					{
-						Get();
+						Get(timeout_add);
 						break;
 					}
 					catch
 					{
+						timeout_add += 2500;
 						#if !DEBUG
 						if(i == 3)
 						{
@@ -774,14 +782,13 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			string changelog;
-			var web_client = new BpWebClient();
-
+			string changelog = null;
 			Dispatcher.Invoke(() => {ChangelogBoxTextBox.Text = App.TextStrings["changelogbox_2_msg"];});
 			await Task.Run(() =>
 			{
-				try
+				void Get(int timeout)
 				{
+					var web_client = new BpWebClient{Timeout = timeout};
 					if(App.LauncherLanguage == "ru")
 					{
 						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.ru.ToString());
@@ -789,6 +796,30 @@ namespace BetterHI3Launcher
 					else
 					{
 						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.en.ToString());
+					}
+				}
+				try
+				{
+					int attempts = 6;
+					int timeout_add = 2500;
+					for(int i = 0; i < attempts; i++)
+					{
+						if(i == attempts - 1)
+						{
+							Get(timeout_add);
+						}
+						else
+						{
+							try
+							{
+								Get(timeout_add);
+								break;
+							}
+							catch
+							{
+								timeout_add += 2500;
+							}
+						}
 					}
 				}
 				catch
@@ -820,9 +851,9 @@ namespace BetterHI3Launcher
 					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.kr.ToString();
 					break;
 			}
-			void Get()
+			void Get(int timeout)
 			{
-				var web_request = BpUtility.CreateWebRequest(url);
+				var web_request = BpUtility.CreateWebRequest(url, "GET", timeout);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					using(var data = new MemoryStream())
@@ -847,7 +878,7 @@ namespace BetterHI3Launcher
 					}
 				}
 				GameArchiveName = Path.GetFileName(HttpUtility.UrlDecode(miHoYoVersionInfo.game.latest.path.ToString()));
-				web_request = BpUtility.CreateWebRequest(miHoYoVersionInfo.game.latest.path.ToString(), "HEAD");
+				web_request = BpUtility.CreateWebRequest(miHoYoVersionInfo.game.latest.path.ToString(), "HEAD", timeout);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					miHoYoVersionInfo.size = web_response.ContentLength;
@@ -855,19 +886,24 @@ namespace BetterHI3Launcher
 				}
 			}
 			int attempts = 6;
+			int timeout_add = 2500;
 			for(int i = 0; i < attempts; i++)
 			{
 				if(i == attempts - 1)
 				{
-					Get();
+					Get(timeout_add);
 				}
 				else
 				{
 					try
 					{
-						Get();
+						Get(timeout_add);
 						break;
-					}catch{}
+					}
+					catch
+					{
+						timeout_add += 2500;
+					}
 				}
 			}
 			Dispatcher.Invoke(() =>
@@ -1482,7 +1518,7 @@ namespace BetterHI3Launcher
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
 				string background_image_url;
 				string background_image_md5;
-				var web_request = BpUtility.CreateWebRequest(url, "GET", 10000);
+				var web_request = BpUtility.CreateWebRequest(url);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					using(var data = new MemoryStream())
@@ -2242,7 +2278,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				var data = Encoding.ASCII.GetBytes($"save_stats={server}&mirror={mirror}&file={file}&time={time}");
-				var web_request = BpUtility.CreateWebRequest(OnlineVersionInfo.launcher_info.stat_url.ToString(), "POST", 10000);
+				var web_request = BpUtility.CreateWebRequest(OnlineVersionInfo.launcher_info.stat_url.ToString(), "POST");
 				web_request.ContentType = "application/x-www-form-urlencoded";
 				web_request.ContentLength = data.Length;
 				using(var stream = web_request.GetRequestStream())
@@ -2257,14 +2293,14 @@ namespace BetterHI3Launcher
 						var json = JsonConvert.DeserializeObject<dynamic>(responseData);
 						if(json.status != "success")
 						{
-							Log($"WARNING: Failed to send download stat of {file}", true, 2);
+							Log($"WARNING: Failed to send download statistics for {file}", true, 2);
 						}
 					}
 				}
 			}
 			catch
 			{
-				Log($"WARNING: Failed to send download stat of {file}", true, 2);
+				Log($"WARNING: Failed to send download statistics for {file}", true, 2);
 			}
 		}
 
