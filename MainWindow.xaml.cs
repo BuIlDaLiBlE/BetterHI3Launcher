@@ -191,6 +191,7 @@ namespace BetterHI3Launcher
 						ToggleProgressBar(false);
 						DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 						DownloadProgressText.Text = App.TextStrings["progresstext_unpacking_1"];
+						DownloadPauseButton.Visibility = Visibility.Collapsed;
 						DownloadETAText.Visibility = Visibility.Collapsed;
 						DownloadSpeedText.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
@@ -2364,7 +2365,7 @@ namespace BetterHI3Launcher
 							var reader = archive.ExtractAllEntries();
 							while(reader.MoveToNextEntry())
 							{
-								reader.WriteEntryToDirectory(App.LauncherRootPath, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true, PreserveFileTime = true });
+								reader.WriteEntryToDirectory(App.LauncherRootPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
 							}
 						}
 						Log("success!", false);
@@ -3385,10 +3386,6 @@ namespace BetterHI3Launcher
 											skipped_files.Add($"{reader.Entry} ({Path.GetFileName(subtitle_archive)})");
 											skipped_file_paths.Add(subtitle_archive);
 											Log($"ERROR: Failed to unpack {subtitle_archive} ({reader.Entry})", true, 1);
-											if(reader.Entry.ToString() == "CG_09_mux_1_en.srt")
-											{
-												Log("The above one line of error is normal, miHoYo somehow messed up the file");
-											}
 										}
 									}
 								}
@@ -3408,14 +3405,8 @@ namespace BetterHI3Launcher
 								if(skipped_files.Count > 0)
 								{
 									ToggleLog(true);
-									if(Server == HI3Server.GLB && skipped_files.Count == 1)
-									{
-									}
-									else
-									{
-										TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
-										new DialogWindow(App.TextStrings["msgbox_extract_skip_title"], App.TextStrings["msgbox_extract_skip_msg"]).ShowDialog();
-									}
+									TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
+									new DialogWindow(App.TextStrings["msgbox_extract_skip_title"], App.TextStrings["msgbox_extract_skip_msg"]).ShowDialog();
 								}
 							});
 							Log($"Unpacked {unpacked_files} archives");
