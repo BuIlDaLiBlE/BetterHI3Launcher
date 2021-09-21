@@ -66,8 +66,8 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_game_settings", "Manage game settings");
 			TextStrings.Add("contextmenu_custom_fps", "Set custom FPS cap");
 			TextStrings.Add("contextmenu_custom_resolution", "Set custom resolution");
+			TextStrings.Add("contextmenu_custom_launch_options", "Set custom launch options");
 			TextStrings.Add("contextmenu_reset_download_type", "Reset download type");
-			TextStrings.Add("contextmenu_reset_game_settings", "Reset game settings");
 			TextStrings.Add("contextmenu_web_profile", "Go to web profile");
 			TextStrings.Add("contextmenu_feedback", "Send feedback");
 			TextStrings.Add("contextmenu_changelog", "Show changelog");
@@ -129,6 +129,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_custom_fps_4_msg", "In-game and menu FPS cap successfully set to {0} and {1} respectively.");
 			TextStrings.Add("msgbox_custom_resolution_1_msg", "Height being greater than width is not recommended.\nContinue?");
 			TextStrings.Add("msgbox_custom_resolution_2_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
+			TextStrings.Add("msgbox_custom_launch_options_msg", "Advanced users may enter custom launch options here.\nNote: they are applied independently per server.");
 			TextStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
 			TextStrings.Add("msgbox_download_cache_2_msg", "Numeric file cache is about to be downloaded.");
 			TextStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
@@ -201,7 +202,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_repair_6_msg", "Going to generate a JSON file containing the list of game files and their hashes, then create a ZIP archive with those files.\nContinue?");
 			TextStrings.Add("msgbox_repair_7_msg", "Continue to create ZIP file? It definitely takes a while.");
 			TextStrings.Add("msgbox_repair_8_msg", "Repair data from the server has a different game version.\nAre you sure you want to run the check?");
-			TextStrings.Add("msgbox_reset_game_settings_moved_msg", "This option has been moved to uninstallation.\nWould you like to go there now?");
 			TextStrings.Add("msgbox_start_error_msg", "An error occurred while starting the launcher:\n{0}");
 			TextStrings.Add("msgbox_start_error_title", "Startup error");
 			TextStrings.Add("msgbox_translations_download_error_msg", "An error occurred while downloading translations.\nOnly English language will be available.");

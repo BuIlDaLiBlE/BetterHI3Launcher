@@ -165,8 +165,8 @@
 		</ScrollViewer>
 		<StackPanel Name="InstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,50,0,0" Visibility="Collapsed">
 			<StackPanel Orientation="Horizontal">
-				<TextBox Name="InstallPathTextBox" Width="400" Height="20" TextChanged="InstallPathTextBox_TextChanged"/>
-				<Button Style="{DynamicResource ButtonStyle}" Height="20" Margin="5,0" FontSize="16" Content="..." Click="BrowseButton_Click"/>
+				<TextBox Name="InstallPathTextBox" Width="380" Height="20" TextChanged="InstallPathTextBox_TextChanged"/>
+				<Button Style="{DynamicResource ButtonStyle}" Height="20" Margin="5,0,0,0" FontSize="16" Content="..." Click="BrowseButton_Click"/>
 			</StackPanel>
 		</StackPanel>
 		<StackPanel Name="UninstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,25,0,0" Visibility="Collapsed">
@@ -183,6 +183,11 @@
 				<TextBlock Name="UninstallGameSettingsLabel" VerticalAlignment="Center" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16"/>
 			</StackPanel>
 		</StackPanel>
+		<StackPanel Name="CustomLaunchOptionsStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,50,0,0" Visibility="Collapsed">
+			<StackPanel Orientation="Horizontal">
+				<TextBox Name="CustomLaunchOptionsTextBox" Width="400" Height="20" MaxLength="256"/>
+			</StackPanel>
+		</StackPanel>
 		<StackPanel Name="CustomBackgroundStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,35,0,0" Visibility="Collapsed">
 			<StackPanel Orientation="Horizontal">
 				<RadioButton Name="CustomBackgroundEditRadioButton" GroupName="CustomBackgroundActionChoice" IsChecked="True" Click="CustomBackgroundRadioButton_Click" x:FieldModifier="public"/>
@@ -195,7 +200,7 @@
 		</StackPanel>
 		<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Margin="0,23,33,0" Click="CloseButton_Click"/>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="36">
-			<Button Name="ConfirmButton" Style="{DynamicResource ButtonStyle}" Width="189" Height="44" Click="ConfirmButton_Click"/>
+			<Button Name="ConfirmButton" Style="{DynamicResource ButtonStyle}" Margin="0,0,25,0" Width="189" Height="44" Click="ConfirmButton_Click"/>
 			<Button Name="CancelButton" Style="{DynamicResource ButtonStyle}" Width="189" Height="44" Click="CloseButton_Click"/>
 		</StackPanel>
 	</Grid>
