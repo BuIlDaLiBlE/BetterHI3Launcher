@@ -12,7 +12,7 @@ namespace BetterHI3Launcher
 	{
 		public enum DialogType
 		{
-			Confirmation, Question, Install, Uninstall, CustomBackground
+			Confirmation, Question, Install, Uninstall, CustomLaunchOptions, CustomBackground
 		}
 
 		public DialogWindow(string title, string message, DialogType type = DialogType.Confirmation)
@@ -59,6 +59,12 @@ namespace BetterHI3Launcher
 						UninstallGameSettingsCheckBox.IsChecked = false;
 						UninstallGameSettingsCheckBox.IsEnabled = false;
 					}
+					break;
+				case DialogType.CustomLaunchOptions:
+					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
+					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 75);
+					DialogMessageScrollViewer.Height = 100;
+					CustomLaunchOptionsStackPanel.Visibility = Visibility.Visible;
 					break;
 				case DialogType.CustomBackground:
 					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
