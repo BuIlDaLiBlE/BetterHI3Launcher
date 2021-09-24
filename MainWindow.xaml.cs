@@ -685,7 +685,7 @@ namespace BetterHI3Launcher
 				}
 
 				DownloadCacheCommand.InputGestures.Add(new KeyGesture(Key.D, ModifierKeys.Control));
-				FixSubtitlesCommand.InputGestures.Add(new KeyGesture(Key.F, ModifierKeys.Control));
+				FixSubtitlesCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
 				RepairGameCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
 				MoveGameCommand.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
 				UninstallGameCommand.InputGestures.Add(new KeyGesture(Key.U, ModifierKeys.Control));
@@ -746,7 +746,7 @@ namespace BetterHI3Launcher
 					}
 					catch
 					{
-						Log($"WARNING: Bp Network connection timeout, attempt №{i + 1}...", true, 2);
+						Log($"WARNING: Bp Network connection timeout, attempt №{i + 2}...", true, 2);
 						timeout_add += 2500;
 						#if !DEBUG
 						if(i == 3)
@@ -819,7 +819,7 @@ namespace BetterHI3Launcher
 							}
 							catch
 							{
-								Log($"WARNING: Bp Network connection timeout, attempt №{i + 1}...", true, 2);
+								Log($"WARNING: Bp Network connection timeout, attempt №{i + 2}...", true, 2);
 								timeout_add += 2500;
 							}
 						}
@@ -906,7 +906,7 @@ namespace BetterHI3Launcher
 					}
 					catch
 					{
-						Log($"WARNING: miHoYo connection timeout, attempt №{i + 1}...", true, 2);
+						Log($"WARNING: miHoYo connection timeout, attempt №{i + 2}...", true, 2);
 						timeout_add += 2500;
 					}
 				}
@@ -1228,19 +1228,19 @@ namespace BetterHI3Launcher
 						}
 						if(Status == LauncherStatus.UpdateAvailable)
 						{
-							if(File.Exists(GameArchivePath))
+							if(File.Exists($"{GameArchivePath}_tmp"))
 							{
 								DownloadPaused = true;
 								Dispatcher.Invoke(() =>
 								{
-									LaunchButton.Content = App.TextStrings["button_update"];
+									LaunchButton.Content = App.TextStrings["button_resume"];
 								});
 							}
 							else
 							{
 								Dispatcher.Invoke(() =>
 								{
-									LaunchButton.Content = App.TextStrings["button_resume"];
+									LaunchButton.Content = App.TextStrings["button_update"];
 								});
 							}
 						}
@@ -1751,7 +1751,7 @@ namespace BetterHI3Launcher
 				}
 				md5 = md5.ToUpper();
 				if(!File.Exists(GameArchivePath))
-				{ 
+				{
 					GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
 				}
 				else if(new FileInfo(GameArchivePath).Length != size)
