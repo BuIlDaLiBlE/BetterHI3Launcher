@@ -19,6 +19,8 @@ I made this with hope to help people have a better experience with the game.
 This project is actively supported, however you are always welcome to [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) or even directly contribute to the project via [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/compare).
 
 ## Contributing translations
+**Please contribute languages the launcher doesn't yet have.**
+
 Want to contribute to the project by translating the launcher into a language you speak? Great! Here's how to do it:
 1. [Download this file](https://raw.githubusercontent.com/BuIlDaLiBlE/BetterHI3Launcher/dev/TextStrings_en.cs) (Ctrl+S to save)
 2. You will see a bunch of lines with text, on each line there are two strings: you don't need to touch the one on the left, only translate the one on the right. Please do not touch special characters or backslashes such as `{0}`, `\n`, or `\"`.
