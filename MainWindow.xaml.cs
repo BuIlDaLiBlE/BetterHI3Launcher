@@ -2563,7 +2563,7 @@ namespace BetterHI3Launcher
 						{
 							try
 							{
-								var path = CheckForExistingGameDirectory(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString());
+								var path = Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString();
 								if(!string.IsNullOrEmpty(path))
 								{
 									possible_paths.Add(path);
@@ -2777,7 +2777,7 @@ namespace BetterHI3Launcher
 
 		private async void PreloadButton_Click(object sender, RoutedEventArgs e)
 		{
-			if(Status != LauncherStatus.Ready)
+			if(Status != LauncherStatus.Ready && Status != LauncherStatus.Running)
 			{
 				return;
 			}
