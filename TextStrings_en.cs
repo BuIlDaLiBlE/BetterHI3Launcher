@@ -135,8 +135,8 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
 			TextStrings.Add("msgbox_download_cache_4_msg", "The cache is outdated either partially or fully.\nCheck the last update time for the exact date.\nDo you still want to continue?");
 			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type in an attempt to fix the infamous update loop which does not let you enter the game.\nContinue?");
-			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"HD assets\".");
-			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"HD assets\".");
+			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"Download basic resources\".");
+			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"Download basic resources\".");
 			TextStrings.Add("msgbox_extract_skip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_extract_skip_title", "File skip notice");
 			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available for selected server.");
@@ -183,7 +183,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6.1 or newer to be installed.");
 			TextStrings.Add("msgbox_no_game_dir_msg", "Game directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_no_game_dir_title", "No game directory");
-			TextStrings.Add("msgbox_no_game_exe_msg", "Game executable cannot be found.\nTry reinstalling the game.");
+			TextStrings.Add("msgbox_no_game_exe_msg", "Game executable cannot be found.\nWould you like to reset the installation information?");
 			TextStrings.Add("msgbox_no_game_exe_title", "No game executable");
 			TextStrings.Add("msgbox_no_video_dir_msg", "Video directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_notice_title", "Notice");

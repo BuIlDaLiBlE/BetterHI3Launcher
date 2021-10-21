@@ -1193,13 +1193,6 @@ namespace BetterHI3Launcher
 							DownloadPaused = true;
 							Status = LauncherStatus.UpdateAvailable;
 						}
-						else if(!File.Exists(GameExePath))
-						{
-							Log("WARNING: Game executable is missing, resetting version info...", true, 2);
-							ResetVersionInfo();
-							GameUpdateCheck();
-							return;
-						}
 						else
 						{
 							var process = Process.GetProcessesByName("BH3");
@@ -2483,7 +2476,11 @@ namespace BetterHI3Launcher
 				{
 					if(!File.Exists(GameExePath))
 					{
-						new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"]).ShowDialog();
+						if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
+						{
+							ResetVersionInfo();
+							GameUpdateCheck();
+						}
 						return;
 					}
 					try
@@ -2777,7 +2774,7 @@ namespace BetterHI3Launcher
 
 		private async void PreloadButton_Click(object sender, RoutedEventArgs e)
 		{
-			if(Status != LauncherStatus.Ready)
+			if(Status != LauncherStatus.Ready && Status != LauncherStatus.Running)
 			{
 				return;
 			}
@@ -3802,20 +3799,21 @@ namespace BetterHI3Launcher
 			try
 			{
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
-				string value = "GENERAL_DATA_V2_ResourceDownloadType_h2238376574";
-				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
+				string[] values = {"GENERAL_DATA_V2_ResourceDownloadType_h2238376574", "GENERAL_DATA_V2_ResourceDownloadVersion_h1528433916"};
+				foreach(string value in values)
 				{
-					try
+					if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
 					{
-						if(key.GetValue(value) != null)
+						try
 						{
-							key.DeleteValue(value);
-						}
-					}catch{}
-					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_2_msg"]}").ShowDialog();
-					return;
+							if(key.GetValue(value) != null)
+							{
+								key.DeleteValue(value);
+							}
+						}catch{}
+					}
 				}
-				var value_before = key.GetValue(value);
+				var value_before = key.GetValue(values[0]);
 				int value_after;
 				if((int)value_before != 0)
 				{
@@ -3826,9 +3824,9 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["contextmenu_reset_download_type"], App.TextStrings["msgbox_download_type_3_msg"]).ShowDialog();
 					return;
 				}
-				key.SetValue(value, value_after, RegistryValueKind.DWord);
+				key.SetValue(values[0], value_after, RegistryValueKind.DWord);
 				key.Close();
-				Log($"Changed ResourceDownloadType from {value_before} to {value_after}");
+				Log("Download type has been reset");
 				new DialogWindow(App.TextStrings["contextmenu_reset_download_type"], App.TextStrings["msgbox_download_type_2_msg"]).ShowDialog();
 			}
 			catch(Exception ex)
