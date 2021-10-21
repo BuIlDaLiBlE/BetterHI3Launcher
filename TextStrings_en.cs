@@ -183,7 +183,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6.1 or newer to be installed.");
 			TextStrings.Add("msgbox_no_game_dir_msg", "Game directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_no_game_dir_title", "No game directory");
-			TextStrings.Add("msgbox_no_game_exe_msg", "Game executable cannot be found.\nTry reinstalling the game.");
+			TextStrings.Add("msgbox_no_game_exe_msg", "Game executable cannot be found.\nWould you like to reset the installation information?");
 			TextStrings.Add("msgbox_no_game_exe_title", "No game executable");
 			TextStrings.Add("msgbox_no_video_dir_msg", "Video directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_notice_title", "Notice");

@@ -1193,13 +1193,6 @@ namespace BetterHI3Launcher
 							DownloadPaused = true;
 							Status = LauncherStatus.UpdateAvailable;
 						}
-						else if(!File.Exists(GameExePath))
-						{
-							Log("WARNING: Game executable is missing, resetting version info...", true, 2);
-							ResetVersionInfo();
-							GameUpdateCheck();
-							return;
-						}
 						else
 						{
 							var process = Process.GetProcessesByName("BH3");
@@ -2483,7 +2476,11 @@ namespace BetterHI3Launcher
 				{
 					if(!File.Exists(GameExePath))
 					{
-						new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"]).ShowDialog();
+						if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
+						{
+							ResetVersionInfo();
+							GameUpdateCheck();
+						}
 						return;
 					}
 					try
@@ -2563,7 +2560,7 @@ namespace BetterHI3Launcher
 						{
 							try
 							{
-								var path = Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString();
+								var path = CheckForExistingGameDirectory(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString());
 								if(!string.IsNullOrEmpty(path))
 								{
 									possible_paths.Add(path);
