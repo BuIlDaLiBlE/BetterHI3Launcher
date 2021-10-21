@@ -135,8 +135,8 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
 			TextStrings.Add("msgbox_download_cache_4_msg", "The cache is outdated either partially or fully.\nCheck the last update time for the exact date.\nDo you still want to continue?");
 			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type in an attempt to fix the infamous update loop which does not let you enter the game.\nContinue?");
-			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"HD assets\".");
-			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"HD assets\".");
+			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"Download basic resources\".");
+			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"Download basic resources\".");
 			TextStrings.Add("msgbox_extract_skip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_extract_skip_title", "File skip notice");
 			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available for selected server.");
