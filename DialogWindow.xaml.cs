@@ -28,6 +28,7 @@ namespace BetterHI3Launcher
 			switch(type)
 			{
 				case DialogType.Confirmation:
+					ConfirmButton.Content = App.TextStrings["button_ok"];
 					CancelButton.Visibility = Visibility.Collapsed;
 					break;
 				case DialogType.Question:

@@ -474,6 +474,9 @@ namespace BetterHI3Launcher
 			var CM_Language_German = new MenuItem{Header = App.TextStrings["contextmenu_language_german"]};
 			CM_Language_German.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_German);
+			var CM_Language_Indonesian = new MenuItem{Header = App.TextStrings["contextmenu_language_indonesian"]};
+			CM_Language_Indonesian.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Indonesian);
 			var CM_Language_Portuguese_Brazil = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_brazil"]};
 			CM_Language_Portuguese_Brazil.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_Portuguese_Brazil);
@@ -519,6 +522,9 @@ namespace BetterHI3Launcher
 							break;
 						case "de":
 							CM_Language_German.IsChecked = true;
+							break;
+						case "id":
+							CM_Language_Indonesian.IsChecked = true;
 							break;
 						case "pt-BR":
 							CM_Language_Portuguese_Brazil.IsChecked = true;
@@ -3973,7 +3979,7 @@ namespace BetterHI3Launcher
 
 			string lang = item.Header.ToString();
 			string msg;
-			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "de" && App.LauncherLanguage != "vi")
+			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "de" && App.LauncherLanguage != "id" && App.LauncherLanguage != "vi")
 			{
 				if(lang != App.TextStrings["contextmenu_language_portuguese_brazil"] && lang != App.TextStrings["contextmenu_language_portuguese_portugal"])
 				{
@@ -3984,7 +3990,7 @@ namespace BetterHI3Launcher
 					lang = char.ToLower(lang[0]) + lang.Substring(1);
 				}
 			}
-			if(App.LauncherLanguage == "vi")
+			if(App.LauncherLanguage == "id" || App.LauncherLanguage == "vi")
 			{
 				lang = char.ToLower(lang[0]) + lang.Substring(1);
 			}
@@ -4037,6 +4043,10 @@ namespace BetterHI3Launcher
 					{
 						App.LauncherLanguage = "de";
 					}
+					else if(lang == App.TextStrings["contextmenu_language_indonesian"])
+					{
+						App.LauncherLanguage = "id";
+					}
 					else if(lang == App.TextStrings["contextmenu_language_vietnamese"])
 					{
 						App.LauncherLanguage = "vi";
@@ -4052,6 +4062,10 @@ namespace BetterHI3Launcher
 					else if(lang == App.TextStrings["contextmenu_language_french"])
 					{
 						App.LauncherLanguage = "fr";
+					}
+					else if(lang == App.TextStrings["contextmenu_language_indonesian"])
+					{
+						App.LauncherLanguage = "id";
 					}
 					else
 					{

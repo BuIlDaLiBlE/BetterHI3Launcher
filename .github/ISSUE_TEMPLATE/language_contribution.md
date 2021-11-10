@@ -1,8 +1,8 @@
 ---
-name: Language contibution
+name: Language contribution
 about: Suggest an idea for this project
-title: 'Language contibution [NAME OF THE LANGUAGE HERE]'
-labels: 'language contibution'
+title: 'Language contribution [NAME OF THE LANGUAGE HERE]'
+labels: 'language contribution'
 assignees: BuIlDaLiBlE
 
 ---
