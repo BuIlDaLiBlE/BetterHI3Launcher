@@ -703,7 +703,8 @@ namespace BetterHI3Launcher
 				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift));
 				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
-				if(!App.DisableTranslations)
+				App.NeedsUpdate = LauncherUpdateCheck();
+				if(!App.DisableTranslations || !App.DisableTranslations && App.DisableAutoUpdate && !App.NeedsUpdate)
 				{
 					DownloadLauncherTranslations();
 				}
@@ -2321,7 +2322,6 @@ namespace BetterHI3Launcher
 			{
 				string exe_name = Process.GetCurrentProcess().MainModule.ModuleName;
 				string old_exe_name = $"{Path.GetFileNameWithoutExtension(App.LauncherPath)}_old.exe";
-				bool launcher_needs_update = LauncherUpdateCheck();
 
 				if(Process.GetCurrentProcess().MainModule.ModuleName != App.LauncherExeName)
 				{
@@ -2340,15 +2340,15 @@ namespace BetterHI3Launcher
 						return;
 					}
 
-					if(!launcher_needs_update)
+					if(!App.NeedsUpdate)
 					{
 						if(BpUtility.CalculateMD5(App.LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
 						{
 							Log($"ERROR: Launcher integrity error, attempting self-repair...", true, 1);
-							launcher_needs_update = true;
+							App.NeedsUpdate = true;
 						}
 					}
-					if(launcher_needs_update)
+					if(App.NeedsUpdate)
 					{
 						Log("A newer version of the launcher is available!");
 						Status = LauncherStatus.Working;
@@ -5295,6 +5295,7 @@ namespace BetterHI3Launcher
 				{
 					BpUtility.DeleteFromRegistry("Language");
 					DeleteFile(App.LauncherTranslationsFile, true);
+					BpUtility.RestartApp();
 				}
 			}
 			if(App.LauncherLanguage != "en")
