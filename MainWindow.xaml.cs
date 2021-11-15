@@ -2278,13 +2278,48 @@ namespace BetterHI3Launcher
 			Status = LauncherStatus.Ready;
 		}
 
+		private readonly string[] CacheRegionalCheckName = new string[] { "TextMap", "RandomDialogData", "sprite" };
+		private enum CacheType { Data, Resources, Unknown }
+		private class CacheDataProperties
+        {
+			public string N { get; set; }
+			public string CRC { get; set; }
+			public long CS { get; set; }
+			public CacheType Type { get; set; }
+        }
+
+		/* Filter Region Type of Cache File
+		 * 0 -> the file is a regional file but outside user region.
+		 * 1 -> the file is a regional file but inside user region and downloadable.
+		 * 2 -> the file is not a regional file and downloadable.
+		 */
+		private byte FilterRegion(string input, string regionName)
+		{
+			foreach (string word in CacheRegionalCheckName)
+				if (input.Contains(word))
+					if (input.Contains($"{word}_{regionName}"))
+						return 1;
+					else
+						return 0;
+
+			return 2;
+		}
+
+		// Normalize Unix path (/) to Windows path (\)
+		private string NormalizePath(string i) => Path.Combine(Path.GetDirectoryName(i), Path.GetFileName(i));
+
 		private async void DownloadGameCacheHi3Mirror(string game_language)
 		{
+			string data;
+			List<CacheDataProperties> CacheFiles;
+			CacheType cacheType;
+
 			var languages_to_skip = new List<string>(new string[]
 			{
 				"cn", "en", "vn", "th", "fr", "de", "id"
 			});
 			languages_to_skip.Remove(game_language);
+
 			var cache_files = new dynamic[3];
 			var cache_files_to_remove = new List<dynamic>();
 			int cache_files_count = 0;
@@ -2292,31 +2327,53 @@ namespace BetterHI3Launcher
 			{
 				int server = (int)Server == 0 ? 1 : 0;
 				var web_client = new BpWebClient();
+
+				CacheFiles = new List<CacheDataProperties>();
+
 				await Task.Run(() =>
 				{
-					for(int i = 0; i < 3; i++)
+					for (int i = 0; i < 3; i++)
 					{
-						var url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString(), i, server);
-						cache_files[i] = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString(url));
-						foreach(var file in cache_files[i])
+						// Classify data type as per i
+						// 0 & 2	: Data and AI/Btree cache
+						// 1 or _	: Resources/Event cache
+						switch (i)
 						{
-							foreach(string language in languages_to_skip)
-							{
-								if(file.N.ToString().Contains($"_{language}"))
+							case 0:
+								cacheType = CacheType.Data;
+								break;
+							case 1:
+							case 2:
+								cacheType = CacheType.Resources;
+								break;
+							default:
+								cacheType = CacheType.Unknown;
+								break;
+						}
+
+						// Get URL and API data
+						string url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString(), i, server);
+						data = web_client.DownloadString(url);
+
+						// Do Elimination Process
+						// Deserialize string and make it to Object as List<CacheDataProperties>
+						foreach (CacheDataProperties file in JsonConvert.DeserializeObject<List<CacheDataProperties>>(data))
+							// Do check whenever the file is included regional language as game_language defined
+							// Then add it to CacheFiles list
+							if (FilterRegion(file.N, game_language) > 0)
+								// Do 
+								CacheFiles.Add(new CacheDataProperties
 								{
-									cache_files_to_remove.Add(file);
-									break;
-								}
-							}
-						}
-						foreach(var file in cache_files_to_remove)
-						{
-							cache_files[i].Remove(file);
-						}
-						cache_files_count += cache_files[i].Count;
+									N = file.N,
+									CRC = file.CRC,
+									CS = file.CS,
+									Type = cacheType
+								});
 					}
 				});
 				Log("success!", false);
+
+				cache_files_count = CacheFiles.Count;
 			}
 			catch(WebException ex)
 			{
@@ -2329,10 +2386,10 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				var existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
-				var useless_files = existing_files;
-				var bad_files = new List<string>();
-				var bad_file_hashes = new List<string>();
+				List<FileInfo> existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
+				List<FileInfo> useless_files = existing_files;
+				List<string> bad_files = new List<string>();
+				List<string> bad_file_hashes = new List<string>();
 				long bad_files_size = 0;
 
 				Status = LauncherStatus.Working;
@@ -2342,14 +2399,76 @@ namespace BetterHI3Launcher
 				Log("Verifying game cache...");
 				await Task.Run(() =>
 				{
+					string name, md5, path;
+					long size;
+					FileInfo fileInfo;
+
+					for (int i = 0; i < CacheFiles.Count; i++)
+                    {
+						name = $"{NormalizePath(CacheFiles[i].N)}.unity3d";
+						size = CacheFiles[i].CS;
+						md5 = CacheFiles[i].CRC;
+						cacheType = CacheFiles[i].Type;
+
+						// Combine Path and assign their own path
+						// If none of them assigned as Unknown type, throw an exception.
+						switch (cacheType)
+                        {
+							default:
+								throw new Exception("Unknown cache file data type");
+							case CacheType.Data:
+								path = Path.Combine(GameCachePath, "Data", name);
+								break;
+							case CacheType.Resources:
+								path = Path.Combine(GameCachePath, "Resources", name);
+								break;
+						}
+
+						fileInfo = new FileInfo(path);
+
+						Dispatcher.Invoke(() =>
+						{
+							ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, cache_files_count);
+							var progress = (i + 1f) / cache_files_count;
+							ProgressBar.Value = progress;
+							TaskbarItemInfo.ProgressValue = progress;
+						});
+
+						if (!fileInfo.Exists || BpUtility.CalculateMD5(fileInfo.FullName) != md5 || fileInfo.Length != size)
+						{
+							if (App.AdvancedFeatures)
+							{
+								if (File.Exists(path))
+								{
+									Log($"File corrupted: {path}");
+								}
+								else
+								{
+									Log($"File missing: {path}");
+								}
+							}
+							bad_files.Add(name);
+							bad_file_hashes.Add(md5);
+							bad_files_size += size;
+						}
+						else
+						{
+							useless_files.RemoveAll(x => x.FullName == path);
+							if (App.AdvancedFeatures)
+							{
+								Log($"File OK: {path}");
+							}
+						}
+					}
+
+					/*
 					for(int i = 0; i < cache_files.Length; i++)
 					{
 						for(int j = 0; j < cache_files[i].Count; j++)
 						{
-							string name = cache_files[i][j].N.ToString().Replace("/", @"\") + ".unity3d";
-							long size = cache_files[i][j].CS;
-							string md5 = cache_files[i][j].CRC.ToString().ToUpper();
-							string path;
+							name = cache_files[i][j].N.ToString().Replace("/", @"\") + ".unity3d";
+							size = cache_files[i][j].CS;
+							md5 = cache_files[i][j].CRC.ToString().ToUpper();
 							if(i == 0)
 							{
 								path = Path.Combine(GameCachePath, "Data", name);
@@ -2397,32 +2516,37 @@ namespace BetterHI3Launcher
 							}
 						}
 					}
+					*/
+
 					foreach(var useless_file in useless_files)
 					{
 						Log($"Useless file: {useless_file.FullName}");
 					}
 				});
+
 				ProgressText.Text = string.Empty;
 				ProgressBar.Visibility = Visibility.Hidden;
 				ProgressBar.Value = 0;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 				TaskbarItemInfo.ProgressValue = 0;
 				WindowState = WindowState.Normal;
-				if(useless_files.Count > 0)
+
+				if (useless_files.Count > 0)
 				{
 					Log($"Found useless files: {useless_files.Count}");
-					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format("Found {0} useless files, wanna remove 'em?", useless_files.Count), DialogWindow.DialogType.Question).ShowDialog() == true)
+					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format("Found {0} useless files, wanna remove 'em?", useless_files.Count), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
-						foreach(var file in useless_files)
+						foreach (var file in useless_files)
 						{
 							DeleteFile(file.FullName, true);
 						}
 					}
 				}
-				if(bad_files.Count > 0)
+
+				if (bad_files.Count > 0)
 				{
 					Log($"Finished verifying files, found corrupted/missing files: {bad_files.Count}");
-					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
+					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						string url = string.Empty;
 						string server = (int)Server == 0 ? "global" : "os";
@@ -2434,7 +2558,7 @@ namespace BetterHI3Launcher
 						Status = LauncherStatus.Downloading;
 						await Task.Run(async () =>
 						{
-							for(int i = 0; i < bad_files.Count; i++)
+							for (int i = 0; i < bad_files.Count; i++)
 							{
 								Dispatcher.Invoke(() =>
 								{
@@ -2446,17 +2570,17 @@ namespace BetterHI3Launcher
 								try
 								{
 									var web_client = new BpWebClient{};
-									if(bad_files[i].StartsWith("data"))
+									if (bad_files[i].StartsWith("data"))
 									{
 										data_type = "data";
 										path = Path.Combine(GameCachePath, "Data", bad_files[i]);
 									}
-									else if(bad_files[i].StartsWith("event"))
+									else if (bad_files[i].StartsWith("event"))
 									{
 										data_type = "event";
 										path = Path.Combine(GameCachePath, "Resources", bad_files[i]);
 									}
-									else if(bad_files[i].StartsWith("ai"))
+									else if (bad_files[i].StartsWith("ai"))
 									{
 										data_type = "ai";
 										path = Path.Combine(GameCachePath, "Resources", bad_files[i]);
@@ -2469,7 +2593,7 @@ namespace BetterHI3Launcher
 									Directory.CreateDirectory(new FileInfo(path).DirectoryName);
 									await web_client.DownloadFileTaskAsync(new Uri(url), path);
 									Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, bad_files.Count);});
-									if(File.Exists(path) && BpUtility.CalculateMD5(path) != bad_file_hashes[i])
+									if (File.Exists(path) && BpUtility.CalculateMD5(path) != bad_file_hashes[i])
 									{
 										Log($"ERROR: Failed to verify file [{path}]", true, 1);
 									}
