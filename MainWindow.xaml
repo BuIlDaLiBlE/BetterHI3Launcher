@@ -541,11 +541,11 @@
 				</TextBlock.Effect>
 			</TextBlock>
 			<ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
-				<ComboBoxItem Content="Global"></ComboBoxItem>
-				<ComboBoxItem Content="SEA"></ComboBoxItem>
-				<ComboBoxItem Content="CN"></ComboBoxItem>
-				<ComboBoxItem Content="TW/HK/MO"></ComboBoxItem>
-				<ComboBoxItem Content="KR"></ComboBoxItem>
+				<ComboBoxItem Content="Global"/>
+				<ComboBoxItem Content="SEA"/>
+				<ComboBoxItem Content="CN"/>
+				<ComboBoxItem Content="TW/HK/MO"/>
+				<ComboBoxItem Content="KR"/>
 			</ComboBox>
 			<TextBlock Name="MirrorLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,164" FontFamily="{DynamicResource Font}">
 				<TextBlock.Effect>
@@ -553,9 +553,10 @@
 				</TextBlock.Effect>
 			</TextBlock>
 			<ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
-				<ComboBoxItem Content="miHoYo"></ComboBoxItem>
-				<ComboBoxItem Content="MediaFire"></ComboBoxItem>
-				<ComboBoxItem Content="Google Drive"></ComboBoxItem>
+				<ComboBoxItem Content="miHoYo"/>
+				<ComboBoxItem Content="Hi3Mirror"/>
+				<ComboBoxItem Content="MediaFire"/>
+				<ComboBoxItem Content="Google Drive"/>
 			</ComboBox>
 			<Grid Name="PreloadGrid" Visibility="Collapsed">
 				<Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,364,50" Width="240" Height="50">

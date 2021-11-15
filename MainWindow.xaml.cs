@@ -42,14 +42,13 @@ namespace BetterHI3Launcher
 	}
 	enum HI3Mirror
 	{
-		miHoYo, MediaFire, GoogleDrive
+		miHoYo, Hi3Mirror, MediaFire, GoogleDrive
 	}
 
 	public partial class MainWindow : Window
 	{
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
-		public static readonly string GameExeName = "BH3.exe";
-		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveName, GameExePath, CacheArchivePath;
+		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
 		public static string GameWebProfileURL, GameFullName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
@@ -888,6 +887,7 @@ namespace BetterHI3Launcher
 						}
 					}
 				}
+				GameExeName = miHoYoVersionInfo.game.latest.entry.ToString();
 				GameArchiveName = Path.GetFileName(HttpUtility.UrlDecode(miHoYoVersionInfo.game.latest.path.ToString()));
 				web_request = BpUtility.CreateWebRequest(miHoYoVersionInfo.game.latest.path.ToString(), "HEAD", timeout);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
@@ -926,17 +926,19 @@ namespace BetterHI3Launcher
 
 		private DateTime FetchmiHoYoResourceVersionDateModified()
 		{
-			var url = new string[2];
-			var time = new DateTime[2];
+			var url = new string[3];
+			var time = new DateTime[3];
 			switch(Server)
 			{
 				case HI3Server.GLB:
 					url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[0].ToString();
 					url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[1].ToString();
+					url[2] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[2].ToString();
 					break;
 				case HI3Server.SEA:
 					url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[0].ToString();
 					url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[1].ToString();
+					url[2] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[2].ToString();
 					break;
 			}
 			try
@@ -949,18 +951,12 @@ namespace BetterHI3Launcher
 						time[i] = web_response.LastModified.ToUniversalTime();
 					}
 				}
-				if(DateTime.Compare(time[0], time[1]) >= 0)
-				{
-					return time[0];
-				}
-				else
-				{
-					return time[1];
-				}
+				Array.Sort(time);
+				return time[time.Length - 1];
 			}
 			catch
 			{
-				return new DateTime(0);
+				return new DateTime();
 			}
 		}
 
@@ -1474,7 +1470,7 @@ namespace BetterHI3Launcher
 							if(i == attempts - 1)
 							{
 								Log("Giving up...");
-								throw new CryptographicException("Failed to validate translations");
+								throw new CryptographicException("Failed to verify translations");
 							}
 							else
 							{
@@ -1600,7 +1596,7 @@ namespace BetterHI3Launcher
 							if(i == attempts - 1)
 							{
 								Log("Giving up...");
-								throw new CryptographicException("Failed to validate background image");
+								throw new CryptographicException("Failed to verify background image");
 							}
 							else
 							{
@@ -1641,6 +1637,13 @@ namespace BetterHI3Launcher
 					{
 						md5 = miHoYoVersionInfo.game.latest.md5.ToString();
 					}
+				}
+				else if(Mirror == HI3Mirror.Hi3Mirror)
+				{
+					title = GameArchiveName;
+					time = -1;
+					url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_archive.ToString() + title;
+					md5 = miHoYoVersionInfo.game.latest.md5.ToString();
 				}
 				else if(Mirror == HI3Mirror.MediaFire)
 				{
@@ -2273,6 +2276,265 @@ namespace BetterHI3Launcher
 			}
 			Dispatcher.Invoke(() => {LaunchButton.Content = App.TextStrings["button_launch"];});
 			Status = LauncherStatus.Ready;
+		}
+
+		private async void DownloadGameCacheHi3Mirror(string game_language)
+		{
+			var languages_to_skip = new List<string>(new string[]
+			{
+				"cn", "en", "vn", "th", "fr", "de", "id"
+			});
+			languages_to_skip.Remove(game_language);
+			var cache_files = new dynamic[3];
+			var cache_files_to_remove = new List<dynamic>();
+			int cache_files_count = 0;
+			try
+			{
+				int server = (int)Server == 0 ? 1 : 0;
+				var web_client = new BpWebClient();
+				await Task.Run(() =>
+				{
+					for(int i = 0; i < 3; i++)
+					{
+						var url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString(), i, server);
+						cache_files[i] = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString(url));
+						foreach(var file in cache_files[i])
+						{
+							foreach(string language in languages_to_skip)
+							{
+								if(file.N.ToString().Contains($"_{language}"))
+								{
+									cache_files_to_remove.Add(file);
+									break;
+								}
+							}
+						}
+						foreach(var file in cache_files_to_remove)
+						{
+							cache_files[i].Remove(file);
+						}
+						cache_files_count += cache_files[i].Count;
+					}
+				});
+				Log("success!", false);
+			}
+			catch(WebException ex)
+			{
+				Status = LauncherStatus.Error;
+				Log($"ERROR: Failed to connect to Hi3Mirror:\n{ex}", true, 1);
+				new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog();
+				Status = LauncherStatus.Ready;
+				return;
+			}
+
+			try
+			{
+				var existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
+				var useless_files = existing_files;
+				var bad_files = new List<string>();
+				var bad_file_hashes = new List<string>();
+				long bad_files_size = 0;
+
+				Status = LauncherStatus.Working;
+				OptionsButton.IsEnabled = true;
+				ProgressBar.IsIndeterminate = false;
+				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+				Log("Verifying game cache...");
+				await Task.Run(() =>
+				{
+					for(int i = 0; i < cache_files.Length; i++)
+					{
+						for(int j = 0; j < cache_files[i].Count; j++)
+						{
+							string name = cache_files[i][j].N.ToString().Replace("/", @"\") + ".unity3d";
+							long size = cache_files[i][j].CS;
+							string md5 = cache_files[i][j].CRC.ToString().ToUpper();
+							string path;
+							if(i == 0)
+							{
+								path = Path.Combine(GameCachePath, "Data", name);
+							}
+							else if(i == 1 || i == 2)
+							{
+								path = Path.Combine(GameCachePath, "Resources", name);
+							}
+							else
+							{
+								throw new Exception("Unknown cache file data type");
+							}
+
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], j + 1, cache_files_count);
+								var progress = (j + 1f) / cache_files_count;
+								ProgressBar.Value = progress;
+								TaskbarItemInfo.ProgressValue = progress;
+							});
+							if(!File.Exists(path) || BpUtility.CalculateMD5(path) != md5)
+							{
+								if(App.AdvancedFeatures)
+								{
+									if(File.Exists(path))
+									{
+										Log($"File corrupted: {path}");
+									}
+									else
+									{
+										Log($"File missing: {path}");
+									}
+								}
+								bad_files.Add(name);
+								bad_file_hashes.Add(md5);
+								bad_files_size += size;
+							}
+							else
+							{
+								useless_files.RemoveAll(x => x.FullName == path);
+								if(App.AdvancedFeatures)
+								{
+									Log($"File OK: {path}");
+								}
+							}
+						}
+					}
+					foreach(var useless_file in useless_files)
+					{
+						Log($"Useless file: {useless_file.FullName}");
+					}
+				});
+				ProgressText.Text = string.Empty;
+				ProgressBar.Visibility = Visibility.Hidden;
+				ProgressBar.Value = 0;
+				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+				TaskbarItemInfo.ProgressValue = 0;
+				WindowState = WindowState.Normal;
+				if(useless_files.Count > 0)
+				{
+					Log($"Found useless files: {useless_files.Count}");
+					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format("Found {0} useless files, wanna remove 'em?", useless_files.Count), DialogWindow.DialogType.Question).ShowDialog() == true)
+					{
+						foreach(var file in useless_files)
+						{
+							DeleteFile(file.FullName, true);
+						}
+					}
+				}
+				if(bad_files.Count > 0)
+				{
+					Log($"Finished verifying files, found corrupted/missing files: {bad_files.Count}");
+					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
+					{
+						string url = string.Empty;
+						string server = (int)Server == 0 ? "global" : "os";
+						string data_type;
+						string path;
+						
+						int downloaded_files = 0;
+
+						Status = LauncherStatus.Downloading;
+						await Task.Run(async () =>
+						{
+							for(int i = 0; i < bad_files.Count; i++)
+							{
+								Dispatcher.Invoke(() =>
+								{
+									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, bad_files.Count);
+									var progress = (i + 1f) / bad_files.Count;
+									ProgressBar.Value = progress;
+									TaskbarItemInfo.ProgressValue = progress;
+								});
+								try
+								{
+									var web_client = new BpWebClient{};
+									if(bad_files[i].StartsWith("data"))
+									{
+										data_type = "data";
+										path = Path.Combine(GameCachePath, "Data", bad_files[i]);
+									}
+									else if(bad_files[i].StartsWith("event"))
+									{
+										data_type = "event";
+										path = Path.Combine(GameCachePath, "Resources", bad_files[i]);
+									}
+									else if(bad_files[i].StartsWith("ai"))
+									{
+										data_type = "ai";
+										path = Path.Combine(GameCachePath, "Resources", bad_files[i]);
+									}
+									else
+									{
+										throw new Exception("Unknown cache file data type");
+									}
+									url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString(), server, data_type, bad_files[i].Replace(@"\", "/").Replace(".unity3d", string.Empty));
+									Directory.CreateDirectory(new FileInfo(path).DirectoryName);
+									await web_client.DownloadFileTaskAsync(new Uri(url), path);
+									Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, bad_files.Count);});
+									if(File.Exists(path) && BpUtility.CalculateMD5(path) != bad_file_hashes[i])
+									{
+										Log($"ERROR: Failed to verify file [{path}]", true, 1);
+									}
+									else
+									{
+										Log($"Downloaded file {bad_files[i]}");
+										downloaded_files++;
+									}
+								}
+								catch(Exception ex)
+								{
+									Log($"ERROR: Failed to download file [{bad_files[i]}] ({url}): {ex.Message}", true, 1);
+								}
+							}
+						});
+						Dispatcher.Invoke(() =>
+						{
+							LaunchButton.Content = App.TextStrings["button_launch"];
+							ProgressText.Text = string.Empty;
+							ProgressBar.Visibility = Visibility.Hidden;
+							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+						});
+						if(downloaded_files == bad_files.Count)
+						{
+							Log($"Successfully downloaded {downloaded_files} file(s)");
+							Dispatcher.Invoke(() =>
+							{
+								new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_4_msg"], downloaded_files)).ShowDialog();
+							});
+						}
+						else
+						{
+							int skipped_files = bad_files.Count - downloaded_files;
+							if(downloaded_files > 0)
+							{
+								Log($"Successfully downloaded {downloaded_files} files, failed to download {skipped_files} files");
+							}
+							Dispatcher.Invoke(() =>
+							{
+								new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_5_msg"], skipped_files)).ShowDialog();
+							});
+						}
+					}
+				}
+				else
+				{
+					Log("Finished verifying files, the cache is up-to-date");
+					Dispatcher.Invoke(() =>
+					{
+						ProgressText.Text = string.Empty;
+						ProgressBar.Visibility = Visibility.Hidden;
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+					});
+					new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_repair_2_msg"]).ShowDialog();
+				}
+				Status = LauncherStatus.Ready;
+
+			}
+			catch(Exception ex)
+			{
+				Status = LauncherStatus.Error;
+				Log($"ERROR:\n{ex}", true, 1);
+				new DialogWindow(App.TextStrings["msgbox_generic_error_title"], App.TextStrings["msgbox_generic_error_msg"]).ShowDialog();
+				Status = LauncherStatus.Ready;
+			}
 		}
 
 		private void SendStatistics(string file, long time)
@@ -2954,100 +3216,170 @@ namespace BetterHI3Launcher
 				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
 			}
-
-			LegacyBoxActive = true;
-			Status = LauncherStatus.CheckingUpdates;
-			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_mirror_connect"];});
-			Log("Fetching mirror data...");
-			try
+			int game_language_int;
+			string game_language;
+			var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
+			string value = "multi_language_h2498394913";
+			if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
 			{
-				string mirror;
-				string time;
-				string last_updated;
-
-				await Task.Run(() =>
-				{
-					FetchOnlineVersionInfo();
-					switch(Server)
-					{
-						case HI3Server.GLB:
-							if(Mirror == HI3Mirror.GoogleDrive)
-							{
-								GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
-								if(GameCacheMetadata != null)
-								{
-									GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
-								}
-							}
-							else
-							{
-								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
-								if(GameCacheMetadata != null)
-								{
-									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
-								}
-							}
-							break;
-						case HI3Server.SEA:
-							if(Mirror == HI3Mirror.GoogleDrive)
-							{
-								GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
-								if(GameCacheMetadata != null)
-								{
-									GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
-								}
-							}
-							else
-							{
-								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
-								if(GameCacheMetadata != null)
-								{
-									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
-								}
-							}
-							break;
-					}
-					if(GameCacheMetadata == null || GameCacheMetadataNumeric == null)
-					{
-						LegacyBoxActive = false;
-						Status = LauncherStatus.Ready;
-						return;
-					}
-					mirror = Mirror == HI3Mirror.GoogleDrive ? "Google Drive" : "MediaFire";
-					try
-					{
-						time = Mirror == HI3Mirror.GoogleDrive ? GameCacheMetadataNumeric.modifiedDate.ToString() : new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)OnlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
-						if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(time)) >= 0)
-						{
-							last_updated = $"{DateTime.Parse(time).ToLocalTime().ToString(new CultureInfo(App.OSLanguage))} ({App.TextStrings["outdated"].ToLower()})";
-						}
-						else
-						{
-							last_updated = DateTime.Parse(time).ToLocalTime().ToString(new CultureInfo(App.OSLanguage));
-						}
-						Log("success!", false);
-					}
-					catch
-					{
-						last_updated = App.TextStrings["msgbox_generic_error_title"];
-						Log($"WARNING: Failed to load last cache update time", true, 2);
-					}
-					Dispatcher.Invoke(() =>
-					{
-						DownloadCacheBox.Visibility = Visibility.Visible;
-						DownloadCacheBoxMessageTextBlock.Text = string.Format(App.TextStrings["downloadcachebox_msg"], mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
-						Status = LauncherStatus.Ready;
-					});
-				});
-			}
-			catch(Exception ex)
-			{
-				LegacyBoxActive = false;
-				Status = LauncherStatus.Error;
-				Log($"ERROR: Failed to fetch cache metadata:\n{ex}", true, 1);
-				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_mirror_error_msg"], ex.Message)).ShowDialog();});
-				Status = LauncherStatus.Ready;
+				new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_2_msg"]}").ShowDialog();
 				return;
+			}
+			game_language_int = (int)key.GetValue(value);
+			switch(game_language_int)
+			{
+				case 0:
+					game_language = "cn";
+					break;
+				case 1:
+					game_language = "en";
+					break;
+				case 2:
+					if(Server == HI3Server.SEA)
+					{
+						game_language = "vn";
+						break;
+					}
+					goto case 0;
+				case 3:
+					if(Server == HI3Server.SEA)
+					{
+						game_language = "th";
+						break;
+					}
+					goto case 0;
+				case 4:
+					if(Server == HI3Server.GLB)
+					{
+						game_language = "fr";
+						break;
+					}
+					goto case 0;
+				case 5:
+					if(Server == HI3Server.GLB)
+					{
+						game_language = "de";
+						break;
+					}
+					goto case 0;
+				case 6:
+					if(Server == HI3Server.SEA)
+					{
+						game_language = "id";
+						break;
+					}
+					goto case 0;
+				default:
+					goto case 0;
+			}
+
+			if(Mirror == HI3Mirror.miHoYo || Mirror == HI3Mirror.Hi3Mirror)
+			{
+				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_5_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
+				{
+					return;
+				}
+				Status = LauncherStatus.CheckingUpdates;
+				Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_mirror_connect"];});
+				Log("Connecting to Hi3Mirror...");
+				DownloadGameCacheHi3Mirror(game_language);
+			}
+			else
+			{
+				LegacyBoxActive = true;
+				Status = LauncherStatus.CheckingUpdates;
+				Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_mirror_connect"];});
+				Log("Fetching mirror data...");
+				try
+				{
+					string mirror;
+					string time;
+					string last_updated;
+
+					await Task.Run(() =>
+					{
+						FetchOnlineVersionInfo();
+						switch(Server)
+						{
+							case HI3Server.GLB:
+								if(Mirror == HI3Mirror.GoogleDrive)
+								{
+									GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
+									if(GameCacheMetadata != null)
+									{
+										GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
+									}
+								}
+								else
+								{
+									GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
+									if(GameCacheMetadata != null)
+									{
+										GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
+									}
+								}
+								break;
+							case HI3Server.SEA:
+								if(Mirror == HI3Mirror.GoogleDrive)
+								{
+									GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
+									if(GameCacheMetadata != null)
+									{
+										GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
+									}
+								}
+								else
+								{
+									GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
+									if(GameCacheMetadata != null)
+									{
+										GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
+									}
+								}
+								break;
+						}
+						if(GameCacheMetadata == null || GameCacheMetadataNumeric == null)
+						{
+							LegacyBoxActive = false;
+							Status = LauncherStatus.Ready;
+							return;
+						}
+						mirror = Mirror == HI3Mirror.GoogleDrive ? "Google Drive" : "MediaFire";
+						try
+						{
+							time = Mirror == HI3Mirror.GoogleDrive ? GameCacheMetadataNumeric.modifiedDate.ToString() : new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)OnlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
+							if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(time)) >= 0)
+							{
+								last_updated = $"{DateTime.Parse(time).ToLocalTime().ToString(new CultureInfo(App.OSLanguage))} ({App.TextStrings["outdated"].ToLower()})";
+							}
+							else
+							{
+								last_updated = DateTime.Parse(time).ToLocalTime().ToString(new CultureInfo(App.OSLanguage));
+							}
+							Log("success!", false);
+						}
+						catch
+						{
+							last_updated = App.TextStrings["msgbox_generic_error_title"];
+							Log($"WARNING: Failed to load last cache update time", true, 2);
+						}
+						Dispatcher.Invoke(() =>
+						{
+							DownloadCacheBox.Visibility = Visibility.Visible;
+							DownloadCacheBoxMessageTextBlock.Text = string.Format(App.TextStrings["downloadcachebox_msg"], mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+							Status = LauncherStatus.Ready;
+						});
+					});
+				}
+				catch(Exception ex)
+				{
+					LegacyBoxActive = false;
+					Status = LauncherStatus.Error;
+					Log($"ERROR: Failed to fetch cache metadata:\n{ex}", true, 1);
+					Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_mirror_error_msg"], ex.Message)).ShowDialog();});
+					Status = LauncherStatus.Ready;
+					return;
+				}
 			}
 		}
 
@@ -3559,7 +3891,7 @@ namespace BetterHI3Launcher
 						subtitle_files.AddRange(subtitle_files = Directory.EnumerateFiles(game_video_path, "*vn.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("vn.srt", StringComparison.CurrentCultureIgnoreCase)).ToList());
 						if(subtitle_files.Count > 0)
 						{
-							int deletedSubs = 0;
+							int deleted_subs = 0;
 							await Task.Run(() =>
 							{
 								foreach(var subtitle_file in subtitle_files)
@@ -3570,7 +3902,7 @@ namespace BetterHI3Launcher
 										{
 											File.Delete(subtitle_file);
 										}
-										deletedSubs++;
+										deleted_subs++;
 									}
 									catch
 									{
@@ -3578,7 +3910,7 @@ namespace BetterHI3Launcher
 									}
 								}
 							});
-							Log($"Deleted {deletedSubs} useless subtitles");
+							Log($"Deleted {deleted_subs} useless subtitles");
 						}
 					}
 					ProgressText.Text = string.Empty;
@@ -4201,7 +4533,14 @@ namespace BetterHI3Launcher
 			}
 			else if(Mirror == HI3Mirror.miHoYo && index != 0)
 			{
-				if(new DialogWindow(App.TextStrings["msgbox_notice_title"], App.TextStrings["msgbox_mirror_info_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+				string msg = App.TextStrings["msgbox_mirror_info_msg"];
+				if(index == 1)
+				{
+					int newline_1 = msg.IndexOf('\n');
+					int newline_2 = msg.IndexOf('\n', newline_1 + 1);
+					msg = msg.Remove(newline_1 + 1, newline_2 - newline_1);
+				}
+				if(new DialogWindow(App.TextStrings["msgbox_notice_title"], msg, DialogWindow.DialogType.Question).ShowDialog() == false)
 				{
 					MirrorDropdown.SelectedIndex = 0;
 					return;
@@ -4213,9 +4552,12 @@ namespace BetterHI3Launcher
 					Mirror = HI3Mirror.miHoYo;
 					break;
 				case 1:
-					Mirror = HI3Mirror.MediaFire;
+					Mirror = HI3Mirror.Hi3Mirror;
 					break;
 				case 2:
+					Mirror = HI3Mirror.MediaFire;
+					break;
+				case 3:
 					Mirror = HI3Mirror.GoogleDrive;
 					break;
 			}
