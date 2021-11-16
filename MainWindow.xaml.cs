@@ -2316,7 +2316,9 @@ namespace BetterHI3Launcher
 
 		private async void DownloadGameCacheHi3Mirror(string game_language)
 		{
-			string data;
+			string data,
+				preformatAPIUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString(),
+				preformatDataUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
 			List<CacheDataProperties> CacheFiles, BadFiles;
 			CacheType cacheType;
 			try
@@ -2352,7 +2354,7 @@ namespace BetterHI3Launcher
 						}
 
 						// Get URL and API data
-						string url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString(), i, server);
+						string url = string.Format(preformatAPIUrl, i, server);
 						data = web_client.DownloadString(url);
 
 						// Do Elimination Process
@@ -2507,7 +2509,7 @@ namespace BetterHI3Launcher
 										break;
 								}
 
-								url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString(), server, data_type, BadFiles[i].N);
+								url = string.Format(preformatDataUrl, server, data_type, BadFiles[i].N);
 
 								Dispatcher.Invoke(() =>
 								{
