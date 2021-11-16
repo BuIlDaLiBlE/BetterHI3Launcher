@@ -3895,9 +3895,9 @@ namespace BetterHI3Launcher
 											sub_lines[at_line] = line.Replace(" ,", ",");
 											LogLine();
 										}
-										if(line.Contains("	"))
+										if(line.Contains("  "))
 										{
-											sub_lines[at_line] = line.Replace("	 ", " ");
+											sub_lines[at_line] = line.Replace("  ", " ");
 											LogLine();
 										}
 										if(at_line + 1 < line_count && string.IsNullOrEmpty(sub_lines[at_line + 1]))
