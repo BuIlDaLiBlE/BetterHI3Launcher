@@ -2287,12 +2287,12 @@ namespace BetterHI3Launcher
 		 * CS	-> Size of the file
 		 */
 		private class CacheDataProperties
-        {
+		{
 			public string N { get; set; }
 			public string CRC { get; set; }
 			public long CS { get; set; }
 			public CacheType Type { get; set; }
-        }
+		}
 
 		/* Filter Region Type of Cache File
 		 * 0 -> the file is a regional file but outside user region.
@@ -2400,7 +2400,7 @@ namespace BetterHI3Launcher
 					FileInfo fileInfo;
 
 					for (int i = 0; i < CacheFiles.Count; i++)
-                    {
+					{
 						name = $"{NormalizePath(CacheFiles[i].N)}.unity3d";
 						size = CacheFiles[i].CS;
 						md5 = CacheFiles[i].CRC;
@@ -2409,7 +2409,7 @@ namespace BetterHI3Launcher
 						// Combine Path and assign their own path
 						// If none of them assigned as Unknown type, throw an exception.
 						switch (cacheType)
-                        {
+						{
 							default:
 								throw new Exception("Unknown cache file data type");
 							case CacheType.Data:
@@ -2480,7 +2480,7 @@ namespace BetterHI3Launcher
 				{
 					Log($"Finished verifying files, found corrupted/missing files: {BadFiles.Count}");
 					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], BadFiles.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
-                    {
+					{
 						string url, data_type = string.Empty, path = string.Empty;
 						string server = Server == 0 ? "global" : "os";
 
@@ -2490,10 +2490,10 @@ namespace BetterHI3Launcher
 						await Task.Run(async () =>
 						{
 							for (int i = 0; i < BadFiles.Count; i++)
-                            {
+							{
 								switch (BadFiles[i].Type)
-                                {
-                                    case CacheType.Data:
+								{
+									case CacheType.Data:
 										data_type = "data";
 										path = Path.Combine(GameCachePath, "Data", NormalizePath(BadFiles[i].N) + ".unity3d");
 										break;
@@ -2517,8 +2517,8 @@ namespace BetterHI3Launcher
 									TaskbarItemInfo.ProgressValue = progress;
 								});
 
-                                try
-                                {
+								try
+								{
 									BpWebClient web_client = new BpWebClient();
 
 									if (!Directory.Exists(Path.GetDirectoryName(path)))
@@ -3895,9 +3895,9 @@ namespace BetterHI3Launcher
 											sub_lines[at_line] = line.Replace(" ,", ",");
 											LogLine();
 										}
-										if(line.Contains("  "))
+										if(line.Contains("	"))
 										{
-											sub_lines[at_line] = line.Replace("  ", " ");
+											sub_lines[at_line] = line.Replace("	 ", " ");
 											LogLine();
 										}
 										if(at_line + 1 < line_count && string.IsNullOrEmpty(sub_lines[at_line + 1]))
