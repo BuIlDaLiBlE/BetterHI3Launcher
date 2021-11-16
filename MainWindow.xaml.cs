@@ -2482,7 +2482,7 @@ namespace BetterHI3Launcher
 					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], BadFiles.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						string url, data_type = string.Empty, path = string.Empty;
-						string server = Server == 0 ? "global" : "os";
+						string server = Server == 0 ? "global" : "sea";
 
 						int downloaded_files = 0;
 						Status = LauncherStatus.Downloading;
