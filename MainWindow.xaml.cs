@@ -2279,7 +2279,13 @@ namespace BetterHI3Launcher
 		}
 
 		private readonly string[] CacheRegionalCheckName = new string[] { "TextMap", "RandomDialogData", "sprite" };
-		private enum CacheType { Data, Resources, Unknown }
+		private enum CacheType { Data, Resources, Ai, Unknown }
+
+		/*
+		 * N	-> Name of the necessary file
+		 * CRC	-> Expected MD5 hash of the file
+		 * CS	-> Size of the file
+		 */
 		private class CacheDataProperties
         {
 			public string N { get; set; }
@@ -2311,40 +2317,34 @@ namespace BetterHI3Launcher
 		private async void DownloadGameCacheHi3Mirror(string game_language)
 		{
 			string data;
-			List<CacheDataProperties> CacheFiles;
+			List<CacheDataProperties> CacheFiles, BadFiles;
 			CacheType cacheType;
-
-			var languages_to_skip = new List<string>(new string[]
-			{
-				"cn", "en", "vn", "th", "fr", "de", "id"
-			});
-			languages_to_skip.Remove(game_language);
-
-			var cache_files = new dynamic[3];
-			var cache_files_to_remove = new List<dynamic>();
-			int cache_files_count = 0;
 			try
 			{
 				int server = (int)Server == 0 ? 1 : 0;
 				var web_client = new BpWebClient();
 
 				CacheFiles = new List<CacheDataProperties>();
+				BadFiles = new List<CacheDataProperties>();
 
 				await Task.Run(() =>
 				{
 					for (int i = 0; i < 3; i++)
 					{
 						// Classify data type as per i
-						// 0 & 2	: Data and AI/Btree cache
-						// 1 or _	: Resources/Event cache
+						// 0 or _	: Data and AI/Btree cache
+						// 1		: Resources/Event cache
+						// 2		: Btree/Ai cache
 						switch (i)
 						{
 							case 0:
 								cacheType = CacheType.Data;
 								break;
 							case 1:
-							case 2:
 								cacheType = CacheType.Resources;
+								break;
+							case 2:
+								cacheType = CacheType.Ai;
 								break;
 							default:
 								cacheType = CacheType.Unknown;
@@ -2361,7 +2361,7 @@ namespace BetterHI3Launcher
 							// Do check whenever the file is included regional language as game_language defined
 							// Then add it to CacheFiles list
 							if (FilterRegion(file.N, game_language) > 0)
-								// Do 
+								// Do add if the Filter passed.
 								CacheFiles.Add(new CacheDataProperties
 								{
 									N = file.N,
@@ -2372,8 +2372,6 @@ namespace BetterHI3Launcher
 					}
 				});
 				Log("success!", false);
-
-				cache_files_count = CacheFiles.Count;
 			}
 			catch(WebException ex)
 			{
@@ -2388,8 +2386,6 @@ namespace BetterHI3Launcher
 			{
 				List<FileInfo> existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
 				List<FileInfo> useless_files = existing_files;
-				List<string> bad_files = new List<string>();
-				List<string> bad_file_hashes = new List<string>();
 				long bad_files_size = 0;
 
 				Status = LauncherStatus.Working;
@@ -2419,6 +2415,7 @@ namespace BetterHI3Launcher
 							case CacheType.Data:
 								path = Path.Combine(GameCachePath, "Data", name);
 								break;
+							case CacheType.Ai:
 							case CacheType.Resources:
 								path = Path.Combine(GameCachePath, "Resources", name);
 								break;
@@ -2428,8 +2425,8 @@ namespace BetterHI3Launcher
 
 						Dispatcher.Invoke(() =>
 						{
-							ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, cache_files_count);
-							var progress = (i + 1f) / cache_files_count;
+							ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, CacheFiles.Count);
+							var progress = (i + 1f) / CacheFiles.Count;
 							ProgressBar.Value = progress;
 							TaskbarItemInfo.ProgressValue = progress;
 						});
@@ -2437,91 +2434,31 @@ namespace BetterHI3Launcher
 						if (!fileInfo.Exists || BpUtility.CalculateMD5(fileInfo.FullName) != md5 || fileInfo.Length != size)
 						{
 							if (App.AdvancedFeatures)
-							{
 								if (File.Exists(path))
-								{
 									Log($"File corrupted: {path}");
-								}
 								else
-								{
 									Log($"File missing: {path}");
-								}
-							}
-							bad_files.Add(name);
-							bad_file_hashes.Add(md5);
-							bad_files_size += size;
+
+							BadFiles.Add(new CacheDataProperties
+							{
+								N = CacheFiles[i].N,
+								CRC = md5,
+								CS = size,
+								Type = CacheFiles[i].Type
+							});
 						}
 						else
 						{
 							useless_files.RemoveAll(x => x.FullName == path);
 							if (App.AdvancedFeatures)
-							{
 								Log($"File OK: {path}");
-							}
 						}
 					}
-
-					/*
-					for(int i = 0; i < cache_files.Length; i++)
-					{
-						for(int j = 0; j < cache_files[i].Count; j++)
-						{
-							name = cache_files[i][j].N.ToString().Replace("/", @"\") + ".unity3d";
-							size = cache_files[i][j].CS;
-							md5 = cache_files[i][j].CRC.ToString().ToUpper();
-							if(i == 0)
-							{
-								path = Path.Combine(GameCachePath, "Data", name);
-							}
-							else if(i == 1 || i == 2)
-							{
-								path = Path.Combine(GameCachePath, "Resources", name);
-							}
-							else
-							{
-								throw new Exception("Unknown cache file data type");
-							}
-
-							Dispatcher.Invoke(() =>
-							{
-								ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], j + 1, cache_files_count);
-								var progress = (j + 1f) / cache_files_count;
-								ProgressBar.Value = progress;
-								TaskbarItemInfo.ProgressValue = progress;
-							});
-							if(!File.Exists(path) || BpUtility.CalculateMD5(path) != md5)
-							{
-								if(App.AdvancedFeatures)
-								{
-									if(File.Exists(path))
-									{
-										Log($"File corrupted: {path}");
-									}
-									else
-									{
-										Log($"File missing: {path}");
-									}
-								}
-								bad_files.Add(name);
-								bad_file_hashes.Add(md5);
-								bad_files_size += size;
-							}
-							else
-							{
-								useless_files.RemoveAll(x => x.FullName == path);
-								if(App.AdvancedFeatures)
-								{
-									Log($"File OK: {path}");
-								}
-							}
-						}
-					}
-					*/
 
 					foreach(var useless_file in useless_files)
-					{
 						Log($"Useless file: {useless_file.FullName}");
-					}
+
+					bad_files_size = BadFiles.Sum(x => x.CS);
 				});
 
 				ProgressText.Text = string.Empty;
@@ -2535,80 +2472,77 @@ namespace BetterHI3Launcher
 				{
 					Log($"Found useless files: {useless_files.Count}");
 					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format("Found {0} useless files, wanna remove 'em?", useless_files.Count), DialogWindow.DialogType.Question).ShowDialog() == true)
-					{
 						foreach (var file in useless_files)
-						{
 							DeleteFile(file.FullName, true);
-						}
-					}
 				}
 
-				if (bad_files.Count > 0)
+				if (BadFiles.Count > 0)
 				{
-					Log($"Finished verifying files, found corrupted/missing files: {bad_files.Count}");
-					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
-					{
-						string url = string.Empty;
-						string server = (int)Server == 0 ? "global" : "os";
-						string data_type;
-						string path;
-						
-						int downloaded_files = 0;
+					Log($"Finished verifying files, found corrupted/missing files: {BadFiles.Count}");
+					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], BadFiles.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
+                    {
+						string url, data_type = string.Empty, path = string.Empty;
+						string server = Server == 0 ? "global" : "os";
 
+						int downloaded_files = 0;
 						Status = LauncherStatus.Downloading;
+
 						await Task.Run(async () =>
 						{
-							for (int i = 0; i < bad_files.Count; i++)
-							{
+							for (int i = 0; i < BadFiles.Count; i++)
+                            {
+								switch (BadFiles[i].Type)
+                                {
+                                    case CacheType.Data:
+										data_type = "data";
+										path = Path.Combine(GameCachePath, "Data", NormalizePath(BadFiles[i].N) + ".unity3d");
+										break;
+									case CacheType.Resources:
+										data_type = "event";
+										path = Path.Combine(GameCachePath, "Resources", NormalizePath(BadFiles[i].N) + ".unity3d");
+										break;
+									case CacheType.Ai:
+										data_type = "ai";
+										path = Path.Combine(GameCachePath, "Resources", NormalizePath(BadFiles[i].N) + ".unity3d");
+										break;
+								}
+
+								url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString(), server, data_type, BadFiles[i].N);
+
 								Dispatcher.Invoke(() =>
 								{
-									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, bad_files.Count);
-									var progress = (i + 1f) / bad_files.Count;
+									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, BadFiles.Count);
+									var progress = (i + 1f) / BadFiles.Count;
 									ProgressBar.Value = progress;
 									TaskbarItemInfo.ProgressValue = progress;
 								});
-								try
-								{
-									var web_client = new BpWebClient{};
-									if (bad_files[i].StartsWith("data"))
-									{
-										data_type = "data";
-										path = Path.Combine(GameCachePath, "Data", bad_files[i]);
-									}
-									else if (bad_files[i].StartsWith("event"))
-									{
-										data_type = "event";
-										path = Path.Combine(GameCachePath, "Resources", bad_files[i]);
-									}
-									else if (bad_files[i].StartsWith("ai"))
-									{
-										data_type = "ai";
-										path = Path.Combine(GameCachePath, "Resources", bad_files[i]);
-									}
-									else
-									{
-										throw new Exception("Unknown cache file data type");
-									}
-									url = string.Format(OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString(), server, data_type, bad_files[i].Replace(@"\", "/").Replace(".unity3d", string.Empty));
-									Directory.CreateDirectory(new FileInfo(path).DirectoryName);
+
+                                try
+                                {
+									BpWebClient web_client = new BpWebClient();
+
+									if (!Directory.Exists(Path.GetDirectoryName(path)))
+										Directory.CreateDirectory(Path.GetDirectoryName(path));
+
 									await web_client.DownloadFileTaskAsync(new Uri(url), path);
-									Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, bad_files.Count);});
-									if (File.Exists(path) && BpUtility.CalculateMD5(path) != bad_file_hashes[i])
-									{
+
+									Dispatcher.Invoke(() => { ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, BadFiles.Count); });
+
+									if (File.Exists(path) && BpUtility.CalculateMD5(path) != BadFiles[i].CRC)
 										Log($"ERROR: Failed to verify file [{path}]", true, 1);
-									}
 									else
 									{
-										Log($"Downloaded file {bad_files[i]}");
+										Log($"Downloaded file {BadFiles[i].N}");
 										downloaded_files++;
 									}
 								}
-								catch(Exception ex)
+								catch (Exception ex)
 								{
-									Log($"ERROR: Failed to download file [{bad_files[i]}] ({url}): {ex.Message}", true, 1);
+									Log($"ERROR: Failed to download file [{BadFiles[i].N}] ({url}): {ex.Message}", true, 1);
 								}
 							}
 						});
+
 						Dispatcher.Invoke(() =>
 						{
 							LaunchButton.Content = App.TextStrings["button_launch"];
@@ -2616,7 +2550,8 @@ namespace BetterHI3Launcher
 							ProgressBar.Visibility = Visibility.Hidden;
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						});
-						if(downloaded_files == bad_files.Count)
+
+						if (downloaded_files == BadFiles.Count)
 						{
 							Log($"Successfully downloaded {downloaded_files} file(s)");
 							Dispatcher.Invoke(() =>
@@ -2624,13 +2559,13 @@ namespace BetterHI3Launcher
 								new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_4_msg"], downloaded_files)).ShowDialog();
 							});
 						}
+
 						else
 						{
-							int skipped_files = bad_files.Count - downloaded_files;
-							if(downloaded_files > 0)
-							{
+							int skipped_files = BadFiles.Count - downloaded_files;
+							if (downloaded_files > 0)
 								Log($"Successfully downloaded {downloaded_files} files, failed to download {skipped_files} files");
-							}
+							
 							Dispatcher.Invoke(() =>
 							{
 								new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_5_msg"], skipped_files)).ShowDialog();
