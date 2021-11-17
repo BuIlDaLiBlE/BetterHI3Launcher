@@ -2279,7 +2279,21 @@ namespace BetterHI3Launcher
 		}
 
 		private readonly string[] CacheRegionalCheckName = new string[] { "TextMap", "RandomDialogData", "sprite" };
-		private enum CacheType { Data, Resources, Ai, Unknown }
+		private enum CacheType { Data, Event, Ai, Unknown }
+		private string ReturnCacheTypeEnum(CacheType enumName)
+		{
+			switch (enumName)
+			{
+				case CacheType.Ai:
+					return "ai";
+				case CacheType.Data:
+					return "data";
+				case CacheType.Event:
+					return "event";
+				default:
+					throw new Exception($"Data returns unknown type");
+			}
+		}
 
 		/*
 		 * N	-> Name of the necessary file
@@ -2312,19 +2326,23 @@ namespace BetterHI3Launcher
 		}
 
 		// Normalize Unix path (/) to Windows path (\)
-		private string NormalizePath(string i) => Path.Combine(Path.GetDirectoryName(i), Path.GetFileName(i));
+		private string NormalizePath(string i) => i.Replace('/', '\\');
 
 		private async void DownloadGameCacheHi3Mirror(string game_language)
 		{
-			string data,
+			string data, url, localMD5, name,
+				path = string.Empty,
 				preformatAPIUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString(),
 				preformatDataUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
+
 			List<CacheDataProperties> CacheFiles, BadFiles;
 			CacheType cacheType;
+			BpWebClient web_client = new BpWebClient();
+			FileInfo fileInfo;
+
 			try
 			{
 				int server = (int)Server == 0 ? 1 : 0;
-				var web_client = new BpWebClient();
 
 				CacheFiles = new List<CacheDataProperties>();
 				BadFiles = new List<CacheDataProperties>();
@@ -2343,7 +2361,7 @@ namespace BetterHI3Launcher
 								cacheType = CacheType.Data;
 								break;
 							case 1:
-								cacheType = CacheType.Resources;
+								cacheType = CacheType.Event;
 								break;
 							case 2:
 								cacheType = CacheType.Ai;
@@ -2354,7 +2372,7 @@ namespace BetterHI3Launcher
 						}
 
 						// Get URL and API data
-						string url = string.Format(preformatAPIUrl, i, server);
+						url = string.Format(preformatAPIUrl, i, server);
 						data = web_client.DownloadString(url);
 
 						// Do Elimination Process
@@ -2397,20 +2415,14 @@ namespace BetterHI3Launcher
 				Log("Verifying game cache...");
 				await Task.Run(() =>
 				{
-					string name, md5, path;
-					long size;
-					FileInfo fileInfo;
 
 					for (int i = 0; i < CacheFiles.Count; i++)
 					{
 						name = $"{NormalizePath(CacheFiles[i].N)}.unity3d";
-						size = CacheFiles[i].CS;
-						md5 = CacheFiles[i].CRC;
-						cacheType = CacheFiles[i].Type;
 
 						// Combine Path and assign their own path
 						// If none of them assigned as Unknown type, throw an exception.
-						switch (cacheType)
+						switch (CacheFiles[i].Type)
 						{
 							default:
 								throw new Exception("Unknown cache file data type");
@@ -2418,7 +2430,7 @@ namespace BetterHI3Launcher
 								path = Path.Combine(GameCachePath, "Data", name);
 								break;
 							case CacheType.Ai:
-							case CacheType.Resources:
+							case CacheType.Event:
 								path = Path.Combine(GameCachePath, "Resources", name);
 								break;
 						}
@@ -2433,7 +2445,7 @@ namespace BetterHI3Launcher
 							TaskbarItemInfo.ProgressValue = progress;
 						});
 
-						if (!fileInfo.Exists || BpUtility.CalculateMD5(fileInfo.FullName) != md5 || fileInfo.Length != size)
+						if (!fileInfo.Exists || BpUtility.CalculateMD5(fileInfo.FullName) != CacheFiles[i].CRC)
 						{
 							if (App.AdvancedFeatures)
 								if (File.Exists(path))
@@ -2441,13 +2453,7 @@ namespace BetterHI3Launcher
 								else
 									Log($"File missing: {path}");
 
-							BadFiles.Add(new CacheDataProperties
-							{
-								N = CacheFiles[i].N,
-								CRC = md5,
-								CS = size,
-								Type = CacheFiles[i].Type
-							});
+							BadFiles.Add(CacheFiles[i]);
 						}
 						else
 						{
@@ -2483,7 +2489,6 @@ namespace BetterHI3Launcher
 					Log($"Finished verifying files, found corrupted/missing files: {BadFiles.Count}");
 					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], BadFiles.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
-						string url, data_type = string.Empty, path = string.Empty;
 						string server = Server == 0 ? "global" : "sea";
 
 						int downloaded_files = 0;
@@ -2493,23 +2498,21 @@ namespace BetterHI3Launcher
 						{
 							for (int i = 0; i < BadFiles.Count; i++)
 							{
+								path = $"{NormalizePath(BadFiles[i].N)}.unity3d";
 								switch (BadFiles[i].Type)
 								{
 									case CacheType.Data:
-										data_type = "data";
-										path = Path.Combine(GameCachePath, "Data", NormalizePath(BadFiles[i].N) + ".unity3d");
+										path = Path.Combine(GameCachePath, "Data", path);
 										break;
-									case CacheType.Resources:
-										data_type = "event";
-										path = Path.Combine(GameCachePath, "Resources", NormalizePath(BadFiles[i].N) + ".unity3d");
+									case CacheType.Event:
+										path = Path.Combine(GameCachePath, "Resources", path);
 										break;
 									case CacheType.Ai:
-										data_type = "ai";
-										path = Path.Combine(GameCachePath, "Resources", NormalizePath(BadFiles[i].N) + ".unity3d");
+										path = Path.Combine(GameCachePath, "Resources", path);
 										break;
 								}
 
-								url = string.Format(preformatDataUrl, server, data_type, BadFiles[i].N);
+								url = string.Format(preformatDataUrl, server, ReturnCacheTypeEnum(BadFiles[i].Type), BadFiles[i].N);
 
 								Dispatcher.Invoke(() =>
 								{
@@ -2521,8 +2524,6 @@ namespace BetterHI3Launcher
 
 								try
 								{
-									BpWebClient web_client = new BpWebClient();
-
 									if (!Directory.Exists(Path.GetDirectoryName(path)))
 										Directory.CreateDirectory(Path.GetDirectoryName(path));
 
@@ -2530,7 +2531,9 @@ namespace BetterHI3Launcher
 
 									Dispatcher.Invoke(() => { ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, BadFiles.Count); });
 
-									if (File.Exists(path) && BpUtility.CalculateMD5(path) != BadFiles[i].CRC)
+									localMD5 = BpUtility.CalculateMD5(path);
+
+									if (File.Exists(path) && localMD5 != BadFiles[i].CRC)
 										Log($"ERROR: Failed to verify file [{path}]", true, 1);
 									else
 									{
