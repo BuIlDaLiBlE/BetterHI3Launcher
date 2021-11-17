@@ -64,9 +64,6 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		public static string CreateMD5(Stream fs) => BytesToHex(MD5.Create().ComputeHash(fs));
-		public static string BytesToHex(in byte[] bytes) => BitConverter.ToString(bytes).Replace("-", string.Empty);
-
 		// https://stackoverflow.com/a/49535675/7570821
 		public static string ToBytesCount(long bytes)
 		{
