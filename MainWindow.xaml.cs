@@ -617,7 +617,7 @@ namespace BetterHI3Launcher
 						return;
 					}
 					Status = LauncherStatus.Error;
-					MessageBox.Show($"{App.TextStrings["msgbox_conn_bp_error_msg"]}\n{ex}", App.TextStrings["msgbox_net_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show($"{App.TextStrings["msgbox_conn_bp_error_msg"]}\n{ex.Message}", App.TextStrings["msgbox_net_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 					Application.Current.Shutdown();
 					return;
 				}
@@ -632,7 +632,7 @@ namespace BetterHI3Launcher
 						return;
 					}
 					Status = LauncherStatus.Error;
-					MessageBox.Show($"{App.TextStrings["msgbox_conn_mihoyo_error_msg"]}\n{ex}", App.TextStrings["msgbox_net_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show($"{App.TextStrings["msgbox_conn_mihoyo_error_msg"]}\n{ex.Message}", App.TextStrings["msgbox_net_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 					Application.Current.Shutdown();
 					return;
 				}
@@ -920,7 +920,7 @@ namespace BetterHI3Launcher
 			}
 			Dispatcher.Invoke(() =>
 			{
-				GameVersionText.Text = $"{App.TextStrings["version"]}: v{miHoYoVersionInfo.game.latest.version.ToString()}";
+				GameVersionText.Text = $"{App.TextStrings["version"]}: {miHoYoVersionInfo.game.latest.version.ToString()}";
 			});
 		}
 
@@ -1206,7 +1206,7 @@ namespace BetterHI3Launcher
 								if(PreloadDownload)
 								{
 									Dispatcher.Invoke(() =>
-									{ 
+									{
 										LaunchButton.Content = App.TextStrings["button_running"];
 										LaunchButton.IsEnabled = false;
 									});
@@ -2278,8 +2278,8 @@ namespace BetterHI3Launcher
 			Status = LauncherStatus.Ready;
 		}
 
-		private readonly string[] CacheRegionalCheckName = new string[] { "TextMap", "RandomDialogData", "sprite" };
-		private enum CacheType { Data, Event, Ai, Unknown }
+		private readonly string[] CacheRegionalCheckName = new string[]{"TextMap", "RandomDialogData", "sprite"};
+		private enum CacheType {Data, Event, Ai, Unknown}
 		private string ReturnCacheTypeEnum(CacheType enumName)
 		{
 			switch (enumName)
@@ -2291,7 +2291,7 @@ namespace BetterHI3Launcher
 				case CacheType.Event:
 					return "event";
 				default:
-					throw new Exception($"Data returns unknown type");
+					throw new Exception("Unknown cache file data type");
 			}
 		}
 
@@ -2302,10 +2302,10 @@ namespace BetterHI3Launcher
 		 */
 		private class CacheDataProperties
 		{
-			public string N { get; set; }
-			public string CRC { get; set; }
-			public long CS { get; set; }
-			public CacheType Type { get; set; }
+			public string N {get; set;}
+			public string CRC {get; set;}
+			public long CS {get; set;}
+			public CacheType Type {get; set;}
 		}
 
 		/* Filter Region Type of Cache File
@@ -2315,13 +2315,20 @@ namespace BetterHI3Launcher
 		 */
 		private byte FilterRegion(string input, string regionName)
 		{
-			foreach (string word in CacheRegionalCheckName)
-				if (input.Contains(word))
-					if (input.Contains($"{word}_{regionName}"))
+			foreach(string word in CacheRegionalCheckName)
+			{
+				if(input.Contains(word))
+				{
+					if(input.Contains($"{word}_{regionName}"))
+					{
 						return 1;
+					}
 					else
+					{
 						return 0;
-
+					}
+				}
+			}
 			return 2;
 		}
 
@@ -2330,12 +2337,15 @@ namespace BetterHI3Launcher
 
 		private async void DownloadGameCacheHi3Mirror(string game_language)
 		{
-			string data, url, localMD5, name,
-				path = string.Empty,
-				preformatAPIUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString(),
-				preformatDataUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
+			string data;
+			string url;
+			string md5;
+			string name;
+			string path = string.Empty;
+			string preformatAPIUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString();
+			string preformatDataUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
 
-			List<CacheDataProperties> CacheFiles, BadFiles;
+			List<CacheDataProperties> cache_files, bad_files;
 			CacheType cacheType;
 			BpWebClient web_client = new BpWebClient();
 			FileInfo fileInfo;
@@ -2344,18 +2354,18 @@ namespace BetterHI3Launcher
 			{
 				int server = (int)Server == 0 ? 1 : 0;
 
-				CacheFiles = new List<CacheDataProperties>();
-				BadFiles = new List<CacheDataProperties>();
+				cache_files = new List<CacheDataProperties>();
+				bad_files = new List<CacheDataProperties>();
 
 				await Task.Run(() =>
 				{
-					for (int i = 0; i < 3; i++)
+					for(int i = 0; i < 3; i++)
 					{
 						// Classify data type as per i
 						// 0 or _	: Data and AI/Btree cache
 						// 1		: Resources/Event cache
 						// 2		: Btree/Ai cache
-						switch (i)
+						switch(i)
 						{
 							case 0:
 								cacheType = CacheType.Data;
@@ -2377,18 +2387,22 @@ namespace BetterHI3Launcher
 
 						// Do Elimination Process
 						// Deserialize string and make it to Object as List<CacheDataProperties>
-						foreach (CacheDataProperties file in JsonConvert.DeserializeObject<List<CacheDataProperties>>(data))
+						foreach(CacheDataProperties file in JsonConvert.DeserializeObject<List<CacheDataProperties>>(data))
+						{
 							// Do check whenever the file is included regional language as game_language defined
-							// Then add it to CacheFiles list
-							if (FilterRegion(file.N, game_language) > 0)
+							// Then add it to cache_files list
+							if(FilterRegion(file.N, game_language) > 0)
+							{
 								// Do add if the Filter passed.
-								CacheFiles.Add(new CacheDataProperties
+								cache_files.Add(new CacheDataProperties
 								{
 									N = file.N,
 									CRC = file.CRC,
 									CS = file.CS,
 									Type = cacheType
 								});
+							}
+						}
 					}
 				});
 				Log("success!", false);
@@ -2404,8 +2418,8 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				List<FileInfo> existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
-				List<FileInfo> useless_files = existing_files;
+				var existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
+				var useless_files = existing_files;
 				long bad_files_size = 0;
 
 				Status = LauncherStatus.Working;
@@ -2415,14 +2429,13 @@ namespace BetterHI3Launcher
 				Log("Verifying game cache...");
 				await Task.Run(() =>
 				{
-
-					for (int i = 0; i < CacheFiles.Count; i++)
+					for(int i = 0; i < cache_files.Count; i++)
 					{
-						name = $"{NormalizePath(CacheFiles[i].N)}.unity3d";
+						name = $"{NormalizePath(cache_files[i].N)}.unity3d";
 
 						// Combine Path and assign their own path
 						// If none of them assigned as Unknown type, throw an exception.
-						switch (CacheFiles[i].Type)
+						switch (cache_files[i].Type)
 						{
 							default:
 								throw new Exception("Unknown cache file data type");
@@ -2439,34 +2452,42 @@ namespace BetterHI3Launcher
 
 						Dispatcher.Invoke(() =>
 						{
-							ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, CacheFiles.Count);
-							var progress = (i + 1f) / CacheFiles.Count;
+							ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, cache_files.Count);
+							var progress = (i + 1f) / cache_files.Count;
 							ProgressBar.Value = progress;
 							TaskbarItemInfo.ProgressValue = progress;
 						});
 
-						if (!fileInfo.Exists || BpUtility.CalculateMD5(fileInfo.FullName) != CacheFiles[i].CRC)
+						if(!fileInfo.Exists || BpUtility.CalculateMD5(fileInfo.FullName) != cache_files[i].CRC)
 						{
-							if (App.AdvancedFeatures)
-								if (File.Exists(path))
+							if(App.AdvancedFeatures)
+							{
+								if(File.Exists(path))
+								{
 									Log($"File corrupted: {path}");
+								}
 								else
+								{
 									Log($"File missing: {path}");
+								}
+							}
 
-							BadFiles.Add(CacheFiles[i]);
+							bad_files.Add(cache_files[i]);
 						}
 						else
 						{
 							useless_files.RemoveAll(x => x.FullName == path);
-							if (App.AdvancedFeatures)
+							if(App.AdvancedFeatures)
 								Log($"File OK: {path}");
 						}
 					}
 
 					foreach(var useless_file in useless_files)
+					{
 						Log($"Useless file: {useless_file.FullName}");
+					}
 
-					bad_files_size = BadFiles.Sum(x => x.CS);
+					bad_files_size = bad_files.Sum(x => x.CS);
 				});
 
 				ProgressText.Text = string.Empty;
@@ -2476,18 +2497,22 @@ namespace BetterHI3Launcher
 				TaskbarItemInfo.ProgressValue = 0;
 				WindowState = WindowState.Normal;
 
-				if (useless_files.Count > 0)
+				if(useless_files.Count > 0)
 				{
 					Log($"Found useless files: {useless_files.Count}");
-					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format("Found {0} useless files, wanna remove 'em?", useless_files.Count), DialogWindow.DialogType.Question).ShowDialog() == true)
-						foreach (var file in useless_files)
+					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format("Found {0} useless files, wanna remove 'em?", useless_files.Count), DialogWindow.DialogType.Question).ShowDialog() == true)
+					{
+						foreach(var file in useless_files)
+						{
 							DeleteFile(file.FullName, true);
+						}
+					}
 				}
 
-				if (BadFiles.Count > 0)
+				if(bad_files.Count > 0)
 				{
-					Log($"Finished verifying files, found corrupted/missing files: {BadFiles.Count}");
-					if (new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], BadFiles.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
+					Log($"Finished verifying files, found corrupted/missing files: {bad_files.Count}");
+					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						string server = Server == 0 ? "global" : "sea";
 
@@ -2496,10 +2521,10 @@ namespace BetterHI3Launcher
 
 						await Task.Run(async () =>
 						{
-							for (int i = 0; i < BadFiles.Count; i++)
+							for(int i = 0; i < bad_files.Count; i++)
 							{
-								path = $"{NormalizePath(BadFiles[i].N)}.unity3d";
-								switch (BadFiles[i].Type)
+								path = $"{NormalizePath(bad_files[i].N)}.unity3d";
+								switch (bad_files[i].Type)
 								{
 									case CacheType.Data:
 										path = Path.Combine(GameCachePath, "Data", path);
@@ -2512,38 +2537,35 @@ namespace BetterHI3Launcher
 										break;
 								}
 
-								url = string.Format(preformatDataUrl, server, ReturnCacheTypeEnum(BadFiles[i].Type), BadFiles[i].N);
+								url = string.Format(preformatDataUrl, server, ReturnCacheTypeEnum(bad_files[i].Type), bad_files[i].N);
 
 								Dispatcher.Invoke(() =>
 								{
-									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, BadFiles.Count);
-									var progress = (i + 1f) / BadFiles.Count;
+									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, bad_files.Count);
+									var progress = (i + 1f) / bad_files.Count;
 									ProgressBar.Value = progress;
 									TaskbarItemInfo.ProgressValue = progress;
 								});
 
 								try
 								{
-									if (!Directory.Exists(Path.GetDirectoryName(path)))
-										Directory.CreateDirectory(Path.GetDirectoryName(path));
-
+									Directory.CreateDirectory(Path.GetDirectoryName(path));
 									await web_client.DownloadFileTaskAsync(new Uri(url), path);
-
-									Dispatcher.Invoke(() => { ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, BadFiles.Count); });
-
-									localMD5 = BpUtility.CalculateMD5(path);
-
-									if (File.Exists(path) && localMD5 != BadFiles[i].CRC)
+									Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, bad_files.Count);});
+									md5 = BpUtility.CalculateMD5(path);
+									if(File.Exists(path) && md5 != bad_files[i].CRC)
+									{
 										Log($"ERROR: Failed to verify file [{path}]", true, 1);
+									}
 									else
 									{
-										Log($"Downloaded file {BadFiles[i].N}");
+										Log($"Downloaded file {bad_files[i].N}");
 										downloaded_files++;
 									}
 								}
 								catch (Exception ex)
 								{
-									Log($"ERROR: Failed to download file [{BadFiles[i].N}] ({url}): {ex.Message}", true, 1);
+									Log($"ERROR: Failed to download file [{bad_files[i].N}] ({url}): {ex.Message}", true, 1);
 								}
 							}
 						});
@@ -2556,7 +2578,7 @@ namespace BetterHI3Launcher
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						});
 
-						if (downloaded_files == BadFiles.Count)
+						if(downloaded_files == bad_files.Count)
 						{
 							Log($"Successfully downloaded {downloaded_files} file(s)");
 							Dispatcher.Invoke(() =>
@@ -2567,9 +2589,11 @@ namespace BetterHI3Launcher
 
 						else
 						{
-							int skipped_files = BadFiles.Count - downloaded_files;
-							if (downloaded_files > 0)
+							int skipped_files = bad_files.Count - downloaded_files;
+							if(downloaded_files > 0)
+							{
 								Log($"Successfully downloaded {downloaded_files} files, failed to download {skipped_files} files");
+							}
 							
 							Dispatcher.Invoke(() =>
 							{
@@ -3849,12 +3873,10 @@ namespace BetterHI3Launcher
 						{
 							foreach(var subtitle_file in subtitle_files)
 							{
-								var sub_lines = File.ReadAllLines(subtitle_file);
-								var sub_lines_to_remove = new List<int>();
-								bool sub_fixed = false;
-								int line_count = sub_lines.Length;
-								int lines_replaced = 0;
-								int lines_removed = 0;
+								var subtitle_lines = File.ReadAllLines(subtitle_file);
+								bool subtitle_fixed = false;
+								int line_count = subtitle_lines.Length;
+								int lines_fixed = 0;
 								Dispatcher.Invoke(() =>
 								{
 									ProgressText.Text = string.Format(App.TextStrings["msgbox_fix_subtitles_3_msg"], subtitles_parsed + 1, subtitle_files.Count);
@@ -3872,71 +3894,91 @@ namespace BetterHI3Launcher
 								{
 									var line = File.ReadLines(subtitle_file).Skip(at_line).Take(1).First();
 									if(string.IsNullOrEmpty(line) || new Regex(@"^\d+$").IsMatch(line))
-										continue;
-
-									bool line_fixed = false;
-									void LogLine()
 									{
-										if(line_fixed)
-											return;
+										continue;
+									}
+									int char_offset = 0;
+									var missing_two_digits_regex = new Regex(@"(?<=:)\d?(?=[:,])").Matches(line);
+									foreach(Match match in missing_two_digits_regex)
+									{
+										if(match.Success)
+										{
+											line = line.Insert(match.Index + char_offset, new string('0', 2 - match.Length));
+											char_offset += 2 - match.Length;
+										}
+									}
+									char_offset = 0;
+									var missing_three_digits_regex = new Regex(@"(?<=[\d:],)\d{0,2}(?=\s|$)").Matches(line);
+									foreach(Match match in missing_three_digits_regex)
+									{
+										if(match.Success)
+										{
+											line = line.Insert(match.Index + char_offset, new string('0', 3 - match.Length));
+											char_offset += 3 - match.Length;
+										}
+									}
+									char_offset = 0;
+									var keep_one_whitespace_regex = new Regex(@"\s{2,}").Matches(line);
+									foreach(Match match in keep_one_whitespace_regex)
+									{
+										if(match.Success)
+										{
+											line = line.Remove(match.Index + char_offset, match.Length - 1);
+											char_offset -= match.Length - 1;
+										}
+									}
+									char_offset = 0;
+									var trim_regex = new Regex(@"^\s+|\s+$").Matches(line);
+									foreach(Match match in trim_regex)
+									{
+										if(match.Success)
+										{
+											line = line.Remove(match.Index + char_offset, match.Length);
+											char_offset -= match.Length;
+										}
+									}
 
-										lines_replaced++;
-										line_fixed = true;
+									if(subtitle_lines[at_line] != line)
+									{
 										if(App.AdvancedFeatures)
 										{
-											Log($"Fixed line {1 + at_line}: {line}");
+											Log($"Fixed line {1 + at_line}: [{subtitle_lines[at_line]}] -> [{line}]");
 										}
+										subtitle_lines[at_line] = line;
+										lines_fixed++;
 									}
-
-									if(line.Contains("-->"))
+								}
+								if(lines_fixed > 0)
+								{
+									File.WriteAllLines(subtitle_file, subtitle_lines);
+									subtitle_fixed = true;
+								}
+								var subtitle_text = File.ReadAllText(subtitle_file);
+								int removed_chars = 0;
+								var remove_empty_regex = new Regex(@"\d+[\r\n]{2}\s?-->\s?[\r\n]").Matches(subtitle_text);
+								foreach(Match match in remove_empty_regex)
+								{
+									if(match.Success)
 									{
-										if(line.Contains("."))
-										{
-											sub_lines[at_line] = line.Replace(".", ",");
-											LogLine();
-										}
-										if(line.Contains(" ,"))
-										{
-											sub_lines[at_line] = line.Replace(" ,", ",");
-											LogLine();
-										}
-										if(line.Contains("  "))
-										{
-											sub_lines[at_line] = line.Replace("  ", " ");
-											LogLine();
-										}
-										if(at_line + 1 < line_count && string.IsNullOrEmpty(sub_lines[at_line + 1]))
-										{
-											sub_lines_to_remove.Add(at_line + 1);
-										}
+										subtitle_text = subtitle_text.Remove(match.Index - removed_chars, match.Length);
+										removed_chars += match.Length;
 									}
-									else
+								}
+								var remove_newlines_regex = new Regex(@"(?<=[\r\n]{4})[\r\n]+").Matches(subtitle_text);
+								foreach(Match match in remove_newlines_regex)
+								{
+									if(match.Success)
 									{
-										if(line.Contains(" ,"))
-										{
-											sub_lines[at_line] = line.Replace(" ,", ",");
-											LogLine();
-										}
+										subtitle_text = subtitle_text.Remove(match.Index - removed_chars, match.Length);
+										removed_chars += match.Length;
 									}
 								}
-								foreach(var line in sub_lines_to_remove)
+								if(remove_empty_regex.Count > 0 || remove_newlines_regex.Count > 0)
 								{
-									sub_lines = sub_lines.Where((source, index) => index != line - lines_removed).ToArray();
-									lines_removed++;
+									File.WriteAllText(subtitle_file, subtitle_text);
+									subtitle_fixed = true;
 								}
-								if(lines_replaced > 0 || lines_removed > 0)
-								{
-									File.WriteAllLines(subtitle_file, sub_lines);
-									sub_fixed = true;
-								}
-								var subLine = File.ReadAllText(subtitle_file);
-								if(subLine.Contains($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}"))
-								{
-									subLine = subLine.Replace($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}", $"{Environment.NewLine}{Environment.NewLine}");
-									File.WriteAllText(subtitle_file, subLine);
-									sub_fixed = true;
-								}
-								if(sub_fixed && !subs_fixed.Contains(subtitle_file))
+								if(subtitle_fixed && !subs_fixed.Contains(subtitle_file))
 								{
 									subs_fixed.Add(subtitle_file);
 									Log($"Subtitle fixed: {subtitle_file}");
@@ -4286,7 +4328,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				while(true)
-				{ 
+				{
 					var dialog = new OpenFileDialog
 					{
 						InitialDirectory = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
@@ -4969,6 +5011,7 @@ namespace BetterHI3Launcher
 						x.Name != "blockVerifiedVersion.txt" &&
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
+						x.Name != "pkg_version" &&
 						x.Name != "UniFairy.sys" &&
 						x.Name != "Version.txt" &&
 						!x.Name.Contains("Blocks_") &&
@@ -5532,7 +5575,7 @@ namespace BetterHI3Launcher
 			bool is_recommended_resolution = false;
 			bool check_media = false;
 			if(!string.IsNullOrEmpty(path) && Path.HasExtension(path))
-			{ 
+			{
 				try
 				{
 					var image = new BitmapImage();
@@ -5561,7 +5604,7 @@ namespace BetterHI3Launcher
 					check_media = true;
 				}
 				if(check_media)
-				{ 
+				{
 					try
 					{
 						int timeout = 3000;
