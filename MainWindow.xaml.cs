@@ -1786,6 +1786,9 @@ namespace BetterHI3Launcher
 
 				string tempPath = $"{GameArchivePath}_tmp";
 
+				if (File.Exists(GameArchivePath))
+					File.Move(GameArchivePath, tempPath);
+
 				if (App.UseParallelDownload)
 				{
 					if (!File.Exists(tempPath))
