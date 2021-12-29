@@ -65,6 +65,7 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ChangelogCommand = new RoutedCommand();
 		public static RoutedCommand CustomBackgroundCommand = new RoutedCommand();
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
+		public static RoutedCommand ToggleParallelDownCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
 		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
@@ -463,9 +464,9 @@ namespace BetterHI3Launcher
 			OptionsContextMenu.Items.Add(CM_ShowLog);
 
 			// TODO: Add to Language Dictionary
-			var CM_EnableParallelDownload = new MenuItem { Header = "Use Parallel Download", InputGestureText = "Ctrl+Shift+D" };
-			CM_EnableParallelDownload.Click += (sender, e) => CM_EnableParallelDownload_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_EnableParallelDownload);
+			var CM_ToggleParallelDownload = new MenuItem { Header = "Use Parallel Download", InputGestureText = "Ctrl+Shift+D" };
+			CM_ToggleParallelDownload.Click += (sender, e) => CM_ToggleParallelDownload_Click(sender, e);
+			OptionsContextMenu.Items.Add(CM_ToggleParallelDownload);
 
 			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+Shift+S", IsChecked = true};
 			CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
@@ -692,12 +693,12 @@ namespace BetterHI3Launcher
 					if ((int)paralleldown_reg == 1)
                     {
 						App.UseParallelDownload = true;
-						CM_EnableParallelDownload.IsChecked = true;
+						CM_ToggleParallelDownload.IsChecked = true;
                     }
 					else
 					{
 						App.UseParallelDownload = false;
-						CM_EnableParallelDownload.IsChecked = false;
+						CM_ToggleParallelDownload.IsChecked = false;
 					}
                 }
 
@@ -724,6 +725,7 @@ namespace BetterHI3Launcher
 				ChangelogCommand.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control));
 				CustomBackgroundCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
 				ToggleLogCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
+				ToggleParallelDownCommand.InputGestures.Add(new KeyGesture(Key.D, ModifierKeys.Control | ModifierKeys.Shift));
 				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift));
 				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
@@ -4478,7 +4480,7 @@ namespace BetterHI3Launcher
 			ToggleLog(item.IsChecked);
 		}
 
-		private void CM_EnableParallelDownload_Click(object sender, RoutedEventArgs e)
+		private void CM_ToggleParallelDownload_Click(object sender, RoutedEventArgs e)
 		{
 			bool isEnabled = ((MenuItem)sender).IsChecked;
 			if (!isEnabled)
@@ -5481,7 +5483,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private void ToggleEnableParallelDownload_Executed(object sender, ExecutedRoutedEventArgs e)
+		private void ToggleParallelDownCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			// TODO: Add to Language Dictionary
 			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, "Use Parallel Download");
