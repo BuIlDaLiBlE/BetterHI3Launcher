@@ -457,9 +457,16 @@ namespace BetterHI3Launcher
 			var CM_Custom_Background = new MenuItem{Header = App.TextStrings["contextmenu_custom_background"], InputGestureText = "Ctrl+B"};
 			CM_Custom_Background.Click += (sender, e) => CM_CustomBackground_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Custom_Background);
+
 			var CM_ShowLog = new MenuItem{Header = App.TextStrings["contextmenu_show_log"], InputGestureText = "Ctrl+L"};
 			CM_ShowLog.Click += (sender, e) => CM_ShowLog_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_ShowLog);
+
+			// TODO: Add to Language Dictionary
+			var CM_EnableParallelDownload = new MenuItem { Header = "Use Parallel Download", InputGestureText = "Ctrl+Shift+D" };
+			CM_EnableParallelDownload.Click += (sender, e) => CM_EnableParallelDownload_Click(sender, e);
+			OptionsContextMenu.Items.Add(CM_EnableParallelDownload);
+
 			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+Shift+S", IsChecked = true};
 			CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Sounds);
@@ -678,6 +685,21 @@ namespace BetterHI3Launcher
 						}
 					}
 				}
+
+				var paralleldown_reg = App.LauncherRegKey.GetValue("UseParallelDownload");
+				if (paralleldown_reg != null)
+                {
+					if ((int)paralleldown_reg == 1)
+                    {
+						App.UseParallelDownload = true;
+						CM_EnableParallelDownload.IsChecked = true;
+                    }
+					else
+					{
+						App.UseParallelDownload = false;
+						CM_EnableParallelDownload.IsChecked = false;
+					}
+                }
 
 				var sounds_reg = App.LauncherRegKey.GetValue("Sounds");
 				if(sounds_reg != null)
@@ -1617,12 +1639,12 @@ namespace BetterHI3Launcher
 			BackgroundImageDownloading = false;
 		}
 
+		DownloadPartialAdapter partialHttpClient = new DownloadPartialAdapter();
+
 		private async Task DownloadGameFile()
 		{
 			try
 			{
-				DownloadPartialAdapter httpClient = new DownloadPartialAdapter();
-
 				string title;
 				long size = 0;
 				long time;
@@ -1772,81 +1794,106 @@ namespace BetterHI3Launcher
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
 
-				cancelToken = cancelTokenSource.Token;
 				string urlOutput = Path.Combine(GameArchivePath, Path.GetFileName(url));
 
-				httpClient.DownloadProgress += DownloadStatusChanged;
-				httpClient.InitializeDownload(url, GameInstallPath);
-				httpClient.Start();
-
-
-				Dispatcher.Invoke(() =>
+				if (App.UseParallelDownload)
 				{
-					ProgressText.Text = string.Empty;
-					ProgressBar.Visibility = Visibility.Hidden;
-					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-					LaunchButton.IsEnabled = true;
-					LaunchButton.Content = App.TextStrings["button_cancel"];
-				});
-
-				await httpClient.WaitForComplete();
-
-				await Task.Run(() =>
-				{
-
-					tracker.NewFile();
-					var eta_calc = new ETACalculator();
-					download = new DownloadPauseable(url, GameArchivePath);
-					download.Start();
-					Dispatcher.Invoke(() =>
+					try
 					{
-						ProgressText.Text = string.Empty;
-						ProgressBar.Visibility = Visibility.Hidden;
-						DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-						LaunchButton.IsEnabled = true;
-						LaunchButton.Content = App.TextStrings["button_cancel"];
-					});
-					while(download != null && !download.Done)
-					{
-						if(DownloadPaused)
-						{
-							continue;
-						}
-						size = download.ContentLength;
-						tracker.SetProgress(download.BytesWritten, download.ContentLength);
-						eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+						partialHttpClient = new DownloadPartialAdapter();
+
+						partialHttpClient.DownloadProgress += DownloadStatusChanged;
+						partialHttpClient.InitializeDownload(url, GameArchivePath);
+						partialHttpClient.Start();
+
 						Dispatcher.Invoke(() =>
 						{
-							var progress = tracker.GetProgress();
-							DownloadProgressBar.Value = progress;
-							TaskbarItemInfo.ProgressValue = progress;
-							DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
-							DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-							DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+							ProgressText.Text = string.Empty;
+							ProgressBar.Visibility = Visibility.Hidden;
+							DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+							LaunchButton.IsEnabled = true;
+							LaunchButton.Content = App.TextStrings["button_cancel"];
 						});
-						Thread.Sleep(500);
+
+						await partialHttpClient.WaitForComplete();
+
+						partialHttpClient.DownloadProgress -= DownloadStatusChanged;
+
+						Log("Successfully downloaded game archive");
+
+						Dispatcher.Invoke(() =>
+						{
+							ProgressText.Text = string.Empty;
+							DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+							LaunchButton.Content = App.TextStrings["button_launch"];
+						});
 					}
-					if(download == null)
+					catch (OperationCanceledException)
 					{
-						abort = true;
-					}
-					if(abort)
-					{
+						partialHttpClient.DownloadProgress -= DownloadStatusChanged;
 						return;
-					}
-					download = null;
-					Log("Successfully downloaded game archive");
-					while(BpUtility.IsFileLocked(new FileInfo(GameArchivePath)))
+                    }
+				}
+				else
+				{
+					await Task.Run(() =>
 					{
-						Thread.Sleep(10);
-					}
-					Dispatcher.Invoke(() =>
-					{
-						ProgressText.Text = string.Empty;
-						DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-						LaunchButton.Content = App.TextStrings["button_launch"];
+
+						tracker.NewFile();
+						var eta_calc = new ETACalculator();
+						download = new DownloadPauseable(url, GameArchivePath);
+						download.Start();
+						Dispatcher.Invoke(() =>
+						{
+							ProgressText.Text = string.Empty;
+							ProgressBar.Visibility = Visibility.Hidden;
+							DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+							LaunchButton.IsEnabled = true;
+							LaunchButton.Content = App.TextStrings["button_cancel"];
+						});
+						while (download != null && !download.Done)
+						{
+							if (DownloadPaused)
+							{
+								continue;
+							}
+							size = download.ContentLength;
+							tracker.SetProgress(download.BytesWritten, download.ContentLength);
+							eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+							Dispatcher.Invoke(() =>
+							{
+								var progress = tracker.GetProgress();
+								DownloadProgressBar.Value = progress;
+								TaskbarItemInfo.ProgressValue = progress;
+								DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
+								DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
+								DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+							});
+							Thread.Sleep(500);
+						}
+						if (download == null)
+						{
+							abort = true;
+						}
+						if (abort)
+						{
+							return;
+						}
+						download = null;
+						Log("Successfully downloaded game archive");
+						while (BpUtility.IsFileLocked(new FileInfo(GameArchivePath)))
+						{
+							Thread.Sleep(10);
+						}
+						Dispatcher.Invoke(() =>
+						{
+							ProgressText.Text = string.Empty;
+							DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+							LaunchButton.Content = App.TextStrings["button_launch"];
+						});
 					});
-				});
+				}
+
 				try
 				{
 					if(abort)
@@ -2691,9 +2738,9 @@ namespace BetterHI3Launcher
 
 		private async void Window_ContentRendered(object sender, EventArgs e)
 		{
-			#if DEBUG
+#if DEBUG
 			App.DisableAutoUpdate = true;
-			#endif
+#endif
 			try
 			{
 				string exe_name = Process.GetCurrentProcess().MainModule.ModuleName;
@@ -2780,7 +2827,7 @@ namespace BetterHI3Launcher
 				LegacyBoxActive = true;
 				IntroBox.Visibility = Visibility.Visible;
 			}
-			#if !DEBUG
+#if !DEBUG
 			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
 			{
 				if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
@@ -2791,7 +2838,7 @@ namespace BetterHI3Launcher
 					FetchChangelog();
 				}
 			}
-			#endif
+#endif
 			try
 			{
 				if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
@@ -3007,19 +3054,30 @@ namespace BetterHI3Launcher
 									{
 										continue;
 									}
+                                }
+                            }
+
+                            try
+							{
+								if (App.UseParallelDownload)
+								{
+									path = GameInstallPath;
+									if (!Directory.Exists(GameInstallPath))
+										Directory.CreateDirectory(GameInstallPath);
+								}
+								else
+                                {
+									path = Directory.CreateDirectory(GameInstallPath).FullName;
+									Directory.Delete(path);
 								}
 							}
-							try
-							{
-								path = Directory.CreateDirectory(GameInstallPath).FullName;
-								Directory.Delete(path);
-							}
-							catch(Exception ex)
-							{
-								new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
-								continue;
-							}
-							if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
+							catch (Exception ex)
+                            {
+                                new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
+                                continue;
+                            }
+
+                            if (new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
 							{
 								continue;
 							}
@@ -3074,9 +3132,15 @@ namespace BetterHI3Launcher
 			{
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
-					download.Pause();
-					download = null;
-					if(!CacheDownload)
+					if (App.UseParallelDownload)
+						partialHttpClient.Dispose();
+					else
+					{
+						download.Pause();
+						download = null;
+					}
+
+					if(!CacheDownload && !App.UseParallelDownload)
 					{
 						if(!string.IsNullOrEmpty(GameArchivePath))
 						{
@@ -3121,7 +3185,10 @@ namespace BetterHI3Launcher
 		{
 			if(!DownloadPaused)
 			{
-				download.Pause();
+				if (App.UseParallelDownload)
+					partialHttpClient.Pause();
+				else
+					download.Pause();
 				Status = LauncherStatus.DownloadPaused;
 				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 				DownloadETAText.Visibility = Visibility.Hidden;
@@ -3143,7 +3210,14 @@ namespace BetterHI3Launcher
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 				try
 				{
-					await download.Start();
+					if (App.UseParallelDownload)
+                    {
+						partialHttpClient.Resume();
+					}
+					else
+					{
+						await download.Start();
+					}
 				}
 				catch(Exception ex)
 				{
@@ -4408,6 +4482,26 @@ namespace BetterHI3Launcher
 			ToggleLog(item.IsChecked);
 		}
 
+		private void CM_EnableParallelDownload_Click(object sender, RoutedEventArgs e)
+		{
+			bool isEnabled = ((MenuItem)sender).IsChecked;
+			if (!isEnabled)
+            {
+				// TODO: Add to Language Dictionary
+				isEnabled = (bool)new DialogWindow(
+					"Use Parallel Download",
+					"This feature is still EXPERIMENTAL and only works for downloading Game Client, Pre-Installation and Game Update.\r\nDo you want to enable it?",
+					DialogWindow.DialogType.Question).ShowDialog();
+			}
+			else
+				isEnabled = false;
+
+			App.UseParallelDownload = isEnabled;
+			((MenuItem)sender).IsChecked = isEnabled;
+
+			BpUtility.WriteToRegistry("UseParallelDownload", isEnabled ? 1 : 0, RegistryValueKind.DWord);
+		}
+
 		private void CM_Sounds_Click(object sender, RoutedEventArgs e)
 		{
 			var item = sender as MenuItem;
@@ -5391,6 +5485,18 @@ namespace BetterHI3Launcher
 			}
 		}
 
+		private void ToggleEnableParallelDownload_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			// TODO: Add to Language Dictionary
+			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, "Use Parallel Download");
+			if (item.IsEnabled)
+			{
+				var peer = new MenuItemAutomationPeer(item);
+				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
+				inv_prov.Invoke();
+			}
+		}
+
 		private void ToggleSoundsCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_sounds"]);
@@ -5565,6 +5671,8 @@ namespace BetterHI3Launcher
 					   item.Header.ToString() == App.TextStrings["contextmenu_language"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_custom_background"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_show_log"] ||
+					   // TODO: Add to Language Dictionary
+					   item.Header.ToString() == "Use Parallel Download" ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_sounds"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_about"])
 					{
@@ -5789,31 +5897,31 @@ namespace BetterHI3Launcher
 			}
 
 			Color color;
-			#if DEBUG
+#if DEBUG
 			ConsoleColor ccolor;
-			#endif
+#endif
 			switch(type)
 			{
 				case 1:
 					color = Colors.Red;
-					#if DEBUG
+#if DEBUG
 					ccolor = ConsoleColor.Red;
-					#endif
+#endif
 					break;
 				case 2:
 					color = Colors.Yellow;
-					#if DEBUG
+#if DEBUG
 					ccolor = ConsoleColor.Yellow;
-					#endif
+#endif
 					break;
 				default:
 					color = Colors.White;
-					#if DEBUG
+#if DEBUG
 					ccolor = ConsoleColor.Gray;
-					#endif
+#endif
 					break;
 			}
-			#if DEBUG
+#if DEBUG
 			Console.ForegroundColor = ccolor;
 			if(newline)
 			{
@@ -5823,7 +5931,7 @@ namespace BetterHI3Launcher
 			{
 				Console.Write(msg);
 			}
-			#endif
+#endif
 			Dispatcher.Invoke(() =>
 			{
 				if(newline)

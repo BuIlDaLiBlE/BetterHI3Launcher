@@ -223,7 +223,6 @@
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TextStrings_en.cs" />
-    <Compile Include="Utility\ConverterTool.cs" />
     <Compile Include="Utility\DownloadPartialAdapter.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
     <Compile Include="Utility\PartialHttpClient.cs" />
