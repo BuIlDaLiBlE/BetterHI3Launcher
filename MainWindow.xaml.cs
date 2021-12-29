@@ -1780,118 +1780,113 @@ namespace BetterHI3Launcher
 					}
 				}
 				md5 = md5.ToUpper();
-				if(!File.Exists(GameArchivePath))
-				{
-					GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
-				}
-				else if(new FileInfo(GameArchivePath).Length != size)
-				{
-					string tmp_path = Path.Combine(GameInstallPath, $"{title}_tmp");
-					File.Move(GameArchivePath, tmp_path);
-					GameArchivePath = tmp_path;
-				}
 
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
 
-				string urlOutput = Path.Combine(GameArchivePath, Path.GetFileName(url));
+				string tempPath = $"{GameArchivePath}_tmp";
 
 				if (App.UseParallelDownload)
 				{
-					try
-					{
-						parallelHttpClient = new DownloadParallelAdapter();
-
-						parallelHttpClient.DownloadProgress += DownloadStatusChanged;
-						parallelHttpClient.InitializeDownload(url, GameArchivePath);
-						parallelHttpClient.Start();
-
-						Dispatcher.Invoke(() =>
+					if (!File.Exists(tempPath))
+                    {
+						try
 						{
-							ProgressText.Text = string.Empty;
-							ProgressBar.Visibility = Visibility.Hidden;
-							DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-							LaunchButton.IsEnabled = true;
-							LaunchButton.Content = App.TextStrings["button_cancel"];
-						});
+							parallelHttpClient = new DownloadParallelAdapter();
 
-						await parallelHttpClient.WaitForComplete();
+							parallelHttpClient.DownloadProgress += DownloadStatusChanged;
+							parallelHttpClient.InitializeDownload(url, tempPath);
+							parallelHttpClient.Start();
 
-						parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Empty;
+								ProgressBar.Visibility = Visibility.Hidden;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+								LaunchButton.IsEnabled = true;
+								LaunchButton.Content = App.TextStrings["button_cancel"];
+							});
 
-						Log("Successfully downloaded game archive");
+							await parallelHttpClient.WaitForComplete();
 
-						Dispatcher.Invoke(() =>
+							parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
+
+							Log("Successfully downloaded game archive");
+
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Empty;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+								LaunchButton.Content = App.TextStrings["button_launch"];
+							});
+						}
+						catch (OperationCanceledException)
 						{
-							ProgressText.Text = string.Empty;
-							DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-							LaunchButton.Content = App.TextStrings["button_launch"];
-						});
+							parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
+							return;
+						}
 					}
-					catch (OperationCanceledException)
-					{
-						parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
-						return;
-                    }
 				}
 				else
 				{
-					await Task.Run(() =>
+					if (!File.Exists(tempPath))
 					{
-
-						tracker.NewFile();
-						var eta_calc = new ETACalculator();
-						download = new DownloadPauseable(url, GameArchivePath);
-						download.Start();
-						Dispatcher.Invoke(() =>
+						await Task.Run(() =>
 						{
-							ProgressText.Text = string.Empty;
-							ProgressBar.Visibility = Visibility.Hidden;
-							DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-							LaunchButton.IsEnabled = true;
-							LaunchButton.Content = App.TextStrings["button_cancel"];
-						});
-						while (download != null && !download.Done)
-						{
-							if (DownloadPaused)
-							{
-								continue;
-							}
-							size = download.ContentLength;
-							tracker.SetProgress(download.BytesWritten, download.ContentLength);
-							eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+							tracker.NewFile();
+							var eta_calc = new ETACalculator();
+							download = new DownloadPauseable(url, tempPath);
+							download.Start();
 							Dispatcher.Invoke(() =>
 							{
-								var progress = tracker.GetProgress();
-								DownloadProgressBar.Value = progress;
-								TaskbarItemInfo.ProgressValue = progress;
-								DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
-								DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-								DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+								ProgressText.Text = string.Empty;
+								ProgressBar.Visibility = Visibility.Hidden;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+								LaunchButton.IsEnabled = true;
+								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							Thread.Sleep(500);
-						}
-						if (download == null)
-						{
-							abort = true;
-						}
-						if (abort)
-						{
-							return;
-						}
-						download = null;
-						Log("Successfully downloaded game archive");
-						while (BpUtility.IsFileLocked(new FileInfo(GameArchivePath)))
-						{
-							Thread.Sleep(10);
-						}
-						Dispatcher.Invoke(() =>
-						{
-							ProgressText.Text = string.Empty;
-							DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-							LaunchButton.Content = App.TextStrings["button_launch"];
+							while (download != null && !download.Done)
+							{
+								if (DownloadPaused)
+								{
+									continue;
+								}
+								size = download.ContentLength;
+								tracker.SetProgress(download.BytesWritten, download.ContentLength);
+								eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+								Dispatcher.Invoke(() =>
+								{
+									var progress = tracker.GetProgress();
+									DownloadProgressBar.Value = progress;
+									TaskbarItemInfo.ProgressValue = progress;
+									DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
+									DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
+									DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+								});
+								Thread.Sleep(500);
+							}
+							if (download == null)
+							{
+								abort = true;
+							}
+							if (abort)
+							{
+								return;
+							}
+							download = null;
+							Log("Successfully downloaded game archive");
+							while (BpUtility.IsFileLocked(new FileInfo(tempPath)))
+							{
+								Thread.Sleep(10);
+							}
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Empty;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+								LaunchButton.Content = App.TextStrings["button_launch"];
+							});
 						});
-					});
+					}
 				}
 
 				try
@@ -1904,20 +1899,18 @@ namespace BetterHI3Launcher
 					{
 						Log("Validating game archive...");
 						Status = LauncherStatus.Verifying;
-						string actual_md5 = BpUtility.CalculateMD5(GameArchivePath);
+						string actual_md5 = BpUtility.CalculateMD5(tempPath);
 						if(actual_md5 == md5)
 						{
-							string new_path = GameArchivePath.Substring(0, GameArchivePath.Length - 4);
-							if(!File.Exists(new_path))
+							if(!File.Exists(GameArchivePath))
 							{
-								File.Move(GameArchivePath, new_path);
+								File.Move(tempPath, GameArchivePath);
 							}
-							else if(File.Exists(new_path) && size != 0 && new FileInfo(new_path).Length != size)
+							else if(File.Exists(GameArchivePath) && size != 0 && new FileInfo(GameArchivePath).Length != size)
 							{
-								DeleteFile(new_path);
-								File.Move(GameArchivePath, new_path);
+								DeleteFile(GameArchivePath);
+								File.Move(tempPath, GameArchivePath);
 							}
-							GameArchivePath = new_path;
 							Log("success!", false);
 						}
 						else
