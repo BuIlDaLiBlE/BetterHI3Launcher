@@ -36,7 +36,7 @@ namespace BetterHI3Launcher.Utility
             {
                 try
                 {
-                    client.DownloadFileMultipleSession(link.source, link.target, "", 8, cancelToken);
+                    client.DownloadFileMultipleSession(link.source, link.target, "", App.ParallelDownloadSession, cancelToken);
                     IsCompleted = true;
                 }
                 catch (OperationCanceledException) { }

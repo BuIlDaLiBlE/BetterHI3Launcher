@@ -1793,6 +1793,7 @@ namespace BetterHI3Launcher
 
 				if (App.UseParallelDownload)
 				{
+					CheckExistingParallelDownload(GameArchivePathTemp);
 					if (!File.Exists(GameArchivePathTemp))
                     {
 						try
@@ -1834,6 +1835,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
+					DeleteExistingParallelDownload(GameArchivePathTemp);
 					if (!File.Exists(GameArchivePathTemp))
 					{
 						await Task.Run(() =>
@@ -1922,7 +1924,7 @@ namespace BetterHI3Launcher
 						{
 							Status = LauncherStatus.Error;
 							Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
-							DeleteFile(GameArchivePath);
+							DeleteFile(GameArchivePathTemp);
 							abort = true;
 							Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_verify_error_title"], App.TextStrings["msgbox_verify_error_1_msg"]).ShowDialog();});
 							Status = LauncherStatus.Ready;
@@ -2025,6 +2027,42 @@ namespace BetterHI3Launcher
 				new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_error_msg"]).ShowDialog();
 				Status = LauncherStatus.Ready;
 				GameUpdateCheck();
+			}
+		}
+
+		private void CheckExistingParallelDownload(string filePath)
+        {
+			long existingSize = 0;
+			string partialName;
+			if (File.Exists($"{filePath}.001"))
+            {
+				for (int i = 0; i < App.ParallelDownloadSession; i++)
+                {
+					partialName = String.Format("{0}.{1:000}", filePath, i + 1);
+					if (File.Exists(partialName))
+						existingSize += new FileInfo(partialName).Length;
+                }
+
+				// TODO: Add to Language Dictionary
+				bool dialog = (bool)new DialogWindow(
+					"Continue from Previous Download",
+					string.Format("You have previously downloaded {0} of the file.\r\nDo you want to resume the download?", BpUtility.ToBytesCount(existingSize)),
+					DialogWindow.DialogType.Question
+					).ShowDialog();
+
+				if (!dialog)
+					DeleteExistingParallelDownload(filePath);
+            }
+        }
+
+		private void DeleteExistingParallelDownload(string filePath)
+		{
+			string partialName;
+			for (int i = 0; i < App.ParallelDownloadSession; i++)
+			{
+				partialName = String.Format("{0}.{1:000}", filePath, i + 1);
+				if (File.Exists(partialName))
+					File.Delete(partialName);
 			}
 		}
 
@@ -3066,7 +3104,7 @@ namespace BetterHI3Launcher
 								else
                                 {
 									path = Directory.CreateDirectory(GameInstallPath).FullName;
-									Directory.Delete(path);
+									Directory.Delete(GameInstallPath);
 								}
 							}
 							catch (Exception ex)
