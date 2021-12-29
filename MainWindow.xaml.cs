@@ -50,7 +50,7 @@ namespace BetterHI3Launcher
 	public partial class MainWindow : Window
 	{
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
-		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
+		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchivePathTemp, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
 		public static string GameWebProfileURL, GameFullName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
@@ -1784,21 +1784,21 @@ namespace BetterHI3Launcher
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
 
-				string tempPath = $"{GameArchivePath}_tmp";
+				GameArchivePathTemp = $"{GameArchivePath}_tmp";
 
 				if (File.Exists(GameArchivePath))
-					File.Move(GameArchivePath, tempPath);
+					File.Move(GameArchivePath, GameArchivePathTemp);
 
 				if (App.UseParallelDownload)
 				{
-					if (!File.Exists(tempPath))
+					if (!File.Exists(GameArchivePathTemp))
                     {
 						try
 						{
 							parallelHttpClient = new DownloadParallelAdapter();
 
 							parallelHttpClient.DownloadProgress += DownloadStatusChanged;
-							parallelHttpClient.InitializeDownload(url, tempPath);
+							parallelHttpClient.InitializeDownload(url, GameArchivePathTemp);
 							parallelHttpClient.Start();
 
 							Dispatcher.Invoke(() =>
@@ -1832,13 +1832,13 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					if (!File.Exists(tempPath))
+					if (!File.Exists(GameArchivePathTemp))
 					{
 						await Task.Run(() =>
 						{
 							tracker.NewFile();
 							var eta_calc = new ETACalculator();
-							download = new DownloadPauseable(url, tempPath);
+							download = new DownloadPauseable(url, GameArchivePathTemp);
 							download.Start();
 							Dispatcher.Invoke(() =>
 							{
@@ -1878,7 +1878,7 @@ namespace BetterHI3Launcher
 							}
 							download = null;
 							Log("Successfully downloaded game archive");
-							while (BpUtility.IsFileLocked(new FileInfo(tempPath)))
+							while (BpUtility.IsFileLocked(new FileInfo(GameArchivePathTemp)))
 							{
 								Thread.Sleep(10);
 							}
@@ -1902,17 +1902,17 @@ namespace BetterHI3Launcher
 					{
 						Log("Validating game archive...");
 						Status = LauncherStatus.Verifying;
-						string actual_md5 = BpUtility.CalculateMD5(tempPath);
+						string actual_md5 = BpUtility.CalculateMD5(GameArchivePathTemp);
 						if(actual_md5 == md5)
 						{
 							if(!File.Exists(GameArchivePath))
 							{
-								File.Move(tempPath, GameArchivePath);
+								File.Move(GameArchivePathTemp, GameArchivePath);
 							}
 							else if(File.Exists(GameArchivePath) && size != 0 && new FileInfo(GameArchivePath).Length != size)
 							{
 								DeleteFile(GameArchivePath);
-								File.Move(tempPath, GameArchivePath);
+								File.Move(GameArchivePathTemp, GameArchivePath);
 							}
 							Log("success!", false);
 						}
@@ -3138,13 +3138,13 @@ namespace BetterHI3Launcher
 
 					if(!CacheDownload && !App.UseParallelDownload)
 					{
-						if(!string.IsNullOrEmpty(GameArchivePath))
+						if(!string.IsNullOrEmpty(GameArchivePathTemp))
 						{
-							while(BpUtility.IsFileLocked(new FileInfo(GameArchivePath)))
+							while(BpUtility.IsFileLocked(new FileInfo(GameArchivePathTemp)))
 							{
 								Thread.Sleep(10);
 							}
-							DeleteFile(GameArchivePath, true);
+							DeleteFile(GameArchivePathTemp, true);
 						}
 					}
 					else
