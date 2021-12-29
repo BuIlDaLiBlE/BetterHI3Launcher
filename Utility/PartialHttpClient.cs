@@ -11,7 +11,7 @@ using System.Net.Http.Headers;
 
 namespace BetterHI3Launcher.Utility
 {
-    public class PartialHttpClient
+    public class ParallelHttpClient
     {
         readonly HttpClient httpClient;
         protected Stream localStream;
@@ -34,7 +34,7 @@ namespace BetterHI3Launcher.Utility
         string downloadPartialOutputPath, downloadPartialInputPath;
         CancellationToken downloadPartialToken;
 
-        public PartialHttpClient(bool IgnoreCompression = false)
+        public ParallelHttpClient(bool IgnoreCompression = false)
         {
             httpClient = new HttpClient(
             new HttpClientHandler()
@@ -124,7 +124,7 @@ namespace BetterHI3Launcher.Utility
 
             OnResumabilityChanged(new DownloadStatusChanged(true));
             // LogWriteLine($"Starting Partial Download!\r\n\tTotal Size: {SummarizeSizeSimple(downloadPartialSize)} ({downloadPartialSize} bytes)\r\n\tThreads/Chunks: {downloadThread}");
-            Console.WriteLine($"Starting Partial Download!\r\n\tTotal Size: {BpUtility.ToBytesCount(downloadPartialSize)} ({downloadPartialSize} bytes)\r\n\tThreads/Chunks: {downloadThread}");
+            Console.WriteLine($"\r\nStarting Partial Download!\r\n\tTotal Size: {BpUtility.ToBytesCount(downloadPartialSize)} ({downloadPartialSize} bytes)\r\n\tThreads/Chunks: {downloadThread}");
 
             stop = false;
 

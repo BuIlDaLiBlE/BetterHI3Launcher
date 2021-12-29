@@ -226,7 +226,6 @@
     <Compile Include="Utility\DownloadPartialAdapter.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
     <Compile Include="Utility\PartialHttpClient.cs" />
-    <Compile Include="Utility\Logger.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipParsingException.cs" />

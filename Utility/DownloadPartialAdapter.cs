@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace BetterHI3Launcher.Utility
 {
-    public class DownloadPartialAdapter : IDisposable
+    public class DownloadParallelAdapter : IDisposable
     {
         public struct DownloadProp
         {
@@ -19,7 +19,7 @@ namespace BetterHI3Launcher.Utility
         DownloadProp link;
 
         bool IsCompleted;
-        PartialHttpClient client;
+        ParallelHttpClient client;
 
         public void InitializeDownload(string source, string target) =>
             link = new DownloadProp { source = source, target = target };
@@ -29,7 +29,7 @@ namespace BetterHI3Launcher.Utility
             IsCompleted = false;
             cancelToken = cancelTokenSource.Token;
 
-            client = new PartialHttpClient(false);
+            client = new ParallelHttpClient(false);
             client.PartialProgressChanged += DownloadProgressAdaptor;
 
             Task.Run(() =>
@@ -55,7 +55,7 @@ namespace BetterHI3Launcher.Utility
             if (cancelToken.IsCancellationRequested)
             {
                 client.PartialProgressChanged -= DownloadProgressAdaptor;
-                throw new OperationCanceledException($"Partial downloader has been shutdown!");
+                throw new OperationCanceledException($"Parallel downloader has been shutdown!");
             }
 
             client.PartialProgressChanged -= DownloadProgressAdaptor;

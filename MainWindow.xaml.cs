@@ -1639,7 +1639,7 @@ namespace BetterHI3Launcher
 			BackgroundImageDownloading = false;
 		}
 
-		DownloadPartialAdapter partialHttpClient = new DownloadPartialAdapter();
+		DownloadParallelAdapter parallelHttpClient = new DownloadParallelAdapter();
 
 		private async Task DownloadGameFile()
 		{
@@ -1800,11 +1800,11 @@ namespace BetterHI3Launcher
 				{
 					try
 					{
-						partialHttpClient = new DownloadPartialAdapter();
+						parallelHttpClient = new DownloadParallelAdapter();
 
-						partialHttpClient.DownloadProgress += DownloadStatusChanged;
-						partialHttpClient.InitializeDownload(url, GameArchivePath);
-						partialHttpClient.Start();
+						parallelHttpClient.DownloadProgress += DownloadStatusChanged;
+						parallelHttpClient.InitializeDownload(url, GameArchivePath);
+						parallelHttpClient.Start();
 
 						Dispatcher.Invoke(() =>
 						{
@@ -1815,9 +1815,9 @@ namespace BetterHI3Launcher
 							LaunchButton.Content = App.TextStrings["button_cancel"];
 						});
 
-						await partialHttpClient.WaitForComplete();
+						await parallelHttpClient.WaitForComplete();
 
-						partialHttpClient.DownloadProgress -= DownloadStatusChanged;
+						parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
 
 						Log("Successfully downloaded game archive");
 
@@ -1830,7 +1830,7 @@ namespace BetterHI3Launcher
 					}
 					catch (OperationCanceledException)
 					{
-						partialHttpClient.DownloadProgress -= DownloadStatusChanged;
+						parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
 						return;
                     }
 				}
@@ -3133,7 +3133,7 @@ namespace BetterHI3Launcher
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
 					if (App.UseParallelDownload)
-						partialHttpClient.Dispose();
+						parallelHttpClient.Dispose();
 					else
 					{
 						download.Pause();
@@ -3186,7 +3186,7 @@ namespace BetterHI3Launcher
 			if(!DownloadPaused)
 			{
 				if (App.UseParallelDownload)
-					partialHttpClient.Pause();
+					parallelHttpClient.Pause();
 				else
 					download.Pause();
 				Status = LauncherStatus.DownloadPaused;
@@ -3212,7 +3212,7 @@ namespace BetterHI3Launcher
 				{
 					if (App.UseParallelDownload)
                     {
-						partialHttpClient.Resume();
+						parallelHttpClient.Resume();
 					}
 					else
 					{
