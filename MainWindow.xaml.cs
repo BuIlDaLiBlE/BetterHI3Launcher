@@ -30,6 +30,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 
+using BetterHI3Launcher.Utility;
+
 namespace BetterHI3Launcher
 {
 	enum LauncherStatus
@@ -264,6 +266,7 @@ namespace BetterHI3Launcher
 
 		public MainWindow()
 		{
+			// Logger logger = new Logger();
 			InitializeComponent();
 			var args = new List<string>();
 			for(int i = 1; i < App.CommandLineArgs.Length; i++)
@@ -1618,6 +1621,8 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
+				DownloadPartialAdapter httpClient = new DownloadPartialAdapter();
+
 				string title;
 				long size = 0;
 				long time;
@@ -1766,8 +1771,29 @@ namespace BetterHI3Launcher
 
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
+
+				cancelToken = cancelTokenSource.Token;
+				string urlOutput = Path.Combine(GameArchivePath, Path.GetFileName(url));
+
+				httpClient.DownloadProgress += DownloadStatusChanged;
+				httpClient.InitializeDownload(url, GameInstallPath);
+				httpClient.Start();
+
+
+				Dispatcher.Invoke(() =>
+				{
+					ProgressText.Text = string.Empty;
+					ProgressBar.Visibility = Visibility.Hidden;
+					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+					LaunchButton.IsEnabled = true;
+					LaunchButton.Content = App.TextStrings["button_cancel"];
+				});
+
+				await httpClient.WaitForComplete();
+
 				await Task.Run(() =>
 				{
+
 					tracker.NewFile();
 					var eta_calc = new ETACalculator();
 					download = new DownloadPauseable(url, GameArchivePath);
@@ -2945,7 +2971,9 @@ namespace BetterHI3Launcher
 								}
 							}
 						}
-					}catch{}
+					}
+					catch {}
+
 					while(true)
 					{
 						try

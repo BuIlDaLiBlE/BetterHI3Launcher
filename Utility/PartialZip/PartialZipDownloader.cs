@@ -8,6 +8,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
+using PartialZip.Models;
+
 namespace PartialZip
 {
 	public class PartialZipDownloader
@@ -79,12 +81,16 @@ namespace PartialZip
 				byte[] eocd64Buffer = await _httpService.GetRange(info.EndOfCentralDirectoryLocator64.EndOfCentralDirectory64StartOffset, info.EndOfCentralDirectoryLocator64.EndOfCentralDirectory64StartOffset + EndOfCentralDirectory64.Size - 1);
 				info.EndOfCentralDirectory64 = new EndOfCentralDirectory64(eocd64Buffer);
 
-				(startCD, endCD) = (info.EndOfCentralDirectory64.CentralDirectoryStartOffset, info.EndOfCentralDirectory64.CentralDirectoryStartOffset + info.EndOfCentralDirectory64.CentralDirectorySize + EndOfCentralDirectory64.Size - 1);
+				startCD = info.EndOfCentralDirectory64.CentralDirectoryStartOffset;
+				endCD = info.EndOfCentralDirectory64.CentralDirectoryStartOffset + info.EndOfCentralDirectory64.CentralDirectorySize + EndOfCentralDirectory64.Size - 1;
+				// (startCD, endCD) = (info.EndOfCentralDirectory64.CentralDirectoryStartOffset, info.EndOfCentralDirectory64.CentralDirectoryStartOffset + info.EndOfCentralDirectory64.CentralDirectorySize + EndOfCentralDirectory64.Size - 1);
 				info.CentralDirectoryEntries = info.EndOfCentralDirectory64.CentralDirectoryRecordCount;
 			}
 			else
 			{
-				(startCD, endCD) = (info.EndOfCentralDirectory.CentralDirectoryStartOffset, info.EndOfCentralDirectory.CentralDirectoryStartOffset + info.EndOfCentralDirectory.CentralDirectorySize + EndOfCentralDirectory.Size - 1);
+				startCD = info.EndOfCentralDirectory.CentralDirectoryStartOffset;
+				endCD = info.EndOfCentralDirectory.CentralDirectoryStartOffset + info.EndOfCentralDirectory.CentralDirectorySize + EndOfCentralDirectory.Size - 1;
+				// (startCD, endCD) = (info.EndOfCentralDirectory.CentralDirectoryStartOffset, info.EndOfCentralDirectory.CentralDirectoryStartOffset + info.EndOfCentralDirectory.CentralDirectorySize + EndOfCentralDirectory.Size - 1);
 				info.CentralDirectoryEntries = info.EndOfCentralDirectory.CentralDirectoryRecordCount;
 			}
 
@@ -97,18 +103,20 @@ namespace PartialZip
 		private async Task<Tuple<byte[], DateTime>> Download(PartialZipInfo info, string filePath)
 		{
 			CentralDirectoryHeader cd = info.CentralDirectory.FirstOrDefault(c => c.FileName == filePath);
+			DataProp dataProp;
 
 			if(cd != null)
 			{
-				(ushort modifiedTime, ushort modifiedDate, ulong uncompressedSize, ulong compressedSize, ulong headerOffset, uint diskNum) = cd.GetFileInfo();
+				dataProp = cd.GetFileInfoStruct();
+				// (ushort modifiedTime, ushort modifiedDate, ulong uncompressedSize, ulong compressedSize, ulong headerOffset, uint diskNum) = cd.GetFileInfo();
 
-				byte[] localFileBuffer = await _httpService.GetRange(headerOffset, headerOffset + LocalFileHeader.Size - 1);
+				byte[] localFileBuffer = await _httpService.GetRange(dataProp.headerOffset, dataProp.headerOffset + LocalFileHeader.Size - 1);
 				LocalFileHeader localFileHeader = new LocalFileHeader(localFileBuffer);
 
-				ulong start = headerOffset + LocalFileHeader.Size + localFileHeader.FileNameLength + localFileHeader.ExtraFieldLength;
-				byte[] compressedContent = await _httpService.GetRange(start, start + compressedSize - 1);
+				ulong start = dataProp.headerOffset + LocalFileHeader.Size + localFileHeader.FileNameLength + localFileHeader.ExtraFieldLength;
+				byte[] compressedContent = await _httpService.GetRange(start, start + dataProp.compressedSize - 1);
 
-				var dateTimeModified = ConvertDOSDateTime(modifiedDate, modifiedTime);
+				var dateTimeModified = ConvertDOSDateTime(dataProp.modifiedDate, dataProp.modifiedTime);
 
 				switch(localFileHeader.Compression)
 				{
