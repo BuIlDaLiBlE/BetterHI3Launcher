@@ -689,18 +689,18 @@ namespace BetterHI3Launcher
 
 				var paralleldown_reg = App.LauncherRegKey.GetValue("UseParallelDownload");
 				if (paralleldown_reg != null)
-                {
+				{
 					if ((int)paralleldown_reg == 1)
-                    {
+					{
 						App.UseParallelDownload = true;
 						CM_ToggleParallelDownload.IsChecked = true;
-                    }
+					}
 					else
 					{
 						App.UseParallelDownload = false;
 						CM_ToggleParallelDownload.IsChecked = false;
 					}
-                }
+				}
 
 				var sounds_reg = App.LauncherRegKey.GetValue("Sounds");
 				if(sounds_reg != null)
@@ -1795,7 +1795,7 @@ namespace BetterHI3Launcher
 				{
 					CheckExistingParallelDownload(GameArchivePathTemp);
 					if (!File.Exists(GameArchivePathTemp))
-                    {
+					{
 						try
 						{
 							parallelHttpClient = new DownloadParallelAdapter();
@@ -2031,17 +2031,17 @@ namespace BetterHI3Launcher
 		}
 
 		private void CheckExistingParallelDownload(string filePath)
-        {
+		{
 			long existingSize = 0;
 			string partialName;
 			if (File.Exists($"{filePath}.001"))
-            {
+			{
 				for (int i = 0; i < App.ParallelDownloadSession; i++)
-                {
+				{
 					partialName = String.Format("{0}.{1:000}", filePath, i + 1);
 					if (File.Exists(partialName))
 						existingSize += new FileInfo(partialName).Length;
-                }
+				}
 
 				// TODO: Add to Language Dictionary
 				bool dialog = (bool)new DialogWindow(
@@ -2052,8 +2052,8 @@ namespace BetterHI3Launcher
 
 				if (!dialog)
 					DeleteExistingParallelDownload(filePath);
-            }
-        }
+			}
+		}
 
 		private void DeleteExistingParallelDownload(string filePath)
 		{
@@ -3090,10 +3090,10 @@ namespace BetterHI3Launcher
 									{
 										continue;
 									}
-                                }
-                            }
+								}
+							}
 
-                            try
+							try
 							{
 								if (App.UseParallelDownload)
 								{
@@ -3102,18 +3102,18 @@ namespace BetterHI3Launcher
 										Directory.CreateDirectory(GameInstallPath);
 								}
 								else
-                                {
+								{
 									path = Directory.CreateDirectory(GameInstallPath).FullName;
 									Directory.Delete(GameInstallPath);
 								}
 							}
 							catch (Exception ex)
-                            {
-                                new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
-                                continue;
-                            }
+							{
+								new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
+								continue;
+							}
 
-                            if (new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
+							if (new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
 							{
 								continue;
 							}
@@ -3247,7 +3247,7 @@ namespace BetterHI3Launcher
 				try
 				{
 					if (App.UseParallelDownload)
-                    {
+					{
 						parallelHttpClient.Resume();
 					}
 					else
@@ -4522,7 +4522,7 @@ namespace BetterHI3Launcher
 		{
 			bool isEnabled = ((MenuItem)sender).IsChecked;
 			if (!isEnabled)
-            {
+			{
 				// TODO: Add to Language Dictionary
 				isEnabled = (bool)new DialogWindow(
 					"Use Parallel Download",
