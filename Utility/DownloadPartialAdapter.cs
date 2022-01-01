@@ -30,7 +30,7 @@ namespace BetterHI3Launcher.Utility
             cancelToken = cancelTokenSource.Token;
 
             client = new ParallelHttpClient(false);
-            client.PartialProgressChanged += DownloadProgressAdaptor;
+            client.PartialProgressChanged += DownloadProgressAdapter;
 
             Task.Run(() =>
             {
@@ -54,11 +54,11 @@ namespace BetterHI3Launcher.Utility
 
             if (cancelToken.IsCancellationRequested)
             {
-                client.PartialProgressChanged -= DownloadProgressAdaptor;
+                client.PartialProgressChanged -= DownloadProgressAdapter;
                 throw new OperationCanceledException($"Parallel downloader has been shutdown!");
             }
 
-            client.PartialProgressChanged -= DownloadProgressAdaptor;
+            client.PartialProgressChanged -= DownloadProgressAdapter;
         }
 
         public void Resume()
@@ -83,7 +83,7 @@ namespace BetterHI3Launcher.Utility
             Stop();
         }
 
-        public void DownloadProgressAdaptor(object sender, PartialDownloadProgressChanged e)
+        public void DownloadProgressAdapter(object sender, PartialDownloadProgressChanged e)
         {
             Console.Write($"\r{e.ProgressPercentage}");
             UpdateProgress(new DownloadChangedProgress
