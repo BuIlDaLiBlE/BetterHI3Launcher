@@ -65,7 +65,6 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ChangelogCommand = new RoutedCommand();
 		public static RoutedCommand CustomBackgroundCommand = new RoutedCommand();
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
-		public static RoutedCommand ToggleParallelDownCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
 		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
@@ -458,16 +457,9 @@ namespace BetterHI3Launcher
 			var CM_Custom_Background = new MenuItem{Header = App.TextStrings["contextmenu_custom_background"], InputGestureText = "Ctrl+B"};
 			CM_Custom_Background.Click += (sender, e) => CM_CustomBackground_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Custom_Background);
-
 			var CM_ShowLog = new MenuItem{Header = App.TextStrings["contextmenu_show_log"], InputGestureText = "Ctrl+L"};
 			CM_ShowLog.Click += (sender, e) => CM_ShowLog_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_ShowLog);
-
-			// TODO: Add to Language Dictionary
-			var CM_ToggleParallelDownload = new MenuItem { Header = "Use Parallel Download", InputGestureText = "Ctrl+Shift+D" };
-			CM_ToggleParallelDownload.Click += (sender, e) => CM_ToggleParallelDownload_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_ToggleParallelDownload);
-
 			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+Shift+S", IsChecked = true};
 			CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Sounds);
@@ -687,20 +679,23 @@ namespace BetterHI3Launcher
 					}
 				}
 
-				var paralleldown_reg = App.LauncherRegKey.GetValue("UseParallelDownload");
+				var paralleldown_reg = App.LauncherRegKey.GetValue("UseLegacyDownload");
 				if (paralleldown_reg != null)
 				{
 					if ((int)paralleldown_reg == 1)
 					{
-						App.UseParallelDownload = true;
-						CM_ToggleParallelDownload.IsChecked = true;
+						App.UseLegacyDownload = true;
 					}
 					else
 					{
-						App.UseParallelDownload = false;
-						CM_ToggleParallelDownload.IsChecked = false;
+						App.UseLegacyDownload = false;
 					}
 				}
+				else
+				{
+					App.UseLegacyDownload = false;
+					App.LauncherRegKey.SetValue("UseLegacyDownload", 0);
+                }
 
 				var sounds_reg = App.LauncherRegKey.GetValue("Sounds");
 				if(sounds_reg != null)
@@ -725,7 +720,6 @@ namespace BetterHI3Launcher
 				ChangelogCommand.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control));
 				CustomBackgroundCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
 				ToggleLogCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
-				ToggleParallelDownCommand.InputGestures.Add(new KeyGesture(Key.D, ModifierKeys.Control | ModifierKeys.Shift));
 				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift));
 				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
@@ -1791,7 +1785,7 @@ namespace BetterHI3Launcher
 				if (File.Exists(GameArchivePath))
 					File.Move(GameArchivePath, GameArchivePathTemp);
 
-				if (App.UseParallelDownload)
+				if (!App.UseLegacyDownload)
 				{
 					CheckExistingParallelDownload(GameArchivePathTemp);
 					if (!File.Exists(GameArchivePathTemp))
@@ -3095,7 +3089,7 @@ namespace BetterHI3Launcher
 
 							try
 							{
-								if (App.UseParallelDownload)
+								if (!App.UseLegacyDownload)
 								{
 									path = GameInstallPath;
 									if (!Directory.Exists(GameInstallPath))
@@ -3168,7 +3162,7 @@ namespace BetterHI3Launcher
 			{
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
-					if (App.UseParallelDownload)
+					if (!App.UseLegacyDownload)
 						parallelHttpClient.Dispose();
 					else
 					{
@@ -3176,7 +3170,7 @@ namespace BetterHI3Launcher
 						download = null;
 					}
 
-					if(!CacheDownload && !App.UseParallelDownload)
+					if(!CacheDownload && App.UseLegacyDownload)
 					{
 						if(!string.IsNullOrEmpty(GameArchivePathTemp))
 						{
@@ -3221,7 +3215,7 @@ namespace BetterHI3Launcher
 		{
 			if(!DownloadPaused)
 			{
-				if (App.UseParallelDownload)
+				if (!App.UseLegacyDownload)
 					parallelHttpClient.Pause();
 				else
 					download.Pause();
@@ -3246,7 +3240,7 @@ namespace BetterHI3Launcher
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 				try
 				{
-					if (App.UseParallelDownload)
+					if (!App.UseLegacyDownload)
 					{
 						parallelHttpClient.Resume();
 					}
@@ -4518,26 +4512,6 @@ namespace BetterHI3Launcher
 			ToggleLog(item.IsChecked);
 		}
 
-		private void CM_ToggleParallelDownload_Click(object sender, RoutedEventArgs e)
-		{
-			bool isEnabled = ((MenuItem)sender).IsChecked;
-			if (!isEnabled)
-			{
-				// TODO: Add to Language Dictionary
-				isEnabled = (bool)new DialogWindow(
-					"Use Parallel Download",
-					"This feature is still EXPERIMENTAL and only works for downloading Game Client, Pre-Installation and Game Update.\r\nDo you want to enable it?",
-					DialogWindow.DialogType.Question).ShowDialog();
-			}
-			else
-				isEnabled = false;
-
-			App.UseParallelDownload = isEnabled;
-			((MenuItem)sender).IsChecked = isEnabled;
-
-			BpUtility.WriteToRegistry("UseParallelDownload", isEnabled ? 1 : 0, RegistryValueKind.DWord);
-		}
-
 		private void CM_Sounds_Click(object sender, RoutedEventArgs e)
 		{
 			var item = sender as MenuItem;
@@ -5521,18 +5495,6 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private void ToggleParallelDownCommand_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			// TODO: Add to Language Dictionary
-			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, "Use Parallel Download");
-			if (item.IsEnabled)
-			{
-				var peer = new MenuItemAutomationPeer(item);
-				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-				inv_prov.Invoke();
-			}
-		}
-
 		private void ToggleSoundsCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_sounds"]);
@@ -5707,8 +5669,6 @@ namespace BetterHI3Launcher
 					   item.Header.ToString() == App.TextStrings["contextmenu_language"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_custom_background"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_show_log"] ||
-					   // TODO: Add to Language Dictionary
-					   item.Header.ToString() == "Use Parallel Download" ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_sounds"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_about"])
 					{
