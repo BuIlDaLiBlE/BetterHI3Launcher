@@ -695,7 +695,7 @@ namespace BetterHI3Launcher
 				{
 					App.UseLegacyDownload = false;
 					App.LauncherRegKey.SetValue("UseLegacyDownload", 0);
-                }
+				}
 
 				var sounds_reg = App.LauncherRegKey.GetValue("Sounds");
 				if(sounds_reg != null)
