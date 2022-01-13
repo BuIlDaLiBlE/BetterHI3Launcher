@@ -29,8 +29,8 @@
 		<CommandBinding Command="{x:Static local:MainWindow.FeedbackCommand}" Executed="FeedbackCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.ChangelogCommand}" Executed="ChangelogCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.CustomBackgroundCommand}" Executed="CustomBackgroundCommand_Executed"/>
-		<CommandBinding Command="{x:Static local:MainWindow.ToggleLogCommand}" Executed="ToggleLogCommand_Executed"/>
-		<CommandBinding Command="{x:Static local:MainWindow.ToggleSoundsCommand}" Executed="ToggleSoundsCommand_Executed"/>
+        <CommandBinding Command="{x:Static local:MainWindow.ToggleLogCommand}" Executed="ToggleLogCommand_Executed"/>
+        <CommandBinding Command="{x:Static local:MainWindow.ToggleSoundsCommand}" Executed="ToggleSoundsCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.AboutCommand}" Executed="AboutCommand_Executed"/>
 	</Window.CommandBindings>
 	<Window.Resources>

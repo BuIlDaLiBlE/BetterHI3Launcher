@@ -25,7 +25,8 @@ namespace BetterHI3Launcher
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
 		public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
 		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
-		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate;
+		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate, UseLegacyDownload;
+		public static readonly int ParallelDownloadSession = 8;
 		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
 		public static Dictionary<string, string> TextStrings = new Dictionary<string, string>();
 		public static Mutex Mutex = null;

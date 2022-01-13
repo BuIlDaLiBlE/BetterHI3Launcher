@@ -30,6 +30,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 
+using BetterHI3Launcher.Utility;
+
 namespace BetterHI3Launcher
 {
 	enum LauncherStatus
@@ -48,7 +50,7 @@ namespace BetterHI3Launcher
 	public partial class MainWindow : Window
 	{
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
-		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
+		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchivePathTemp, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
 		public static string GameWebProfileURL, GameFullName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
@@ -264,6 +266,7 @@ namespace BetterHI3Launcher
 
 		public MainWindow()
 		{
+			// Logger logger = new Logger();
 			InitializeComponent();
 			var args = new List<string>();
 			for(int i = 1; i < App.CommandLineArgs.Length; i++)
@@ -674,6 +677,24 @@ namespace BetterHI3Launcher
 							CM_ShowLog.IsChecked = true;
 						}
 					}
+				}
+
+				var paralleldown_reg = App.LauncherRegKey.GetValue("UseLegacyDownload");
+				if (paralleldown_reg != null)
+				{
+					if ((int)paralleldown_reg == 1)
+					{
+						App.UseLegacyDownload = true;
+					}
+					else
+					{
+						App.UseLegacyDownload = false;
+					}
+				}
+				else
+				{
+					App.UseLegacyDownload = false;
+					App.LauncherRegKey.SetValue("UseLegacyDownload", 0);
 				}
 
 				var sounds_reg = App.LauncherRegKey.GetValue("Sounds");
@@ -1614,6 +1635,8 @@ namespace BetterHI3Launcher
 			BackgroundImageDownloading = false;
 		}
 
+		DownloadParallelAdapter parallelHttpClient = new DownloadParallelAdapter();
+
 		private async Task DownloadGameFile()
 		{
 			try
@@ -1753,74 +1776,120 @@ namespace BetterHI3Launcher
 					}
 				}
 				md5 = md5.ToUpper();
-				if(!File.Exists(GameArchivePath))
-				{
-					GameArchivePath = Path.Combine(GameInstallPath, $"{title}_tmp");
-				}
-				else if(new FileInfo(GameArchivePath).Length != size)
-				{
-					string tmp_path = Path.Combine(GameInstallPath, $"{title}_tmp");
-					File.Move(GameArchivePath, tmp_path);
-					GameArchivePath = tmp_path;
-				}
 
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
-				await Task.Run(() =>
+
+				GameArchivePathTemp = $"{GameArchivePath}_tmp";
+
+				if (File.Exists(GameArchivePath))
+					File.Move(GameArchivePath, GameArchivePathTemp);
+
+				if (!App.UseLegacyDownload)
 				{
-					tracker.NewFile();
-					var eta_calc = new ETACalculator();
-					download = new DownloadPauseable(url, GameArchivePath);
-					download.Start();
-					Dispatcher.Invoke(() =>
+					CheckExistingParallelDownload(GameArchivePathTemp);
+					if (!File.Exists(GameArchivePathTemp))
 					{
-						ProgressText.Text = string.Empty;
-						ProgressBar.Visibility = Visibility.Hidden;
-						DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-						LaunchButton.IsEnabled = true;
-						LaunchButton.Content = App.TextStrings["button_cancel"];
-					});
-					while(download != null && !download.Done)
-					{
-						if(DownloadPaused)
+						try
 						{
-							continue;
+							parallelHttpClient = new DownloadParallelAdapter();
+
+							parallelHttpClient.DownloadProgress += DownloadStatusChanged;
+							parallelHttpClient.InitializeDownload(url, GameArchivePathTemp);
+							parallelHttpClient.Start();
+
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Empty;
+								ProgressBar.Visibility = Visibility.Hidden;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+								LaunchButton.IsEnabled = true;
+								LaunchButton.Content = App.TextStrings["button_cancel"];
+							});
+
+							await parallelHttpClient.WaitForComplete();
+
+							parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
+
+							Log("Successfully downloaded game archive");
+
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Empty;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+								LaunchButton.Content = App.TextStrings["button_launch"];
+							});
 						}
-						size = download.ContentLength;
-						tracker.SetProgress(download.BytesWritten, download.ContentLength);
-						eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
-						Dispatcher.Invoke(() =>
+						catch (OperationCanceledException)
 						{
-							var progress = tracker.GetProgress();
-							DownloadProgressBar.Value = progress;
-							TaskbarItemInfo.ProgressValue = progress;
-							DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
-							DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-							DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+							parallelHttpClient.DownloadProgress -= DownloadStatusChanged;
+							return;
+						}
+					}
+				}
+				else
+				{
+					DeleteExistingParallelDownload(GameArchivePathTemp);
+					if (!File.Exists(GameArchivePathTemp))
+					{
+						await Task.Run(() =>
+						{
+							tracker.NewFile();
+							var eta_calc = new ETACalculator();
+							download = new DownloadPauseable(url, GameArchivePathTemp);
+							download.Start();
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Empty;
+								ProgressBar.Visibility = Visibility.Hidden;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+								LaunchButton.IsEnabled = true;
+								LaunchButton.Content = App.TextStrings["button_cancel"];
+							});
+							while (download != null && !download.Done)
+							{
+								if (DownloadPaused)
+								{
+									continue;
+								}
+								size = download.ContentLength;
+								tracker.SetProgress(download.BytesWritten, download.ContentLength);
+								eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+								Dispatcher.Invoke(() =>
+								{
+									var progress = tracker.GetProgress();
+									DownloadProgressBar.Value = progress;
+									TaskbarItemInfo.ProgressValue = progress;
+									DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
+									DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
+									DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+								});
+								Thread.Sleep(500);
+							}
+							if (download == null)
+							{
+								abort = true;
+							}
+							if (abort)
+							{
+								return;
+							}
+							download = null;
+							Log("Successfully downloaded game archive");
+							while (BpUtility.IsFileLocked(new FileInfo(GameArchivePathTemp)))
+							{
+								Thread.Sleep(10);
+							}
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Empty;
+								DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+								LaunchButton.Content = App.TextStrings["button_launch"];
+							});
 						});
-						Thread.Sleep(500);
 					}
-					if(download == null)
-					{
-						abort = true;
-					}
-					if(abort)
-					{
-						return;
-					}
-					download = null;
-					Log("Successfully downloaded game archive");
-					while(BpUtility.IsFileLocked(new FileInfo(GameArchivePath)))
-					{
-						Thread.Sleep(10);
-					}
-					Dispatcher.Invoke(() =>
-					{
-						ProgressText.Text = string.Empty;
-						DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-						LaunchButton.Content = App.TextStrings["button_launch"];
-					});
-				});
+				}
+
 				try
 				{
 					if(abort)
@@ -1831,27 +1900,25 @@ namespace BetterHI3Launcher
 					{
 						Log("Validating game archive...");
 						Status = LauncherStatus.Verifying;
-						string actual_md5 = BpUtility.CalculateMD5(GameArchivePath);
+						string actual_md5 = BpUtility.CalculateMD5(GameArchivePathTemp);
 						if(actual_md5 == md5)
 						{
-							string new_path = GameArchivePath.Substring(0, GameArchivePath.Length - 4);
-							if(!File.Exists(new_path))
+							if(!File.Exists(GameArchivePath))
 							{
-								File.Move(GameArchivePath, new_path);
+								File.Move(GameArchivePathTemp, GameArchivePath);
 							}
-							else if(File.Exists(new_path) && size != 0 && new FileInfo(new_path).Length != size)
+							else if(File.Exists(GameArchivePath) && size != 0 && new FileInfo(GameArchivePath).Length != size)
 							{
-								DeleteFile(new_path);
-								File.Move(GameArchivePath, new_path);
+								DeleteFile(GameArchivePath);
+								File.Move(GameArchivePathTemp, GameArchivePath);
 							}
-							GameArchivePath = new_path;
 							Log("success!", false);
 						}
 						else
 						{
 							Status = LauncherStatus.Error;
 							Log($"ERROR: Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
-							DeleteFile(GameArchivePath);
+							DeleteFile(GameArchivePathTemp);
 							abort = true;
 							Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_verify_error_title"], App.TextStrings["msgbox_verify_error_1_msg"]).ShowDialog();});
 							Status = LauncherStatus.Ready;
@@ -1954,6 +2021,42 @@ namespace BetterHI3Launcher
 				new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_error_msg"]).ShowDialog();
 				Status = LauncherStatus.Ready;
 				GameUpdateCheck();
+			}
+		}
+
+		private void CheckExistingParallelDownload(string filePath)
+		{
+			long existingSize = 0;
+			string partialName;
+			if (File.Exists($"{filePath}.001"))
+			{
+				for (int i = 0; i < App.ParallelDownloadSession; i++)
+				{
+					partialName = String.Format("{0}.{1:000}", filePath, i + 1);
+					if (File.Exists(partialName))
+						existingSize += new FileInfo(partialName).Length;
+				}
+
+				// TODO: Add to Language Dictionary
+				bool dialog = (bool)new DialogWindow(
+					"Continue from Previous Download",
+					string.Format("You have previously downloaded {0} of the file.\r\nDo you want to resume the download?", BpUtility.ToBytesCount(existingSize)),
+					DialogWindow.DialogType.Question
+					).ShowDialog();
+
+				if (!dialog)
+					DeleteExistingParallelDownload(filePath);
+			}
+		}
+
+		private void DeleteExistingParallelDownload(string filePath)
+		{
+			string partialName;
+			for (int i = 0; i < App.ParallelDownloadSession; i++)
+			{
+				partialName = String.Format("{0}.{1:000}", filePath, i + 1);
+				if (File.Exists(partialName))
+					File.Delete(partialName);
 			}
 		}
 
@@ -2665,9 +2768,9 @@ namespace BetterHI3Launcher
 
 		private async void Window_ContentRendered(object sender, EventArgs e)
 		{
-			#if DEBUG
+#if DEBUG
 			App.DisableAutoUpdate = true;
-			#endif
+#endif
 			try
 			{
 				string exe_name = Process.GetCurrentProcess().MainModule.ModuleName;
@@ -2754,7 +2857,7 @@ namespace BetterHI3Launcher
 				LegacyBoxActive = true;
 				IntroBox.Visibility = Visibility.Visible;
 			}
-			#if !DEBUG
+#if !DEBUG
 			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
 			{
 				if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
@@ -2765,7 +2868,7 @@ namespace BetterHI3Launcher
 					FetchChangelog();
 				}
 			}
-			#endif
+#endif
 			try
 			{
 				if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
@@ -2945,7 +3048,9 @@ namespace BetterHI3Launcher
 								}
 							}
 						}
-					}catch{}
+					}
+					catch {}
+
 					while(true)
 					{
 						try
@@ -2981,17 +3086,28 @@ namespace BetterHI3Launcher
 									}
 								}
 							}
+
 							try
 							{
-								path = Directory.CreateDirectory(GameInstallPath).FullName;
-								Directory.Delete(path);
+								if (!App.UseLegacyDownload)
+								{
+									path = GameInstallPath;
+									if (!Directory.Exists(GameInstallPath))
+										Directory.CreateDirectory(GameInstallPath);
+								}
+								else
+								{
+									path = Directory.CreateDirectory(GameInstallPath).FullName;
+									Directory.Delete(GameInstallPath);
+								}
 							}
-							catch(Exception ex)
+							catch (Exception ex)
 							{
 								new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
 								continue;
 							}
-							if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
+
+							if (new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
 							{
 								continue;
 							}
@@ -3046,17 +3162,23 @@ namespace BetterHI3Launcher
 			{
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
-					download.Pause();
-					download = null;
-					if(!CacheDownload)
+					if (!App.UseLegacyDownload)
+						parallelHttpClient.Dispose();
+					else
 					{
-						if(!string.IsNullOrEmpty(GameArchivePath))
+						download.Pause();
+						download = null;
+					}
+
+					if(!CacheDownload && App.UseLegacyDownload)
+					{
+						if(!string.IsNullOrEmpty(GameArchivePathTemp))
 						{
-							while(BpUtility.IsFileLocked(new FileInfo(GameArchivePath)))
+							while(BpUtility.IsFileLocked(new FileInfo(GameArchivePathTemp)))
 							{
 								Thread.Sleep(10);
 							}
-							DeleteFile(GameArchivePath, true);
+							DeleteFile(GameArchivePathTemp, true);
 						}
 					}
 					else
@@ -3093,7 +3215,10 @@ namespace BetterHI3Launcher
 		{
 			if(!DownloadPaused)
 			{
-				download.Pause();
+				if (!App.UseLegacyDownload)
+					parallelHttpClient.Pause();
+				else
+					download.Pause();
 				Status = LauncherStatus.DownloadPaused;
 				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 				DownloadETAText.Visibility = Visibility.Hidden;
@@ -3115,7 +3240,14 @@ namespace BetterHI3Launcher
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 				try
 				{
-					await download.Start();
+					if (!App.UseLegacyDownload)
+					{
+						parallelHttpClient.Resume();
+					}
+					else
+					{
+						await download.Start();
+					}
 				}
 				catch(Exception ex)
 				{
@@ -5761,31 +5893,31 @@ namespace BetterHI3Launcher
 			}
 
 			Color color;
-			#if DEBUG
+#if DEBUG
 			ConsoleColor ccolor;
-			#endif
+#endif
 			switch(type)
 			{
 				case 1:
 					color = Colors.Red;
-					#if DEBUG
+#if DEBUG
 					ccolor = ConsoleColor.Red;
-					#endif
+#endif
 					break;
 				case 2:
 					color = Colors.Yellow;
-					#if DEBUG
+#if DEBUG
 					ccolor = ConsoleColor.Yellow;
-					#endif
+#endif
 					break;
 				default:
 					color = Colors.White;
-					#if DEBUG
+#if DEBUG
 					ccolor = ConsoleColor.Gray;
-					#endif
+#endif
 					break;
 			}
-			#if DEBUG
+#if DEBUG
 			Console.ForegroundColor = ccolor;
 			if(newline)
 			{
@@ -5795,7 +5927,7 @@ namespace BetterHI3Launcher
 			{
 				Console.Write(msg);
 			}
-			#endif
+#endif
 			Dispatcher.Invoke(() =>
 			{
 				if(newline)
