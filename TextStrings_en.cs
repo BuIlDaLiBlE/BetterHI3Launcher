@@ -220,7 +220,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_uninstall_game_cache", "Game Cache");
 			TextStrings.Add("msgbox_uninstall_game_settings", "Game Settings");
 			TextStrings.Add("msgbox_uninstall_title", "Uninstall");
-			TextStrings.Add("msgbox_update_check_error_msg", "An error occurred while checking for update.\nFor more information take a look at the log.");
+			TextStrings.Add("msgbox_update_check_error_msg", "An error occurred while checking for update.\nFor more information take a look at the log.\nRetry?");
 			TextStrings.Add("msgbox_update_check_error_title", "Update check error");
 			TextStrings.Add("msgbox_update_title", "Update notice");
 			TextStrings.Add("msgbox_verify_error_1_msg", "An error occurred while downloading. Please try again.");
