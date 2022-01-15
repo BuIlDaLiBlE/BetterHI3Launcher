@@ -556,7 +556,6 @@
 				<ComboBoxItem Content="miHoYo"/>
 				<ComboBoxItem Content="Hi3Mirror"/>
 				<ComboBoxItem Content="MediaFire"/>
-				<ComboBoxItem Content="Google Drive"/>
 			</ComboBox>
 			<Grid Name="PreloadGrid" Visibility="Collapsed">
 				<Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,364,50" Width="240" Height="50">

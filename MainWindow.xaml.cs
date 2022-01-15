@@ -43,7 +43,7 @@ namespace BetterHI3Launcher
 	}
 	enum HI3Mirror
 	{
-		miHoYo, Hi3Mirror, MediaFire, GoogleDrive
+		miHoYo, Hi3Mirror, MediaFire
 	}
 
 	public partial class MainWindow : Window
@@ -84,7 +84,7 @@ namespace BetterHI3Launcher
 					LaunchButton.IsEnabled = val;
 					OptionsButton.IsEnabled = val;
 					ServerDropdown.IsEnabled = val;
-					if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+					if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
 					{
 						MirrorDropdown.IsEnabled = false;
 					}
@@ -657,11 +657,11 @@ namespace BetterHI3Launcher
 						}
 						else if((int)last_selected_mirror_reg == 1)
 						{
-							Mirror = HI3Mirror.MediaFire;
+							Mirror = HI3Mirror.Hi3Mirror;
 						}
 						else if((int)last_selected_mirror_reg == 2)
 						{
-							Mirror = HI3Mirror.GoogleDrive;
+							Mirror = HI3Mirror.MediaFire;
 						}
 					}
 				}
@@ -1035,57 +1035,6 @@ namespace BetterHI3Launcher
 			return null;
 		}
 
-		private dynamic FetchGDFileMetadata(string id)
-		{
-			if(string.IsNullOrEmpty(id))
-			{
-				throw new ArgumentNullException();
-			}
-
-			string url = $"https://www.googleapis.com/drive/v2/files/{id}?key={OnlineVersionInfo.launcher_info.gd_key}";
-			try
-			{
-				var web_request = BpUtility.CreateWebRequest(url);
-				using(var web_response = (HttpWebResponse)web_request.GetResponse())
-				{
-					using(var data = new MemoryStream())
-					{
-						web_response.GetResponseStream().CopyTo(data);
-						var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
-						return json;
-					}
-				}
-			}
-			catch(WebException ex)
-			{
-				Status = LauncherStatus.Error;
-				string msg;
-				if(ex.Response != null)
-				{
-					using(var data = new MemoryStream())
-					{
-						ex.Response.GetResponseStream().CopyTo(data);
-						var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
-						if(json.error != null)
-						{
-							msg = json.error.errors[0].message;
-						}
-						else
-						{
-							msg = ex.Message;
-						}
-					}
-				}
-				else
-				{
-					msg = ex.Message;
-				}
-				Log($"Failed to fetch Google Drive file metadata:\n{ex}", true, 1);
-				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_mirror_error_msg"], msg)).ShowDialog();});
-			}
-			return null;
-		}
-
 		private bool LauncherUpdateCheck()
 		{
 			var OnlineLauncherVersion = new App.LauncherVersion(OnlineVersionInfo.launcher_info.version.ToString());
@@ -1128,26 +1077,6 @@ namespace BetterHI3Launcher
 								break;
 						}
 						if(mediafire_metadata == null)
-						{
-							Log("Failed to use the current mirror, switching back to miHoYo", true, 2);
-							Status = LauncherStatus.Ready;
-							Dispatcher.Invoke(() => {MirrorDropdown.SelectedIndex = 0;});
-							return;
-						}
-					}
-					else if(Mirror == HI3Mirror.GoogleDrive)
-					{
-						dynamic gd_metadata = null;
-						switch(Server)
-						{
-							case HI3Server.GLB:
-								gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.global.ToString());
-								break;
-							case HI3Server.SEA:
-								gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.os.ToString());
-								break;
-						}
-						if(gd_metadata == null)
 						{
 							Log("Failed to use the current mirror, switching back to miHoYo", true, 2);
 							Status = LauncherStatus.Ready;
@@ -1285,7 +1214,7 @@ namespace BetterHI3Launcher
 					}
 					else
 					{
-						Log("Game is not installed :^(");
+						Log("Ready to install the game");
 						if(server_changed)
 						{
 							FetchmiHoYoVersionInfo();
@@ -1669,7 +1598,7 @@ namespace BetterHI3Launcher
 					url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_archive.ToString() + title;
 					md5 = miHoYoVersionInfo.game.latest.md5.ToString();
 				}
-				else if(Mirror == HI3Mirror.MediaFire)
+				else
 				{
 					dynamic mediafire_metadata = null;
 					switch(Server)
@@ -1711,69 +1640,6 @@ namespace BetterHI3Launcher
 						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_error_msg"]).ShowDialog();
 						Status = LauncherStatus.Ready;
 						GameUpdateCheck();
-						return;
-					}
-				}
-				else
-				{
-					dynamic gd_metadata = null;
-					switch(Server)
-					{
-						case HI3Server.GLB:
-							gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.global.ToString());
-							break;
-						case HI3Server.SEA:
-							gd_metadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_archive.os.ToString());
-							break;
-					}
-					if(gd_metadata == null)
-					{
-						return;
-					}
-					title = gd_metadata.title.ToString();
-					time = ((DateTimeOffset)gd_metadata.modifiedDate).ToUnixTimeSeconds();
-					url = gd_metadata.downloadUrl.ToString();
-					md5 = gd_metadata.md5Checksum.ToString();
-					GameArchivePath = Path.Combine(GameInstallPath, title);
-					GameArchiveTempPath = $"{GameArchivePath}_tmp";
-					if(DateTime.Compare(DateTime.Parse(miHoYoVersionInfo.last_modified.ToString()), DateTime.Parse(gd_metadata.modifiedDate.ToString())) > 0)
-					{
-						Status = LauncherStatus.Error;
-						Log("Mirror is outdated!", true, 1);
-						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_old_msg"]).ShowDialog();
-						Status = LauncherStatus.Ready;
-						GameUpdateCheck();
-						return;
-					}
-					try
-					{
-						var web_request = BpUtility.CreateWebRequest(url);
-						var web_response = (HttpWebResponse)web_request.GetResponse();
-					}
-					catch(WebException ex)
-					{
-						Status = LauncherStatus.Error;
-						if(ex.Response != null)
-						{
-							using(var data = new MemoryStream())
-							{
-								ex.Response.GetResponseStream().CopyTo(data);
-								var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
-								string msg;
-								if(json.error != null)
-								{
-									msg = json.error.errors[0].message;
-								}
-								else
-								{
-									msg = ex.Message;
-								}
-								Log($"Failed to download from Google Drive:\n{msg}", true, 1);
-								new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_error_msg"]).ShowDialog();
-								Status = LauncherStatus.Ready;
-								GameUpdateCheck();
-							}
-						}
 						return;
 					}
 				}
@@ -2338,11 +2204,11 @@ namespace BetterHI3Launcher
 			Status = LauncherStatus.Ready;
 		}
 
-		private readonly string[] CacheRegionalCheckName = new string[]{"TextMap", "RandomDialogData", "sprite"};
+		private readonly string[] CacheRegionalCheckName = new string[]{"sprite"};
 		private enum CacheType {Data, Event, Ai, Unknown}
 		private string ReturnCacheTypeEnum(CacheType enumName)
 		{
-			switch (enumName)
+			switch(enumName)
 			{
 				case CacheType.Ai:
 					return "ai";
@@ -2356,15 +2222,17 @@ namespace BetterHI3Launcher
 		}
 
 		/*
-		 * N	-> Name of the necessary file
-		 * CRC	-> Expected MD5 hash of the file
-		 * CS	-> Size of the file
+		 * N			-> Name of the necessary file
+		 * CRC			-> Expected MD5 hash of the file
+		 * CS			-> Size of the file
+		 * IsNecessary	-> The file is necessary on "Updating settings" screen
 		 */
 		private class CacheDataProperties
 		{
 			public string N {get; set;}
 			public string CRC {get; set;}
 			public long CS {get; set;}
+			public bool IsNecessary {get; set;}
 			public CacheType Type {get; set;}
 		}
 
@@ -2398,21 +2266,31 @@ namespace BetterHI3Launcher
 		private async void DownloadGameCacheHi3Mirror(string game_language)
 		{
 			string data;
-			string url;
-			string md5;
-			string name;
-			string path = string.Empty;
-			string preformatAPIUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString();
-			string preformatDataUrl = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
+			string path;
+			string api_url = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString();
+			string data_url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
 
 			List<CacheDataProperties> cache_files, bad_files;
-			CacheType cacheType;
-			BpWebClient web_client = new BpWebClient();
-			FileInfo fileInfo;
+			CacheType cache_type;
+			var web_client = new BpWebClient();
 
 			try
 			{
-				int server = (int)Server == 0 ? 1 : 0;
+				int server;
+				switch((int)Server)
+				{
+					case 0:
+						server = 1;
+						break;
+					case 1:
+						server = 0;
+						break;
+					case 2:
+						server = 2;
+						break;
+					default:
+						throw new NotSupportedException("This server is not supported.");
+				}
 
 				cache_files = new List<CacheDataProperties>();
 				bad_files = new List<CacheDataProperties>();
@@ -2428,21 +2306,21 @@ namespace BetterHI3Launcher
 						switch(i)
 						{
 							case 0:
-								cacheType = CacheType.Data;
+								cache_type = CacheType.Data;
 								break;
 							case 1:
-								cacheType = CacheType.Event;
+								cache_type = CacheType.Event;
 								break;
 							case 2:
-								cacheType = CacheType.Ai;
+								cache_type = CacheType.Ai;
 								break;
 							default:
-								cacheType = CacheType.Unknown;
+								cache_type = CacheType.Unknown;
 								break;
 						}
 
 						// Get URL and API data
-						url = string.Format(preformatAPIUrl, i, server);
+						var url = string.Format(api_url, i, server);
 						data = web_client.DownloadString(url);
 
 						// Do Elimination Process
@@ -2459,7 +2337,8 @@ namespace BetterHI3Launcher
 									N = file.N,
 									CRC = file.CRC,
 									CS = file.CS,
-									Type = cacheType
+									IsNecessary = file.IsNecessary,
+									Type = cache_type
 								});
 							}
 						}
@@ -2491,14 +2370,12 @@ namespace BetterHI3Launcher
 				{
 					for(int i = 0; i < cache_files.Count; i++)
 					{
-						name = $"{NormalizePath(cache_files[i].N)}.unity3d";
+						var name = $"{NormalizePath(cache_files[i].N)}.unity3d";
 
 						// Combine Path and assign their own path
 						// If none of them assigned as Unknown type, throw an exception.
-						switch (cache_files[i].Type)
+						switch(cache_files[i].Type)
 						{
-							default:
-								throw new Exception("Unknown cache file data type");
 							case CacheType.Data:
 								path = Path.Combine(GameCachePath, "Data", name);
 								break;
@@ -2506,9 +2383,10 @@ namespace BetterHI3Launcher
 							case CacheType.Event:
 								path = Path.Combine(GameCachePath, "Resources", name);
 								break;
+							default:
+								throw new Exception("Unknown cache file data type");
 						}
-
-						fileInfo = new FileInfo(path);
+						var file = new FileInfo(path);
 
 						Dispatcher.Invoke(() =>
 						{
@@ -2518,27 +2396,26 @@ namespace BetterHI3Launcher
 							TaskbarItemInfo.ProgressValue = progress;
 						});
 
-						if(!fileInfo.Exists || BpUtility.CalculateMD5(fileInfo.FullName) != cache_files[i].CRC)
+						if(file.Exists)
 						{
-							if(App.AdvancedFeatures)
+							if(BpUtility.CalculateMD5(file.FullName) == cache_files[i].CRC)
 							{
-								if(File.Exists(path))
-								{
-									Log($"File corrupted: {path}");
-								}
-								else
-								{
-									Log($"File missing: {path}");
-								}
+								if(App.AdvancedFeatures) Log($"File OK: {path}");
 							}
-
-							bad_files.Add(cache_files[i]);
+							else
+							{
+								bad_files.Add(cache_files[i]);
+								Log($"File corrupted: {path}");
+							}
+							useless_files.RemoveAll(x => x.FullName == path);
 						}
 						else
 						{
-							useless_files.RemoveAll(x => x.FullName == path);
-							if(App.AdvancedFeatures)
-								Log($"File OK: {path}");
+							if(cache_files[i].IsNecessary)
+							{
+								bad_files.Add(cache_files[i]);
+								Log($"File missing: {path}");
+							}
 						}
 					}
 
@@ -2559,14 +2436,11 @@ namespace BetterHI3Launcher
 
 				if(useless_files.Count > 0)
 				{
-					Log($"Found useless files: {useless_files.Count}");
-					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format("Found {0} useless files, wanna remove 'em?", useless_files.Count), DialogWindow.DialogType.Question).ShowDialog() == true)
+					foreach(var file in useless_files)
 					{
-						foreach(var file in useless_files)
-						{
-							DeleteFile(file.FullName, true);
-						}
+						DeleteFile(file.FullName, true);
 					}
+					Log($"Deleted useless files: {useless_files.Count}");
 				}
 
 				if(bad_files.Count > 0)
@@ -2574,7 +2448,21 @@ namespace BetterHI3Launcher
 					Log($"Finished verifying files, found corrupted/missing files: {bad_files.Count}");
 					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
-						string server = Server == 0 ? "global" : "sea";
+						string server;
+						switch((int)Server)
+						{
+							case 0:
+								server = "global";
+								break;
+							case 1:
+								server = "sea";
+								break;
+							case 2:
+								server = "cn";
+								break;
+							default:
+								throw new NotSupportedException("This server is not supported.");
+						}
 
 						int downloaded_files = 0;
 						Status = LauncherStatus.Downloading;
@@ -2584,20 +2472,18 @@ namespace BetterHI3Launcher
 							for(int i = 0; i < bad_files.Count; i++)
 							{
 								path = $"{NormalizePath(bad_files[i].N)}.unity3d";
-								switch (bad_files[i].Type)
+								switch(bad_files[i].Type)
 								{
 									case CacheType.Data:
 										path = Path.Combine(GameCachePath, "Data", path);
 										break;
-									case CacheType.Event:
-										path = Path.Combine(GameCachePath, "Resources", path);
-										break;
 									case CacheType.Ai:
+									case CacheType.Event:
 										path = Path.Combine(GameCachePath, "Resources", path);
 										break;
 								}
 
-								url = string.Format(preformatDataUrl, server, ReturnCacheTypeEnum(bad_files[i].Type), bad_files[i].N);
+								var url = string.Format(data_url, server, ReturnCacheTypeEnum(bad_files[i].Type), bad_files[i].N);
 
 								Dispatcher.Invoke(() =>
 								{
@@ -2611,15 +2497,14 @@ namespace BetterHI3Launcher
 								{
 									Directory.CreateDirectory(Path.GetDirectoryName(path));
 									await web_client.DownloadFileTaskAsync(new Uri(url), path);
-									Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, bad_files.Count);});
-									md5 = BpUtility.CalculateMD5(path);
+									var md5 = BpUtility.CalculateMD5(path);
 									if(File.Exists(path) && md5 != bad_files[i].CRC)
 									{
 										Log($"Failed to verify file [{path}]", true, 1);
 									}
 									else
 									{
-										Log($"Downloaded file {bad_files[i].N}");
+										Log($"Downloaded file {path}");
 										downloaded_files++;
 									}
 								}
@@ -2693,7 +2578,7 @@ namespace BetterHI3Launcher
 			}
 
 			string server = (int)Server == 0 ? "global" : "os";
-			string mirror = (int)Mirror == 2 ? "gd" : "mediafire";
+			string mirror = "mediafire";
 			try
 			{
 				var data = Encoding.ASCII.GetBytes($"save_stats={server}&mirror={mirror}&file={file}&time={time}");
@@ -3439,7 +3324,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server != HI3Server.CN && Mirror == HI3Mirror.Hi3Mirror))
 			{
 				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
@@ -3450,10 +3335,12 @@ namespace BetterHI3Launcher
 			string value = "multi_language_h2498394913";
 			if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
 			{
-				new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_2_msg"]}").ShowDialog();
-				return;
+				game_language_int = 0;
 			}
-			game_language_int = (int)key.GetValue(value);
+			else
+			{
+				game_language_int = (int)key.GetValue(value);
+			}
 			switch(game_language_int)
 			{
 				case 0:
@@ -3530,39 +3417,17 @@ namespace BetterHI3Launcher
 						switch(Server)
 						{
 							case HI3Server.GLB:
-								if(Mirror == HI3Mirror.GoogleDrive)
+								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
+								if(GameCacheMetadata != null)
 								{
-									GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.global.ToString());
-									if(GameCacheMetadata != null)
-									{
-										GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.global.ToString());
-									}
-								}
-								else
-								{
-									GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
-									if(GameCacheMetadata != null)
-									{
-										GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
-									}
+									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
 								}
 								break;
 							case HI3Server.SEA:
-								if(Mirror == HI3Mirror.GoogleDrive)
+								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
+								if(GameCacheMetadata != null)
 								{
-									GameCacheMetadata = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache.os.ToString());
-									if(GameCacheMetadata != null)
-									{
-										GameCacheMetadataNumeric = FetchGDFileMetadata(OnlineVersionInfo.game_info.mirror.gd.game_cache_numeric.os.ToString());
-									}
-								}
-								else
-								{
-									GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
-									if(GameCacheMetadata != null)
-									{
-										GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
-									}
+									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
 								}
 								break;
 						}
@@ -3572,10 +3437,10 @@ namespace BetterHI3Launcher
 							Status = LauncherStatus.Ready;
 							return;
 						}
-						mirror = Mirror == HI3Mirror.GoogleDrive ? "Google Drive" : "MediaFire";
+						mirror = "MediaFire";
 						try
 						{
-							time = Mirror == HI3Mirror.GoogleDrive ? GameCacheMetadataNumeric.modifiedDate.ToString() : new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)OnlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
+							time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)OnlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
 							if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(time)) >= 0)
 							{
 								last_updated = $"{DateTime.Parse(time).ToLocalTime().ToString(new CultureInfo(App.OSLanguage))} ({App.TextStrings["outdated"].ToLower()})";
@@ -4080,10 +3945,7 @@ namespace BetterHI3Launcher
 
 									if(subtitle_lines[at_line] != line)
 									{
-										if(App.AdvancedFeatures)
-										{
-											Log($"Fixed line {1 + at_line}: [{subtitle_lines[at_line]}] -> [{line}]");
-										}
+										if(App.AdvancedFeatures) Log($"Fixed line {1 + at_line}: [{subtitle_lines[at_line]}] -> [{line}]");
 										subtitle_lines[at_line] = line;
 										lines_fixed++;
 									}
@@ -4722,7 +4584,7 @@ namespace BetterHI3Launcher
 					Server = HI3Server.KR;
 					break;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				Mirror = HI3Mirror.miHoYo;
@@ -4742,7 +4604,7 @@ namespace BetterHI3Launcher
 		private void MirrorDropdown_Opened(object sender, EventArgs e)
 		{
 			BpUtility.PlaySound(Properties.Resources.Click);
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
 			{
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
@@ -4756,9 +4618,10 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server == HI3Server.CN && index > 1))
 			{
 				MirrorDropdown.SelectedIndex = 0;
+				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
 			}
 
@@ -4802,9 +4665,6 @@ namespace BetterHI3Launcher
 					break;
 				case 2:
 					Mirror = HI3Mirror.MediaFire;
-					break;
-				case 3:
-					Mirror = HI3Mirror.GoogleDrive;
 					break;
 			}
 			try
@@ -4909,10 +4769,7 @@ namespace BetterHI3Launcher
 					long corrupted_files_size = 0;
 
 					Log("Verifying game files...");
-					if(App.AdvancedFeatures)
-					{
-						Log($"Repair data game version: {OnlineRepairInfo.game_version}");
-					}
+					if(App.AdvancedFeatures) Log($"Repair data game version: {OnlineRepairInfo.game_version}");
 					await Task.Run(() =>
 					{
 						for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
@@ -4945,10 +4802,7 @@ namespace BetterHI3Launcher
 							}
 							else
 							{
-								if(App.AdvancedFeatures)
-								{
-									Log($"File OK: {name}");
-								}
+								if(App.AdvancedFeatures) Log($"File OK: {name}");
 							}
 						}
 					});
