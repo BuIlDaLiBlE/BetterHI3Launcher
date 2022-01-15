@@ -330,17 +330,17 @@ namespace BetterHI3Launcher
 				App.UserAgent += " [NOTRANSLATIONS]";
 				Log("Translations disabled, only English will be available");
 			}
-			if(args.Contains("ADVANCED"))
-			{
-				App.AdvancedFeatures = true;
-				App.UserAgent += " [ADVANCED]";
-				Log("Advanced features enabled");
-			}
 			if(args.Contains("LEGACYDOWNLOAD"))
 			{
 				App.UseLegacyDownload = true;
 				App.UserAgent += " [LEGACYDOWNLOAD]";
 				Log("Using legacy download method");
+			}
+			if(args.Contains("ADVANCED"))
+			{
+				App.AdvancedFeatures = true;
+				App.UserAgent += " [ADVANCED]";
+				Log("Advanced features enabled");
 			}
 			else
 			{
@@ -3508,17 +3508,20 @@ namespace BetterHI3Launcher
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Hidden;
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_1_msg"]).ShowDialog();
-						Status = LauncherStatus.Ready;
 						return;
 					}
+					Dispatcher.Invoke(() =>
+					{
+						RepairBox.Visibility = Visibility.Visible;
+						RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+						Log("success!", false);
+					});
 				}
 				else
 				{
 					Status = LauncherStatus.Error;
 					Log($"Failed to fetch repair data: {OnlineRepairInfo.status_message}", true, 1);
 					new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], OnlineRepairInfo.status_message)).ShowDialog();
-					Status = LauncherStatus.Ready;
-					return;
 				}
 			}
 			catch(Exception ex)
@@ -3527,16 +3530,8 @@ namespace BetterHI3Launcher
 				Status = LauncherStatus.Error;
 				Log($"Failed to fetch repair data:\n{ex}", true, 1);
 				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog();});
-				Status = LauncherStatus.Ready;
-				return;
 			}
-			Dispatcher.Invoke(() =>
-			{
-				RepairBox.Visibility = Visibility.Visible;
-				RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
-				Log("success!", false);
-				Status = LauncherStatus.Ready;
-			});
+			Status = LauncherStatus.Ready;
 		}
 
 		private async Task CM_Move_Click(object sender, RoutedEventArgs e)
@@ -3903,23 +3898,26 @@ namespace BetterHI3Launcher
 										continue;
 									}
 									int char_offset = 0;
-									var missing_two_digits_regex = new Regex(@"(?<=:)\d?(?=[:,])").Matches(line);
-									foreach(Match match in missing_two_digits_regex)
+									if(line.Contains("-->"))
 									{
-										if(match.Success)
+										var missing_two_digits_regex = new Regex(@"(?<=:)\d?(?=[:,])").Matches(line);
+										foreach(Match match in missing_two_digits_regex)
 										{
-											line = line.Insert(match.Index + char_offset, new string('0', 2 - match.Length));
-											char_offset += 2 - match.Length;
+											if(match.Success)
+											{
+												line = line.Insert(match.Index + char_offset, new string('0', 2 - match.Length));
+												char_offset += 2 - match.Length;
+											}
 										}
-									}
-									char_offset = 0;
-									var missing_three_digits_regex = new Regex(@"(?<=[\d:],)\d{0,2}(?=\s|$)").Matches(line);
-									foreach(Match match in missing_three_digits_regex)
-									{
-										if(match.Success)
+										char_offset = 0;
+										var missing_three_digits_regex = new Regex(@"(?<=[\d:],)\d{0,2}(?=\s|$)").Matches(line);
+										foreach(Match match in missing_three_digits_regex)
 										{
-											line = line.Insert(match.Index + char_offset, new string('0', 3 - match.Length));
-											char_offset += 3 - match.Length;
+											if(match.Success)
+											{
+												line = line.Insert(match.Index + char_offset, new string('0', 3 - match.Length));
+												char_offset += 3 - match.Length;
+											}
 										}
 									}
 									char_offset = 0;
@@ -4070,7 +4068,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
-				string value = "GENERAL_DATA_V2_PersonalGraphicsSetting_h906361411";
+				string value = "GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519";
 				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
 				{
 					try
@@ -5130,13 +5128,11 @@ namespace BetterHI3Launcher
 					}
 				}
 				Log($"Setting in-game FPS to {fps_combat}, menu FPS to {fps_menu}...");
-				GameGraphicSettings.IsUserDefinedGrade = false;
-				GameGraphicSettings.IsUserDefinedVolatile = true;
 				GameGraphicSettings.TargetFrameRateForInLevel = fps_combat;
 				GameGraphicSettings.TargetFrameRateForOthers = fps_menu;
 				var value_after = Encoding.UTF8.GetBytes($"{JsonConvert.SerializeObject(GameGraphicSettings)}\0");
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
-				key.SetValue("GENERAL_DATA_V2_PersonalGraphicsSetting_h906361411", value_after, RegistryValueKind.Binary);
+				key.SetValue("GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519", value_after, RegistryValueKind.Binary);
 				key.Close();
 				FPSInputBox.Visibility = Visibility.Collapsed;
 				Log("success!", false);
