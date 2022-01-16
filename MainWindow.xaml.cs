@@ -1151,7 +1151,7 @@ namespace BetterHI3Launcher
 						}
 						if(Status == LauncherStatus.UpdateAvailable)
 						{
-							if(File.Exists($"{GameArchivePath}_tmp"))
+							if(File.Exists(GameArchiveTempPath))
 							{
 								DownloadPaused = true;
 								Dispatcher.Invoke(() =>
@@ -1626,6 +1626,7 @@ namespace BetterHI3Launcher
 					}
 				}
 				md5 = md5.ToUpper();
+				GameArchiveTempPath = $"{GameArchivePath}_tmp";
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
 				if(File.Exists(GameArchivePath))
