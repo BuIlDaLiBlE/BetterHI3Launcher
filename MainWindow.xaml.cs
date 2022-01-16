@@ -52,7 +52,7 @@ namespace BetterHI3Launcher
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
 		public static string GameWebProfileURL, GameFullName;
-		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive, CheckedForGameUpdateOnce;
+		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
 		public static RoutedCommand FixSubtitlesCommand = new RoutedCommand();
@@ -1230,7 +1230,6 @@ namespace BetterHI3Launcher
 					{
 						DownloadBackgroundImage();
 					}
-					CheckedForGameUpdateOnce = true;
 				}
 				catch(Exception ex)
 				{
@@ -1240,17 +1239,10 @@ namespace BetterHI3Launcher
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_update_check_error_title"], App.TextStrings["msgbox_update_check_error_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{
-							if(!CheckedForGameUpdateOnce)
-							{
-								Close();
-							}
-							else
-							{
-								Status = LauncherStatus.CheckingUpdates;
-								ProgressText.Visibility = Visibility.Collapsed;
-								ProgressBar.Visibility = Visibility.Collapsed;
-								ServerDropdown.IsEnabled = true;
-							}
+							Status = LauncherStatus.CheckingUpdates;
+							ProgressText.Visibility = Visibility.Collapsed;
+							ProgressBar.Visibility = Visibility.Collapsed;
+							ServerDropdown.IsEnabled = true;
 						}
 						else
 						{
