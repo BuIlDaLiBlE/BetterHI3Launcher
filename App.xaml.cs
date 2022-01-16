@@ -12,7 +12,7 @@ namespace BetterHI3Launcher
 {
 	public partial class App : Application
 	{
-		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.2.20211021.0");
+		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.3.20220116.0");
 		public static readonly string LauncherRootPath = AppDomain.CurrentDomain.BaseDirectory;
 		public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
 		public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -25,8 +25,10 @@ namespace BetterHI3Launcher
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
 		public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
 		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
-		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures;
+		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate, UseLegacyDownload;
 		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
+		public static bool Starting = true;
+		public static readonly int ParallelDownloadSessions = 8;
 		public static Dictionary<string, string> TextStrings = new Dictionary<string, string>();
 		public static Mutex Mutex = null;
 
@@ -96,6 +98,9 @@ namespace BetterHI3Launcher
 				case "fr-LU":
 				case "fr-MC":
 					LauncherLanguage = "fr";
+					break;
+				case "id-ID":
+					LauncherLanguage = "id";
 					break;
 				case "pt-BR":
 					LauncherLanguage = "pt-BR";

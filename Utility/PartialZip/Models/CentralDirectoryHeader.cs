@@ -4,6 +4,13 @@ using System.IO;
 
 namespace PartialZip.Models
 {
+	public struct DataProp
+	{
+		public ushort modifiedTime, modifiedDate;
+		public ulong uncompressedSize, compressedSize, headerOffset;
+		public uint diskNum;
+	}
+
 	internal class CentralDirectoryHeader
 	{
 		internal static uint Size => 6 * sizeof(uint) + 11 * sizeof(ushort);
@@ -56,19 +63,20 @@ namespace PartialZip.Models
 			}
 		}
 
-		internal(ushort, ushort, ulong, ulong, ulong, uint) GetFileInfo()
-		{
+		internal DataProp GetFileInfoStruct()
+        {
 			int extraIndex = 0;
 
-			ushort modifiedTime = (ModifiedTime == ushort.MaxValue) ? (ushort)ExtraField.ExtraField[extraIndex++] : ModifiedTime;
-			ushort modifiedDate = (ModifiedDate == ushort.MaxValue) ? (ushort)ExtraField.ExtraField[extraIndex++] : ModifiedDate;
-			ulong uncompressedSize = (UncompressedSize == uint.MaxValue) ? ExtraField.ExtraField[extraIndex++] : UncompressedSize;
-			ulong compressedSize = (CompressedSize == uint.MaxValue) ? ExtraField.ExtraField[extraIndex++] : CompressedSize;
-			ulong headerOffset = (LocalHeaderOffset == uint.MaxValue) ? ExtraField.ExtraField[extraIndex++] : LocalHeaderOffset;
-			uint diskNum = (DiskNumberStart == ushort.MaxValue) ? (uint)ExtraField.ExtraField[extraIndex++] : DiskNumberStart;
-
-			return (modifiedTime, modifiedDate, uncompressedSize, compressedSize, headerOffset, diskNum);
-		}
+			return new DataProp()
+			{
+				modifiedTime = (ModifiedTime == ushort.MaxValue) ? (ushort)ExtraField.ExtraField[extraIndex++] : ModifiedTime,
+				modifiedDate = (ModifiedDate == ushort.MaxValue) ? (ushort)ExtraField.ExtraField[extraIndex++] : ModifiedDate,
+				uncompressedSize = (UncompressedSize == uint.MaxValue) ? ExtraField.ExtraField[extraIndex++] : UncompressedSize,
+				compressedSize = (CompressedSize == uint.MaxValue) ? ExtraField.ExtraField[extraIndex++] : CompressedSize,
+				headerOffset = (LocalHeaderOffset == uint.MaxValue) ? ExtraField.ExtraField[extraIndex++] : LocalHeaderOffset,
+				diskNum = (DiskNumberStart == ushort.MaxValue) ? (uint)ExtraField.ExtraField[extraIndex++] : DiskNumberStart
+			};
+        }
 
 		internal uint Signature {get; set;}
 

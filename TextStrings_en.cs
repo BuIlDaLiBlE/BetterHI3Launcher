@@ -42,9 +42,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("label_speed", "Download speed:");
 			TextStrings.Add("introbox_title", "Welcome to Better HI3 Launcher!");
 			TextStrings.Add("introbox_msg", "Seems like this is your first time using the launcher. I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so by clicking \"Options\" button and selecting \"Send feedback\".\nIf you already have the game installed just press the \"Download\" button and point to where your game is. The launcher will detect your game version automatically and you won't have to download the game again.");
-			TextStrings.Add("downloadcachebox_msg", "Select whether to download full cache package or just numeric files.\n\"Full cache\" contains the entire cache, including event pictures and settings.\n\"Numeric files\" contains settings only, those files are updated most frequently.\nPlease note that there is currently no way to automatically retrieve latest cache and we have to upload it manually to a mirror.\nUsing mirror: {0}.\nCache last updated: {1}.\nCurrent mirror maintainer is {2}.");
-			TextStrings.Add("downloadcachebox_button_full_cache", "Full cache");
-			TextStrings.Add("downloadcachebox_button_numeric_files", "Numeric files");
 			TextStrings.Add("repairbox_msg", "This will check every game file and attempt to repair if any is broken. It can take a while.\nContinue?\nAvailable mirrors: {0}.\nCurrent mirror maintainer is {1}.");
 			TextStrings.Add("fpsinputbox_title", "Enter max FPS cap");
 			TextStrings.Add("fpsinputbox_label_combatfps", "FPS in-game");
@@ -57,7 +54,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("changelogbox_1_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
 			TextStrings.Add("changelogbox_2_msg", "Loading changelog...");
 			TextStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
-			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation");
+			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
 			TextStrings.Add("contextmenu_fix_subtitles", "Fix subtitles");
 			TextStrings.Add("contextmenu_repair", "Repair game files");
@@ -79,6 +76,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_language_english", "English");
 			TextStrings.Add("contextmenu_language_french", "French");
 			TextStrings.Add("contextmenu_language_german", "German");
+			TextStrings.Add("contextmenu_language_indonesian", "Indonesian");
 			TextStrings.Add("contextmenu_language_portuguese_brazil", "Portuguese (Brazil)");
 			TextStrings.Add("contextmenu_language_portuguese_portugal", "Portuguese (Portugal)");
 			TextStrings.Add("contextmenu_language_russian", "Russian");
@@ -130,17 +128,16 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_custom_resolution_1_msg", "Height being greater than width is not recommended.\nContinue?");
 			TextStrings.Add("msgbox_custom_resolution_2_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
 			TextStrings.Add("msgbox_custom_launch_options_msg", "Advanced users may enter custom launch options here.\nNote: they are applied independently per server.");
-			TextStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.");
-			TextStrings.Add("msgbox_download_cache_2_msg", "Numeric file cache is about to be downloaded.");
-			TextStrings.Add("msgbox_download_cache_3_msg", "Download size: {0}.\nContinue?");
-			TextStrings.Add("msgbox_download_cache_4_msg", "The cache is outdated either partially or fully.\nCheck the last update time for the exact date.\nDo you still want to continue?");
+			TextStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.\nDownload size: {0}\nUsing mirror: {1}.\nCache last updated: {2}.\nCurrent mirror maintainer is {3}.");
+			TextStrings.Add("msgbox_download_cache_2_msg", "The cache is outdated either partially or fully.\nCheck the last update time for the exact date.\nDo you still want to continue?");
+			TextStrings.Add("msgbox_download_cache_3_msg", "The entire game cache will be checked and can be downloaded if needed. It can take a while.\nHi3Mirror is a project courtesy of {0}.\nContinue?");
 			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type in an attempt to fix the infamous update loop which does not let you enter the game.\nContinue?");
 			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"Download basic resources\".");
 			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"Download basic resources\".");
 			TextStrings.Add("msgbox_extract_skip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_extract_skip_title", "File skip notice");
 			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available for selected server.");
-			TextStrings.Add("msgbox_fix_subtitles_1_msg", "This will attempt to fix CG subtitles (and gacha banners). Make sure you have already downloaded all CGs in the game.\nContinue?");
+			TextStrings.Add("msgbox_fix_subtitles_1_msg", "This will attempt to fix CG subtitles. Make sure you have already downloaded all CGs in the game.\nContinue?");
 			TextStrings.Add("msgbox_fix_subtitles_2_msg", "Unpacking subtitle file {0}/{1}...");
 			TextStrings.Add("msgbox_fix_subtitles_3_msg", "Checking subtitle file {0}/{1}...");
 			TextStrings.Add("msgbox_fix_subtitles_4_msg", "Unpacked subtitles for {0} CGs.");
@@ -198,7 +195,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_repair_2_msg", "No files need any repairs.");
 			TextStrings.Add("msgbox_repair_3_msg", "Found {0} corrupted/missing file(s). They need to be repaired by downloading them again.\nBecause technology is awesome, only the required files will be downloaded.\nDownload size: {1}.\nContinue?");
 			TextStrings.Add("msgbox_repair_4_msg", "{0} file(s) successfully repaired.");
-			TextStrings.Add("msgbox_repair_5_msg", "{0} file(s) failed to be repaired. Consider checking your storage device, it may be faulty.");
+			TextStrings.Add("msgbox_repair_5_msg", "{0} file(s) failed to be repaired.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_repair_6_msg", "Going to generate a JSON file containing the list of game files and their hashes, then create a ZIP archive with those files.\nContinue?");
 			TextStrings.Add("msgbox_repair_7_msg", "Continue to create ZIP file? It definitely takes a while.");
 			TextStrings.Add("msgbox_repair_8_msg", "Repair data from the server has a different game version.\nAre you sure you want to run the check?");
@@ -218,7 +215,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_uninstall_game_cache", "Game Cache");
 			TextStrings.Add("msgbox_uninstall_game_settings", "Game Settings");
 			TextStrings.Add("msgbox_uninstall_title", "Uninstall");
-			TextStrings.Add("msgbox_update_check_error_msg", "An error occurred while checking for update.\nFor more information take a look at the log.");
+			TextStrings.Add("msgbox_update_check_error_msg", "An error occurred while checking for update.\nFor more information take a look at the log.\nRetry?");
 			TextStrings.Add("msgbox_update_check_error_title", "Update check error");
 			TextStrings.Add("msgbox_update_title", "Update notice");
 			TextStrings.Add("msgbox_verify_error_1_msg", "An error occurred while downloading. Please try again.");

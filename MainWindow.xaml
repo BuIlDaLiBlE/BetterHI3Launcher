@@ -29,8 +29,8 @@
 		<CommandBinding Command="{x:Static local:MainWindow.FeedbackCommand}" Executed="FeedbackCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.ChangelogCommand}" Executed="ChangelogCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.CustomBackgroundCommand}" Executed="CustomBackgroundCommand_Executed"/>
-		<CommandBinding Command="{x:Static local:MainWindow.ToggleLogCommand}" Executed="ToggleLogCommand_Executed"/>
-		<CommandBinding Command="{x:Static local:MainWindow.ToggleSoundsCommand}" Executed="ToggleSoundsCommand_Executed"/>
+        <CommandBinding Command="{x:Static local:MainWindow.ToggleLogCommand}" Executed="ToggleLogCommand_Executed"/>
+        <CommandBinding Command="{x:Static local:MainWindow.ToggleSoundsCommand}" Executed="ToggleSoundsCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.AboutCommand}" Executed="AboutCommand_Executed"/>
 	</Window.CommandBindings>
 	<Window.Resources>
@@ -541,11 +541,11 @@
 				</TextBlock.Effect>
 			</TextBlock>
 			<ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
-				<ComboBoxItem Content="Global"></ComboBoxItem>
-				<ComboBoxItem Content="SEA"></ComboBoxItem>
-				<ComboBoxItem Content="CN"></ComboBoxItem>
-				<ComboBoxItem Content="TW/HK/MO"></ComboBoxItem>
-				<ComboBoxItem Content="KR"></ComboBoxItem>
+				<ComboBoxItem Content="Global"/>
+				<ComboBoxItem Content="SEA"/>
+				<ComboBoxItem Content="CN"/>
+				<ComboBoxItem Content="TW/HK/MO"/>
+				<ComboBoxItem Content="KR"/>
 			</ComboBox>
 			<TextBlock Name="MirrorLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,164" FontFamily="{DynamicResource Font}">
 				<TextBlock.Effect>
@@ -553,9 +553,9 @@
 				</TextBlock.Effect>
 			</TextBlock>
 			<ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
-				<ComboBoxItem Content="miHoYo"></ComboBoxItem>
-				<ComboBoxItem Content="MediaFire"></ComboBoxItem>
-				<ComboBoxItem Content="Google Drive"></ComboBoxItem>
+				<ComboBoxItem Content="miHoYo"/>
+				<ComboBoxItem Content="Hi3Mirror"/>
+				<ComboBoxItem Content="MediaFire"/>
 			</ComboBox>
 			<Grid Name="PreloadGrid" Visibility="Collapsed">
 				<Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,364,50" Width="240" Height="50">
@@ -685,22 +685,6 @@
 					</StackPanel>
 					<Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
 					<Button Name="IntroBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="IntroBoxCloseButton_Click"/>
-				</Grid>
-			</Grid>
-			<Grid Name="DownloadCacheBox" Background="#80000000" Visibility="Collapsed">
-				<Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Background="#C8FFFFFF">
-					<StackPanel>
-						<StackPanel>
-							<TextBlock Name="DownloadCacheBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-							<TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" FontFamily="Segoe UI" TextWrapping="Wrap"/>
-						</StackPanel>
-						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-							<Button Name="DownloadCacheBoxFullCacheButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxFullCacheButton_Click"/>
-							<Button Name="DownloadCacheBoxNumericFilesButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxNumericFilesButton_Click"/>
-							<Button Name="DownloadCacheBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
-						</StackPanel>
-					</StackPanel>
-					<Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
 				</Grid>
 			</Grid>
 			<Grid Name="RepairBox" Background="#80000000" Visibility="Collapsed">

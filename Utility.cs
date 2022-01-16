@@ -215,13 +215,17 @@ namespace BetterHI3Launcher
 
 			long diff = bytesReceived - _previousProgress;
 			if(diff <= 0)
+			{
 				return;
+			}
 
 			_previousProgress = bytesReceived;
 
 			_changes.Enqueue(new Tuple<DateTime, long>(DateTime.Now, diff));
 			while(_changes.Count > _sampleSize)
+			{
 				_changes.Dequeue();
+			}
 		}
 
 		public double GetProgress()
@@ -260,7 +264,9 @@ namespace BetterHI3Launcher
 			int intLen = ((int)speed).ToString().Length;
 			int decimals = 3 - intLen;
 			if(decimals < 0)
+			{
 				decimals = 0;
+			}
 
 			string format = string.Format("{{0:F{0}}}", decimals) + " {1}" + App.TextStrings["bytes_per_second"];
 
@@ -281,7 +287,9 @@ namespace BetterHI3Launcher
 		private double GetRateInternal()
 		{
 			if(_changes.Count == 0)
+			{
 				return 0;
+			}
 
 			TimeSpan timespan = _changes.Last().Item1 - _changes.First().Item1;
 			long bytes = _changes.Sum(t => t.Item2);
@@ -289,7 +297,9 @@ namespace BetterHI3Launcher
 			double rate = bytes / timespan.TotalSeconds;
 
 			if(double.IsInfinity(rate) || double.IsNaN(rate))
+			{
 				return 0;
+			}
 
 			return rate;
 		}
