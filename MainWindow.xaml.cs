@@ -5682,10 +5682,14 @@ namespace BetterHI3Launcher
 					}
 					App.LauncherLanguage = lang;
 				}
-				catch
+				catch(Exception ex)
 				{
-					BpUtility.DeleteFromRegistry("Language");
+					Log($"Failed to load translations:\n{ex}", true, 1);
+					MessageBox.Show(App.TextStrings["msgbox_translations_download_error_msg"], App.TextStrings["msgbox_generic_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 					DeleteFile(App.LauncherTranslationsFile, true);
+					BpUtility.DeleteFromRegistry("Language");
+					Array.Resize(ref App.CommandLineArgs, App.CommandLineArgs.Length + 1);
+					App.CommandLineArgs[App.CommandLineArgs.Length - 1] = "NOTRANSLATIONS";
 					BpUtility.RestartApp();
 				}
 			}

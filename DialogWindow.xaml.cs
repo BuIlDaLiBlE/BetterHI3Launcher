@@ -12,7 +12,7 @@ namespace BetterHI3Launcher
 	{
 		public enum DialogType
 		{
-			Confirmation, Question, Retry, Install, Uninstall, CustomLaunchOptions, CustomBackground
+			Confirmation, Question, Install, Uninstall, CustomLaunchOptions, CustomBackground
 		}
 
 		public DialogWindow(string title, string message, DialogType type = DialogType.Confirmation)
