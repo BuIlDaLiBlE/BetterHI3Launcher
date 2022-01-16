@@ -687,22 +687,6 @@
 					<Button Name="IntroBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="IntroBoxCloseButton_Click"/>
 				</Grid>
 			</Grid>
-			<Grid Name="DownloadCacheBox" Background="#80000000" Visibility="Collapsed">
-				<Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Background="#C8FFFFFF">
-					<StackPanel>
-						<StackPanel>
-							<TextBlock Name="DownloadCacheBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-							<TextBlock Name="DownloadCacheBoxMessageTextBlock" Margin="22,0,22,5" FontFamily="Segoe UI" TextWrapping="Wrap"/>
-						</StackPanel>
-						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-							<Button Name="DownloadCacheBoxFullCacheButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxFullCacheButton_Click"/>
-							<Button Name="DownloadCacheBoxNumericFilesButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxNumericFilesButton_Click"/>
-							<Button Name="DownloadCacheBoxCancelButton" Style="{DynamicResource WhiteButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
-						</StackPanel>
-					</StackPanel>
-					<Button Name="DownloadCacheBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="DownloadCacheBoxCloseButton_Click"/>
-				</Grid>
-			</Grid>
 			<Grid Name="RepairBox" Background="#80000000" Visibility="Collapsed">
 				<Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="644" Background="#C8FFFFFF">
 					<StackPanel>

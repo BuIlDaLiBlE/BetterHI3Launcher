@@ -66,7 +66,7 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
-		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata, GameCacheMetadataNumeric;
+		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata;
 		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
@@ -374,10 +374,6 @@ namespace BetterHI3Launcher
 			IntroBoxTitleTextBlock.Text = App.TextStrings["introbox_title"];
 			IntroBoxMessageTextBlock.Text = App.TextStrings["introbox_msg"];
 			IntroBoxOKButton.Content = App.TextStrings["button_ok"];
-			DownloadCacheBoxTitleTextBlock.Text = App.TextStrings["contextmenu_download_cache"];
-			DownloadCacheBoxFullCacheButton.Content = App.TextStrings["downloadcachebox_button_full_cache"];
-			DownloadCacheBoxNumericFilesButton.Content = App.TextStrings["downloadcachebox_button_numeric_files"];
-			DownloadCacheBoxCancelButton.Content = App.TextStrings["button_cancel"];
 			RepairBoxTitleTextBlock.Text = App.TextStrings["contextmenu_repair"];
 			RepairBoxYesButton.Content = App.TextStrings["button_yes"];
 			RepairBoxNoButton.Content = App.TextStrings["button_no"];
@@ -415,7 +411,6 @@ namespace BetterHI3Launcher
 			RepairBox.Visibility = Visibility.Collapsed;
 			FPSInputBox.Visibility = Visibility.Collapsed;
 			ResolutionInputBox.Visibility = Visibility.Collapsed;
-			DownloadCacheBox.Visibility = Visibility.Collapsed;
 			ChangelogBox.Visibility = Visibility.Collapsed;
 			AboutBox.Visibility = Visibility.Collapsed;
 
@@ -998,6 +993,8 @@ namespace BetterHI3Launcher
 								case HI3Server.SEA:
 									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.md5;
 									break;
+								default:
+									throw new NotSupportedException("This server is not supported.");
 							}
 							break;
 						case 1:
@@ -1009,19 +1006,12 @@ namespace BetterHI3Launcher
 								case HI3Server.SEA:
 									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
 									break;
+								default:
+									throw new NotSupportedException("This server is not supported.");
 							}
 							break;
-						case 2:
-							switch(Server)
-							{
-								case HI3Server.GLB:
-									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.md5.ToString();
-									break;
-								case HI3Server.SEA:
-									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.md5.ToString();
-									break;
-							}
-							break;
+						default:
+							throw new Exception("Wrong cache type specified.");
 					}
 					return metadata;
 				}
@@ -1974,32 +1964,16 @@ namespace BetterHI3Launcher
 			Dispatcher.Invoke(() => {LaunchButton.Content = App.TextStrings["button_download"];});
 		}
 
-		private async void DownloadGameCache(bool FullCache)
+		private async void DownloadGameCache()
 		{
 			try
 			{
-				string title;
-				long time;
-				string url;
-				string md5;
-				long size;
+				string title = GameCacheMetadata.title.ToString();
+				long time = ((DateTimeOffset)GameCacheMetadata.modifiedDate).ToUnixTimeSeconds();
+				string url = GameCacheMetadata.downloadUrl.ToString();
+				string md5 = GameCacheMetadata.md5Checksum.ToString();
+				long size = (long)GameCacheMetadata.fileSize;
 				bool abort = false;
-				if(FullCache)
-				{
-					title = GameCacheMetadata.title.ToString();
-					time = ((DateTimeOffset)GameCacheMetadata.modifiedDate).ToUnixTimeSeconds();
-					url = GameCacheMetadata.downloadUrl.ToString();
-					md5 = GameCacheMetadata.md5Checksum.ToString();
-					size = (long)GameCacheMetadata.fileSize;
-				}
-				else
-				{
-					title = GameCacheMetadataNumeric.title.ToString();
-					time = ((DateTimeOffset)GameCacheMetadataNumeric.modifiedDate).ToUnixTimeSeconds();
-					url = GameCacheMetadataNumeric.downloadUrl.ToString();
-					md5 = GameCacheMetadataNumeric.md5Checksum.ToString();
-					size = (long)GameCacheMetadataNumeric.fileSize;
-				}
 				md5 = md5.ToUpper();
 				CacheArchivePath = Path.Combine(miHoYoPath, title);
 
@@ -2523,7 +2497,6 @@ namespace BetterHI3Launcher
 								new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_4_msg"], downloaded_files)).ShowDialog();
 							});
 						}
-
 						else
 						{
 							int skipped_files = bad_files.Count - downloaded_files;
@@ -2997,7 +2970,7 @@ namespace BetterHI3Launcher
 			{
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
-					if(!App.UseLegacyDownload)
+					if(!App.UseLegacyDownload && !CacheDownload)
 					{
 						download_parallel.Dispose();
 					}
@@ -3382,7 +3355,7 @@ namespace BetterHI3Launcher
 
 			if(Mirror == HI3Mirror.miHoYo || Mirror == HI3Mirror.Hi3Mirror)
 			{
-				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_5_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
+				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_3_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
 				{
 					return;
 				}
@@ -3410,20 +3383,14 @@ namespace BetterHI3Launcher
 						{
 							case HI3Server.GLB:
 								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
-								if(GameCacheMetadata != null)
-								{
-									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.global.id.ToString(), 2);
-								}
 								break;
 							case HI3Server.SEA:
 								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
-								if(GameCacheMetadata != null)
-								{
-									GameCacheMetadataNumeric = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache_numeric.os.id.ToString(), 2);
-								}
 								break;
+							default:
+								throw new NotSupportedException("This server is not supported.");
 						}
-						if(GameCacheMetadata == null || GameCacheMetadataNumeric == null)
+						if(GameCacheMetadata == null)
 						{
 							LegacyBoxActive = false;
 							Status = LauncherStatus.Ready;
@@ -3448,11 +3415,21 @@ namespace BetterHI3Launcher
 							last_updated = App.TextStrings["msgbox_generic_error_title"];
 							Log($"Failed to load last cache update time", true, 2);
 						}
+						if(last_updated.Contains(App.TextStrings["outdated"].ToLower()))
+						{
+							if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_download_cache_2_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+							{
+								return;
+							}
+						}
 						Dispatcher.Invoke(() =>
 						{
-							DownloadCacheBox.Visibility = Visibility.Visible;
-							DownloadCacheBoxMessageTextBlock.Text = string.Format(App.TextStrings["downloadcachebox_msg"], mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
 							Status = LauncherStatus.Ready;
+							if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_1_msg"], BpUtility.ToBytesCount((long)GameCacheMetadata.fileSize), mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
+							{
+								return;
+							}
+							DownloadGameCache();
 						});
 					});
 				}
@@ -4704,48 +4681,6 @@ namespace BetterHI3Launcher
 			{
 				GameUpdateCheck();
 			}
-		}
-
-		private void DownloadCacheBoxFullCacheButton_Click(object sender, RoutedEventArgs e)
-		{
-			if(DownloadCacheBoxMessageTextBlock.Text.Contains(App.TextStrings["outdated"].ToLower()))
-			{
-				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_download_cache_4_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-				{
-					return;
-				}
-			}
-			if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], $"{App.TextStrings["msgbox_download_cache_1_msg"]}\n{string.Format(App.TextStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)GameCacheMetadata.fileSize))}", DialogWindow.DialogType.Question).ShowDialog() == false)
-			{
-				return;
-			}
-			LegacyBoxActive = false;
-			DownloadCacheBox.Visibility = Visibility.Collapsed;
-			DownloadGameCache(true);
-		}
-
-		private void DownloadCacheBoxNumericFilesButton_Click(object sender, RoutedEventArgs e)
-		{
-			if(DownloadCacheBoxMessageTextBlock.Text.Contains(App.TextStrings["outdated"].ToLower()))
-			{
-				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_download_cache_4_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-				{
-					return;
-				}
-			}
-			if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], $"{App.TextStrings["msgbox_download_cache_2_msg"]}\n{string.Format(App.TextStrings["msgbox_download_cache_3_msg"], BpUtility.ToBytesCount((long)GameCacheMetadataNumeric.fileSize))}", DialogWindow.DialogType.Question).ShowDialog() == false)
-			{
-				return;
-			}
-			LegacyBoxActive = false;
-			DownloadCacheBox.Visibility = Visibility.Collapsed;
-			DownloadGameCache(false);
-		}
-
-		private void DownloadCacheBoxCloseButton_Click(object sender, RoutedEventArgs e)
-		{
-			LegacyBoxActive = false;
-			DownloadCacheBox.Visibility = Visibility.Collapsed;
 		}
 
 		private async void RepairBoxYesButton_Click(object sender, RoutedEventArgs e)
