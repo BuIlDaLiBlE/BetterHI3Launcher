@@ -728,9 +728,9 @@ namespace BetterHI3Launcher
 		private void FetchOnlineVersionInfo()
 		{
 			#if DEBUG
-			var version_info_url = "https://bpnet.host/bh3?launcher_status=debug";
+			var version_info_url = "https://bpnet.work/bh3?launcher_status=debug";
 			#else
-			var version_info_url = "https://bpnet.host/bh3?launcher_status=prod";
+			var version_info_url = "https://bpnet.work/bh3?launcher_status=prod";
 			#endif
 			string version_info = null;
 			void Get(int timeout)
@@ -3491,7 +3491,7 @@ namespace BetterHI3Launcher
 				var web_client = new BpWebClient();
 				await Task.Run(() =>
 				{
-					OnlineRepairInfo = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"https://bpnet.host/bh3?launcher_repair={server}"));
+					OnlineRepairInfo = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"https://bpnet.work/bh3?launcher_repair={server}"));
 				});
 				if(OnlineRepairInfo.status == "success")
 				{
