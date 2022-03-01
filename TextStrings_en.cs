@@ -55,6 +55,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("changelogbox_2_msg", "Loading changelog...");
 			TextStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
 			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation\nRinnosuke93 - Italian language translation");
+			TextStrings.Add("announcementbox_do_not_show", "Do not show me this next time");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
 			TextStrings.Add("contextmenu_fix_subtitles", "Fix subtitles");
 			TextStrings.Add("contextmenu_repair", "Repair game files");

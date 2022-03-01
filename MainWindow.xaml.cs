@@ -397,6 +397,8 @@ namespace BetterHI3Launcher
 			AboutBoxMessageTextBlock.Text = $"{App.TextStrings["aboutbox_msg"]}\n\nMade by Bp (BuIlDaLiBlE production).";
 			AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
 			AboutBoxOKButton.Content = App.TextStrings["button_ok"];
+			AnnouncementBoxOKButton.Content = App.TextStrings["button_ok"];
+			AnnouncementBoxDoNotShowCheckbox.Content = App.TextStrings["announcementbox_do_not_show"];
 			PreloadTopText.Text = App.TextStrings["label_pre_install"];
 			PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
@@ -413,6 +415,7 @@ namespace BetterHI3Launcher
 			ResolutionInputBox.Visibility = Visibility.Collapsed;
 			ChangelogBox.Visibility = Visibility.Collapsed;
 			AboutBox.Visibility = Visibility.Collapsed;
+			AnnouncementBox.Visibility = Visibility.Collapsed;
 
 			OptionsContextMenu.Items.Clear();
 			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
@@ -672,6 +675,15 @@ namespace BetterHI3Launcher
 				}
 				MirrorDropdown.SelectedIndex = (int)Mirror;
 
+				var seen_announcements_reg = App.LauncherRegKey.GetValue("SeenAnnouncements");
+				if(seen_announcements_reg != null)
+				{
+					if(App.LauncherRegKey.GetValueKind("SeenAnnouncements") == RegistryValueKind.String)
+					{
+						App.SeenAnnouncements = seen_announcements_reg.ToString().Split(',').ToList();
+					}
+				}
+
 				var show_log_reg = App.LauncherRegKey.GetValue("ShowLog");
 				if(show_log_reg != null)
 				{
@@ -790,6 +802,55 @@ namespace BetterHI3Launcher
 					Application.Current.Shutdown();
 				});
 			}
+		}
+		
+		private async void FetchAnnouncements()
+		{
+			try
+			{
+				await Task.Run(() =>
+				{
+					var web_client = new BpWebClient();
+					dynamic announcements;
+					announcements = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"{OnlineVersionInfo.launcher_info.announcements_url.ToString()}&lang={App.LauncherLanguage}"));
+					if(announcements.status == "success")
+					{
+						announcements = announcements.announcements;
+						foreach(dynamic announcement in announcements)
+						{
+							string min_launcher_version = announcement.min_version.ToString();
+							if(!new App.LauncherVersion(min_launcher_version).IsNewerThan(App.LocalLauncherVersion) && DateTime.Compare(DateTime.UtcNow, new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)announcement.relevant_until)) < 0 && !App.SeenAnnouncements.Contains(announcement.id.ToString()))
+							{
+								App.Announcements.Add(announcement);
+							}
+						}
+						if(App.Announcements.Count > 0)
+						{
+							Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
+						}
+						else
+						{
+							GameUpdateCheck();
+						}
+					}
+					else
+					{
+						Log($"Failed to fetch announcements: {announcements.status_message}", true, 1);
+					}
+				});
+			}
+			catch(Exception ex)
+			{
+				Log($"Failed to fetch announcements:\n{ex}", true, 1);
+			}
+		}
+
+		private void ShowAnnouncement(dynamic announcement)
+		{
+			LegacyBoxActive = true;
+			AnnouncementBoxTitleTextBlock.Text = announcement.content.title;
+			AnnouncementBoxMessageTextBlock.Text = announcement.content.text;
+			AnnouncementBox.Visibility = Visibility.Visible;
 		}
 
 		private async void FetchChangelog()
@@ -2698,34 +2759,9 @@ namespace BetterHI3Launcher
 				LegacyBoxActive = true;
 				IntroBox.Visibility = Visibility.Visible;
 			}
-			#if !DEBUG
-			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
+			else
 			{
-				if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
-				{
-					LegacyBoxActive = true;
-					ChangelogBox.Visibility = Visibility.Visible;
-					ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
-					FetchChangelog();
-				}
-			}
-			#endif
-			try
-			{
-				if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
-				{
-					BpUtility.WriteToRegistry("LauncherVersion", App.LocalLauncherVersion.ToString());
-				}
-				// legacy values
-				BpUtility.DeleteFromRegistry("RanOnce");
-				BpUtility.DeleteFromRegistry("BackgroundImageName");
-			}
-			catch(Exception ex)
-			{
-				Status = LauncherStatus.Error;
-				Log($"Failed to write critical registry info:\n{ex}", true, 1);
-				new DialogWindow(App.TextStrings["msgbox_registry_error_title"], App.TextStrings["msgbox_registry_error_msg"]).ShowDialog();
-				return;
+				FetchAnnouncements();
 			}
 			var custom_background_name_reg = App.LauncherRegKey.GetValue("CustomBackgroundName");
 			if(custom_background_name_reg != null)
@@ -2743,10 +2779,6 @@ namespace BetterHI3Launcher
 						BpUtility.DeleteFromRegistry("CustomBackgroundName");
 					}
 				}
-			}
-			if(!App.FirstLaunch)
-			{
-				GameUpdateCheck();
 			}
 		}
 
@@ -3498,7 +3530,7 @@ namespace BetterHI3Launcher
 				var web_client = new BpWebClient();
 				await Task.Run(() =>
 				{
-					OnlineRepairInfo = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"https://bpnet.work/bh3?launcher_repair={server}"));
+					OnlineRepairInfo = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"{OnlineVersionInfo.launcher_info.repair_url.ToString()}={server}"));
 				});
 				if(OnlineRepairInfo.status == "success")
 				{
@@ -4708,10 +4740,7 @@ namespace BetterHI3Launcher
 		{
 			LegacyBoxActive = false;
 			IntroBox.Visibility = Visibility.Collapsed;
-			if(App.FirstLaunch)
-			{
-				GameUpdateCheck();
-			}
+			FetchAnnouncements();
 		}
 
 		private async void RepairBoxYesButton_Click(object sender, RoutedEventArgs e)
@@ -5200,6 +5229,64 @@ namespace BetterHI3Launcher
 		{
 			LegacyBoxActive = false;
 			AboutBox.Visibility = Visibility.Collapsed;
+		}
+
+		private void AnnouncementBoxCloseButton_Click(object sender, RoutedEventArgs e)
+		{
+			LegacyBoxActive = false;
+			AnnouncementBox.Visibility = Visibility.Collapsed;
+			bool do_not_show_next_time = (bool)AnnouncementBoxDoNotShowCheckbox.IsChecked;
+			if(do_not_show_next_time)
+			{
+				try
+				{
+					App.SeenAnnouncements.Add(App.Announcements.First["id"].ToString());
+					BpUtility.WriteToRegistry("SeenAnnouncements", string.Join(",", App.SeenAnnouncements), RegistryValueKind.String);
+				}
+				catch(Exception ex)
+				{
+					Log($"Failed to write value with key SeenAnnouncements to registry:\n{ex}", true, 1);
+				}
+			}
+			AnnouncementBoxDoNotShowCheckbox.IsChecked = false;
+			App.Announcements.Remove(App.Announcements.First);
+			if(App.Announcements.Count > 0)
+			{
+				ShowAnnouncement(App.Announcements.First);
+			}
+			else
+			{
+				#if !DEBUG
+				if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
+				{
+					if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
+					{
+						LegacyBoxActive = true;
+						ChangelogBox.Visibility = Visibility.Visible;
+						ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
+						FetchChangelog();
+					}
+				}
+				#endif
+				try
+				{
+					if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
+					{
+						BpUtility.WriteToRegistry("LauncherVersion", App.LocalLauncherVersion.ToString());
+					}
+					// legacy values
+					BpUtility.DeleteFromRegistry("RanOnce");
+					BpUtility.DeleteFromRegistry("BackgroundImageName");
+				}
+				catch(Exception ex)
+				{
+					Status = LauncherStatus.Error;
+					Log($"Failed to write critical registry info:\n{ex}", true, 1);
+					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], App.TextStrings["msgbox_registry_error_msg"]).ShowDialog();
+					return;
+				}
+				GameUpdateCheck();
+			}
 		}
 
 		private void DownloadCacheCommand_Executed(object sender, ExecutedRoutedEventArgs e)
