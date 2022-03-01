@@ -916,7 +916,7 @@ namespace BetterHI3Launcher
 					}
 					catch
 					{
-						Log($"miHoYo connection error, attempt №{i + 2}...", true, 2);
+						Log($"HoYoverse connection error, attempt №{i + 2}...", true, 2);
 						timeout_add += 2500;
 					}
 				}
@@ -1068,7 +1068,7 @@ namespace BetterHI3Launcher
 						}
 						if(mediafire_metadata == null)
 						{
-							Log("Failed to use the current mirror, switching back to miHoYo", true, 2);
+							Log("Failed to use the current mirror, switching back to HoYoverse", true, 2);
 							Status = LauncherStatus.Ready;
 							Dispatcher.Invoke(() => {MirrorDropdown.SelectedIndex = 0;});
 							return;
