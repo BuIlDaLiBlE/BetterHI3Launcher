@@ -54,7 +54,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("changelogbox_1_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
 			TextStrings.Add("changelogbox_2_msg", "Loading changelog...");
 			TextStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
-			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with HoYoverse and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation");
+			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation\nRinnosuke93 - Italian language translation");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
 			TextStrings.Add("contextmenu_fix_subtitles", "Fix subtitles");
 			TextStrings.Add("contextmenu_repair", "Repair game files");
@@ -77,6 +77,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_language_french", "French");
 			TextStrings.Add("contextmenu_language_german", "German");
 			TextStrings.Add("contextmenu_language_indonesian", "Indonesian");
+			TextStrings.Add("contextmenu_language_italian", "Italian");
 			TextStrings.Add("contextmenu_language_portuguese_brazil", "Portuguese (Brazil)");
 			TextStrings.Add("contextmenu_language_portuguese_portugal", "Portuguese (Portugal)");
 			TextStrings.Add("contextmenu_language_russian", "Russian");
@@ -110,7 +111,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_abort_4_msg", "Progress will be saved.");
 			TextStrings.Add("msgbox_abort_title", "Abort");
 			TextStrings.Add("msgbox_conn_bp_error_msg", "Cannot connect to Bp Network:");
-			TextStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to HoYoverse servers:");
+			TextStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to miHoYo servers:");
 			TextStrings.Add("msgbox_custom_background_1_msg", "You can select a file to be used as a background.\nIt can be an image or a video.\nRecommended resolution is {0} by {1} pixels.\nContinue?");
 			TextStrings.Add("msgbox_custom_background_2_msg", "Select what would you like to do with the background.");
 			TextStrings.Add("msgbox_custom_background_3_msg", "Selected file does not have the recommended resolution. You may still use it, but it will be stretched to the window size.\nContinue?");
@@ -146,7 +147,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_game_download_error_msg", "An error occurred while downloading game files.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_game_download_error_title", "Error downloading game files");
 			TextStrings.Add("msgbox_game_download_mirror_error_msg", "An error occurred while downloading from the mirror.\nFor more information take a look at the log.");
-			TextStrings.Add("msgbox_game_download_mirror_old_msg", "It seems like the game version on HoYoverse servers is newer than the one on the mirror.\nThere is no reason to download an outdated version, ask the mirror maintainer to upload a new version.");
+			TextStrings.Add("msgbox_game_download_mirror_old_msg", "It seems like the game version on miHoYo servers is newer than the one on the mirror.\nThere is no reason to download an outdated version, ask the mirror maintainer to upload a new version.");
 			TextStrings.Add("msgbox_game_download_paused_msg", "The game is not downloaded entirely yet. Changing server or mirror will reset the download progress.\nContinue?");
 			TextStrings.Add("msgbox_generic_error_msg", "An error occurred.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_generic_error_title", "Error");
@@ -166,7 +167,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_language_msg", "Language is going to be changed to {0} and launcher will be restarted.\nContinue?");
 			TextStrings.Add("msgbox_launcher_download_error_msg", "An error occurred while downloading the launcher.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_mirror_error_msg", "There is an error with the mirror. Ask the mirror maintainer to get to the bottom of this.\nMessage: {0}");
-			TextStrings.Add("msgbox_mirror_info_msg", "Use this mirror only if you cannot download the game via official HoYoverse servers.\nPlease note that it is updated manually.\nContinue?");
+			TextStrings.Add("msgbox_mirror_info_msg", "Use this mirror only if you cannot download the game via official miHoYo servers.\nPlease note that it is updated manually.\nContinue?");
 			TextStrings.Add("msgbox_move_1_msg", "Select where would you like to move the game.");
 			TextStrings.Add("msgbox_move_2_msg", "The game is going to be moved to:\n{0}\nContinue?");
 			TextStrings.Add("msgbox_move_3_msg", "Cannot move the game inside the current game directory.");
@@ -184,7 +185,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_no_game_exe_title", "No game executable");
 			TextStrings.Add("msgbox_no_video_dir_msg", "Video directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_notice_title", "Notice");
-			TextStrings.Add("msgbox_pre_install_msg", "You can still enter the game when pre-installing. Are you sure you want to download?\nYou can only download from the HoYoverse servers.");
+			TextStrings.Add("msgbox_pre_install_msg", "You can still enter the game when pre-installing. Are you sure you want to download?\nYou can only download from the miHoYo servers.");
 			TextStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_registry_empty_1_msg", "No value to be tweaked in registry exists.");
 			TextStrings.Add("msgbox_registry_empty_2_msg", "Have you run the game yet?");

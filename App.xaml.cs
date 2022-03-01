@@ -102,6 +102,10 @@ namespace BetterHI3Launcher
 				case "id-ID":
 					LauncherLanguage = "id";
 					break;
+				case "it-CH":
+				case "it-IT":
+					LauncherLanguage = "it";
+					break;
 				case "pt-BR":
 					LauncherLanguage = "pt-BR";
 					break;
