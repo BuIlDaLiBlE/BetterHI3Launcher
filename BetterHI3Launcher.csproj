@@ -123,6 +123,7 @@
     <Compile Include="TextStrings_en.cs" />
     <Compile Include="Utility\DownloadPartialAdapter.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
+    <Compile Include="Utility\miHoYoCRCUtility.cs" />
     <Compile Include="Utility\PartialHttpClient.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
@@ -138,7 +139,7 @@
     <Compile Include="Utility\PartialZip\PartialZipDownloader.cs" />
     <Compile Include="Utility\PartialZip\Services\DeflateService.cs" />
     <Compile Include="Utility\PartialZip\Services\HttpService.cs" />
-    <Compile Include="Utility.cs" />
+    <Compile Include="Utility\BpUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -219,6 +220,9 @@
     <Content Include="Assets\Sounds\Window_Open.wav" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AssetsTools.NET">
+      <Version>2.0.11</Version>
+    </PackageReference>
     <PackageReference Include="Costura.Fody">
       <Version>5.7.0</Version>
       <PrivateAssets>all</PrivateAssets>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +13,7 @@ namespace BetterHI3Launcher
 {
 	public partial class App : Application
 	{
-		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.3.20220116.0");
+		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.3.20220301.0");
 		public static readonly string LauncherRootPath = AppDomain.CurrentDomain.BaseDirectory;
 		public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
 		public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -24,6 +25,8 @@ namespace BetterHI3Launcher
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
 		public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
+		public static List<string> SeenAnnouncements = new List<string>();
+		public static JArray Announcements = new JArray();
 		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
 		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate, UseLegacyDownload;
 		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
@@ -101,6 +104,10 @@ namespace BetterHI3Launcher
 					break;
 				case "id-ID":
 					LauncherLanguage = "id";
+					break;
+				case "it-CH":
+				case "it-IT":
+					LauncherLanguage = "it";
 					break;
 				case "pt-BR":
 					LauncherLanguage = "pt-BR";

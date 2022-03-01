@@ -1,13 +1,14 @@
-# BetterHI3Launcher
+# Better HI3 Launcher
 A much better Honkai Impact 3rd launcher. Here are the key points:
 * No need to install, everything's in one executable
 * Supports all game clients (Global, SEA, CN, TW/HK/MO and KR), can switch between them freely
+* Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which dramatically speeds up the download process
 * Has mirror support so you have more download sources to choose from
 * Automatically updates itself, so you're always getting the latest and greatest!
 * Has lots of useful features, such as:
-  * Downloading game cache (fixes the "stuck on updating settings" problem)
-  * Fixing the notoriously broken subtitles
-  * Repairing game files (only bad files will be downloaded!)
+  * Downloading game cache (fixes the problems that occur during "Updating settings")
+  * Fixing broken subtitles
+  * Repairing game files (only the required files will be downloaded!)
   * Moving the game
   * Setting custom resolution, custom FPS, resetting download type (to reselect assets download option)
   * Customizable background (supports still images, GIFs, and even videos!)
@@ -22,8 +23,8 @@ Windows 8.1 should work if .NET Framework 4.6.1 or newer is installed.
 Windows 7 should technically work too if the above condition is met, however it's not supported by Microsoft since January of 2020 so I may not provide much support.
 
 ## Is this safe?
-I started this project with hope to help fellow Captains have a better experience with the game. Since the release in January there have been no cases of a ban.
-After all, this is just an app that downloads the game and has some helpful utilities. However, it is wise to remember that this project is not affiliated with miHoYo and thus they have the final say about it.
+I started this project with hope to help fellow Captains have a better experience with the game. Since the release in January of 2021 there have been no cases of bans.
+After all, this is just an app that downloads the game and has some helpful utilities. However, it is wise to remember that this project is not affiliated with HoYoverse and thus they have the final say about it.
 
 Ultimately, it is for you to decide whether to trust me or not. The launcher's code is open source though, so you're always welcome to look at it. On that note...
 

@@ -29,8 +29,8 @@
 		<CommandBinding Command="{x:Static local:MainWindow.FeedbackCommand}" Executed="FeedbackCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.ChangelogCommand}" Executed="ChangelogCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.CustomBackgroundCommand}" Executed="CustomBackgroundCommand_Executed"/>
-        <CommandBinding Command="{x:Static local:MainWindow.ToggleLogCommand}" Executed="ToggleLogCommand_Executed"/>
-        <CommandBinding Command="{x:Static local:MainWindow.ToggleSoundsCommand}" Executed="ToggleSoundsCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.ToggleLogCommand}" Executed="ToggleLogCommand_Executed"/>
+		<CommandBinding Command="{x:Static local:MainWindow.ToggleSoundsCommand}" Executed="ToggleSoundsCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.AboutCommand}" Executed="AboutCommand_Executed"/>
 	</Window.CommandBindings>
 	<Window.Resources>
@@ -553,7 +553,7 @@
 				</TextBlock.Effect>
 			</TextBlock>
 			<ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
-				<ComboBoxItem Content="miHoYo"/>
+				<ComboBoxItem Content="HoYoverse"/>
 				<ComboBoxItem Content="Hi3Mirror"/>
 				<ComboBoxItem Content="MediaFire"/>
 			</ComboBox>
@@ -777,6 +777,21 @@
 					</StackPanel>
 					<Image gif:AnimationBehavior.SourceUri="Assets/Images/HoV_Dance.gif" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,25,0,18" Width="128"/>
 					<Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="AboutBoxCloseButton_Click"/>
+				</Grid>
+			</Grid>
+			<Grid Name="AnnouncementBox" Background="#80000000" Visibility="Visible">
+				<Grid HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="844" Background="#C8FFFFFF">
+					<StackPanel>
+						<TextBlock Name="AnnouncementBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+						<ScrollViewer Name="AnnouncementBoxScrollViewer" Margin="14,0,14,0" MaxHeight="325" ScrollViewer.VerticalScrollBarVisibility="Auto">
+							<TextBlock Name="AnnouncementBoxMessageTextBlock" FontFamily="Segoe UI" TextWrapping="Wrap" FontSize="14"/>
+						</ScrollViewer>
+						<CheckBox Name="AnnouncementBoxDoNotShowCheckbox" Margin="14,5,25,0" HorizontalAlignment="Center"/>
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+							<Button Name="AnnouncementBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="AnnouncementBoxCloseButton_Click"/>
+						</StackPanel>
+					</StackPanel>
+					<Button Name="AnnouncementBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="AnnouncementBoxCloseButton_Click"/>
 				</Grid>
 			</Grid>
 		</Grid>
