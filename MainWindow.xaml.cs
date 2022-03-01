@@ -1531,7 +1531,7 @@ namespace BetterHI3Launcher
 							if(i == attempts - 1)
 							{
 								Log("Giving up...");
-								throw new CryptographicException("Failed to verify background image");
+								throw new CryptographicException("Verification failed");
 							}
 							else
 							{
@@ -2118,6 +2118,7 @@ namespace BetterHI3Launcher
 
 			try
 			{
+				Directory.CreateDirectory(GameCachePath);
 				var existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
 				var useless_files = existing_files;
 				long bad_files_size = 0;
@@ -2271,7 +2272,7 @@ namespace BetterHI3Launcher
 
 								var url = string.Format(data_url, server, ReturnCacheTypeEnum(bad_files[i].Type), bad_files[i].N);
 								if(Mirror == HI3Mirror.miHoYo) url = string.Format(data_url, ReturnCacheTypeEnum(bad_files[i].Type), bad_files[i].N);
-								Log($"Downloading from {url}");
+								Log($"Downloading from {url}...");
 								Dispatcher.Invoke(() =>
 								{
 									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, bad_files.Count);
@@ -2287,11 +2288,11 @@ namespace BetterHI3Launcher
 									var md5 = BpUtility.CalculateMD5(path);
 									if(File.Exists(path) && md5 != bad_files[i].CRC)
 									{
-										Log($"Failed to verify file [{path}]", true, 1);
+										throw new CryptographicException("Verification failed");
 									}
 									else
 									{
-										Log($"Downloaded file {path}");
+										Log("success!", false);
 										downloaded_files++;
 									}
 								}
