@@ -11,20 +11,19 @@ namespace BetterHI3Launcher.Utility
 			public string source, target;
 		}
 
-		CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
-		CancellationToken cancelToken;
-
+		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+		private CancellationToken cancelToken;
+		private DownloadProp link;
+		public ParallelHttpClient client;
 		public event EventHandler<DownloadChangedProgress> DownloadProgress;
+		public bool Paused;
+		private bool IsCompleted;
 
-		DownloadProp link;
-
-		bool IsCompleted;
-		ParallelHttpClient client;
-
-		public void InitializeDownload(string source, string target) => link = new DownloadProp {source = source, target = target};
+		public void InitializeDownload(string source, string target) => link = new DownloadProp{source = source, target = target};
 
 		public void Start()
 		{
+			Paused = false;
 			IsCompleted = false;
 			cancelToken = cancelTokenSource.Token;
 
@@ -56,7 +55,7 @@ namespace BetterHI3Launcher.Utility
 			if(cancelToken.IsCancellationRequested)
 			{
 				client.PartialProgressChanged -= DownloadProgressAdapter;
-				throw new OperationCanceledException($"Parallel downloader has been shutdown!");
+				throw new OperationCanceledException("Parallel downloader shutting down...");
 			}
 
 			client.PartialProgressChanged -= DownloadProgressAdapter;
@@ -70,6 +69,7 @@ namespace BetterHI3Launcher.Utility
 
 		public void Pause()
 		{
+			Paused = true;
 			cancelTokenSource.Cancel();
 		}
 
@@ -96,7 +96,8 @@ namespace BetterHI3Launcher.Utility
 				TotalBytesToReceive = e.TotalBytesToReceive,
 				CurrentSpeed = e.CurrentSpeed,
 				ProgressPercentage = e.ProgressPercentage,
-				TimeLeft = e.TimeLeft
+				TimeLeft = e.TimeLeft,
+				Merging = client.merging
 			});
 		}
 
@@ -111,5 +112,6 @@ namespace BetterHI3Launcher.Utility
 		public float ProgressPercentage {get; set;}
 		public long CurrentSpeed {get; set;}
 		public TimeSpan TimeLeft {get; set;}
+		public bool Merging {get; set;}
 	}
 }

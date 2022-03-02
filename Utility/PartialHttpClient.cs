@@ -221,6 +221,7 @@ namespace BetterHI3Launcher.Utility
 			int read;
 			long totalRead = 0;
 			var sw = Stopwatch.StartNew();
+			merging = true;
 
 			FileInfo fileInfo = new FileInfo($"{downloadPartialOutputPath}_tmp");
 
