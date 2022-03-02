@@ -240,7 +240,7 @@ namespace BetterHI3Launcher
 						break;
 					case HI3Server.TW:
 						RegistryVersionInfo = "VersionInfoTW";
-						GameFullName = "崩壞3";
+						GameFullName = "崩壊3rd";
 						GameWebProfileURL = "https://tw-user.bh3.com";
 						break;
 					case HI3Server.KR:
@@ -5507,7 +5507,7 @@ namespace BetterHI3Launcher
 				Path.Combine(path, "Honkai Impact 3rd"),
 				Path.Combine(path, "Honkai Impact 3"),
 				Path.Combine(path, "崩坏3"),
-				Path.Combine(path, "崩壞3"),
+				Path.Combine(path, "崩壊3rd"),
 				Path.Combine(path, "붕괴3rd"),
 				Path.Combine(path, "Honkai Impact 3rd", "Games"),
 				Path.Combine(path, "Honkai Impact 3", "Games"),
@@ -5560,7 +5560,7 @@ namespace BetterHI3Launcher
 								return 2;
 							}
 							break;
-						case "崩壞3":
+						case "崩壊3rd":
 							if(App.LauncherRegKey.GetValue("VersionInfoTW") == null)
 							{
 								return 3;

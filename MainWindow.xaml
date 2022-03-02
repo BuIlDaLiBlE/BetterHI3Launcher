@@ -779,7 +779,7 @@
 					<Button Name="AboutBoxCloseButton" Style="{DynamicResource BoxCloseButtonStyle}" Click="AboutBoxCloseButton_Click"/>
 				</Grid>
 			</Grid>
-			<Grid Name="AnnouncementBox" Background="#80000000" Visibility="Visible">
+			<Grid Name="AnnouncementBox" Background="#80000000" Visibility="Collapsed">
 				<Grid HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="844" Background="#C8FFFFFF">
 					<StackPanel>
 						<TextBlock Name="AnnouncementBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
