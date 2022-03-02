@@ -1,4 +1,6 @@
-﻿using IniParser;
+﻿using BetterHI3Launcher.Utility;
+using IniParser;
+using IniParser.Model;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using PartialZip;
@@ -29,7 +31,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
-using BetterHI3Launcher.Utility;
 
 namespace BetterHI3Launcher
 {
@@ -1938,8 +1939,12 @@ namespace BetterHI3Launcher
 			try
 			{
 				var config_ini_file = Path.Combine(GameInstallPath, "config.ini");
+				IniData config_ini_data = null;
 				var ini_parser = new FileIniDataParser();
-				ini_parser.Parser.Configuration.AssigmentSpacer = string.Empty;
+				if(File.Exists(config_ini_file))
+				{
+					config_ini_data = ini_parser.ReadFile(config_ini_file);
+				}
 				var version_info = LocalVersionInfo;
 				if(version_info == null)
 				{
@@ -1966,17 +1971,13 @@ namespace BetterHI3Launcher
 					var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 					try
 					{
-						if(File.Exists(config_ini_file))
+						if(config_ini_data["General"]["game_version"] != null)
 						{
-							var data = ini_parser.ReadFile(config_ini_file);
-							if(data["General"]["game_version"] != null)
-							{
-								version_info.game_info.version = data["General"]["game_version"];
-							}
-							else
-							{
-								throw new NullReferenceException();
-							}
+							version_info.game_info.version = config_ini_data["General"]["game_version"];
+						}
+						else
+						{
+							throw new NullReferenceException();
 						}
 					}
 					catch
@@ -1995,18 +1996,19 @@ namespace BetterHI3Launcher
 				BpUtility.WriteToRegistry(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(version_info)), RegistryValueKind.Binary);
 				if(is_installed)
 				{
-					if(File.Exists(config_ini_file))
+					try
 					{
-						try
+						if(config_ini_data == null)
 						{
-							var data = ini_parser.ReadFile(config_ini_file);
-							data["General"]["game_version"] = version_info.game_info.version;
-							ini_parser.WriteFile(config_ini_file, data);
+							config_ini_data = new IniData();
 						}
-						catch(Exception ex)
-						{
-							Log($"Failed to write version info to config.ini: {ex.Message}", true, 2);
-						}
+						config_ini_data.Configuration.AssigmentSpacer = string.Empty;
+						config_ini_data["General"]["game_version"] = version_info.game_info.version;
+						ini_parser.WriteFile(config_ini_file, config_ini_data);
+					}
+					catch(Exception ex)
+					{
+						Log($"Failed to write version info to config.ini: {ex.Message}", true, 2);
 					}
 				}
 				Log("success!", false);
