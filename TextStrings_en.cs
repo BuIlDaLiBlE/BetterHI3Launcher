@@ -33,13 +33,16 @@ namespace BetterHI3Launcher
 			TextStrings.Add("label_pre_install", "Game Pre-Installation");
 			TextStrings.Add("label_get_now", "Get Now");
 			TextStrings.Add("label_verifying", "Verifying");
+			TextStrings.Add("label_merging", "Merging");
 			TextStrings.Add("label_paused", "Paused");
 			TextStrings.Add("label_done", "Done");
 			TextStrings.Add("label_retry", "Retry");
 			TextStrings.Add("label_downloaded_1", "Downloaded {0}%");
 			TextStrings.Add("label_downloaded_2", "Download resources:");
+			TextStrings.Add("label_merged", "Merged {0}%");
 			TextStrings.Add("label_eta", "Time remaining:");
-			TextStrings.Add("label_speed", "Download speed:");
+			TextStrings.Add("label_download_speed", "Download speed:");
+			TextStrings.Add("label_merge_speed", "Merge speed:");
 			TextStrings.Add("introbox_title", "Welcome to Better HI3 Launcher!");
 			TextStrings.Add("introbox_msg", "Seems like this is your first time using the launcher. I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so by clicking \"Options\" button and selecting \"Send feedback\".\nIf you already have the game installed just press the \"Download\" button and point to where your game is. The launcher will detect your game version automatically and you won't have to download the game again.");
 			TextStrings.Add("repairbox_msg", "This will check every game file and attempt to repair if any is broken. It can take a while.\nContinue?\nAvailable mirrors: {0}.\nCurrent mirror maintainer is {1}.");
@@ -101,7 +104,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("progresstext_moving_files", "Moving game files...");
 			TextStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
 			TextStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
-			TextStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1}...");
+			TextStrings.Add("progresstext_unpacking_2", "Unpacking game file {0}/{1} ({2}%)...");
 			TextStrings.Add("progresstext_updating_launcher", "Updating launcher...");
 			TextStrings.Add("progresstext_verifying_file", "Verifying game file {0}/{1}...");
 			TextStrings.Add("progresstext_verifying_files", "Verifying game files...");

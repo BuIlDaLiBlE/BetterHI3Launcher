@@ -157,8 +157,6 @@ namespace BetterHI3Launcher
 						PreloadCircle.Visibility = Visibility.Visible;
 						PreloadCircleProgressBar.Visibility = Visibility.Visible;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-						ServerDropdown.IsEnabled = false;
-						MirrorDropdown.IsEnabled = false;
 						ToggleContextMenuItems(false);
 						break;
 					case LauncherStatus.PreloadVerifying:
@@ -403,7 +401,7 @@ namespace BetterHI3Launcher
 			PreloadTopText.Text = App.TextStrings["label_pre_install"];
 			PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
-			PreloadStatusBottomLeftText.Text = App.TextStrings["label_speed"];
+			PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
 
 			Grid.MouseLeftButtonDown += delegate{DragMove();};
 			PreloadGrid.Visibility = Visibility.Collapsed;
@@ -1369,7 +1367,7 @@ namespace BetterHI3Launcher
 						TaskbarItemInfo.ProgressValue = progress;
 						DownloadProgressText.Text = $"{App.TextStrings["progresstext_updating_launcher"].TrimEnd('.')} {Math.Round(progress * 100)}% ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
 						DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-						DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+						DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {tracker.GetBytesPerSecondString()}";
 					});
 					Thread.Sleep(500);
 				}
@@ -1772,7 +1770,7 @@ namespace BetterHI3Launcher
 									TaskbarItemInfo.ProgressValue = progress;
 									DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
 									DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-									DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+									DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {tracker.GetBytesPerSecondString()}";
 								});
 								Thread.Sleep(500);
 							}
@@ -1870,8 +1868,8 @@ namespace BetterHI3Launcher
 								{
 									Dispatcher.Invoke(() =>
 									{
-										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count);
 										var progress = (unpacked_files + 1f) / file_count;
+										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count, Math.Round(progress * 100, 2));
 										DownloadProgressBar.Value = progress;
 										TaskbarItemInfo.ProgressValue = progress;
 									});
@@ -2495,7 +2493,7 @@ namespace BetterHI3Launcher
 							TaskbarItemInfo.ProgressValue = progress;
 							DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
 							DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-							DownloadSpeedText.Text = $"{App.TextStrings["label_speed"]} {tracker.GetBytesPerSecondString()}";
+							DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {tracker.GetBytesPerSecondString()}";
 						});
 						Thread.Sleep(500);
 					}
@@ -2583,8 +2581,8 @@ namespace BetterHI3Launcher
 								{
 									Dispatcher.Invoke(() =>
 									{
-										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count);
 										var progress = (unpacked_files + 1f) / file_count;
+										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count, Math.Round(progress * 100, 2));
 										DownloadProgressBar.Value = progress;
 										TaskbarItemInfo.ProgressValue = progress;
 									});
@@ -3151,7 +3149,7 @@ namespace BetterHI3Launcher
 
 		private async void PreloadButton_Click(object sender, RoutedEventArgs e)
 		{
-			if(Status != LauncherStatus.Ready && Status != LauncherStatus.Running)
+			if(Status != LauncherStatus.Ready && Status != LauncherStatus.Preloading && Status != LauncherStatus.Running)
 			{
 				return;
 			}
@@ -3171,7 +3169,7 @@ namespace BetterHI3Launcher
 				{
 					size = web_response.ContentLength;
 				}
-				if(!File.Exists(tmp_path))
+				if(App.UseLegacyDownload && !File.Exists(tmp_path) || !App.UseLegacyDownload && !File.Exists($"{tmp_path}.001"))
 				{
 					if(new DialogWindow(App.TextStrings["label_pre_install"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -3288,7 +3286,7 @@ namespace BetterHI3Launcher
 						{
 							Status = LauncherStatus.Error;
 							Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
-							DeleteFile(path);
+							DeleteFile(tmp_path);
 							Dispatcher.Invoke(() =>
 							{
 								PreloadButton.Visibility = Visibility.Visible;
@@ -3325,11 +3323,18 @@ namespace BetterHI3Launcher
 
 		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
-			if(download != null)
+			if(download != null || !download_parallel.Paused)
 			{
 				Log("Pre-download paused");
-				download.Pause();
-				download = null;
+				if(download != null)
+				{
+					download.Pause();
+					download = null;
+				}
+				else
+				{
+					download_parallel.Stop();
+				}
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
 				PreloadBottomText.Text = PreloadBottomText.Text.Replace(App.TextStrings["label_downloaded_1"], App.TextStrings["label_paused"]);
 				PreloadStatusMiddleRightText.Text = string.Empty;
@@ -4479,6 +4484,7 @@ namespace BetterHI3Launcher
 					return;
 				}
 				Status = LauncherStatus.CleaningUp;
+				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
 				DeleteFile(GameArchivePath);
 				DeleteFile(CacheArchivePath);
 			}
@@ -4590,6 +4596,7 @@ namespace BetterHI3Launcher
 				}
 				download = null;
 				DownloadPaused = false;
+				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
 				DeleteFile(GameArchivePath);
 				if(!PatchDownload)
 				{
@@ -4666,6 +4673,7 @@ namespace BetterHI3Launcher
 				}
 				download = null;
 				DownloadPaused = false;
+				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
 				DeleteFile(GameArchivePath);
 				if(!PatchDownload)
 				{
@@ -5425,14 +5433,14 @@ namespace BetterHI3Launcher
 
 		private void MainWindow_Closing(object sender, CancelEventArgs e)
 		{
-			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
+			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
 				if(download == null && download_parallel == null)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						Status = LauncherStatus.CleaningUp;
-						DeleteFile(GameArchiveTempPath);
+						DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
 						DeleteFile(CacheArchivePath);
 					}
 					else
@@ -5448,27 +5456,23 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel != null)
+						else if(!download_parallel.client.merging)
 						{
 							download_parallel.Pause();
 						}
-						WriteVersionInfo();
+						else
+						{
+							e.Cancel = true;
+						}
+						if(Status != LauncherStatus.Preloading)
+						{
+							WriteVersionInfo();
+						}
 					}
 					else
 					{
 						e.Cancel = true;
 					}
-				}
-			}
-			else if(Status == LauncherStatus.Preloading)
-			{
-				if(download != null)
-				{
-					download.Pause();
-				}
-				else if(download_parallel != null)
-				{
-					download_parallel.Pause();
 				}
 			}
 			else if(Status == LauncherStatus.Verifying || Status == LauncherStatus.Unpacking || Status == LauncherStatus.CleaningUp || Status == LauncherStatus.Uninstalling || Status == LauncherStatus.Working || Status == LauncherStatus.PreloadVerifying)
