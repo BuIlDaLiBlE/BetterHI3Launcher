@@ -1,5 +1,4 @@
-﻿using BetterHI3Launcher.Utility;
-using IniParser;
+﻿using IniParser;
 using IniParser.Model;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -31,6 +30,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
+using BetterHI3Launcher.Utility;
+using static BetterHI3Launcher.Utility.ParallelHttpClient;
 
 namespace BetterHI3Launcher
 {
@@ -71,7 +72,7 @@ namespace BetterHI3Launcher
 		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
-		DownloadParallelAdapter download_parallel;
+		DownloadParallelAdapter download_parallel = new DownloadParallelAdapter();
 		DownloadPauseable download;
 		DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
 
@@ -399,9 +400,7 @@ namespace BetterHI3Launcher
 			AnnouncementBoxOKButton.Content = App.TextStrings["button_ok"];
 			AnnouncementBoxDoNotShowCheckbox.Content = App.TextStrings["announcementbox_do_not_show"];
 			PreloadTopText.Text = App.TextStrings["label_pre_install"];
-			PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
-			PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
 
 			Grid.MouseLeftButtonDown += delegate{DragMove();};
 			PreloadGrid.Visibility = Visibility.Collapsed;
@@ -5435,7 +5434,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && download_parallel == null)
+				if(download == null && download_parallel.client.Status == ParallelHttpClientStatus.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -5450,13 +5449,17 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
+					if(download_parallel.client.Status == ParallelHttpClientStatus.Merging)
+					{
+						e.Cancel = true;
+					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						if(download != null)
 						{	
 							download.Pause();
 						}
-						else if(!download_parallel.client.merging)
+						else if(download_parallel.client.Status == ParallelHttpClientStatus.Downloading)
 						{
 							download_parallel.Pause();
 						}

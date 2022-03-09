@@ -33,7 +33,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("label_pre_install", "Game Pre-Installation");
 			TextStrings.Add("label_get_now", "Get Now");
 			TextStrings.Add("label_verifying", "Verifying");
-			TextStrings.Add("label_merging", "Merging");
 			TextStrings.Add("label_paused", "Paused");
 			TextStrings.Add("label_done", "Done");
 			TextStrings.Add("label_retry", "Retry");
@@ -115,7 +114,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_abort_4_msg", "Progress will be saved.");
 			TextStrings.Add("msgbox_abort_title", "Abort");
 			TextStrings.Add("msgbox_conn_bp_error_msg", "Cannot connect to Bp Network:");
-			TextStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to miHoYo servers:");
+			TextStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to HoYoverse servers:");
 			TextStrings.Add("msgbox_custom_background_1_msg", "You can select a file to be used as a background.\nIt can be an image or a video.\nRecommended resolution is {0} by {1} pixels.\nContinue?");
 			TextStrings.Add("msgbox_custom_background_2_msg", "Select what would you like to do with the background.");
 			TextStrings.Add("msgbox_custom_background_3_msg", "Selected file does not have the recommended resolution. You may still use it, but it will be stretched to the window size.\nContinue?");
