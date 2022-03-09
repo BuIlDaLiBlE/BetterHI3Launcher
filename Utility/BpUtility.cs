@@ -136,6 +136,10 @@ namespace BetterHI3Launcher
 					stream.Close();
 				}
 			}
+			catch(FileNotFoundException)
+			{
+				return false;
+			}
 			catch(IOException)
 			{
 				return true;

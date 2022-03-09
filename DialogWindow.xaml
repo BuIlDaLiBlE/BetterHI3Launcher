@@ -160,7 +160,7 @@
 	<Grid Width="576" Height="307">
 		<Image Source="Assets/Images/Window_Dialog.png"/>
 		<TextBlock Name="DialogTitle" VerticalAlignment="Top" Margin="85,29,85,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="18" TextAlignment="Center"/>
-		<ScrollViewer Name="DialogMessageScrollViewer" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,25" Width="500" Height="135" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+		<ScrollViewer Name="DialogMessageScrollViewer" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,25" Width="500" Height="135" Focusable="False" ScrollViewer.VerticalScrollBarVisibility="Hidden">
 			<TextBlock Name="DialogMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="500" MaxHeight="147" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"/>
 		</ScrollViewer>
 		<StackPanel Name="InstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,50,0,0" Visibility="Collapsed">
