@@ -66,6 +66,9 @@ namespace BetterHI3Launcher
 			TextStrings_English();
 			switch(OSLanguage)
 			{
+				case "cs-CZ":
+					LauncherLanguage = "cs";
+					break;
 				case "de-AT":
 				case "de-CH":
 				case "de-DE":

@@ -72,7 +72,7 @@ namespace BetterHI3Launcher
 		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
-		DownloadParallelAdapter download_parallel = new DownloadParallelAdapter();
+		DownloadParallelAdapter download_parallel;
 		DownloadPauseable download;
 		DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
 
@@ -468,6 +468,9 @@ namespace BetterHI3Launcher
 			var CM_Language_System = new MenuItem{Header = App.TextStrings["contextmenu_language_system"]};
 			CM_Language_System.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_System);
+			var CM_Language_Czech = new MenuItem {Header = App.TextStrings["contextmenu_language_czech"]};
+			CM_Language_Czech.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Czech);
 			var CM_Language_English = new MenuItem{Header = App.TextStrings["contextmenu_language_english"]};
 			CM_Language_English.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_English);
@@ -523,6 +526,9 @@ namespace BetterHI3Launcher
 				{
 					switch(language_reg.ToString())
 					{
+						case "cs":
+							CM_Language_Czech.IsChecked = true;
+							break;
 						case "fr":
 							CM_Language_French.IsChecked = true;
 							break;
@@ -4544,9 +4550,13 @@ namespace BetterHI3Launcher
 					{
 						App.LauncherLanguage = "it";
 					}
+					else if(lang == App.TextStrings["contextmenu_language_czech"])
+					{
+						App.LauncherLanguage = "cs";
+					}
 					else
 					{
-						Log($"Translation for {lang} doesn't exist", true, 1);
+						Log($"Translation for {lang} does not exist", true, 1);
 						return;
 					}
 					BpUtility.WriteToRegistry("Language", App.LauncherLanguage);
@@ -5434,7 +5444,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && download_parallel.client.Status == ParallelHttpClientStatus.Idle)
+				if(download == null && download_parallel == null || download_parallel.client.Status == ParallelHttpClientStatus.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -5449,7 +5459,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					if(download_parallel.client.Status == ParallelHttpClientStatus.Merging)
+					if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Merging)
 					{
 						e.Cancel = true;
 					}
@@ -5459,7 +5469,7 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel.client.Status == ParallelHttpClientStatus.Downloading)
+						else if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Downloading)
 						{
 							download_parallel.Pause();
 						}
