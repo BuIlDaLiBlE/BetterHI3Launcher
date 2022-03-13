@@ -5841,7 +5841,7 @@ namespace BetterHI3Launcher
 					BpUtility.RestartApp();
 				}
 			}
-			if(App.LauncherLanguage != "en" || App.LauncherLanguage != "zh-CN")
+			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN")
 			{
 				Resources["Font"] = new FontFamily("Segoe UI Bold");
 			}

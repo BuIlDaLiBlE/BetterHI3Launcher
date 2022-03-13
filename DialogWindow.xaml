@@ -9,10 +9,10 @@
 		AllowsTransparency="True"
 		Background="#80000000"
 		Closing="DialogWindow_Closing"
+		UseLayoutRounding="True"
 		TextOptions.TextFormattingMode="Display"
 		TextOptions.TextRenderingMode="ClearType"
 		ShowInTaskbar="False"
-		UseLayoutRounding="True"
 		Title="DialogWindow" Width="1280" Height="730">
 	<Window.Resources>
 		<FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
@@ -36,6 +36,7 @@
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Center"/>
 			<Setter Property="VerticalAlignment" Value="Bottom"/>
+			<Setter Property="Margin" Value="15,0"/>
 			<Setter Property="FontFamily" Value="{DynamicResource Font}"/>
 			<Setter Property="FontSize" Value="20"/>
 			<Setter Property="Template">
@@ -200,7 +201,7 @@
 		</StackPanel>
 		<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Margin="0,23,33,0" Click="CloseButton_Click"/>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="36">
-			<Button Name="ConfirmButton" Style="{DynamicResource ButtonStyle}" Margin="0,0,25,0" Width="189" Height="44" Click="ConfirmButton_Click"/>
+			<Button Name="ConfirmButton" Style="{DynamicResource ButtonStyle}" Width="189" Height="44" Click="ConfirmButton_Click"/>
 			<Button Name="CancelButton" Style="{DynamicResource ButtonStyle}" Width="189" Height="44" Click="CloseButton_Click"/>
 		</StackPanel>
 	</Grid>
