@@ -468,6 +468,9 @@ namespace BetterHI3Launcher
 			var CM_Language_System = new MenuItem{Header = App.TextStrings["contextmenu_language_system"]};
 			CM_Language_System.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_System);
+			var CM_Language_Chinese_Simplified = new MenuItem {Header = App.TextStrings["contextmenu_language_chinese_simplified"]};
+			CM_Language_Chinese_Simplified.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Chinese_Simplified);
 			var CM_Language_Czech = new MenuItem {Header = App.TextStrings["contextmenu_language_czech"]};
 			CM_Language_Czech.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_Czech);
@@ -561,6 +564,9 @@ namespace BetterHI3Launcher
 							break;
 						case "vi":
 							CM_Language_Vietnamese.IsChecked = true;
+							break;
+						case "zh-CN":
+							CM_Language_Chinese_Simplified.IsChecked = true;
 							break;
 						default:
 							CM_Language_English.IsChecked = true;
@@ -4554,6 +4560,10 @@ namespace BetterHI3Launcher
 					{
 						App.LauncherLanguage = "cs";
 					}
+					else if(lang == App.TextStrings["contextmenu_language_chinese_simplified"])
+					{
+						App.LauncherLanguage = "zh-CN";
+					}
 					else
 					{
 						Log($"Translation for {lang} does not exist", true, 1);
@@ -5831,7 +5841,7 @@ namespace BetterHI3Launcher
 					BpUtility.RestartApp();
 				}
 			}
-			if(App.LauncherLanguage != "en")
+			if(App.LauncherLanguage != "en" || App.LauncherLanguage != "zh-CN")
 			{
 				Resources["Font"] = new FontFamily("Segoe UI Bold");
 			}
