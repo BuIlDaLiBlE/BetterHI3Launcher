@@ -2832,16 +2832,31 @@ namespace BetterHI3Launcher
 
 		private void CloseButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			Close();
 		}
 
 		private void MinimizeButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			WindowState = WindowState.Minimized;
 		}
 
 		private async void LaunchButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			BpUtility.PlaySound(Properties.Resources.Click);
 			if(Status == LauncherStatus.Ready || Status == LauncherStatus.Preloading || Status == LauncherStatus.PreloadVerifying)
 			{
@@ -3134,6 +3149,11 @@ namespace BetterHI3Launcher
 
 		private void OptionsButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			var button = sender as Button;
 			OptionsContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
 			OptionsContextMenu.PlacementTarget = button;
@@ -3144,6 +3164,11 @@ namespace BetterHI3Launcher
 
 		private async void DownloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			if(!DownloadPaused)
 			{
 				if(!App.UseLegacyDownload)
@@ -3198,6 +3223,10 @@ namespace BetterHI3Launcher
 		private async void PreloadButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready && Status != LauncherStatus.Preloading && Status != LauncherStatus.Running)
+			{
+				return;
+			}
+			if(LegacyBoxActive)
 			{
 				return;
 			}
@@ -3371,6 +3400,11 @@ namespace BetterHI3Launcher
 
 		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			if(download != null || !download_parallel.Paused)
 			{
 				Log("Pre-download paused");
@@ -3407,6 +3441,10 @@ namespace BetterHI3Launcher
 		private async Task CM_DownloadCache_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
+			{
+				return;
+			}
+			if(LegacyBoxActive)
 			{
 				return;
 			}
@@ -3569,6 +3607,10 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(LegacyBoxActive)
+			{
+				return;
+			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
@@ -3624,6 +3666,10 @@ namespace BetterHI3Launcher
 		private async Task CM_Move_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
+			{
+				return;
+			}
+			if(LegacyBoxActive)
 			{
 				return;
 			}
@@ -3757,6 +3803,11 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			try
 			{
 				if(App.LauncherRootPath.Contains(GameInstallPath))
@@ -3859,6 +3910,10 @@ namespace BetterHI3Launcher
 		private async Task CM_FixSubtitles_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
+			{
+				return;
+			}
+			if(LegacyBoxActive)
 			{
 				return;
 			}
@@ -4195,6 +4250,7 @@ namespace BetterHI3Launcher
 					MenuFPSInputBoxTextBox.Text = "60";
 				}
 				GameGraphicSettings = json;
+				LegacyBoxActive = true;
 			}
 			catch(Exception ex)
 			{
@@ -4264,6 +4320,7 @@ namespace BetterHI3Launcher
 					ResolutionInputBoxFullscreenCheckbox.IsChecked = false;
 				}
 				GameScreenSettings = json;
+				LegacyBoxActive = true;
 			}
 
 			catch(Exception ex)
@@ -4283,6 +4340,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+
 			try
 			{
 				var dialog = new DialogWindow(App.TextStrings["contextmenu_custom_launch_options"], App.TextStrings["msgbox_custom_launch_options_msg"], DialogWindow.DialogType.CustomLaunchOptions);
@@ -4373,6 +4431,11 @@ namespace BetterHI3Launcher
 
 		private void CM_Changelog_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			LegacyBoxActive = true;
 			ChangelogBox.Visibility = Visibility.Visible;
 			ChangelogBoxScrollViewer.ScrollToHome();
@@ -4381,6 +4444,11 @@ namespace BetterHI3Launcher
 
 		private void CM_CustomBackground_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			bool first_time = App.LauncherRegKey.GetValue("CustomBackgroundName") == null ? true : false;
 			if(first_time)
 			{
@@ -4622,8 +4690,13 @@ namespace BetterHI3Launcher
 
 		private void CM_About_Click(object sender, RoutedEventArgs e)
 		{
-			AboutBox.Visibility = Visibility.Visible;
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			LegacyBoxActive = true;
+			AboutBox.Visibility = Visibility.Visible;
 		}
 
 		private void ServerDropdown_Opened(object sender, EventArgs e)
@@ -4638,7 +4711,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(BackgroundImageDownloading)
+			if(BackgroundImageDownloading || LegacyBoxActive)
 			{
 				ServerDropdown.SelectedIndex = (int)Server;
 				return;
@@ -4712,6 +4785,11 @@ namespace BetterHI3Launcher
 			var index = MirrorDropdown.SelectedIndex;
 			if((int)Mirror == index)
 			{
+				return;
+			}
+			if(LegacyBoxActive)
+			{
+				MirrorDropdown.SelectedIndex = (int)Server;
 				return;
 			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server == HI3Server.CN && index > 1))
@@ -5190,6 +5268,7 @@ namespace BetterHI3Launcher
 				key.SetValue("GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519", value_after, RegistryValueKind.Binary);
 				key.Close();
 				FPSInputBox.Visibility = Visibility.Collapsed;
+				LegacyBoxActive = false;
 				Log("success!", false);
 				new DialogWindow(App.TextStrings["contextmenu_custom_fps"], string.Format(App.TextStrings["msgbox_custom_fps_4_msg"], fps_combat, fps_menu)).ShowDialog();
 			}
@@ -5206,6 +5285,7 @@ namespace BetterHI3Launcher
 		private void FPSInputBoxCancelButton_Click(object sender, RoutedEventArgs e)
 		{
 			FPSInputBox.Visibility = Visibility.Collapsed;
+			LegacyBoxActive = false;
 		}
 
 		private void ResolutionInputBoxOKButton_Click(object sender, RoutedEventArgs e)
@@ -5260,6 +5340,7 @@ namespace BetterHI3Launcher
 				}
 				key.Close();
 				ResolutionInputBox.Visibility = Visibility.Collapsed;
+				LegacyBoxActive = false;
 				Log("success!", false);
 				new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], string.Format(App.TextStrings["msgbox_custom_resolution_2_msg"], width, height, is_fullscreen)).ShowDialog();
 			}
@@ -5276,6 +5357,7 @@ namespace BetterHI3Launcher
 		private void ResolutionInputBoxCancelButton_Click(object sender, RoutedEventArgs e)
 		{
 			ResolutionInputBox.Visibility = Visibility.Collapsed;
+			LegacyBoxActive = false;
 		}
 
 		private void ChangelogBoxCloseButton_Click(object sender, RoutedEventArgs e)
