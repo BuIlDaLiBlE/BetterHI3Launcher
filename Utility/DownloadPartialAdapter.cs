@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using static BetterHI3Launcher.Utility.ParallelHttpClient;
 
 namespace BetterHI3Launcher.Utility
 {
@@ -91,13 +92,13 @@ namespace BetterHI3Launcher.Utility
 			#endif
 			UpdateProgress(new DownloadChangedProgress
 			{
+				Status = client.Status,
 				BytesReceived = e.BytesReceived,
 				CurrentReceived = e.CurrentReceived,
 				TotalBytesToReceive = e.TotalBytesToReceive,
 				CurrentSpeed = e.CurrentSpeed,
 				ProgressPercentage = e.ProgressPercentage,
-				TimeLeft = e.TimeLeft,
-				Merging = client.merging
+				TimeLeft = e.TimeLeft
 			});
 		}
 
@@ -106,12 +107,12 @@ namespace BetterHI3Launcher.Utility
 
 	public class DownloadChangedProgress : EventArgs
 	{
+		public ParallelHttpClientStatus Status {get; set;}
 		public long CurrentReceived {get; set;}
 		public long BytesReceived {get; set;}
 		public long TotalBytesToReceive {get; set;}
 		public float ProgressPercentage {get; set;}
 		public long CurrentSpeed {get; set;}
 		public TimeSpan TimeLeft {get; set;}
-		public bool Merging {get; set;}
 	}
 }

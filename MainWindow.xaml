@@ -13,6 +13,7 @@
 		WindowStartupLocation="CenterScreen"
 		ContentRendered="Window_ContentRendered"
 		Closing="MainWindow_Closing"
+		UseLayoutRounding="True"
 		TextOptions.TextFormattingMode="Display"
 		TextOptions.TextRenderingMode="ClearType"
 		Title="Better HI3 Launcher" Width="1300" Height="750">
@@ -81,7 +82,7 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type ComboBox}">
 						<Grid>
-							<ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="False" ClickMode="Press" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+							<ToggleButton x:Name="ToggleButton" Grid.Column="2" Focusable="False" ClickMode="Release" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
 								<ToggleButton.Template>
 									<ControlTemplate TargetType="{x:Type ToggleButton}">
 										<Grid>
@@ -109,7 +110,7 @@
 							</ToggleButton>
 							<ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="3,3,23,3" VerticalAlignment="Stretch" HorizontalAlignment="Left"/>
 							<Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False">
-								<Grid x:Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+								<Grid x:Name="DropDown" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
 									<Border x:Name="DropDownBorder" BorderThickness="1">
 										<Border.BorderBrush>
 											<SolidColorBrush Color="White"/>
@@ -118,7 +119,7 @@
 											<SolidColorBrush Color="#E0E0E0"/>
 										</Border.Background>
 									</Border>
-									<ScrollViewer SnapsToDevicePixels="True">
+									<ScrollViewer>
 										<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
 									</ScrollViewer>
 								</Grid>
@@ -151,8 +152,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsPressed" Value="True">
@@ -177,8 +178,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsDefaulted" Value="True">
@@ -205,8 +206,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsDefaulted" Value="True">
@@ -232,8 +233,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsDefaulted" Value="True">
@@ -259,8 +260,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsDefaulted" Value="True">
@@ -286,8 +287,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsDefaulted" Value="True">
@@ -319,8 +320,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsDefaulted" Value="True">
@@ -349,8 +350,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsDefaulted" Value="True">
@@ -378,8 +379,8 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type Button}">
-						<Border x:Name="border" Background="#E0E0E0" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="True">
-							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						<Border x:Name="border" Background="#E0E0E0" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsMouseOver" Value="True">
@@ -515,48 +516,56 @@
 		<Grid Name="Grid" Width="1280" Height="730">
 			<Image Name="BackgroundImage" Stretch="Fill" Source="{DynamicResource BackgroundImage}"/>
 			<MediaElement Name="BackgroundMedia" IsMuted="True" Stretch="Fill" Focusable="False" ScrubbingEnabled="True" Visibility="Collapsed"/>
-			<ProgressBar Name="ProgressBar" Style="{StaticResource ProgressBarStyle}" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,72,213" Width="181" Height="5" Visibility="Hidden"/>
-			<TextBlock Name="ProgressText" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="950,0,0,223" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center">
-				<TextBlock.Effect>
-					<DropShadowEffect ShadowDepth="0"/>
-				</TextBlock.Effect>
-			</TextBlock>
-			<TextBlock Name="GameVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="1072,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12">
-				<TextBlock.Effect>
-					<DropShadowEffect ShadowDepth="0"/>
-				</TextBlock.Effect>
-			</TextBlock>
 			<Rectangle VerticalAlignment="Top" HorizontalAlignment="Right" Width="64" Height="32" Fill="#C8141414"/>
 			<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
 			<Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Margin="0,0,32,0" Click="MinimizeButton_Click"/>
-			<Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,57,48" Click="LaunchButton_Click" IsEnabled="False"/>
-			<Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,57,107" Click="OptionsButton_Click" IsEnabled="False">
-				<Button.ContextMenu>
-					<ContextMenu Name="OptionsContextMenu"/>
-				</Button.ContextMenu>
-			</Button>
-			<TextBlock Name="ServerLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,197,189" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
-				<TextBlock.Effect>
-					<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
-				</TextBlock.Effect>
-			</TextBlock>
-			<ComboBox Name="ServerDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,188" Width="120" Height="20" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
-				<ComboBoxItem Content="Global"/>
-				<ComboBoxItem Content="SEA"/>
-				<ComboBoxItem Content="CN"/>
-				<ComboBoxItem Content="TW/HK/MO"/>
-				<ComboBoxItem Content="KR"/>
-			</ComboBox>
-			<TextBlock Name="MirrorLabel" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="16" Foreground="White" Margin="0,0,197,164" FontFamily="{DynamicResource Font}">
-				<TextBlock.Effect>
-					<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
-				</TextBlock.Effect>
-			</TextBlock>
-			<ComboBox Name="MirrorDropdown" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,72,163" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
-				<ComboBoxItem Content="HoYoverse"/>
-				<ComboBoxItem Content="Hi3Mirror"/>
-				<ComboBoxItem Content="MediaFire"/>
-			</ComboBox>
+			<StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,57,0" MaxWidth="218">
+				<TextBlock Name="ProgressText" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap">
+					<TextBlock.Effect>
+						<DropShadowEffect ShadowDepth="0"/>
+					</TextBlock.Effect>
+				</TextBlock>
+				<StackPanel HorizontalAlignment="Center">
+					<ProgressBar Name="ProgressBar" Style="{StaticResource ProgressBarStyle}" Margin="0,0,0,5" Height="5" Visibility="Visible"/>
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,5">
+						<TextBlock Name="ServerLabel" Margin="0,0,5,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
+							<TextBlock.Effect>
+								<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
+							</TextBlock.Effect>
+						</TextBlock>
+						<ComboBox Name="ServerDropdown" Width="120" Height="20" DropDownOpened="ServerDropdown_Opened" SelectionChanged="ServerDropdown_Changed">
+							<ComboBoxItem Content="Global"/>
+							<ComboBoxItem Content="SEA"/>
+							<ComboBoxItem Content="CN"/>
+							<ComboBoxItem Content="TW/HK/MO"/>
+							<ComboBoxItem Content="KR"/>
+						</ComboBox>
+					</StackPanel>
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+						<TextBlock Name="MirrorLabel" Margin="0,0,5,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
+							<TextBlock.Effect>
+								<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
+							</TextBlock.Effect>
+						</TextBlock>
+						<ComboBox Name="MirrorDropdown" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
+							<ComboBoxItem Content="HoYoverse"/>
+							<ComboBoxItem Content="Hi3Mirror"/>
+							<ComboBoxItem Content="MediaFire"/>
+						</ComboBox>
+					</StackPanel>
+				</StackPanel>
+				<Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,0,13" Click="OptionsButton_Click" IsEnabled="False">
+					<Button.ContextMenu>
+						<ContextMenu Name="OptionsContextMenu"/>
+					</Button.ContextMenu>
+				</Button>
+				<Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,0,8" Click="LaunchButton_Click" IsEnabled="False"/>
+				<TextBlock Name="GameVersionText" HorizontalAlignment="Center" Margin="0,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12">
+					<TextBlock.Effect>
+						<DropShadowEffect ShadowDepth="0"/>
+					</TextBlock.Effect>
+				</TextBlock>
+			</StackPanel>
 			<Grid Name="PreloadGrid" Visibility="Collapsed">
 				<Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,364,50" Width="240" Height="50">
 					<StackPanel Orientation="Horizontal">

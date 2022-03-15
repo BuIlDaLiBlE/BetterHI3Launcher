@@ -33,7 +33,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("label_pre_install", "Game Pre-Installation");
 			TextStrings.Add("label_get_now", "Get Now");
 			TextStrings.Add("label_verifying", "Verifying");
-			TextStrings.Add("label_merging", "Merging");
 			TextStrings.Add("label_paused", "Paused");
 			TextStrings.Add("label_done", "Done");
 			TextStrings.Add("label_retry", "Retry");
@@ -57,7 +56,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("changelogbox_1_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
 			TextStrings.Add("changelogbox_2_msg", "Loading changelog...");
 			TextStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
-			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation\nRinnosuke93 - Italian language translation");
+			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation, parallel download feature\nRinnosuke93 - Italian language translation\nMartinial - Czech language translation\nKLXLjun - Chinese (Simplified) translation");
 			TextStrings.Add("announcementbox_do_not_show", "Do not show me this next time");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
 			TextStrings.Add("contextmenu_fix_subtitles", "Fix subtitles");
@@ -77,6 +76,8 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_sounds", "Sounds");
 			TextStrings.Add("contextmenu_language", "Language");
 			TextStrings.Add("contextmenu_language_system", "System Default");
+			TextStrings.Add("contextmenu_language_chinese_simplified", "Chinese (Simplified)");
+			TextStrings.Add("contextmenu_language_czech", "Czech");
 			TextStrings.Add("contextmenu_language_english", "English");
 			TextStrings.Add("contextmenu_language_french", "French");
 			TextStrings.Add("contextmenu_language_german", "German");
@@ -115,7 +116,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_abort_4_msg", "Progress will be saved.");
 			TextStrings.Add("msgbox_abort_title", "Abort");
 			TextStrings.Add("msgbox_conn_bp_error_msg", "Cannot connect to Bp Network:");
-			TextStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to miHoYo servers:");
+			TextStrings.Add("msgbox_conn_mihoyo_error_msg", "Cannot connect to HoYoverse servers:");
 			TextStrings.Add("msgbox_custom_background_1_msg", "You can select a file to be used as a background.\nIt can be an image or a video.\nRecommended resolution is {0} by {1} pixels.\nContinue?");
 			TextStrings.Add("msgbox_custom_background_2_msg", "Select what would you like to do with the background.");
 			TextStrings.Add("msgbox_custom_background_3_msg", "Selected file does not have the recommended resolution. You may still use it, but it will be stretched to the window size.\nContinue?");
@@ -136,9 +137,9 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_download_cache_1_msg", "Full cache is about to be downloaded.\nDownload size: {0}\nUsing mirror: {1}.\nCache last updated: {2}.\nCurrent mirror maintainer is {3}.");
 			TextStrings.Add("msgbox_download_cache_2_msg", "The cache is outdated either partially or fully.\nCheck the last update time for the exact date.\nDo you still want to continue?");
 			TextStrings.Add("msgbox_download_cache_3_msg", "The entire game cache will be checked and can be downloaded if needed. It can take a while.\nHi3Mirror is a project courtesy of {0}.\nContinue?");
-			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type in an attempt to fix the infamous update loop which does not let you enter the game.\nContinue?");
-			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset. Start the game and select \"Download basic resources\".");
-			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset. Start the game and select \"Download basic resources\".");
+			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type and allow you to reselect which assets to download.\nContinue?");
+			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset.");
+			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset.");
 			TextStrings.Add("msgbox_extract_skip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_extract_skip_title", "File skip notice");
 			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available for selected server.");

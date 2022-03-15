@@ -13,6 +13,11 @@ namespace BetterHI3Launcher.Utility
 {
 	public class ParallelHttpClient
 	{
+		public enum ParallelHttpClientStatus
+		{
+			Idle, Downloading, Merging
+		}
+		internal ParallelHttpClientStatus Status {get; set;}
 		readonly HttpClient httpClient;
 		protected Stream localStream;
 		protected Stream remoteStream;
@@ -20,8 +25,6 @@ namespace BetterHI3Launcher.Utility
 		public event EventHandler<DownloadProgressChanged> ProgressChanged;
 		public event EventHandler<PartialDownloadProgressChanged> PartialProgressChanged;
 		public event EventHandler<DownloadProgressCompleted> Completed;
-		public bool merging = false;
-		private bool stop = true; // by default stop is true
 		/* Declare download buffer
 		 * by default: 16 KiB (16384 bytes)
 		*/
@@ -43,10 +46,11 @@ namespace BetterHI3Launcher.Utility
 				DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None,
 				UseCookies = true,
 				MaxConnectionsPerServer = 16,
-				AllowAutoRedirect = true,
+				AllowAutoRedirect = true
 			});
 
 			httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", App.UserAgent);
+			Status = ParallelHttpClientStatus.Idle;
 		}
 
 		DownloadStatusChanged resumabilityStatus;
@@ -54,7 +58,7 @@ namespace BetterHI3Launcher.Utility
 		public bool DownloadFile(string input, string output, string customMessage = "", long startOffset = -1, long endOffset = -1, CancellationToken token = new CancellationToken())
 		{
 			if(string.IsNullOrEmpty(customMessage)) customMessage = $"Downloading {Path.GetFileName(output)}";
-
+			Status = ParallelHttpClientStatus.Downloading;
 			bool ret;
 
 			while(!(ret = GetRemoteStreamResponse(input, output, startOffset, endOffset, customMessage, token, false)))
@@ -71,7 +75,7 @@ namespace BetterHI3Launcher.Utility
 		public bool DownloadStream(string input, MemoryStream output, CancellationToken token = new CancellationToken(), long startOffset = -1, long endOffset = -1, string customMessage = "")
 		{
 			if(string.IsNullOrEmpty(customMessage)) customMessage = $"Downloading to stream";
-
+			Status = ParallelHttpClientStatus.Downloading;
 			bool ret;
 			localStream = output;
 
@@ -125,8 +129,7 @@ namespace BetterHI3Launcher.Utility
 			#if DEBUG
 			Console.WriteLine($"\r\nStarting Partial Download!\r\n\tTotal Size: {BpUtility.ToBytesCount(downloadPartialSize)} ({downloadPartialSize} bytes)\r\n\tThreads/Chunks: {downloadThread}");
 			#endif
-
-			stop = false;
+			Status = ParallelHttpClientStatus.Downloading;
 
 			try
 			{
@@ -181,7 +184,7 @@ namespace BetterHI3Launcher.Utility
 			#if DEBUG
 			Console.WriteLine(" Done!");
 			#endif
-			stop = true;
+			Status = ParallelHttpClientStatus.Idle;
 		}
 
 		long CheckExistingPartialChunksSize()
@@ -211,7 +214,7 @@ namespace BetterHI3Launcher.Utility
 				return;
 			}
 
-			stop = false;
+			Status = ParallelHttpClientStatus.Merging;
 			Task.Run(() => GetPartialDownloadEvents());
 
 			string chunkFileName;
@@ -221,7 +224,6 @@ namespace BetterHI3Launcher.Utility
 			int read;
 			long totalRead = 0;
 			var sw = Stopwatch.StartNew();
-			merging = true;
 
 			FileInfo fileInfo = new FileInfo($"{downloadPartialOutputPath}_tmp");
 
@@ -254,7 +256,7 @@ namespace BetterHI3Launcher.Utility
 			fileInfo.MoveTo(downloadPartialOutputPath);
 
 			sw.Stop();
-			stop = true;
+			Status = ParallelHttpClientStatus.Idle;
 		}
 
 		public void GetPartialDownloadEvents()
@@ -267,7 +269,7 @@ namespace BetterHI3Launcher.Utility
 					 LastBytesReceived = 0,
 					 nowBytesReceived = 0;
 
-			while(!stop)
+			while(Status == ParallelHttpClientStatus.Downloading)
 			{
 				// Prevent List from getting throw while ReadPartialRemoteStream() is modifying the list
 				i = new List<SegmentDownloadProperties>(segmentDownloadProperties);

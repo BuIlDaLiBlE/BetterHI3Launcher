@@ -32,18 +32,15 @@ namespace BetterHI3Launcher
 					CancelButton.Visibility = Visibility.Collapsed;
 					break;
 				case DialogType.Question:
-					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
 					ConfirmButton.Content = App.TextStrings["button_yes"];
 					CancelButton.Content = App.TextStrings["button_no"];
 					break;
 				case DialogType.Install:
-					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
 					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 75);
 					DialogMessageScrollViewer.Height = 100;
 					InstallStackPanel.Visibility = Visibility.Visible;
 					break;
 				case DialogType.Uninstall:
-					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
 					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 100);
 					DialogMessageScrollViewer.Height = 50;
 					UninstallStackPanel.Visibility = Visibility.Visible;
@@ -62,13 +59,11 @@ namespace BetterHI3Launcher
 					}
 					break;
 				case DialogType.CustomLaunchOptions:
-					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
 					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 75);
 					DialogMessageScrollViewer.Height = 100;
 					CustomLaunchOptionsStackPanel.Visibility = Visibility.Visible;
 					break;
 				case DialogType.CustomBackground:
-					ConfirmButton.Margin = new Thickness(0, 0, 25, 0);
 					DialogMessageScrollViewer.Margin = new Thickness(0, 0, 0, 75);
 					DialogMessageScrollViewer.Height = 80;
 					CustomBackgroundStackPanel.Visibility = Visibility.Visible;
@@ -76,7 +71,7 @@ namespace BetterHI3Launcher
 					CustomBackgroundDeleteLabel.Text = App.TextStrings["msgbox_custom_background_delete"];
 					break;
 			}
-			if(App.LauncherLanguage != "en")
+			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN")
 			{
 				Resources["Font"] = new FontFamily("Segoe UI Bold");
 			}

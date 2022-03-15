@@ -1,5 +1,4 @@
-﻿using BetterHI3Launcher.Utility;
-using IniParser;
+﻿using IniParser;
 using IniParser.Model;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -31,6 +30,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
+using BetterHI3Launcher.Utility;
+using static BetterHI3Launcher.Utility.ParallelHttpClient;
 
 namespace BetterHI3Launcher
 {
@@ -52,7 +53,7 @@ namespace BetterHI3Launcher
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
-		public static string GameWebProfileURL, GameFullName;
+		public static string GameWebProfileURL, GameFullName, GameInstallRegistryName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
@@ -226,26 +227,31 @@ namespace BetterHI3Launcher
 					case HI3Server.GLB:
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://global.user.honkaiimpact3.com";
 						break;
 					case HI3Server.SEA:
 						RegistryVersionInfo = "VersionInfoSEA";
 						GameFullName = "Honkai Impact 3";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://asia.user.honkaiimpact3.com";
 						break;
 					case HI3Server.CN:
 						RegistryVersionInfo = "VersionInfoCN";
 						GameFullName = "崩坏3";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://user.mihoyo.com";
 						break;
 					case HI3Server.TW:
 						RegistryVersionInfo = "VersionInfoTW";
 						GameFullName = "崩壊3rd";
+						GameInstallRegistryName = "崩壞3rd";
 						GameWebProfileURL = "https://tw-user.bh3.com";
 						break;
 					case HI3Server.KR:
 						RegistryVersionInfo = "VersionInfoKR";
 						GameFullName = "붕괴3rd";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://kr.user.honkaiimpact3.com";
 						break;
 
@@ -399,9 +405,7 @@ namespace BetterHI3Launcher
 			AnnouncementBoxOKButton.Content = App.TextStrings["button_ok"];
 			AnnouncementBoxDoNotShowCheckbox.Content = App.TextStrings["announcementbox_do_not_show"];
 			PreloadTopText.Text = App.TextStrings["label_pre_install"];
-			PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
-			PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
 
 			Grid.MouseLeftButtonDown += delegate{DragMove();};
 			PreloadGrid.Visibility = Visibility.Collapsed;
@@ -469,6 +473,12 @@ namespace BetterHI3Launcher
 			var CM_Language_System = new MenuItem{Header = App.TextStrings["contextmenu_language_system"]};
 			CM_Language_System.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_System);
+			var CM_Language_Chinese_Simplified = new MenuItem {Header = App.TextStrings["contextmenu_language_chinese_simplified"]};
+			CM_Language_Chinese_Simplified.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Chinese_Simplified);
+			var CM_Language_Czech = new MenuItem {Header = App.TextStrings["contextmenu_language_czech"]};
+			CM_Language_Czech.Click += (sender, e) => CM_Language_Click(sender, e);
+			CM_Language.Items.Add(CM_Language_Czech);
 			var CM_Language_English = new MenuItem{Header = App.TextStrings["contextmenu_language_english"]};
 			CM_Language_English.Click += (sender, e) => CM_Language_Click(sender, e);
 			CM_Language.Items.Add(CM_Language_English);
@@ -524,6 +534,9 @@ namespace BetterHI3Launcher
 				{
 					switch(language_reg.ToString())
 					{
+						case "cs":
+							CM_Language_Czech.IsChecked = true;
+							break;
 						case "fr":
 							CM_Language_French.IsChecked = true;
 							break;
@@ -556,6 +569,9 @@ namespace BetterHI3Launcher
 							break;
 						case "vi":
 							CM_Language_Vietnamese.IsChecked = true;
+							break;
+						case "zh-CN":
+							CM_Language_Chinese_Simplified.IsChecked = true;
 							break;
 						default:
 							CM_Language_English.IsChecked = true;
@@ -723,9 +739,12 @@ namespace BetterHI3Launcher
 				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
 				App.NeedsUpdate = LauncherUpdateCheck();
-				if(!App.DisableTranslations || !App.DisableTranslations && App.DisableAutoUpdate && !App.NeedsUpdate)
+				if(!App.DisableTranslations)
 				{
-					DownloadLauncherTranslations();
+					if(!App.DisableAutoUpdate && !App.NeedsUpdate)
+					{
+						DownloadLauncherTranslations();
+					}
 				}
 
 				Log($"Using server: {((ComboBoxItem)ServerDropdown.SelectedItem).Content as string}");
@@ -1119,7 +1138,12 @@ namespace BetterHI3Launcher
 				{
 					int game_needs_update;
 
-					FetchOnlineVersionInfo();
+					if(!App.Starting)
+					{
+						FetchOnlineVersionInfo();
+					}
+					App.Starting = false;
+
 					if(Mirror == HI3Mirror.MediaFire)
 					{
 						dynamic mediafire_metadata = null;
@@ -1144,10 +1168,10 @@ namespace BetterHI3Launcher
 					{
 						LocalVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])App.LauncherRegKey.GetValue(RegistryVersionInfo)));
 						GameInstallPath = LocalVersionInfo.game_info.install_path.ToString();
-						var config_ini_file = Path.Combine(GameInstallPath, "config.ini");
-						if(File.Exists(config_ini_file))
+						var game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
+						if(File.Exists(game_config_ini_file))
 						{
-							var data = new FileIniDataParser().ReadFile(config_ini_file);
+							var data = new FileIniDataParser().ReadFile(game_config_ini_file);
 							if(data["General"]["game_version"] != null)
 							{
 								if(data["General"]["game_version"] == miHoYoVersionInfo.game.latest.version.ToString())
@@ -1936,12 +1960,22 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
-				var config_ini_file = Path.Combine(GameInstallPath, "config.ini");
-				IniData config_ini_data = null;
-				var ini_parser = new FileIniDataParser();
-				if(File.Exists(config_ini_file))
+				string game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
+				string launcher_config_ini_file = null;
+				try
 				{
-					config_ini_data = ini_parser.ReadFile(config_ini_file);
+					launcher_config_ini_file = Path.Combine(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{GameInstallRegistryName}").GetValue("InstallPath").ToString(), "config.ini");
+				}catch{}
+				IniData game_config_ini_data = null;
+				IniData launcher_config_ini_data = null;
+				var ini_parser = new FileIniDataParser();
+				if(File.Exists(game_config_ini_file))
+				{
+					game_config_ini_data = ini_parser.ReadFile(game_config_ini_file);
+				}
+				if(File.Exists(launcher_config_ini_file))
+				{
+					launcher_config_ini_data = ini_parser.ReadFile(launcher_config_ini_file);
 				}
 				var version_info = LocalVersionInfo;
 				if(version_info == null)
@@ -1969,9 +2003,9 @@ namespace BetterHI3Launcher
 					var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 					try
 					{
-						if(config_ini_data["General"]["game_version"] != null)
+						if(game_config_ini_data["General"]["game_version"] != null)
 						{
-							version_info.game_info.version = config_ini_data["General"]["game_version"];
+							version_info.game_info.version = game_config_ini_data["General"]["game_version"];
 						}
 						else
 						{
@@ -1996,17 +2030,34 @@ namespace BetterHI3Launcher
 				{
 					try
 					{
-						if(config_ini_data == null)
+						if(game_config_ini_data == null)
 						{
-							config_ini_data = new IniData();
+							game_config_ini_data = new IniData();
 						}
-						config_ini_data.Configuration.AssigmentSpacer = string.Empty;
-						config_ini_data["General"]["game_version"] = version_info.game_info.version;
-						ini_parser.WriteFile(config_ini_file, config_ini_data);
+						game_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
+						game_config_ini_data["General"]["game_version"] = version_info.game_info.version;
+						ini_parser.WriteFile(game_config_ini_file, game_config_ini_data);
 					}
 					catch(Exception ex)
 					{
-						Log($"Failed to write version info to config.ini: {ex.Message}", true, 2);
+						Log($"Failed to write version info to game config.ini: {ex.Message}", true, 2);
+					}
+					try
+					{
+						if(launcher_config_ini_data != null)
+						{
+							string path = BpUtility.GetCNotatedStringPath(GameInstallPath.Replace("\\", "/"));
+							launcher_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
+							if(launcher_config_ini_data["launcher"]["game_install_path"] != path)
+							{
+								launcher_config_ini_data["launcher"]["game_install_path"] = path;
+								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data);
+							}
+						}
+					}
+					catch(Exception ex)
+					{
+						Log($"Failed to write path to launcher config.ini: {ex.Message}", true, 2);
 					}
 				}
 				Log("success!", false);
@@ -2443,7 +2494,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
 					return;
 				}
-				else if(game_cache_drive.TotalFreeSpace < size * 2)
+				if(game_cache_drive.TotalFreeSpace < size * 2)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -2784,16 +2835,31 @@ namespace BetterHI3Launcher
 
 		private void CloseButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			Close();
 		}
 
 		private void MinimizeButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			WindowState = WindowState.Minimized;
 		}
 
 		private async void LaunchButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			BpUtility.PlaySound(Properties.Resources.Click);
 			if(Status == LauncherStatus.Ready || Status == LauncherStatus.Preloading || Status == LauncherStatus.PreloadVerifying)
 			{
@@ -2991,7 +3057,7 @@ namespace BetterHI3Launcher
 								new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
 								continue;
 							}
-							else if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
+							if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
 							{
 								if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 								{
@@ -3086,6 +3152,11 @@ namespace BetterHI3Launcher
 
 		private void OptionsButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			var button = sender as Button;
 			OptionsContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
 			OptionsContextMenu.PlacementTarget = button;
@@ -3096,6 +3167,11 @@ namespace BetterHI3Launcher
 
 		private async void DownloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			if(!DownloadPaused)
 			{
 				if(!App.UseLegacyDownload)
@@ -3150,6 +3226,10 @@ namespace BetterHI3Launcher
 		private async void PreloadButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready && Status != LauncherStatus.Preloading && Status != LauncherStatus.Running)
+			{
+				return;
+			}
+			if(LegacyBoxActive)
 			{
 				return;
 			}
@@ -3323,6 +3403,11 @@ namespace BetterHI3Launcher
 
 		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			if(download != null || !download_parallel.Paused)
 			{
 				Log("Pre-download paused");
@@ -3359,6 +3444,10 @@ namespace BetterHI3Launcher
 		private async Task CM_DownloadCache_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
+			{
+				return;
+			}
+			if(LegacyBoxActive)
 			{
 				return;
 			}
@@ -3521,6 +3610,10 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(LegacyBoxActive)
+			{
+				return;
+			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
@@ -3579,6 +3672,10 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(LegacyBoxActive)
+			{
+				return;
+			}
 			if(!Directory.Exists(GameInstallPath))
 			{
 				new DialogWindow(App.TextStrings["msgbox_no_game_dir_title"], App.TextStrings["msgbox_no_game_dir_msg"]).ShowDialog();
@@ -3599,10 +3696,24 @@ namespace BetterHI3Launcher
 					return;
 				}
 				string path = dialog.InstallPathTextBox.Text;
+				bool is_destination_drive_the_same = Directory.GetDirectoryRoot(GameInstallPath) == Directory.GetDirectoryRoot(path);
 				if($@"{path}\".Contains($@"{GameInstallPath}\"))
 				{
 					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_3_msg"]).ShowDialog();
 					continue;
+				}
+				var game_move_to_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(path) && x.IsReady).FirstOrDefault();
+				if(game_move_to_drive == null)
+				{
+					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_wrong_drive_type_msg"]).ShowDialog();
+					continue;
+				}
+				if(!is_destination_drive_the_same && game_move_to_drive.TotalFreeSpace < new DirectoryInfo(GameInstallPath).EnumerateFiles("*", SearchOption.AllDirectories).Sum(x => x.Length))
+				{
+					if(new DialogWindow(App.TextStrings["msgbox_move_title"], App.TextStrings["msgbox_move_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+					{
+						continue;
+					}
 				}
 				try
 				{
@@ -3614,20 +3725,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
 					continue;
 				}
-				var game_move_to_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(path) && x.IsReady).FirstOrDefault();
-				if(game_move_to_drive == null)
-				{
-					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_wrong_drive_type_msg"]).ShowDialog();
-					continue;
-				}
-				else if(game_move_to_drive.TotalFreeSpace < new DirectoryInfo(GameInstallPath).EnumerateFiles("*", SearchOption.AllDirectories).Sum(x => x.Length))
-				{
-					if(new DialogWindow(App.TextStrings["msgbox_move_title"], App.TextStrings["msgbox_move_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-					{
-						continue;
-					}
-				}
-				else if(new DialogWindow(App.TextStrings["msgbox_move_title"], string.Format(App.TextStrings["msgbox_move_2_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == false)
+				if(new DialogWindow(App.TextStrings["msgbox_move_title"], string.Format(App.TextStrings["msgbox_move_2_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == false)
 				{
 					continue;
 				}
@@ -3638,7 +3736,7 @@ namespace BetterHI3Launcher
 				{
 					try
 					{
-						if(Directory.GetDirectoryRoot(GameInstallPath) == Directory.GetDirectoryRoot(path))
+						if(is_destination_drive_the_same)
 						{
 							Directory.Move(GameInstallPath, path);
 						}
@@ -3708,6 +3806,11 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			try
 			{
 				if(App.LauncherRootPath.Contains(GameInstallPath))
@@ -3810,6 +3913,10 @@ namespace BetterHI3Launcher
 		private async Task CM_FixSubtitles_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
+			{
+				return;
+			}
+			if(LegacyBoxActive)
 			{
 				return;
 			}
@@ -4146,6 +4253,7 @@ namespace BetterHI3Launcher
 					MenuFPSInputBoxTextBox.Text = "60";
 				}
 				GameGraphicSettings = json;
+				LegacyBoxActive = true;
 			}
 			catch(Exception ex)
 			{
@@ -4215,6 +4323,7 @@ namespace BetterHI3Launcher
 					ResolutionInputBoxFullscreenCheckbox.IsChecked = false;
 				}
 				GameScreenSettings = json;
+				LegacyBoxActive = true;
 			}
 
 			catch(Exception ex)
@@ -4234,6 +4343,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
+
 			try
 			{
 				var dialog = new DialogWindow(App.TextStrings["contextmenu_custom_launch_options"], App.TextStrings["msgbox_custom_launch_options_msg"], DialogWindow.DialogType.CustomLaunchOptions);
@@ -4324,6 +4434,11 @@ namespace BetterHI3Launcher
 
 		private void CM_Changelog_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			LegacyBoxActive = true;
 			ChangelogBox.Visibility = Visibility.Visible;
 			ChangelogBoxScrollViewer.ScrollToHome();
@@ -4332,6 +4447,11 @@ namespace BetterHI3Launcher
 
 		private void CM_CustomBackground_Click(object sender, RoutedEventArgs e)
 		{
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			bool first_time = App.LauncherRegKey.GetValue("CustomBackgroundName") == null ? true : false;
 			if(first_time)
 			{
@@ -4383,17 +4503,17 @@ namespace BetterHI3Launcher
 						{
 							throw new DriveNotFoundException("Launcher data drive is unavailable");
 						}
-						else if(dialog.FileName.Contains(App.LauncherBackgroundsPath))
+						if(dialog.FileName.Contains(App.LauncherBackgroundsPath))
 						{
 							new DialogWindow(App.TextStrings["contextmenu_custom_background"], string.Format(App.TextStrings["msgbox_custom_background_4_msg"], BpUtility.ToBytesCount(file_size_limit))).ShowDialog();
 							continue;
 						}
-						else if(file_size > file_size_limit)
+						if(file_size > file_size_limit)
 						{
 							new DialogWindow(App.TextStrings["contextmenu_custom_background"], string.Format(App.TextStrings["msgbox_custom_background_5_msg"], BpUtility.ToBytesCount(file_size_limit))).ShowDialog();
 							continue;
 						}
-						else if(launcher_data_drive.TotalFreeSpace < file_size)
+						if(launcher_data_drive.TotalFreeSpace < file_size)
 						{
 							new DialogWindow(App.TextStrings["contextmenu_custom_background"], App.TextStrings["msgbox_custom_background_6_msg"]).ShowDialog();
 							continue;
@@ -4545,9 +4665,17 @@ namespace BetterHI3Launcher
 					{
 						App.LauncherLanguage = "it";
 					}
+					else if(lang == App.TextStrings["contextmenu_language_czech"])
+					{
+						App.LauncherLanguage = "cs";
+					}
+					else if(lang == App.TextStrings["contextmenu_language_chinese_simplified"])
+					{
+						App.LauncherLanguage = "zh-CN";
+					}
 					else
 					{
-						Log($"Translation for {lang} doesn't exist", true, 1);
+						Log($"Translation for {lang} does not exist", true, 1);
 						return;
 					}
 					BpUtility.WriteToRegistry("Language", App.LauncherLanguage);
@@ -4565,8 +4693,13 @@ namespace BetterHI3Launcher
 
 		private void CM_About_Click(object sender, RoutedEventArgs e)
 		{
-			AboutBox.Visibility = Visibility.Visible;
+			if(LegacyBoxActive)
+			{
+				return;
+			}
+
 			LegacyBoxActive = true;
+			AboutBox.Visibility = Visibility.Visible;
 		}
 
 		private void ServerDropdown_Opened(object sender, EventArgs e)
@@ -4581,7 +4714,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(BackgroundImageDownloading)
+			if(BackgroundImageDownloading || LegacyBoxActive)
 			{
 				ServerDropdown.SelectedIndex = (int)Server;
 				return;
@@ -4655,6 +4788,11 @@ namespace BetterHI3Launcher
 			var index = MirrorDropdown.SelectedIndex;
 			if((int)Mirror == index)
 			{
+				return;
+			}
+			if(LegacyBoxActive)
+			{
+				MirrorDropdown.SelectedIndex = (int)Server;
 				return;
 			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server == HI3Server.CN && index > 1))
@@ -4769,7 +4907,7 @@ namespace BetterHI3Launcher
 					{
 						for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
 						{
-							string name = OnlineRepairInfo.files.names[i].ToString().Replace("/", @"\");
+							string name = OnlineRepairInfo.files.names[i].ToString().Replace("/", "\\");
 							string md5 = OnlineRepairInfo.files.hashes[i].ToString().ToUpper();
 							long size = OnlineRepairInfo.files.sizes[i];
 							string path = Path.Combine(GameInstallPath, name);
@@ -5030,7 +5168,7 @@ namespace BetterHI3Launcher
 						{
 							for(int i = 0; i < files.Count; i++)
 							{
-								json.repair_info.files.names[i] = files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty).Replace(@"\", "/");
+								json.repair_info.files.names[i] = files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty).Replace("\\", "/");
 								json.repair_info.files.hashes[i] = BpUtility.CalculateMD5(files[i].FullName);
 								json.repair_info.files.sizes[i] = files[i].Length;
 								Dispatcher.Invoke(() =>
@@ -5118,7 +5256,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["contextmenu_custom_fps"], App.TextStrings["msgbox_custom_fps_2_msg"]).ShowDialog();
 					return;
 				}
-				else if(fps_combat < 30 || fps_menu < 30)
+				if(fps_combat < 30 || fps_menu < 30)
 				{
 					if(new DialogWindow(App.TextStrings["contextmenu_custom_fps"], App.TextStrings["msgbox_custom_fps_3_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -5133,6 +5271,7 @@ namespace BetterHI3Launcher
 				key.SetValue("GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519", value_after, RegistryValueKind.Binary);
 				key.Close();
 				FPSInputBox.Visibility = Visibility.Collapsed;
+				LegacyBoxActive = false;
 				Log("success!", false);
 				new DialogWindow(App.TextStrings["contextmenu_custom_fps"], string.Format(App.TextStrings["msgbox_custom_fps_4_msg"], fps_combat, fps_menu)).ShowDialog();
 			}
@@ -5149,6 +5288,7 @@ namespace BetterHI3Launcher
 		private void FPSInputBoxCancelButton_Click(object sender, RoutedEventArgs e)
 		{
 			FPSInputBox.Visibility = Visibility.Collapsed;
+			LegacyBoxActive = false;
 		}
 
 		private void ResolutionInputBoxOKButton_Click(object sender, RoutedEventArgs e)
@@ -5170,9 +5310,8 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], App.TextStrings["msgbox_custom_fps_2_msg"]).ShowDialog();
 					return;
 				}
-				else if(height > width)
+				if(height > width)
 				{
-
 					if(new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], App.TextStrings["msgbox_custom_resolution_1_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
@@ -5204,6 +5343,7 @@ namespace BetterHI3Launcher
 				}
 				key.Close();
 				ResolutionInputBox.Visibility = Visibility.Collapsed;
+				LegacyBoxActive = false;
 				Log("success!", false);
 				new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], string.Format(App.TextStrings["msgbox_custom_resolution_2_msg"], width, height, is_fullscreen)).ShowDialog();
 			}
@@ -5220,6 +5360,7 @@ namespace BetterHI3Launcher
 		private void ResolutionInputBoxCancelButton_Click(object sender, RoutedEventArgs e)
 		{
 			ResolutionInputBox.Visibility = Visibility.Collapsed;
+			LegacyBoxActive = false;
 		}
 
 		private void ChangelogBoxCloseButton_Click(object sender, RoutedEventArgs e)
@@ -5435,7 +5576,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && download_parallel == null)
+				if(download == null && download_parallel == null || download_parallel.client.Status == ParallelHttpClientStatus.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -5450,13 +5591,17 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
+					if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Merging)
+					{
+						e.Cancel = true;
+					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						if(download != null)
 						{	
 							download.Pause();
 						}
-						else if(!download_parallel.client.merging)
+						else if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Downloading)
 						{
 							download_parallel.Pause();
 						}
@@ -5625,6 +5770,7 @@ namespace BetterHI3Launcher
 		private void ToggleLog(bool val)
 		{
 			LogBox.Visibility = val ? Visibility.Visible : Visibility.Collapsed;
+			BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_show_log"]).IsChecked = val;
 			try
 			{
 				BpUtility.WriteToRegistry("ShowLog", val ? 1 : 0, RegistryValueKind.DWord);
@@ -5818,7 +5964,7 @@ namespace BetterHI3Launcher
 					BpUtility.RestartApp();
 				}
 			}
-			if(App.LauncherLanguage != "en")
+			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN")
 			{
 				Resources["Font"] = new FontFamily("Segoe UI Bold");
 			}

@@ -78,24 +78,16 @@ namespace BetterHI3Launcher
 		public static string GetWindowsVersion()
 		{
 			var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-			string name = "Windows";
-			string build = "0";
+			string name = "Windows Unknown";
 			string version = string.Empty;
-			string revision = "0";
+			int build = 0;
+			int revision = 0;
 			try
 			{
 				var value = key.GetValue("ProductName").ToString();
 				if(!string.IsNullOrEmpty(value))
 				{
 					name = value;
-				}
-			}catch{}
-			try
-			{
-				var value = key.GetValue("CurrentBuild").ToString();
-				if(!string.IsNullOrEmpty(value))
-				{
-					build = value;
 				}
 			}catch{}
 			try
@@ -108,18 +100,38 @@ namespace BetterHI3Launcher
 			}catch{}
 			try
 			{
+				var value = key.GetValue("CurrentBuild").ToString();
+				if(!string.IsNullOrEmpty(value))
+				{
+					build = int.Parse(value);
+				}
+			}catch{}
+			try
+			{
 				var value = key.GetValue("UBR").ToString();
 				if(!string.IsNullOrEmpty(value))
 				{
-					revision = value;
+					revision = int.Parse(value);
 				}
 			}catch{}
+			if(build >= 22000)
+			{
+				int index = name.IndexOf("10");
+				if(index > 0)
+				{
+					name = name.Remove(index, 2).Insert(index, "11");
+				}
+			}
 			if(Environment.OSVersion.Version.Major == 10)
 			{
 				if(!string.IsNullOrEmpty(version))
+				{
 					return $"{name} (Version {version}, Build {build}.{revision})";
+				}
 				else
+				{
 					return $"{name} (Build {build}.{revision})";
+				}
 			}
 			else
 			{
@@ -127,20 +139,35 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		public static bool IsFileLocked(FileInfo file)
+		public static string GetCNotatedStringPath(string path)
 		{
-			try
+			var path_array = path.Split('/');
+			for(int i = 0; i < path_array.Length; i++)
 			{
-				using(FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+				bool skip = true;
+				foreach(char chr in path_array[i])
 				{
-					stream.Close();
+					if(chr > sbyte.MaxValue)
+					{
+						skip = false;
+						break;
+					}
+				}
+				if(!skip)
+				{
+					string dir = string.Empty;
+					foreach(char chr in path_array[i])
+					{
+						if(chr == '\0')
+						{
+							continue;
+						}
+						dir = dir.Insert(dir.Length, "\\x").Insert(dir.Length + 2, BitConverter.ToString(Encoding.BigEndianUnicode.GetBytes(chr.ToString())).Replace("-", string.Empty).TrimStart('0').ToLower());
+					}
+					path_array[i] = dir;
 				}
 			}
-			catch(IOException)
-			{
-				return true;
-			}
-			return false;
+			return string.Join("/", path_array);
 		}
 
 		public static MenuItem GetMenuItem(dynamic menu, string name)
@@ -155,6 +182,25 @@ namespace BetterHI3Launcher
 			return null;
 		}
 
+		public static bool IsFileLocked(FileInfo file)
+		{
+			try
+			{
+				using(FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+				{
+					stream.Close();
+				}
+			}
+			catch(FileNotFoundException)
+			{
+				return false;
+			}
+			catch(IOException)
+			{
+				return true;
+			}
+			return false;
+		}
 		public static HttpWebRequest CreateWebRequest(string url, string method = "GET", int timeout = 10000)
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);
