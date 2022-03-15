@@ -1135,7 +1135,12 @@ namespace BetterHI3Launcher
 				{
 					int game_needs_update;
 
-					FetchOnlineVersionInfo();
+					if(!App.Starting)
+					{
+						FetchOnlineVersionInfo();
+					}
+					App.Starting = false;
+
 					if(Mirror == HI3Mirror.MediaFire)
 					{
 						dynamic mediafire_metadata = null;
