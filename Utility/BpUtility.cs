@@ -78,24 +78,16 @@ namespace BetterHI3Launcher
 		public static string GetWindowsVersion()
 		{
 			var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-			string name = "Windows";
-			string build = "0";
+			string name = "Windows Unknown";
 			string version = string.Empty;
-			string revision = "0";
+			int build = 0;
+			int revision = 0;
 			try
 			{
 				var value = key.GetValue("ProductName").ToString();
 				if(!string.IsNullOrEmpty(value))
 				{
 					name = value;
-				}
-			}catch{}
-			try
-			{
-				var value = key.GetValue("CurrentBuild").ToString();
-				if(!string.IsNullOrEmpty(value))
-				{
-					build = value;
 				}
 			}catch{}
 			try
@@ -108,18 +100,38 @@ namespace BetterHI3Launcher
 			}catch{}
 			try
 			{
+				var value = key.GetValue("CurrentBuild").ToString();
+				if(!string.IsNullOrEmpty(value))
+				{
+					build = int.Parse(value);
+				}
+			}catch{}
+			try
+			{
 				var value = key.GetValue("UBR").ToString();
 				if(!string.IsNullOrEmpty(value))
 				{
-					revision = value;
+					revision = int.Parse(value);
 				}
 			}catch{}
+			if(build >= 22000)
+			{
+				int index = name.IndexOf("10");
+				if(index > 0)
+				{
+					name = name.Remove(index, 2).Insert(index, "11");
+				}
+			}
 			if(Environment.OSVersion.Version.Major == 10)
 			{
 				if(!string.IsNullOrEmpty(version))
+				{
 					return $"{name} (Version {version}, Build {build}.{revision})";
+				}
 				else
+				{
 					return $"{name} (Build {build}.{revision})";
+				}
 			}
 			else
 			{
