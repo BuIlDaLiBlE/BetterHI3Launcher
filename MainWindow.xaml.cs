@@ -739,9 +739,12 @@ namespace BetterHI3Launcher
 				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
 				App.NeedsUpdate = LauncherUpdateCheck();
-				if(!App.DisableTranslations || !App.DisableTranslations && App.DisableAutoUpdate && !App.NeedsUpdate)
+				if(!App.DisableTranslations)
 				{
-					DownloadLauncherTranslations();
+					if(!App.DisableAutoUpdate && !App.NeedsUpdate)
+					{
+						DownloadLauncherTranslations();
+					}
 				}
 
 				Log($"Using server: {((ComboBoxItem)ServerDropdown.SelectedItem).Content as string}");
