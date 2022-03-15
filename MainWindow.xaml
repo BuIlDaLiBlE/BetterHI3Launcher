@@ -527,7 +527,7 @@
 						</TextBlock.Effect>
 					</TextBlock>
 					<ProgressBar Name="ProgressBar" Style="{StaticResource ProgressBarStyle}" Margin="0,0,0,5" Height="5" Visibility="Visible"/>
-					<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,5">
 						<TextBlock Name="ServerLabel" Margin="0,0,5,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
 							<TextBlock.Effect>
 								<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
@@ -541,7 +541,7 @@
 							<ComboBoxItem Content="KR"/>
 						</ComboBox>
 					</StackPanel>
-					<StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
 						<TextBlock Name="MirrorLabel" Margin="0,0,5,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
 							<TextBlock.Effect>
 								<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
