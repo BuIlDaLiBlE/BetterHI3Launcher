@@ -5648,6 +5648,7 @@ namespace BetterHI3Launcher
 		private void ToggleLog(bool val)
 		{
 			LogBox.Visibility = val ? Visibility.Visible : Visibility.Collapsed;
+			BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_show_log"]).IsChecked = val;
 			try
 			{
 				BpUtility.WriteToRegistry("ShowLog", val ? 1 : 0, RegistryValueKind.DWord);
