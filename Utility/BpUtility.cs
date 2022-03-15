@@ -139,6 +139,49 @@ namespace BetterHI3Launcher
 			}
 		}
 
+		public static string GetCNotatedStringPath(string path)
+		{
+			var path_array = path.Split('/');
+			for(int i = 0; i < path_array.Length; i++)
+			{
+				bool skip = true;
+				foreach(char chr in path_array[i])
+				{
+					if(chr > sbyte.MaxValue)
+					{
+						skip = false;
+						break;
+					}
+				}
+				if(!skip)
+				{
+					string dir = string.Empty;
+					foreach(char chr in path_array[i])
+					{
+						if(chr == '\0')
+						{
+							continue;
+						}
+						dir = dir.Insert(dir.Length, "\\x").Insert(dir.Length + 2, BitConverter.ToString(Encoding.BigEndianUnicode.GetBytes(chr.ToString())).Replace("-", string.Empty).TrimStart('0').ToLower());
+					}
+					path_array[i] = dir;
+				}
+			}
+			return string.Join("/", path_array);
+		}
+
+		public static MenuItem GetMenuItem(dynamic menu, string name)
+		{
+			foreach(dynamic item in menu)
+			{
+				if(item.GetType() == typeof(MenuItem) && item.Header.ToString() == name)
+				{
+					return item;
+				}
+			}
+			return null;
+		}
+
 		public static bool IsFileLocked(FileInfo file)
 		{
 			try
@@ -158,19 +201,6 @@ namespace BetterHI3Launcher
 			}
 			return false;
 		}
-
-		public static MenuItem GetMenuItem(dynamic menu, string name)
-		{
-			foreach(dynamic item in menu)
-			{
-				if(item.GetType() == typeof(MenuItem) && item.Header.ToString() == name)
-				{
-					return item;
-				}
-			}
-			return null;
-		}
-
 		public static HttpWebRequest CreateWebRequest(string url, string method = "GET", int timeout = 10000)
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);

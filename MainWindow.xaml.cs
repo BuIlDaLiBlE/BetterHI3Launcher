@@ -53,7 +53,7 @@ namespace BetterHI3Launcher
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
 		public static string RegistryVersionInfo;
-		public static string GameWebProfileURL, GameFullName;
+		public static string GameWebProfileURL, GameFullName, GameInstallRegistryName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
@@ -227,26 +227,31 @@ namespace BetterHI3Launcher
 					case HI3Server.GLB:
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://global.user.honkaiimpact3.com";
 						break;
 					case HI3Server.SEA:
 						RegistryVersionInfo = "VersionInfoSEA";
 						GameFullName = "Honkai Impact 3";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://asia.user.honkaiimpact3.com";
 						break;
 					case HI3Server.CN:
 						RegistryVersionInfo = "VersionInfoCN";
 						GameFullName = "崩坏3";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://user.mihoyo.com";
 						break;
 					case HI3Server.TW:
 						RegistryVersionInfo = "VersionInfoTW";
 						GameFullName = "崩壊3rd";
+						GameInstallRegistryName = "崩壞3rd";
 						GameWebProfileURL = "https://tw-user.bh3.com";
 						break;
 					case HI3Server.KR:
 						RegistryVersionInfo = "VersionInfoKR";
 						GameFullName = "붕괴3rd";
+						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://kr.user.honkaiimpact3.com";
 						break;
 
@@ -1155,10 +1160,10 @@ namespace BetterHI3Launcher
 					{
 						LocalVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])App.LauncherRegKey.GetValue(RegistryVersionInfo)));
 						GameInstallPath = LocalVersionInfo.game_info.install_path.ToString();
-						var config_ini_file = Path.Combine(GameInstallPath, "config.ini");
-						if(File.Exists(config_ini_file))
+						var game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
+						if(File.Exists(game_config_ini_file))
 						{
-							var data = new FileIniDataParser().ReadFile(config_ini_file);
+							var data = new FileIniDataParser().ReadFile(game_config_ini_file);
 							if(data["General"]["game_version"] != null)
 							{
 								if(data["General"]["game_version"] == miHoYoVersionInfo.game.latest.version.ToString())
@@ -1947,12 +1952,22 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
-				var config_ini_file = Path.Combine(GameInstallPath, "config.ini");
-				IniData config_ini_data = null;
-				var ini_parser = new FileIniDataParser();
-				if(File.Exists(config_ini_file))
+				string game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
+				string launcher_config_ini_file = null;
+				try
 				{
-					config_ini_data = ini_parser.ReadFile(config_ini_file);
+					launcher_config_ini_file = Path.Combine(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{GameInstallRegistryName}").GetValue("InstallPath").ToString(), "config.ini");
+				}catch{}
+				IniData game_config_ini_data = null;
+				IniData launcher_config_ini_data = null;
+				var ini_parser = new FileIniDataParser();
+				if(File.Exists(game_config_ini_file))
+				{
+					game_config_ini_data = ini_parser.ReadFile(game_config_ini_file);
+				}
+				if(File.Exists(launcher_config_ini_file))
+				{
+					launcher_config_ini_data = ini_parser.ReadFile(launcher_config_ini_file);
 				}
 				var version_info = LocalVersionInfo;
 				if(version_info == null)
@@ -1980,9 +1995,9 @@ namespace BetterHI3Launcher
 					var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 					try
 					{
-						if(config_ini_data["General"]["game_version"] != null)
+						if(game_config_ini_data["General"]["game_version"] != null)
 						{
-							version_info.game_info.version = config_ini_data["General"]["game_version"];
+							version_info.game_info.version = game_config_ini_data["General"]["game_version"];
 						}
 						else
 						{
@@ -2007,17 +2022,34 @@ namespace BetterHI3Launcher
 				{
 					try
 					{
-						if(config_ini_data == null)
+						if(game_config_ini_data == null)
 						{
-							config_ini_data = new IniData();
+							game_config_ini_data = new IniData();
 						}
-						config_ini_data.Configuration.AssigmentSpacer = string.Empty;
-						config_ini_data["General"]["game_version"] = version_info.game_info.version;
-						ini_parser.WriteFile(config_ini_file, config_ini_data);
+						game_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
+						game_config_ini_data["General"]["game_version"] = version_info.game_info.version;
+						ini_parser.WriteFile(game_config_ini_file, game_config_ini_data);
 					}
 					catch(Exception ex)
 					{
-						Log($"Failed to write version info to config.ini: {ex.Message}", true, 2);
+						Log($"Failed to write version info to game config.ini: {ex.Message}", true, 2);
+					}
+					try
+					{
+						if(launcher_config_ini_data != null)
+						{
+							string path = BpUtility.GetCNotatedStringPath(GameInstallPath.Replace("\\", "/"));
+							launcher_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
+							if(launcher_config_ini_data["launcher"]["game_install_path"] != path)
+							{
+								launcher_config_ini_data["launcher"]["game_install_path"] = path;
+								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data);
+							}
+						}
+					}
+					catch(Exception ex)
+					{
+						Log($"Failed to write path to launcher config.ini: {ex.Message}", true, 2);
 					}
 				}
 				Log("success!", false);
@@ -2454,7 +2486,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
 					return;
 				}
-				else if(game_cache_drive.TotalFreeSpace < size * 2)
+				if(game_cache_drive.TotalFreeSpace < size * 2)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -3002,7 +3034,7 @@ namespace BetterHI3Launcher
 								new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
 								continue;
 							}
-							else if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
+							if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
 							{
 								if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 								{
@@ -3610,10 +3642,24 @@ namespace BetterHI3Launcher
 					return;
 				}
 				string path = dialog.InstallPathTextBox.Text;
+				bool is_destination_drive_the_same = Directory.GetDirectoryRoot(GameInstallPath) == Directory.GetDirectoryRoot(path);
 				if($@"{path}\".Contains($@"{GameInstallPath}\"))
 				{
 					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_3_msg"]).ShowDialog();
 					continue;
+				}
+				var game_move_to_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(path) && x.IsReady).FirstOrDefault();
+				if(game_move_to_drive == null)
+				{
+					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_wrong_drive_type_msg"]).ShowDialog();
+					continue;
+				}
+				if(!is_destination_drive_the_same && game_move_to_drive.TotalFreeSpace < new DirectoryInfo(GameInstallPath).EnumerateFiles("*", SearchOption.AllDirectories).Sum(x => x.Length))
+				{
+					if(new DialogWindow(App.TextStrings["msgbox_move_title"], App.TextStrings["msgbox_move_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+					{
+						continue;
+					}
 				}
 				try
 				{
@@ -3625,20 +3671,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
 					continue;
 				}
-				var game_move_to_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(path) && x.IsReady).FirstOrDefault();
-				if(game_move_to_drive == null)
-				{
-					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_wrong_drive_type_msg"]).ShowDialog();
-					continue;
-				}
-				else if(game_move_to_drive.TotalFreeSpace < new DirectoryInfo(GameInstallPath).EnumerateFiles("*", SearchOption.AllDirectories).Sum(x => x.Length))
-				{
-					if(new DialogWindow(App.TextStrings["msgbox_move_title"], App.TextStrings["msgbox_move_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-					{
-						continue;
-					}
-				}
-				else if(new DialogWindow(App.TextStrings["msgbox_move_title"], string.Format(App.TextStrings["msgbox_move_2_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == false)
+				if(new DialogWindow(App.TextStrings["msgbox_move_title"], string.Format(App.TextStrings["msgbox_move_2_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == false)
 				{
 					continue;
 				}
@@ -3649,7 +3682,7 @@ namespace BetterHI3Launcher
 				{
 					try
 					{
-						if(Directory.GetDirectoryRoot(GameInstallPath) == Directory.GetDirectoryRoot(path))
+						if(is_destination_drive_the_same)
 						{
 							Directory.Move(GameInstallPath, path);
 						}
@@ -4394,17 +4427,17 @@ namespace BetterHI3Launcher
 						{
 							throw new DriveNotFoundException("Launcher data drive is unavailable");
 						}
-						else if(dialog.FileName.Contains(App.LauncherBackgroundsPath))
+						if(dialog.FileName.Contains(App.LauncherBackgroundsPath))
 						{
 							new DialogWindow(App.TextStrings["contextmenu_custom_background"], string.Format(App.TextStrings["msgbox_custom_background_4_msg"], BpUtility.ToBytesCount(file_size_limit))).ShowDialog();
 							continue;
 						}
-						else if(file_size > file_size_limit)
+						if(file_size > file_size_limit)
 						{
 							new DialogWindow(App.TextStrings["contextmenu_custom_background"], string.Format(App.TextStrings["msgbox_custom_background_5_msg"], BpUtility.ToBytesCount(file_size_limit))).ShowDialog();
 							continue;
 						}
-						else if(launcher_data_drive.TotalFreeSpace < file_size)
+						if(launcher_data_drive.TotalFreeSpace < file_size)
 						{
 							new DialogWindow(App.TextStrings["contextmenu_custom_background"], App.TextStrings["msgbox_custom_background_6_msg"]).ShowDialog();
 							continue;
@@ -4788,7 +4821,7 @@ namespace BetterHI3Launcher
 					{
 						for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
 						{
-							string name = OnlineRepairInfo.files.names[i].ToString().Replace("/", @"\");
+							string name = OnlineRepairInfo.files.names[i].ToString().Replace("/", "\\");
 							string md5 = OnlineRepairInfo.files.hashes[i].ToString().ToUpper();
 							long size = OnlineRepairInfo.files.sizes[i];
 							string path = Path.Combine(GameInstallPath, name);
@@ -5049,7 +5082,7 @@ namespace BetterHI3Launcher
 						{
 							for(int i = 0; i < files.Count; i++)
 							{
-								json.repair_info.files.names[i] = files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty).Replace(@"\", "/");
+								json.repair_info.files.names[i] = files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty).Replace("\\", "/");
 								json.repair_info.files.hashes[i] = BpUtility.CalculateMD5(files[i].FullName);
 								json.repair_info.files.sizes[i] = files[i].Length;
 								Dispatcher.Invoke(() =>
@@ -5137,7 +5170,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["contextmenu_custom_fps"], App.TextStrings["msgbox_custom_fps_2_msg"]).ShowDialog();
 					return;
 				}
-				else if(fps_combat < 30 || fps_menu < 30)
+				if(fps_combat < 30 || fps_menu < 30)
 				{
 					if(new DialogWindow(App.TextStrings["contextmenu_custom_fps"], App.TextStrings["msgbox_custom_fps_3_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -5189,9 +5222,8 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], App.TextStrings["msgbox_custom_fps_2_msg"]).ShowDialog();
 					return;
 				}
-				else if(height > width)
+				if(height > width)
 				{
-
 					if(new DialogWindow(App.TextStrings["contextmenu_custom_resolution"], App.TextStrings["msgbox_custom_resolution_1_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
