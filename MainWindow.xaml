@@ -520,12 +520,12 @@
 			<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
 			<Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Margin="0,0,32,0" Click="MinimizeButton_Click"/>
 			<StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,57,0" MaxWidth="218">
+				<TextBlock Name="ProgressText" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap">
+					<TextBlock.Effect>
+						<DropShadowEffect ShadowDepth="0"/>
+					</TextBlock.Effect>
+				</TextBlock>
 				<StackPanel HorizontalAlignment="Center">
-					<TextBlock Name="ProgressText" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap">
-						<TextBlock.Effect>
-							<DropShadowEffect ShadowDepth="0"/>
-						</TextBlock.Effect>
-					</TextBlock>
 					<ProgressBar Name="ProgressBar" Style="{StaticResource ProgressBarStyle}" Margin="0,0,0,5" Height="5" Visibility="Visible"/>
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,5">
 						<TextBlock Name="ServerLabel" Margin="0,0,5,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
