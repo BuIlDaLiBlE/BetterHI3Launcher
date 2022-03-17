@@ -16,15 +16,16 @@ namespace BetterHI3Launcher
 				DownloadProgressBar.Value = DownloadPercentage / 100;
 				TaskbarItemInfo.ProgressValue = DownloadPercentage / 100;
 				DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft));
-				if(e.Status == ParallelHttpClientStatus.Downloading)
-				{
-					DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], DownloadPercentage)} ({BpUtility.ToBytesCount(e.BytesReceived)}/{BpUtility.ToBytesCount(e.TotalBytesToReceive)})";
-					DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {BpUtility.ToBytesCount(e.CurrentSpeed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
-				}
-				else
+				if(e.Status == ParallelHttpClientStatus.Merging)
 				{
 					DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_merged"], DownloadPercentage)} ({BpUtility.ToBytesCount(e.BytesReceived)}/{BpUtility.ToBytesCount(e.TotalBytesToReceive)})";
 					DownloadSpeedText.Text = $"{App.TextStrings["label_merge_speed"]} {BpUtility.ToBytesCount(e.CurrentSpeed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
+					DownloadPauseButton.Visibility = Visibility.Collapsed;
+				}
+				else
+				{
+					DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], DownloadPercentage)} ({BpUtility.ToBytesCount(e.BytesReceived)}/{BpUtility.ToBytesCount(e.TotalBytesToReceive)})";
+					DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {BpUtility.ToBytesCount(e.CurrentSpeed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
 				}
 			});
 		}
@@ -38,17 +39,18 @@ namespace BetterHI3Launcher
 				PreloadStatusTopRightText.Text = $"{BpUtility.ToBytesCount(e.BytesReceived)}/{BpUtility.ToBytesCount(e.TotalBytesToReceive)}";
 				PreloadStatusMiddleRightText.Text = string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft);
 				PreloadStatusBottomRightText.Text = $"{BpUtility.ToBytesCount(e.CurrentSpeed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
-				if(e.Status == ParallelHttpClientStatus.Downloading)
+				if(e.Status == ParallelHttpClientStatus.Merging)
+				{
+					PreloadPauseButton.IsEnabled = false;
+					PreloadBottomText.Text = string.Format(App.TextStrings["label_merged"], DownloadPercentage);
+					PreloadStatusTopLeftText.Text = $"{App.TextStrings["label_merged"].Split(' ')[0]}:";
+					PreloadStatusBottomLeftText.Text = App.TextStrings["label_merge_speed"];
+				}
+				else
 				{
 					PreloadBottomText.Text = string.Format(App.TextStrings["label_downloaded_1"], DownloadPercentage);
 					PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 					PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
-				}
-				else
-				{
-					PreloadBottomText.Text = string.Format(App.TextStrings["label_merged"], DownloadPercentage);
-					PreloadStatusTopLeftText.Text = $"{App.TextStrings["label_merged"].Split(' ')[0]}:";
-					PreloadStatusBottomLeftText.Text = App.TextStrings["label_merge_speed"];
 				}
 			});
 		}

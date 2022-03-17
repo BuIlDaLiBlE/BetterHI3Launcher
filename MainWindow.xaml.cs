@@ -5594,6 +5594,7 @@ namespace BetterHI3Launcher
 					if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Merging)
 					{
 						e.Cancel = true;
+						return;
 					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
