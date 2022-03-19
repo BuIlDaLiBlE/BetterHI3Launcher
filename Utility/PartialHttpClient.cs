@@ -25,31 +25,39 @@ namespace BetterHI3Launcher.Utility
 		public event EventHandler<DownloadProgressChanged> ProgressChanged;
 		public event EventHandler<PartialDownloadProgressChanged> PartialProgressChanged;
 		public event EventHandler<DownloadProgressCompleted> Completed;
+
 		/* Declare download buffer
 		 * by default: 16 KiB (16384 bytes)
 		*/
 		readonly long bufflength = 16384;
 
-		int downloadThread;
+		int downloadThread,
+			retryCount,
+			maxRetryCount,
+			maxRetryTimeout;
 		long downloadPartialExistingSize = 0,
 			 downloadPartialSize = 0;
 		string downloadPartialOutputPath, downloadPartialInputPath;
+
 		CancellationToken downloadPartialToken;
 
-		public ParallelHttpClient(bool IgnoreCompression = false)
+		public ParallelHttpClient(bool IgnoreCompression = false, int maxRetryCount = 5, int maxRetryTimeout = 1000)
 		{
-			httpClient = new HttpClient(
+			this.retryCount = 0;
+			this.maxRetryCount = maxRetryCount;
+			this.maxRetryTimeout = maxRetryTimeout;
+
+			this.httpClient = new HttpClient(
 			new HttpClientHandler()
 			{
-				AutomaticDecompression = IgnoreCompression ?
-				DecompressionMethods.None :
-				DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None,
+				AutomaticDecompression = IgnoreCompression ? DecompressionMethods.None : DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None,
 				UseCookies = true,
-				MaxConnectionsPerServer = 16,
-				AllowAutoRedirect = true
+				MaxConnectionsPerServer = 32,
+				AllowAutoRedirect = true,
 			});
 
 			httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", App.UserAgent);
+
 			Status = ParallelHttpClientStatus.Idle;
 		}
 
@@ -59,14 +67,14 @@ namespace BetterHI3Launcher.Utility
 		{
 			if(string.IsNullOrEmpty(customMessage)) customMessage = $"Downloading {Path.GetFileName(output)}";
 			Status = ParallelHttpClientStatus.Downloading;
+
 			bool ret;
+			retryCount = 0;
 
 			while(!(ret = GetRemoteStreamResponse(input, output, startOffset, endOffset, customMessage, token, false)))
 			{
-				#if DEBUG
-				Console.WriteLine("Retrying...");
-				#endif
-				Thread.Sleep(1000);
+				LogAdapter.WriteLog($"Retrying (Count: {retryCount + 1 / maxRetryCount})...");
+				Thread.Sleep(maxRetryTimeout);
 			}
 
 			return ret;
@@ -76,15 +84,15 @@ namespace BetterHI3Launcher.Utility
 		{
 			if(string.IsNullOrEmpty(customMessage)) customMessage = $"Downloading to stream";
 			Status = ParallelHttpClientStatus.Downloading;
+
 			bool ret;
+			retryCount = 0;
 			localStream = output;
 
 			while(!(ret = GetRemoteStreamResponse(input, @"buffer", startOffset, endOffset, customMessage, token, true)))
 			{
-				#if DEBUG
-				Console.WriteLine("Retrying...");
-				#endif
-				Thread.Sleep(1000);
+				LogAdapter.WriteLog($"Retrying (Count: {retryCount + 1 / maxRetryCount})...");
+				Thread.Sleep(maxRetryTimeout);
 			}
 
 			return ret;
@@ -101,48 +109,46 @@ namespace BetterHI3Launcher.Utility
 
 		public void DownloadFileMultipleSession(string input, string output, string customMessage = "", int threads = 1, CancellationToken token = new CancellationToken())
 		{
-			downloadThread = threads;
-			downloadPartialToken = token;
-			downloadPartialInputPath = input;
-			downloadPartialOutputPath = output;
-
-			OnCompleted(new DownloadProgressCompleted(){DownloadCompleted = false});
-			downloadPartialSize = GetContentLength(downloadPartialInputPath) ?? 0;
-			long startContent, endContent;
-			segmentDownloadTask = new List<Task>();
-			segmentDownloadProperties = new List<SegmentDownloadProperties>();
-
-			List<ChunkRanges> chunkRanges = new List<ChunkRanges>();
-
-			long partitionSize = (long)Math.Ceiling((double)downloadPartialSize / downloadThread);
-
-			for(int i = 0; i < downloadThread; i++)
-			{
-				startContent = i * (downloadPartialSize / downloadThread);
-				endContent = i + 1 == downloadThread ? downloadPartialSize : ((i + 1) * (downloadPartialSize / downloadThread)) - 1;
-
-				segmentDownloadProperties.Add(new SegmentDownloadProperties(0, 0, 0, 0)
-				{CurrentReceived = 0, StartRange = startContent, EndRange = endContent, PartRange = i});
-			}
-
-			OnResumabilityChanged(new DownloadStatusChanged(true));
-			#if DEBUG
-			Console.WriteLine($"\r\nStarting Partial Download!\r\n\tTotal Size: {BpUtility.ToBytesCount(downloadPartialSize)} ({downloadPartialSize} bytes)\r\n\tThreads/Chunks: {downloadThread}");
-			#endif
-			Status = ParallelHttpClientStatus.Downloading;
-
 			try
 			{
+				downloadThread = threads;
+				downloadPartialToken = token;
+				downloadPartialInputPath = input;
+				downloadPartialOutputPath = output;
+
+				OnCompleted(new DownloadProgressCompleted() { DownloadCompleted = false });
+				downloadPartialSize = GetContentLength(downloadPartialInputPath) ?? 0;
+				long startContent, endContent;
+				segmentDownloadTask = new List<Task>();
+				segmentDownloadProperties = new List<SegmentDownloadProperties>();
+
+				List<ChunkRanges> chunkRanges = new List<ChunkRanges>();
+
+				retryCount = 0;
+
+				long partitionSize = (long)Math.Ceiling((double)downloadPartialSize / downloadThread);
+
+				for(int i = 0; i < downloadThread; i++)
+				{
+					startContent = i * (downloadPartialSize / downloadThread);
+					endContent = i + 1 == downloadThread ? downloadPartialSize : ((i + 1) * (downloadPartialSize / downloadThread)) - 1;
+
+					segmentDownloadProperties.Add(new SegmentDownloadProperties(0, 0, 0, 0)
+					{ CurrentReceived = 0, StartRange = startContent, EndRange = endContent, PartRange = i });
+				}
+
+				OnResumabilityChanged(new DownloadStatusChanged(true));
+				LogAdapter.WriteLog($"Starting Partial Download!\r\n\tTotal Size: {BpUtility.ToBytesCount(downloadPartialSize)} ({downloadPartialSize} bytes)\r\n\tThreads/Chunks: {downloadThread}");
+				Status = ParallelHttpClientStatus.Downloading;
+
 				foreach(SegmentDownloadProperties j in segmentDownloadProperties)
 				{
 					segmentDownloadTask.Add(Task.Run(async () =>
 					{
 						while(!await GetPartialSessionStream(j))
 						{
-							#if DEBUG
-							Console.WriteLine($"Retrying to connect for chunk no: {j.PartRange + 1}...");
-							#endif
-							Thread.Sleep(1000);
+							LogAdapter.WriteLog($"Retrying to connect for thread: {j.PartRange + 1} (Count: {retryCount + 1 / maxRetryCount})...", true, LogAdapterType.Warning);
+							Thread.Sleep(maxRetryTimeout);
 						}
 					}, downloadPartialToken));
 				}
@@ -152,9 +158,7 @@ namespace BetterHI3Launcher.Utility
 			}
 			catch(Exception ex)
 			{
-				#if DEBUG
-				Console.WriteLine($"{ex}");
-				#endif
+				LogAdapter.WriteLog($"{ex}", true, LogAdapterType.Error);
 			}
 
 			if(!downloadPartialToken.IsCancellationRequested)
@@ -165,25 +169,19 @@ namespace BetterHI3Launcher.Utility
 				}
 				catch(OperationCanceledException ex)
 				{
-					#if DEBUG
-					Console.WriteLine("Merging cancelled!");
-					#endif
+					LogAdapter.WriteLog("Merging cancelled!");
 					throw new OperationCanceledException("", ex);
 				}
 			}
 			else
 			{
 				segmentDownloadTask.Clear();
-				#if DEBUG
-				Console.WriteLine("Download cancelled!");
-				#endif
+				LogAdapter.WriteLog("All download threads have been stopped!");
 				throw new OperationCanceledException();
 			}
 
 			segmentDownloadTask.Clear();
-			#if DEBUG
-			Console.WriteLine(" Done!");
-			#endif
+			LogAdapter.WriteLog("Download is completed and threads have been cleared!");
 			Status = ParallelHttpClientStatus.Idle;
 		}
 
@@ -198,19 +196,11 @@ namespace BetterHI3Launcher.Utility
 
 		public void MergePartialChunks()
 		{
-			if(CheckExistingPartialChunksSize() != downloadPartialSize)
-			{
-				#if DEBUG
-				Console.WriteLine("Download is not completed yet! Please do DownloadFileMultipleSession() and wait it for finish!");
-				#endif
-				return;
-			}
+			long existingPartialChunksSize = CheckExistingPartialChunksSize();
 
 			if(downloadPartialToken.IsCancellationRequested)
 			{
-				#if DEBUG
-				Console.WriteLine("Cannot do merging since token is cancelled!");
-				#endif
+				LogAdapter.WriteLog("Cannot do merging since token is cancelled!", true, LogAdapterType.Error);
 				return;
 			}
 
@@ -299,9 +289,7 @@ namespace BetterHI3Launcher.Utility
 			{
 				string partialOutput = string.Format("{0}.{1:000}", downloadPartialOutputPath, j.PartRange + 1);
 				FileInfo fileinfo = new FileInfo(partialOutput);
-				#if DEBUG
-				Console.WriteLine($"\tPart {j.PartRange + 1} > Start: {j.StartRange}{(j.StartRange == 0 ? "\t" : "")}\tEnd: {j.EndRange}\tSize: {BpUtility.ToBytesCount(j.EndRange - j.StartRange)}");
-				#endif
+				LogAdapter.WriteLog($"\tThread {j.PartRange + 1} > Start: {j.StartRange} End: {j.EndRange} Size: {BpUtility.ToBytesCount(j.EndRange - j.StartRange)}");
 
 				long existingLength = fileinfo.Exists ? fileinfo.Length : 0;
 
@@ -318,7 +306,15 @@ namespace BetterHI3Launcher.Utility
 					{
 						HttpRequestMessage request = new HttpRequestMessage() { RequestUri = new Uri(downloadPartialInputPath) };
 						request.Headers.TryAddWithoutValidation("User-Agent", App.UserAgent);
-						request.Headers.Range = new RangeHeaderValue(j.StartRange + existingLength, j.EndRange);
+
+						try
+						{
+							request.Headers.Range = new RangeHeaderValue(j.StartRange + existingLength, j.EndRange);
+						}
+						catch (Exception ex)
+						{
+							LogAdapter.WriteLog($"{ex}", true, LogAdapterType.Warning);
+						}
 
 						HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, downloadPartialToken);
 
@@ -327,6 +323,7 @@ namespace BetterHI3Launcher.Utility
 							try
 							{
 								await ReadPartialRemoteStream(response, stream, existingLength, j.PartRange, j.EndRange - j.StartRange);
+								stream.Dispose();
 							}
 							catch(OperationCanceledException)
 							{
@@ -343,16 +340,12 @@ namespace BetterHI3Launcher.Utility
 			}
 			catch(OperationCanceledException)
 			{
-				#if DEBUG
-				Console.WriteLine($"Download cancelled for part {j.PartRange + 1}");
-				#endif
+				LogAdapter.WriteLog($"\tThread {j.PartRange + 1} has been stopped");
 				return true;
 			}
 			catch(Exception ex)
 			{
-				#if DEBUG
-				Console.WriteLine($"{ex}");
-				#endif
+				LogAdapter.WriteLog(ex.ToString(), true, LogAdapterType.Warning);
 				return false;
 			}
 			return true;
@@ -369,12 +362,9 @@ namespace BetterHI3Launcher.Utility
 			long totalReceived = byteSize + existingLength,
 				 nowReceived = 0;
 			byte[] buffer = new byte[bufflength];
-			#if(NETCOREAPP)
 			using(Stream remoteStream = await response.Content.ReadAsStreamAsync())
-			#else
-			using(Stream remoteStream = await response.Content.ReadAsStreamAsync())
-			#endif
 			{
+				retryCount = 0;
 				var sw = Stopwatch.StartNew();
 				while((byteSize = await remoteStream.ReadAsync(buffer, 0, buffer.Length, downloadPartialToken)) > 0)
 				{
@@ -389,6 +379,17 @@ namespace BetterHI3Launcher.Utility
 			}
 		}
 
+		bool HttpRequestExceptionRetryHandler(HttpRequestException e)
+		{
+			if(retryCount > maxRetryCount)
+			{
+				throw new HttpRequestException(e.ToString(), e);
+			}
+
+			retryCount++;
+			return false;
+		}
+
 		bool GetRemoteStreamResponse(string input, string output, long startOffset, long endOffset, string customMessage, CancellationToken token, bool isStream)
 		{
 			bool returnValue = true;
@@ -398,48 +399,38 @@ namespace BetterHI3Launcher.Utility
 			{
 				UseStream(input, output, startOffset, endOffset, customMessage, token, isStream);
 			}
-			#if(NETCOREAPP)
-			catch(HttpRequestException e)
+			catch (HttpRequestException e)
 			{
-				returnValue = ThrowWebExceptionAsBool(e);
+				returnValue = HttpRequestExceptionRetryHandler(e);
 			}
-			#endif
-			catch(TaskCanceledException e)
+			catch (TaskCanceledException e)
 			{
-				returnValue = true;
 				throw new TaskCanceledException(e.ToString());
 			}
 			catch(OperationCanceledException e)
 			{
-				returnValue = true;
 				throw new TaskCanceledException(e.ToString());
 			}
 			catch(NullReferenceException e)
 			{
-				#if DEBUG
-				Console.WriteLine($"This file {input} has 0 byte in size.\r\nTraceback: {e}");
-				#endif
+				LogAdapter.WriteLog($"This file {input} has 0 byte in size.\r\nTraceback: {e}", true, LogAdapterType.Error);
 				returnValue = false;
 			}
 			catch(ObjectDisposedException e)
 			{
-				#if DEBUG
-				Console.WriteLine($"Connection is getting repeated while Stream has been disposed on {Path.GetFileName(output)}\r\nTraceback: {e}");
-				#endif
+				LogAdapter.WriteLog($"Connection is getting repeated while Stream has been disposed on {Path.GetFileName(output)}\r\nTraceback: {e}", true, LogAdapterType.Error);
 				returnValue = true;
 			}
 			catch(Exception e)
 			{
-				#if DEBUG
-				Console.WriteLine($"An error occured while downloading {Path.GetFileName(output)}\r\nTraceback: {e}");
-				#endif
+				LogAdapter.WriteLog($"An error occured while downloading {Path.GetFileName(output)}\r\nTraceback: {e}", true, LogAdapterType.Error);
 				returnValue = false;
 			}
 			finally
 			{
 				if(returnValue)
 				{
-					if(!isStream) localStream?.Dispose();
+					localStream?.Dispose();
 					remoteStream?.Dispose();
 				}
 			}
@@ -449,19 +440,15 @@ namespace BetterHI3Launcher.Utility
 			return returnValue;
 		}
 
-		public long? GetContentLength(string input, CancellationToken token = new CancellationToken())
-		{
-			HttpResponseMessage response = httpClient
-				.SendAsync(new HttpRequestMessage(){RequestUri = new Uri(input)}, HttpCompletionOption.ResponseHeadersRead, token)
-				.GetAwaiter().GetResult();
-
-			return response.Content.Headers.ContentLength;
-		}
+		public long? GetContentLength(string input, CancellationToken token = new CancellationToken()) =>
+			httpClient
+				.SendAsync(new HttpRequestMessage() { RequestUri = new Uri(input) }, HttpCompletionOption.ResponseHeadersRead, token)
+				.GetAwaiter().GetResult().Content.Headers.ContentLength;
 
 		void UseStream(string input, string output, long startOffset, long endOffset, string customMessage, CancellationToken token, bool isStream)
 		{
 			token.ThrowIfCancellationRequested();
-			long contentLength;
+			long contentLength = 0;
 			FileInfo fileinfo = new FileInfo(output);
 
 			long existingLength = isStream ? localStream.Length : fileinfo.Exists ? fileinfo.Length : 0;
@@ -474,55 +461,48 @@ namespace BetterHI3Launcher.Utility
 
 			HttpResponseMessage response = httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).GetAwaiter().GetResult();
 
-			if(!((response.Content.Headers.ContentRange.Length ?? 0) == existingLength))
+			using(ThrowUnacceptableStatusCode(response))
 			{
-				using(ThrowUnacceptableStatusCode(response))
+				if(response.Content.Headers.ContentRange != null)
 				{
+					if(response.Content.Headers.ContentRange.Length == existingLength)
+					{
+						LogAdapter.WriteLog($"File download for {input} is already completed! Skipping...", true, LogAdapterType.Warning);
+						return;
+					}
+
 					contentLength = (startOffset != -1 && endOffset != -1) ?
 									endOffset - startOffset :
 									existingLength + (response.Content.Headers.ContentRange.Length - response.Content.Headers.ContentRange.From) ?? 0;
-
-					resumabilityStatus = new DownloadStatusChanged((int)response.StatusCode == 206);
-
-					if(!isStream)
-						localStream = fileinfo.Open(resumabilityStatus.ResumeSupported ? FileMode.Append : FileMode.Create, FileAccess.Write);
-
-					OnResumabilityChanged(resumabilityStatus);
-
-					ReadRemoteStream(
-						response,
-						localStream,
-						existingLength,
-						contentLength,
-						customMessage,
-						token
-						);
-					response.Dispose();
 				}
-			}
-			else
-			{
-				#if DEBUG
-				Console.WriteLine($"File download for {input} is already completed! Skipping...");
-				#endif
+
+				resumabilityStatus = new DownloadStatusChanged((int)response.StatusCode == 206);
+
+				if(!isStream)
+				{
+					localStream = fileinfo.Open(resumabilityStatus.ResumeSupported ? FileMode.Append : FileMode.Create, FileAccess.Write);
+				}
+
+				OnResumabilityChanged(resumabilityStatus);
+
+				ReadRemoteStream(
+					response,
+					localStream,
+					existingLength,
+					contentLength,
+					customMessage,
+					token
+					);
+				response.Dispose();
+				localStream.Dispose();
 			}
 		}
 
 		HttpResponseMessage ThrowUnacceptableStatusCode(HttpResponseMessage input)
 		{
-			#if(NETCOREAPP)
+			if(((int)input.StatusCode == 416)){return input;}
 			if(!input.IsSuccessStatusCode)
-			{
-				throw new HttpRequestException($"an Error occured while doing request to {input.RequestMessage.RequestUri} with error code {(int)input.StatusCode} ({input.StatusCode})",
-					null,
-					input.StatusCode);
-			}
-			#else
-			if(!input.IsSuccessStatusCode)
-			{ 
-				throw new HttpRequestException($"an Error occured while doing request to {input.RequestMessage.RequestUri} with error code {(int)input.StatusCode} ({input.StatusCode})");
-			}
-			#endif
+				throw new HttpRequestException($"An error occured while doing request to {input.RequestMessage.RequestUri} with error code {(int)input.StatusCode} ({input.StatusCode})");
 
 			return input;
 		}
@@ -538,17 +518,13 @@ namespace BetterHI3Launcher.Utility
 			int byteSize = 0;
 			long totalReceived = byteSize + existingLength;
 			byte[] buffer = new byte[bufflength];
-			#if(NETCOREAPP)
-			using(remoteStream = response.Content.ReadAsStream(token))
-			#else
 			using(remoteStream = response.Content.ReadAsStreamAsync().GetAwaiter().GetResult())
-			#endif
 			{
 				var sw = Stopwatch.StartNew();
-				while((byteSize = remoteStream.Read(buffer, 0, buffer.Length)) > 0)
+				while((byteSize = remoteStream.ReadAsync(buffer, 0, buffer.Length, token).GetAwaiter().GetResult()) > 0)
 				{
 					token.ThrowIfCancellationRequested();
-					localStream.Write(buffer, 0, byteSize);
+					localStream.WriteAsync(buffer, 0, byteSize, token).GetAwaiter().GetResult();
 					totalReceived += byteSize;
 
 					OnProgressChanged(new DownloadProgressChanged(totalReceived, contentLength, sw.Elapsed.TotalSeconds){Message = customMessage, CurrentReceived = byteSize});
@@ -556,22 +532,6 @@ namespace BetterHI3Launcher.Utility
 				sw.Stop();
 			}
 		}
-		#if(NETCOREAPP)
-		bool ThrowWebExceptionAsBool(HttpRequestException e)
-		{
-			switch (GetStatusCodeResponse(e))
-			{
-				// Always ignore 416 code
-				case 416:
-					return true;
-				default:
-					LogWriteLine(e.Message, LogType.Error, true);
-					return false;
-			}
-		}
-
-		protected virtual short GetStatusCodeResponse(HttpRequestException e) => (short)e.StatusCode;
-		#endif
 		protected virtual void OnResumabilityChanged(DownloadStatusChanged e) => ResumablityChanged?.Invoke(this, e);
 		protected virtual void OnProgressChanged(DownloadProgressChanged e) => ProgressChanged?.Invoke(this, e);
 		protected virtual void PartialOnProgressChanged(PartialDownloadProgressChanged e) => PartialProgressChanged?.Invoke(this, e);
