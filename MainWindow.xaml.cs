@@ -269,9 +269,12 @@ namespace BetterHI3Launcher
 			}
 		}
 
+		private void LogEventListener(object sender, LogProperties e) => Log(e.Text, e.NewLine, e.LogType);
+
 		public MainWindow()
 		{
 			InitializeComponent();
+			LogInvoker.LogEvent += LogEventListener;
 			var args = new List<string>();
 			for(int i = 1; i < App.CommandLineArgs.Length; i++)
 			{
