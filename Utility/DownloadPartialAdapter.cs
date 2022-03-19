@@ -13,11 +13,11 @@ namespace BetterHI3Launcher.Utility
 		}
 
 		public DownloadParallelAdapter(bool DisableCompression = false, int RetryMaxCount = 5, int RetryDelay = 1)
-        {
+		{
 			this.DisableCompression = DisableCompression;
 			this.RetryMaxCount = RetryMaxCount;
 			this.RetryDelay = RetryDelay;
-        }
+		}
 
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private CancellationToken cancelToken;
