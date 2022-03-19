@@ -12,6 +12,13 @@ namespace BetterHI3Launcher.Utility
 			public string source, target;
 		}
 
+		public DownloadParallelAdapter(bool DisableCompression = false, int RetryMaxCount = 5, int RetryDelay = 1)
+        {
+			this.DisableCompression = DisableCompression;
+			this.RetryMaxCount = RetryMaxCount;
+			this.RetryDelay = RetryDelay;
+        }
+
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private CancellationToken cancelToken;
 		private DownloadProp link;
@@ -19,6 +26,8 @@ namespace BetterHI3Launcher.Utility
 		public event EventHandler<DownloadChangedProgress> DownloadProgress;
 		public bool Paused;
 		private bool IsCompleted;
+		private bool DisableCompression;
+		private int RetryMaxCount, RetryDelay;
 
 		public void InitializeDownload(string source, string target) => link = new DownloadProp{source = source, target = target};
 
@@ -28,7 +37,7 @@ namespace BetterHI3Launcher.Utility
 			IsCompleted = false;
 			cancelToken = cancelTokenSource.Token;
 
-			client = new ParallelHttpClient(false);
+			client = new ParallelHttpClient(DisableCompression, RetryMaxCount, RetryDelay * 1000);
 			client.PartialProgressChanged += DownloadProgressAdapter;
 
 			Task.Run(() =>
