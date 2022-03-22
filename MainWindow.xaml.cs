@@ -5152,6 +5152,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Main") &&
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
+						!x.DirectoryName.Contains("ThirdPartyNotice") &&
 						!x.DirectoryName.Contains("Video") &&
 						!x.DirectoryName.Contains("webCaches")
 						).ToList();
