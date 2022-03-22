@@ -842,24 +842,24 @@ namespace BetterHI3Launcher
 								App.Announcements.Add(announcement);
 							}
 						}
-						if(App.Announcements.Count > 0)
-						{
-							Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
-						}
-						else
-						{
-							GameUpdateCheck();
-						}
 					}
 					else
 					{
-						Log($"Failed to fetch announcements: {announcements.status_message}", true, 1);
+						Log($"Failed to fetch announcements: {announcements.status_message}", true, 2);
 					}
 				});
 			}
 			catch(Exception ex)
 			{
-				Log($"Failed to fetch announcements:\n{ex}", true, 1);
+				Log($"Failed to fetch announcements:\n{ex}", true, 2);
+			}
+			if(App.Announcements.Count > 0)
+			{
+				Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
+			}
+			else
+			{
+				GameUpdateCheck();
 			}
 		}
 
