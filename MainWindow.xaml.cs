@@ -824,6 +824,7 @@ namespace BetterHI3Launcher
 		
 		private async void FetchAnnouncements()
 		{
+			Status = LauncherStatus.Working;
 			try
 			{
 				await Task.Run(() =>
