@@ -842,24 +842,24 @@ namespace BetterHI3Launcher
 								App.Announcements.Add(announcement);
 							}
 						}
-						if(App.Announcements.Count > 0)
-						{
-							Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
-						}
-						else
-						{
-							GameUpdateCheck();
-						}
 					}
 					else
 					{
-						Log($"Failed to fetch announcements: {announcements.status_message}", true, 1);
+						Log($"Failed to fetch announcements: {announcements.status_message}", true, 2);
 					}
 				});
 			}
 			catch(Exception ex)
 			{
-				Log($"Failed to fetch announcements:\n{ex}", true, 1);
+				Log($"Failed to fetch announcements:\n{ex}", true, 2);
+			}
+			if(App.Announcements.Count > 0)
+			{
+				Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
+			}
+			else
+			{
+				GameUpdateCheck();
 			}
 		}
 
@@ -3187,8 +3187,9 @@ namespace BetterHI3Launcher
 				DownloadETAText.Visibility = Visibility.Hidden;
 				DownloadSpeedText.Visibility = Visibility.Hidden;
 				DownloadPauseButton.Visibility = Visibility.Collapsed;
-				DownloadResumeButton.Visibility = Visibility.Visible;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
+				Thread.Sleep(3000);
+				DownloadResumeButton.Visibility = Visibility.Visible;
 			}
 			else
 			{
@@ -5152,6 +5153,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Main") &&
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
+						!x.DirectoryName.Contains("ThirdPartyNotice") &&
 						!x.DirectoryName.Contains("Video") &&
 						!x.DirectoryName.Contains("webCaches")
 						).ToList();
@@ -5594,6 +5596,7 @@ namespace BetterHI3Launcher
 					if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Merging)
 					{
 						e.Cancel = true;
+						return;
 					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
