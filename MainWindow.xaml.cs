@@ -824,6 +824,7 @@ namespace BetterHI3Launcher
 		
 		private async void FetchAnnouncements()
 		{
+			Status = LauncherStatus.Working;
 			try
 			{
 				await Task.Run(() =>
@@ -2146,7 +2147,7 @@ namespace BetterHI3Launcher
 		{
 			string data;
 			string path;
-			string data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.ToString();
+			string data_url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
 			string hi3mirror_api_url = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString();
 
 			List<CacheDataProperties> cache_files, bad_files;
