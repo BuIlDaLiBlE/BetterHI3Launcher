@@ -3187,8 +3187,9 @@ namespace BetterHI3Launcher
 				DownloadETAText.Visibility = Visibility.Hidden;
 				DownloadSpeedText.Visibility = Visibility.Hidden;
 				DownloadPauseButton.Visibility = Visibility.Collapsed;
-				DownloadResumeButton.Visibility = Visibility.Visible;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
+				Thread.Sleep(3000);
+				DownloadResumeButton.Visibility = Visibility.Visible;
 			}
 			else
 			{
