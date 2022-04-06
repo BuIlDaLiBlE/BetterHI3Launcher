@@ -3318,8 +3318,10 @@ namespace BetterHI3Launcher
 								PreloadCircleProgressBar.Value = progress;
 								TaskbarItemInfo.ProgressValue = progress;
 								PreloadBottomText.Text = string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100));
+								PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 								PreloadStatusTopRightText.Text = $"{BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)}";
 								PreloadStatusMiddleRightText.Text = eta_calc.ETR.ToString("hh\\:mm\\:ss");
+								PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
 								PreloadStatusBottomRightText.Text = tracker.GetBytesPerSecondString();
 							});
 							Thread.Sleep(500);
@@ -3422,6 +3424,7 @@ namespace BetterHI3Launcher
 				{
 					download_parallel.Stop();
 				}
+				PreloadDownload = false;
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
 				PreloadBottomText.Text = PreloadBottomText.Text.Replace(App.TextStrings["label_downloaded_1"], App.TextStrings["label_paused"]);
 				PreloadStatusMiddleRightText.Text = string.Empty;
@@ -4716,7 +4719,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(BackgroundImageDownloading || LegacyBoxActive)
+			if(BackgroundImageDownloading || LegacyBoxActive || PreloadDownload)
 			{
 				ServerDropdown.SelectedIndex = (int)Server;
 				return;
@@ -4738,7 +4741,6 @@ namespace BetterHI3Launcher
 					ResetVersionInfo();
 				}
 			}
-			PreloadDownload = false;
 			CacheDownload = false;
 			switch(index)
 			{
@@ -4792,9 +4794,9 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(LegacyBoxActive)
+			if(LegacyBoxActive || PreloadDownload)
 			{
-				MirrorDropdown.SelectedIndex = (int)Server;
+				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server == HI3Server.CN && index > 1))
