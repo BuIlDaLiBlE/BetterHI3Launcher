@@ -860,7 +860,7 @@ namespace BetterHI3Launcher
 			}
 			else
 			{
-				GameUpdateCheck();
+				LauncherLocalVersionCheck();
 			}
 		}
 
@@ -1122,6 +1122,40 @@ namespace BetterHI3Launcher
 			{
 				return false;
 			}
+		}
+
+		private void LauncherLocalVersionCheck()
+		{
+			#if !DEBUG
+			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
+			{
+				if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
+				{
+					LegacyBoxActive = true;
+					ChangelogBox.Visibility = Visibility.Visible;
+					ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
+					FetchChangelog();
+				}
+			}
+			#endif
+			try
+			{
+				if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
+				{
+					BpUtility.WriteToRegistry("LauncherVersion", App.LocalLauncherVersion.ToString());
+				}
+				// legacy values
+				BpUtility.DeleteFromRegistry("RanOnce");
+				BpUtility.DeleteFromRegistry("BackgroundImageName");
+			}
+			catch(Exception ex)
+			{
+				Status = LauncherStatus.Error;
+				Log($"Failed to write critical registry info:\n{ex}", true, 1);
+				new DialogWindow(App.TextStrings["msgbox_registry_error_title"], App.TextStrings["msgbox_registry_error_msg"]).ShowDialog();
+				return;
+			}
+			GameUpdateCheck();
 		}
 
 		private async void GameUpdateCheck(bool server_changed = false)
@@ -5412,36 +5446,7 @@ namespace BetterHI3Launcher
 			}
 			else
 			{
-				#if !DEBUG
-				if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
-				{
-					if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
-					{
-						LegacyBoxActive = true;
-						ChangelogBox.Visibility = Visibility.Visible;
-						ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
-						FetchChangelog();
-					}
-				}
-				#endif
-				try
-				{
-					if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
-					{
-						BpUtility.WriteToRegistry("LauncherVersion", App.LocalLauncherVersion.ToString());
-					}
-					// legacy values
-					BpUtility.DeleteFromRegistry("RanOnce");
-					BpUtility.DeleteFromRegistry("BackgroundImageName");
-				}
-				catch(Exception ex)
-				{
-					Status = LauncherStatus.Error;
-					Log($"Failed to write critical registry info:\n{ex}", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], App.TextStrings["msgbox_registry_error_msg"]).ShowDialog();
-					return;
-				}
-				GameUpdateCheck();
+				LauncherLocalVersionCheck();
 			}
 		}
 
