@@ -127,7 +127,6 @@ namespace BetterHI3Launcher
 						break;
 					case LauncherStatus.CheckingUpdates:
 						ProgressText.Text = App.TextStrings["progresstext_checking_update"];
-						PreloadGrid.Visibility = Visibility.Collapsed;
 						ToggleUI(false);
 						ToggleProgressBar(true);
 						break;
@@ -517,7 +516,7 @@ namespace BetterHI3Launcher
 			CM_Language.Items.Add(CM_Language_Vietnamese);
 			CM_Language.Items.Add(new Separator());
 			var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
-			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#contributing-translations", null, App.LauncherRootPath, true);
+			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#how-can-i-contribute", null, App.LauncherRootPath, true);
 			CM_Language.Items.Add(CM_Language_Contribute);
 			OptionsContextMenu.Items.Add(CM_Language);
 			var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"], InputGestureText = "Ctrl+A"};
@@ -860,7 +859,7 @@ namespace BetterHI3Launcher
 			}
 			else
 			{
-				GameUpdateCheck();
+				LauncherLocalVersionCheck();
 			}
 		}
 
@@ -1124,14 +1123,49 @@ namespace BetterHI3Launcher
 			}
 		}
 
+		private void LauncherLocalVersionCheck()
+		{
+			#if !DEBUG
+			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
+			{
+				if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
+				{
+					LegacyBoxActive = true;
+					ChangelogBox.Visibility = Visibility.Visible;
+					ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
+					FetchChangelog();
+				}
+			}
+			#endif
+			try
+			{
+				if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
+				{
+					BpUtility.WriteToRegistry("LauncherVersion", App.LocalLauncherVersion.ToString());
+				}
+				// legacy values
+				BpUtility.DeleteFromRegistry("RanOnce");
+				BpUtility.DeleteFromRegistry("BackgroundImageName");
+			}
+			catch(Exception ex)
+			{
+				Status = LauncherStatus.Error;
+				Log($"Failed to write critical registry info:\n{ex}", true, 1);
+				new DialogWindow(App.TextStrings["msgbox_registry_error_title"], App.TextStrings["msgbox_registry_error_msg"]).ShowDialog();
+				return;
+			}
+			GameUpdateCheck();
+		}
+
 		private async void GameUpdateCheck(bool server_changed = false)
 		{
 			if(Status == LauncherStatus.Error)
 			{
 				return;
 			}
-			Status = LauncherStatus.CheckingUpdates;
 			Log("Checking for game update...");
+			Status = LauncherStatus.CheckingUpdates;
+			PreloadGrid.Visibility = Visibility.Collapsed;
 			LocalVersionInfo = null;
 			await Task.Run(() =>
 			{
@@ -3318,8 +3352,10 @@ namespace BetterHI3Launcher
 								PreloadCircleProgressBar.Value = progress;
 								TaskbarItemInfo.ProgressValue = progress;
 								PreloadBottomText.Text = string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100));
+								PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 								PreloadStatusTopRightText.Text = $"{BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)}";
 								PreloadStatusMiddleRightText.Text = eta_calc.ETR.ToString("hh\\:mm\\:ss");
+								PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
 								PreloadStatusBottomRightText.Text = tracker.GetBytesPerSecondString();
 							});
 							Thread.Sleep(500);
@@ -3422,6 +3458,7 @@ namespace BetterHI3Launcher
 				{
 					download_parallel.Stop();
 				}
+				PreloadDownload = false;
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
 				PreloadBottomText.Text = PreloadBottomText.Text.Replace(App.TextStrings["label_downloaded_1"], App.TextStrings["label_paused"]);
 				PreloadStatusMiddleRightText.Text = string.Empty;
@@ -4716,7 +4753,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(BackgroundImageDownloading || LegacyBoxActive)
+			if(BackgroundImageDownloading || LegacyBoxActive || PreloadDownload)
 			{
 				ServerDropdown.SelectedIndex = (int)Server;
 				return;
@@ -4738,7 +4775,6 @@ namespace BetterHI3Launcher
 					ResetVersionInfo();
 				}
 			}
-			PreloadDownload = false;
 			CacheDownload = false;
 			switch(index)
 			{
@@ -4792,9 +4828,9 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(LegacyBoxActive)
+			if(LegacyBoxActive || PreloadDownload)
 			{
-				MirrorDropdown.SelectedIndex = (int)Server;
+				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server == HI3Server.CN && index > 1))
@@ -5410,36 +5446,7 @@ namespace BetterHI3Launcher
 			}
 			else
 			{
-				#if !DEBUG
-				if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
-				{
-					if(new App.LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new App.LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
-					{
-						LegacyBoxActive = true;
-						ChangelogBox.Visibility = Visibility.Visible;
-						ChangelogBoxMessageTextBlock.Visibility = Visibility.Visible;
-						FetchChangelog();
-					}
-				}
-				#endif
-				try
-				{
-					if(App.LauncherRegKey.GetValue("LauncherVersion") == null || App.LauncherRegKey.GetValue("LauncherVersion") != null && App.LauncherRegKey.GetValue("LauncherVersion").ToString() != App.LocalLauncherVersion.ToString())
-					{
-						BpUtility.WriteToRegistry("LauncherVersion", App.LocalLauncherVersion.ToString());
-					}
-					// legacy values
-					BpUtility.DeleteFromRegistry("RanOnce");
-					BpUtility.DeleteFromRegistry("BackgroundImageName");
-				}
-				catch(Exception ex)
-				{
-					Status = LauncherStatus.Error;
-					Log($"Failed to write critical registry info:\n{ex}", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], App.TextStrings["msgbox_registry_error_msg"]).ShowDialog();
-					return;
-				}
-				GameUpdateCheck();
+				LauncherLocalVersionCheck();
 			}
 		}
 
