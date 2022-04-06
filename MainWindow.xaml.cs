@@ -127,7 +127,6 @@ namespace BetterHI3Launcher
 						break;
 					case LauncherStatus.CheckingUpdates:
 						ProgressText.Text = App.TextStrings["progresstext_checking_update"];
-						PreloadGrid.Visibility = Visibility.Collapsed;
 						ToggleUI(false);
 						ToggleProgressBar(true);
 						break;
@@ -1164,8 +1163,9 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			Status = LauncherStatus.CheckingUpdates;
 			Log("Checking for game update...");
+			Status = LauncherStatus.CheckingUpdates;
+			PreloadGrid.Visibility = Visibility.Collapsed;
 			LocalVersionInfo = null;
 			await Task.Run(() =>
 			{
