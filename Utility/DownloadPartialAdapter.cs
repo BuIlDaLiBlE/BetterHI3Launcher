@@ -31,7 +31,7 @@ namespace BetterHI3Launcher.Utility
 			cancelToken = cancelTokenSource.Token;
 
 			client = new HttpClientHelper(false);
-            client.DownloadProgress += DownloadProgressAdapter;
+			client.DownloadProgress += DownloadProgressAdapter;
 
 			Task.Run(() =>
 			{
@@ -50,8 +50,8 @@ namespace BetterHI3Launcher.Utility
 				}
 			});
 		}
-
-        public async Task WaitForComplete(int refresh = 1)
+		
+		public async Task WaitForComplete(int refresh = 1)
 		{
 			while(!(IsCompleted || IsCanceled))
 			{
