@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using static BetterHI3Launcher.Utility.HttpClientHelper;
@@ -20,6 +21,8 @@ namespace BetterHI3Launcher.Utility
 		public bool Paused;
 		private bool IsCompleted;
 		private bool IsCanceled;
+		private Stopwatch InnerProgressStopwatch;
+		private TimeSpan LastTimeSpan;
 
 		public void InitializeDownload(string source, string target) => link = new DownloadProp{source = source, target = target};
 
@@ -37,6 +40,8 @@ namespace BetterHI3Launcher.Utility
 			{
 				try
 				{
+					InnerProgressStopwatch = Stopwatch.StartNew();
+					LastTimeSpan = InnerProgressStopwatch.Elapsed;
 					client.DownloadFile(link.source, link.target, App.ParallelDownloadSessions, cancelToken);
 					IsCompleted = true;
 				}
@@ -91,7 +96,7 @@ namespace BetterHI3Launcher.Utility
 
 		public async Task DisposeAndWait()
 		{
-			Stop();
+			cancelTokenSource.Cancel();
 			await WaitForComplete();
 		}
 
@@ -105,8 +110,18 @@ namespace BetterHI3Launcher.Utility
 				TotalBytesToReceive = e.TotalSizeToDownload,
 				CurrentSpeed = e.CurrentSpeed,
 				ProgressPercentage = e.ProgressPercentage,
-				TimeLeft = e.TimeLeft
+				TimeLeft = GetLastTimeSpan(InnerProgressStopwatch, e.TimeLeft)
 			});
+		}
+
+		private TimeSpan GetLastTimeSpan(Stopwatch sw, TimeSpan ts)
+		{
+			if (sw.ElapsedMilliseconds >= 2000)
+			{
+				InnerProgressStopwatch = Stopwatch.StartNew();
+				LastTimeSpan = ts;
+			}
+			return LastTimeSpan;
 		}
 
 		protected virtual void UpdateProgress(DownloadChangedProgress e) => DownloadProgress?.Invoke(this, e);
