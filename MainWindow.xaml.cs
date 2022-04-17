@@ -3209,6 +3209,7 @@ namespace BetterHI3Launcher
 				{
 					if(!App.UseLegacyDownload)
 					{
+						download_parallel.DownloadProgress += DownloadStatusChanged;
 						download_parallel.Resume();
 					}
 					else
