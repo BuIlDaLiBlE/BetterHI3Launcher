@@ -1165,7 +1165,6 @@ namespace BetterHI3Launcher
 			}
 			Log("Checking for game update...");
 			Status = LauncherStatus.CheckingUpdates;
-			PreloadGrid.Visibility = Visibility.Collapsed;
 			LocalVersionInfo = null;
 			await Task.Run(() =>
 			{
@@ -1173,6 +1172,7 @@ namespace BetterHI3Launcher
 				{
 					int game_needs_update;
 
+					Dispatcher.Invoke(() => {PreloadGrid.Visibility = Visibility.Collapsed;});
 					if(!App.Starting)
 					{
 						FetchOnlineVersionInfo();
@@ -5177,6 +5177,7 @@ namespace BetterHI3Launcher
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
 						x.Name != "pkg_version" &&
+						x.Name != "ThirdPartyNotices.txt" &&
 						x.Name != "UniFairy.sys" &&
 						x.Name != "Version.txt" &&
 						!x.Name.Contains("Blocks_") &&
