@@ -24,9 +24,6 @@ namespace BetterHI3Launcher.Utility
 		private Stopwatch InnerProgressStopwatch;
 		private TimeSpan LastTimeSpan;
 
-		private long LastSize = 0,
-					 LastDownloadedSize = 0;
-
 		public void InitializeDownload(string source, string target) => link = new DownloadProp{source = source, target = target};
 
 		public void Start()
@@ -84,37 +81,26 @@ namespace BetterHI3Launcher.Utility
 		{
 			Paused = true;
 			cancelTokenSource.Cancel();
-
-			UpdateProgress(new DownloadChangedProgress
-			{
-				Status = DownloadState.Idle,
-				BytesReceived = LastSize,
-				TotalBytesToReceive = LastDownloadedSize,
-				TimeLeft = new TimeSpan(0),
-				CurrentReceived = 0,
-				CurrentSpeed = 0
-			});
 		}
 
 		public void Stop()
 		{
 			Pause();
-			IsCompleted = true;
-		}
-
-		public void Dispose()
-		{
-			Stop();
 		}
 
 		public async Task StopAndWait()
         {
 			Stop();
 			try
-			{
-				await DisposeAndWait();
+            {
+				await WaitForComplete();
 			}
 			catch (OperationCanceledException) { }
+        }
+
+		public void Dispose()
+		{
+			Stop();
 		}
 
 		public async Task DisposeAndWait()
@@ -125,8 +111,6 @@ namespace BetterHI3Launcher.Utility
 
 		private void DownloadProgressAdapter(object sender, _DownloadProgress e)
 		{
-			LastSize = e.DownloadedSize;
-			LastDownloadedSize = e.TotalSizeToDownload;
 			UpdateProgress(new DownloadChangedProgress
 			{
 				Status = e.DownloadState,
