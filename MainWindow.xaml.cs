@@ -3416,14 +3416,14 @@ namespace BetterHI3Launcher
 			if(download != null || !download_parallel.Paused)
 			{
 				Log("Pre-download paused");
-				if(download != null)
+				if (download != null)
 				{
 					download.Pause();
 					download = null;
 				}
 				else
 				{
-					download_parallel.Stop();
+					download_parallel.StopAndWait().GetAwaiter().GetResult();
 				}
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
 				PreloadBottomText.Text = PreloadBottomText.Text.Replace(App.TextStrings["label_downloaded_1"], App.TextStrings["label_paused"]);

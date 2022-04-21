@@ -94,6 +94,16 @@ namespace BetterHI3Launcher.Utility
 			Stop();
 		}
 
+		public async Task StopAndWait()
+        {
+			Stop();
+			try
+			{
+				await DisposeAndWait();
+			}
+			catch (OperationCanceledException) { }
+		}
+
 		public async Task DisposeAndWait()
 		{
 			cancelTokenSource.Cancel();
