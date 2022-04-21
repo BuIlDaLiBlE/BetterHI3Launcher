@@ -5608,7 +5608,7 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel != null && download_parallel.client._DownloadState == (DownloadState.Downloading | DownloadState.Cancelled))
+						else if(download_parallel != null && (download_parallel.client._DownloadState == DownloadState.Downloading || download_parallel.client._DownloadState == DownloadState.Cancelled))
 						{
 							download_parallel.Pause();
 						}
