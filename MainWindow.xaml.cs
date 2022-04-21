@@ -3406,7 +3406,7 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Normal;
 		}
 
-		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
+		private async void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(LegacyBoxActive)
 			{
@@ -3423,7 +3423,8 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					download_parallel.StopAndWait().GetAwaiter().GetResult();
+					await download_parallel.StopAndWait();
+					download_parallel.DownloadProgress -= PreloadDownloadStatusChanged;
 				}
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
 				PreloadBottomText.Text = PreloadBottomText.Text.Replace(App.TextStrings["label_downloaded_1"], App.TextStrings["label_paused"]);
@@ -5607,7 +5608,7 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel != null && download_parallel.client._DownloadState == DownloadState.Downloading)
+						else if(download_parallel != null && download_parallel.client._DownloadState == (DownloadState.Downloading | DownloadState.Cancelled))
 						{
 							download_parallel.Pause();
 						}
