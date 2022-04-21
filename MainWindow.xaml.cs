@@ -3416,7 +3416,7 @@ namespace BetterHI3Launcher
 			if(download != null || !download_parallel.Paused)
 			{
 				Log("Pre-download paused");
-				if (download != null)
+				if(download != null)
 				{
 					download.Pause();
 					download = null;
