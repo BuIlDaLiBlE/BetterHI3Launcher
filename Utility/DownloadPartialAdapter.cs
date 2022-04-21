@@ -57,16 +57,6 @@ namespace BetterHI3Launcher.Utility
 					throw new Exception("", ex);
 				}
 			});
-
-			UpdateProgress(new DownloadChangedProgress
-			{
-				Status = DownloadState.Idle,
-				BytesReceived = LastSize,
-				TotalBytesToReceive = LastDownloadedSize,
-				TimeLeft = new TimeSpan(0),
-				CurrentReceived = 0,
-				CurrentSpeed = 0
-			});
 		}
 		
 		public async Task WaitForComplete(int refresh = 1)
@@ -94,6 +84,16 @@ namespace BetterHI3Launcher.Utility
 		{
 			Paused = true;
 			cancelTokenSource.Cancel();
+
+			UpdateProgress(new DownloadChangedProgress
+			{
+				Status = DownloadState.Idle,
+				BytesReceived = LastSize,
+				TotalBytesToReceive = LastDownloadedSize,
+				TimeLeft = new TimeSpan(0),
+				CurrentReceived = 0,
+				CurrentSpeed = 0
+			});
 		}
 
 		public void Stop()

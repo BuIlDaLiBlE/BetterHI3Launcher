@@ -37,8 +37,8 @@ namespace BetterHI3Launcher
 				PreloadCircleProgressBar.Value = DownloadPercentage / 100;
 				TaskbarItemInfo.ProgressValue = DownloadPercentage / 100;
 				PreloadStatusTopRightText.Text = $"{BpUtility.ToBytesCount(e.BytesReceived)}/{BpUtility.ToBytesCount(e.TotalBytesToReceive)}";
-				PreloadStatusMiddleRightText.Text = string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft);
-				PreloadStatusBottomRightText.Text = $"{BpUtility.ToBytesCount(e.CurrentSpeed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
+				PreloadStatusMiddleRightText.Text = e.Status == DownloadState.Idle ? "" : string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft);
+				PreloadStatusBottomRightText.Text = e.Status == DownloadState.Idle ? "" : $"{BpUtility.ToBytesCount(e.CurrentSpeed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
 				if(e.Status == DownloadState.Merging)
 				{
 					PreloadPauseButton.IsEnabled = false;
