@@ -8,7 +8,7 @@ using System.Net.Http;
 
 namespace BetterHI3Launcher.Utility
 {
-	public partial class HttpClientHelper
+	public partial class HttpClientHelper : HttpClient
 	{
 		private Stopwatch _Stopwatch;
 		private string _InputURL = "", _OutputPath = "";
@@ -16,44 +16,48 @@ namespace BetterHI3Launcher.Utility
 		private bool _IsFileAlreadyCompleted = false;
 
 		public HttpClientHelper(bool IgnoreCompression = false, int maxRetryCount = 5, float maxRetryTimeout = 1)
+			: base(new HttpClientHandler
+		{
+			AllowAutoRedirect = true,
+			UseCookies = true,
+			MaxConnectionsPerServer = 32,
+			AutomaticDecompression = IgnoreCompression ? DecompressionMethods.None : DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None
+		})
 		{
 			this._Stopwatch = new Stopwatch();
 			this._OutputStream = new MemoryStream();
-			this._ThreadList = new List<Task>();
 			this._ThreadMaxRetry = maxRetryCount;
 			this._ThreadRetryDelay = maxRetryTimeout;
 			this._DownloadState = DownloadState.Idle;
-
-			HttpClientHandler _httpHandler = new HttpClientHandler
-			{
-				AllowAutoRedirect = true,
-				UseCookies = true,
-				MaxConnectionsPerServer = 32,
-				AutomaticDecompression = IgnoreCompression ? DecompressionMethods.None : DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None
-			};
-
-			this._ThreadHttpClient = new HttpClient(_httpHandler);
 		}
 
-		public async Task DownloadFileAsync(string Input, string Output, CancellationToken Token, long StartOffset = -1, long EndOffset = -1) =>
-			await DownloadFileAsync(Input, new FileStream(Output, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write), Token, StartOffset, EndOffset);
+		public async Task DownloadFileAsync(string Input, string Output, CancellationToken Token, long? StartOffset = null, long? EndOffset = null)
+		{
+			this._UseStreamOutput = false;
+			await InternalDownloadFileAsync(Input, new FileStream(Output, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write), Token, StartOffset, EndOffset, true);
+		}
 
-		public async Task DownloadFileAsync(string Input, Stream Output, CancellationToken Token, long StartOffset = -1, long EndOffset = -1)
+		public async Task DownloadFileAsync(string Input, Stream Output, CancellationToken Token, long? StartOffset = null, long? EndOffset = null, bool DisposeStream = true)
+		{
+			this._UseStreamOutput = true;
+			await InternalDownloadFileAsync(Input, Output, Token, StartOffset, EndOffset, DisposeStream);
+		}
+
+		private async Task InternalDownloadFileAsync(string Input, Stream Output, CancellationToken Token, long? StartOffset, long? EndOffset, bool DisposeStream)
 		{
 			this._InputURL = Input;
 			this._OutputStream = Output;
-			this._UseStreamOutput = true;
 			this._ThreadToken = Token;
 			this._ThreadSingleMode = true;
 			this._Stopwatch = Stopwatch.StartNew();
 			this._LastContinuedSize = 0;
 			this._DownloadState = DownloadState.Downloading;
 			this._IsFileAlreadyCompleted = false;
+			this._DisposeStream = DisposeStream;
 
 			try
 			{
-				_ThreadPropertyList = new List<_ThreadProperty> { new _ThreadProperty { CurrentRetry = 1 } };
-				await ThreadChild(StartOffset, EndOffset, 0, true);
+				await Task.WhenAll(await StartThreads(StartOffset, EndOffset));
 				this._DownloadState = DownloadState.Completed;
 				UpdateProgress(new _DownloadProgress(_DownloadedSize, _TotalSizeToDownload, 0, _LastContinuedSize, _Stopwatch.Elapsed, _DownloadState));
 
@@ -73,7 +77,6 @@ namespace BetterHI3Launcher.Utility
 			this._InputURL = Input;
 			this._OutputPath = Output;
 			this._ThreadNumber = DownloadThread;
-			this._ThreadList = new List<Task>();
 			this._ThreadToken = Token;
 			this._ThreadSingleMode = false;
 			this._Stopwatch = Stopwatch.StartNew();
@@ -81,12 +84,11 @@ namespace BetterHI3Launcher.Utility
 			this._DownloadState = DownloadState.Downloading;
 			this._IsFileAlreadyCompleted = false;
 			this._UseStreamOutput = false;
+			this._DisposeStream = true;
 
 			try
 			{
-				_ThreadList = GetThreadSlice();
-
-				await Task.WhenAll(_ThreadList);
+				await Task.WhenAll(await StartThreads(null, null));
 
 				// HACK: Round the size after multidownload finished
 				_DownloadedSize += _TotalSizeToDownload - _DownloadedSize;
@@ -110,9 +112,9 @@ namespace BetterHI3Launcher.Utility
 			}
 		}
 
-		public void DownloadFile(string Input, Stream Output, CancellationToken Token, long StartOffset = -1, long EndOffset = -1) =>
-			DownloadFileAsync(Input, Output, Token, StartOffset, EndOffset).GetAwaiter().GetResult();
-		public void DownloadFile(string Input, string Output, CancellationToken Token, long StartOffset = -1, long EndOffset = -1) =>
+		public void DownloadFile(string Input, Stream Output, CancellationToken Token, long? StartOffset = null, long? EndOffset = null, bool DisposeStream = true) =>
+			DownloadFileAsync(Input, Output, Token, StartOffset, EndOffset, DisposeStream).GetAwaiter().GetResult();
+		public void DownloadFile(string Input, string Output, CancellationToken Token, long? StartOffset = null, long? EndOffset = null) =>
 			DownloadFileAsync(Input, Output, Token, StartOffset, EndOffset).GetAwaiter().GetResult();
 		public void DownloadFile(string Input, string Output, int DownloadThread, CancellationToken Token) =>
 			DownloadFileAsync(Input, Output, DownloadThread, Token).GetAwaiter().GetResult();
