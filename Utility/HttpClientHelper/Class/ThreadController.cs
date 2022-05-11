@@ -93,7 +93,7 @@ namespace BetterHI3Launcher.Utility
 
 			if (ThreadProperty.EndOffset <= ThreadProperty.StartOffset)
 			{
-				ThreadProperty.StartOffset = StartOffset;
+				ThreadProperty.StartOffset = 0;
 				ThreadProperty.EndOffset = EndOffset;
 				IsIgnore = true;
 			}
@@ -116,6 +116,9 @@ namespace BetterHI3Launcher.Utility
 			IList<_ThreadProperty> _out = new List<_ThreadProperty>();
 
 			_TotalSizeToDownload = TryGetContentLength();
+			long _SliceSize = _TotalSizeToDownload / _ThreadNumber;
+			long _PrevStartSize = 0;
+			long? _StartOffset = 0, _EndOffset = 0;
 			for (int i = 0; i < (_ThreadSingleMode ? 1 : _ThreadNumber); i++)
 			{
 				HttpRequestMessage _RequestMessage = new HttpRequestMessage() { RequestUri = new Uri(_InputURL) };
@@ -126,10 +129,21 @@ namespace BetterHI3Launcher.Utility
 					LocalStream = SeekStreamToEnd(new FileStream(string.Format("{0}.{1:000}", _OutputPath, i + 1), FileMode.OpenOrCreate, FileAccess.Write))
 				};
 				_DownloadedSize += ThreadProperty.LocalStream.Length;
-				ThreadProperty.StartOffset = i * (_TotalSizeToDownload / _ThreadNumber) + ThreadProperty.LocalStream.Length;
-				ThreadProperty.EndOffset = ((i + 1) * (_TotalSizeToDownload / _ThreadNumber)) - 1;
+				ThreadProperty.StartOffset = _StartOffset = Math.Min(_PrevStartSize, _PrevStartSize += _SliceSize + 1);
+				ThreadProperty.EndOffset = _EndOffset = i + 1 == _ThreadNumber ? _TotalSizeToDownload - 1 : ThreadProperty.StartOffset + _SliceSize;
 
-				if ((ThreadProperty.EndOffset + 1) - ThreadProperty.StartOffset > 0)
+				ThreadProperty.StartOffset += ThreadProperty.LocalStream.Length;
+
+				if (ThreadProperty.EndOffset - ThreadProperty.StartOffset < -1)
+				{
+					Console.WriteLine($"Chunk on ThreadID: {i} seems to be corrupted (< expected size). Redownloading it!");
+					_DownloadedSize -= ThreadProperty.LocalStream.Length;
+					ThreadProperty.StartOffset -= ThreadProperty.LocalStream.Length;
+					ThreadProperty.LocalStream.Dispose();
+					ThreadProperty.LocalStream = new FileStream(string.Format("{0}.{1:000}", _OutputPath, i + 1), FileMode.Create, FileAccess.Write);
+				}
+
+				if (ThreadProperty.EndOffset - ThreadProperty.StartOffset > -1)
 				{
 					_RequestMessage.Headers.Range = new RangeHeaderValue(ThreadProperty.StartOffset, ThreadProperty.EndOffset);
 					ThreadProperty.HttpMessage = CheckResponseStatusCode(await SendAsync(_RequestMessage, HttpCompletionOption.ResponseHeadersRead, _ThreadToken));
@@ -137,9 +151,7 @@ namespace BetterHI3Launcher.Utility
 					_out.Add(ThreadProperty);
 				}
 				else
-				{
 					ThreadProperty.LocalStream.Dispose();
-				}
 			}
 			return _out;
 		}
