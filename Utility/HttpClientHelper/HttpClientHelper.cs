@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Diagnostics;
 using System.Net.Http;
 
@@ -17,12 +19,12 @@ namespace BetterHI3Launcher.Utility
 
 		public HttpClientHelper(bool IgnoreCompression = false, int maxRetryCount = 5, float maxRetryTimeout = 1)
 			: base(new HttpClientHandler
-		{
-			AllowAutoRedirect = true,
-			UseCookies = true,
-			MaxConnectionsPerServer = 32,
-			AutomaticDecompression = IgnoreCompression ? DecompressionMethods.None : DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None
-		})
+			{
+				AllowAutoRedirect = true,
+				UseCookies = true,
+				MaxConnectionsPerServer = 32,
+				AutomaticDecompression = IgnoreCompression ? DecompressionMethods.None : DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None
+			})
 		{
 			this._Stopwatch = new Stopwatch();
 			this._OutputStream = new MemoryStream();
@@ -50,13 +52,16 @@ namespace BetterHI3Launcher.Utility
 			this._ThreadToken = Token;
 			this._ThreadSingleMode = true;
 			this._Stopwatch = Stopwatch.StartNew();
+			this._DownloadedSize = 0;
 			this._LastContinuedSize = 0;
-			this._DownloadState = DownloadState.Downloading;
+			this._TotalSizeToDownload = 0;
+			this._DownloadState = DownloadState.Starting;
 			this._IsFileAlreadyCompleted = false;
 			this._DisposeStream = DisposeStream;
 
 			try
 			{
+				EnsureAllThreadsStatus();
 				await Task.WhenAll(await StartThreads(StartOffset, EndOffset));
 				this._DownloadState = DownloadState.Completed;
 				UpdateProgress(new _DownloadProgress(_DownloadedSize, _TotalSizeToDownload, 0, _LastContinuedSize, _Stopwatch.Elapsed, _DownloadState));
@@ -80,14 +85,17 @@ namespace BetterHI3Launcher.Utility
 			this._ThreadToken = Token;
 			this._ThreadSingleMode = false;
 			this._Stopwatch = Stopwatch.StartNew();
+			this._DownloadedSize = 0;
 			this._LastContinuedSize = 0;
-			this._DownloadState = DownloadState.Downloading;
+			this._TotalSizeToDownload = 0;
+			this._DownloadState = DownloadState.Starting;
 			this._IsFileAlreadyCompleted = false;
 			this._UseStreamOutput = false;
 			this._DisposeStream = true;
 
 			try
 			{
+				EnsureAllThreadsStatus();
 				await Task.WhenAll(await StartThreads(null, null));
 
 				// HACK: Round the size after multidownload finished
@@ -96,7 +104,7 @@ namespace BetterHI3Launcher.Utility
 
 				if (!_IsFileAlreadyCompleted)
 				{
-					MergeSlices();
+					await Task.Run(() => MergeSlices());
 				}
 				this._DownloadState = DownloadState.Completed;
 				UpdateProgress(new _DownloadProgress(_DownloadedSize, _TotalSizeToDownload, 0, _LastContinuedSize, _Stopwatch.Elapsed, _DownloadState));
@@ -109,6 +117,25 @@ namespace BetterHI3Launcher.Utility
 				this._DownloadState = DownloadState.Cancelled;
 				UpdateProgress(new _DownloadProgress(_DownloadedSize, _TotalSizeToDownload, 0, _LastContinuedSize, _Stopwatch.Elapsed, _DownloadState));
 				throw new TaskCanceledException($"Cancellation for {Input} has been fired!", ex);
+			}
+		}
+
+		private async void EnsureAllThreadsStatus()
+		{
+			bool IsAllThreadRun = false;
+			Console.WriteLine($"Ensure threads status... {_DownloadState}!");
+			while (true)
+			{
+				IsAllThreadRun = _ThreadProperties == null ? false : _ThreadProperties.All(x => x.IsDownloading || x.IsCompleted);
+
+				if (IsAllThreadRun && _ThreadProperties != null)
+				{
+					_DownloadState = DownloadState.Downloading;
+					Console.WriteLine($"Threads are all loaded! {_DownloadState}...");
+					return;
+				}
+
+				await Task.Delay(250);
 			}
 		}
 

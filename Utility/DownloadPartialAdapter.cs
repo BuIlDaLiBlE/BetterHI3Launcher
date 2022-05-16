@@ -77,6 +77,13 @@ namespace BetterHI3Launcher.Utility
 			Start();
 		}
 
+		public async Task ResumeAndWait()
+        {
+			Resume();
+			while (client._DownloadState != DownloadState.Downloading)
+				await Task.Delay(125);
+		}
+
 		public void Pause()
 		{
 			Paused = true;

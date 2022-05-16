@@ -4,7 +4,7 @@ namespace BetterHI3Launcher.Utility
 {
 	public partial class HttpClientHelper
 	{
-		public enum DownloadState { Downloading, Merging, Completed, Idle, Cancelled }
+		public enum DownloadState { Downloading, Starting, Merging, Completed, Idle, Cancelled }
 
 		public event EventHandler<_DownloadProgress> DownloadProgress;
 

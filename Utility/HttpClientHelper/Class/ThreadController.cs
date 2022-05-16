@@ -27,6 +27,8 @@ namespace BetterHI3Launcher.Utility
 			public HttpResponseMessage HttpMessage { get; set; }
 			public Stream LocalStream { get; set; }
 			public Stream RemoteStream { get; set; }
+			public bool IsDownloading { get; set; } = false;
+			public bool IsCompleted { get; set; } = false;
 		}
 
 		private async Task<IEnumerable<Task>> StartThreads(long? StartOffset, long? EndOffset)
@@ -58,6 +60,9 @@ namespace BetterHI3Launcher.Utility
 
 							if (_DisposeStream)
 								ThreadProperty.LocalStream.Dispose();
+
+							ThreadProperty.IsDownloading = false;
+							ThreadProperty.IsCompleted = true;
 						}
 					}
 				}));
@@ -202,30 +207,35 @@ namespace BetterHI3Launcher.Utility
 			catch (ArgumentOutOfRangeException ex)
 			{
 				ThreadProperty.LocalStream.Dispose();
+				ThreadProperty.IsDownloading = false;
 				Console.WriteLine($"Cancel: ThreadID: {ThreadProperty.ThreadID} has been shutdown!\r\nChunk of this thread is already completed. Ignoring!!\r\n{ex}");
 				return true;
 			}
 			catch (InvalidDataException ex)
 			{
 				ThreadProperty.LocalStream.Dispose();
+				ThreadProperty.IsDownloading = false;
 				Console.WriteLine($"Cancel: ThreadID: {ThreadProperty.ThreadID} has been shutdown!\r\n{ex}");
 				return true;
 			}
 			catch (TaskCanceledException ex)
 			{
 				ThreadProperty.LocalStream.Dispose();
+				ThreadProperty.IsDownloading = false;
 				Console.WriteLine($"Cancel: ThreadID: {ThreadProperty.ThreadID} has been shutdown!");
 				throw new TaskCanceledException(ex.ToString(), ex);
 			}
 			catch (OperationCanceledException ex)
 			{
 				ThreadProperty.LocalStream.Dispose();
+				ThreadProperty.IsDownloading = false;
 				Console.WriteLine($"Cancel: ThreadID: {ThreadProperty.ThreadID} has been shutdown!");
 				throw new TaskCanceledException(ex.ToString(), ex);
 			}
 			catch (Exception ex)
 			{
 				ThreadProperty.LocalStream.Dispose();
+				ThreadProperty.IsDownloading = false;
 				Console.WriteLine($"Unknown Error on ThreadID: {ThreadProperty.ThreadID}\r\n{ex}");
 				throw new Exception(ex.ToString(), ex);
 			}
