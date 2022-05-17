@@ -123,8 +123,12 @@
     <Compile Include="TextStrings_en.cs" />
     <Compile Include="Utility\DownloadPartialAdapter.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
+    <Compile Include="Utility\HttpClientHelper\Class\EventHandler.cs" />
+    <Compile Include="Utility\HttpClientHelper\Class\RemoteStreamController.cs" />
+    <Compile Include="Utility\HttpClientHelper\Class\SliceController.cs" />
+    <Compile Include="Utility\HttpClientHelper\Class\ThreadController.cs" />
+    <Compile Include="Utility\HttpClientHelper\HttpClientHelper.cs" />
     <Compile Include="Utility\miHoYoCRCUtility.cs" />
-    <Compile Include="Utility\PartialHttpClient.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipParsingException.cs" />

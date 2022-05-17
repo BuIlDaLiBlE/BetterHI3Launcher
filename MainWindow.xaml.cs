@@ -31,7 +31,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using BetterHI3Launcher.Utility;
-using static BetterHI3Launcher.Utility.ParallelHttpClient;
+using static BetterHI3Launcher.Utility.HttpClientHelper;
 
 namespace BetterHI3Launcher
 {
@@ -151,7 +151,7 @@ namespace BetterHI3Launcher
 					case LauncherStatus.Preloading:
 						PreloadBottomText.Text = App.TextStrings["button_downloading"];
 						PreloadButton.Visibility = Visibility.Collapsed;
-						PreloadPauseButton.IsEnabled = true;
+						PreloadPauseButton.IsEnabled = false;
 						PreloadPauseButton.Visibility = Visibility.Visible;
 						PreloadPauseButton.Background = (ImageBrush)Resources["PreloadPauseButton"];
 						PreloadCircle.Visibility = Visibility.Visible;
@@ -227,13 +227,13 @@ namespace BetterHI3Launcher
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
 						GameInstallRegistryName = GameFullName;
-						GameWebProfileURL = "https://global.user.honkaiimpact3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.SEA:
 						RegistryVersionInfo = "VersionInfoSEA";
 						GameFullName = "Honkai Impact 3";
 						GameInstallRegistryName = GameFullName;
-						GameWebProfileURL = "https://asia.user.honkaiimpact3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.CN:
 						RegistryVersionInfo = "VersionInfoCN";
@@ -245,13 +245,13 @@ namespace BetterHI3Launcher
 						RegistryVersionInfo = "VersionInfoTW";
 						GameFullName = "崩壊3rd";
 						GameInstallRegistryName = "崩壞3rd";
-						GameWebProfileURL = "https://tw-user.bh3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.KR:
 						RegistryVersionInfo = "VersionInfoKR";
 						GameFullName = "붕괴3rd";
 						GameInstallRegistryName = GameFullName;
-						GameWebProfileURL = "https://kr.user.honkaiimpact3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 
 				}
@@ -1165,7 +1165,6 @@ namespace BetterHI3Launcher
 			}
 			Log("Checking for game update...");
 			Status = LauncherStatus.CheckingUpdates;
-			PreloadGrid.Visibility = Visibility.Collapsed;
 			LocalVersionInfo = null;
 			await Task.Run(() =>
 			{
@@ -1173,6 +1172,7 @@ namespace BetterHI3Launcher
 				{
 					int game_needs_update;
 
+					Dispatcher.Invoke(() => {PreloadGrid.Visibility = Visibility.Collapsed;});
 					if(!App.Starting)
 					{
 						FetchOnlineVersionInfo();
@@ -1334,6 +1334,7 @@ namespace BetterHI3Launcher
 						{
 							FetchmiHoYoVersionInfo();
 						}
+						DownloadPaused = false;
 						Status = LauncherStatus.Ready;
 						Dispatcher.Invoke(() =>
 						{
@@ -1754,6 +1755,7 @@ namespace BetterHI3Launcher
 				GameArchiveTempPath = $"{GameArchivePath}_tmp";
 				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
+				ProgressBar.IsIndeterminate = true;
 				if(File.Exists(GameArchivePath))
 				{
 					File.Move(GameArchivePath, GameArchiveTempPath);
@@ -1767,7 +1769,7 @@ namespace BetterHI3Launcher
 							download_parallel = new DownloadParallelAdapter();
 							download_parallel.DownloadProgress += DownloadStatusChanged;
 							download_parallel.InitializeDownload(url, GameArchiveTempPath);
-							download_parallel.Start();
+							await download_parallel.ResumeAndWait();
 							Dispatcher.Invoke(() =>
 							{
 								ProgressText.Text = string.Empty;
@@ -3139,7 +3141,10 @@ namespace BetterHI3Launcher
 				{
 					if(!App.UseLegacyDownload && !CacheDownload)
 					{
-						download_parallel.Dispose();
+						try
+						{
+							await download_parallel.DisposeAndWait();
+						}catch(OperationCanceledException){}
 					}
 					else
 					{
@@ -3209,44 +3214,46 @@ namespace BetterHI3Launcher
 
 			if(!DownloadPaused)
 			{
-				if(!App.UseLegacyDownload)
-				{
-					download_parallel.Pause();
-				}
-				else
-				{
-					download.Pause();
-				}
 				Status = LauncherStatus.DownloadPaused;
 				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 				DownloadETAText.Visibility = Visibility.Hidden;
 				DownloadSpeedText.Visibility = Visibility.Hidden;
 				DownloadPauseButton.Visibility = Visibility.Collapsed;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
-				Thread.Sleep(3000);
+				if(!App.UseLegacyDownload)
+				{
+					await download_parallel.StopAndWait();
+				}
+				else
+				{
+					download.Pause();
+				}
 				DownloadResumeButton.Visibility = Visibility.Visible;
 			}
 			else
 			{
 				Status = LauncherStatus.Downloading;
-				ProgressText.Text = string.Empty;
-				ProgressBar.Visibility = Visibility.Hidden;
-				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-				LaunchButton.IsEnabled = true;
-				LaunchButton.Content = App.TextStrings["button_cancel"];
-				DownloadPauseButton.Visibility = Visibility.Visible;
-				DownloadResumeButton.Visibility = Visibility.Collapsed;
-				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+				ProgressBar.IsIndeterminate = true;
+				DownloadPauseButton.Visibility = Visibility.Collapsed;
+				DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 				try
 				{
 					if(!App.UseLegacyDownload)
 					{
-						download_parallel.Resume();
+						download_parallel.DownloadProgress += DownloadStatusChanged;
+						await download_parallel.ResumeAndWait();
 					}
 					else
 					{
 						await download.Start();
 					}
+					ProgressText.Text = string.Empty;
+					ProgressBar.Visibility = Visibility.Hidden;
+					DownloadPauseButton.Visibility = Visibility.Visible;
+					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+					LaunchButton.IsEnabled = true;
+					LaunchButton.Content = App.TextStrings["button_cancel"];
+					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 				}
 				catch(Exception ex)
 				{
@@ -3320,7 +3327,8 @@ namespace BetterHI3Launcher
 							download_parallel = new DownloadParallelAdapter();
 							download_parallel.DownloadProgress += PreloadDownloadStatusChanged;
 							download_parallel.InitializeDownload(url, tmp_path);
-							download_parallel.Start();
+							await download_parallel.ResumeAndWait();
+							PreloadPauseButton.IsEnabled = true;
 							await download_parallel.WaitForComplete();
 							download_parallel.DownloadProgress -= PreloadDownloadStatusChanged;
 							download_parallel.Dispose();
@@ -3439,16 +3447,16 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Normal;
 		}
 
-		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
+		private async void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(LegacyBoxActive)
 			{
 				return;
 			}
 
-			if(download != null || !download_parallel.Paused)
+			if(download != null || download_parallel.client._DownloadState == DownloadState.Downloading)
 			{
-				Log("Pre-download paused");
+				PreloadPauseButton.IsEnabled = false;
 				if(download != null)
 				{
 					download.Pause();
@@ -3456,9 +3464,11 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					download_parallel.Stop();
+					await download_parallel.StopAndWait();
 				}
+				Log("Pre-download paused");
 				PreloadDownload = false;
+				PreloadPauseButton.IsEnabled = true;
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
 				PreloadBottomText.Text = PreloadBottomText.Text.Replace(App.TextStrings["label_downloaded_1"], App.TextStrings["label_paused"]);
 				PreloadStatusMiddleRightText.Text = string.Empty;
@@ -5029,7 +5039,8 @@ namespace BetterHI3Launcher
 											{
 												url = urls[j];
 											}
-										
+
+											Directory.CreateDirectory(Path.GetDirectoryName(path));
 											await PartialZipDownloader.DownloadFile(url, corrupted_files[i], path);
 											Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, corrupted_files.Count);});
 											if(!File.Exists(path) || BpUtility.CalculateMD5(path) != corrupted_file_hashes[i])
@@ -5177,6 +5188,7 @@ namespace BetterHI3Launcher
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
 						x.Name != "pkg_version" &&
+						x.Name != "ThirdPartyNotices.txt" &&
 						x.Name != "UniFairy.sys" &&
 						x.Name != "Version.txt" &&
 						!x.Name.Contains("Blocks_") &&
@@ -5582,11 +5594,11 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private void MainWindow_Closing(object sender, CancelEventArgs e)
+		private async void MainWindow_Closing(object sender, CancelEventArgs e)
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && download_parallel == null || download_parallel.client.Status == ParallelHttpClientStatus.Idle)
+				if(download == null && download_parallel == null || download_parallel.client._DownloadState == DownloadState.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -5601,7 +5613,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Merging)
+					if(download_parallel != null && download_parallel.client._DownloadState == DownloadState.Merging)
 					{
 						e.Cancel = true;
 						return;
@@ -5612,9 +5624,12 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Downloading)
+						else if(download_parallel != null && (download_parallel.client._DownloadState == DownloadState.Downloading || download_parallel.Paused && download_parallel.client._DownloadState == DownloadState.Cancelled))
 						{
-							download_parallel.Pause();
+							try
+							{
+								await download_parallel.DisposeAndWait();
+							}catch(OperationCanceledException){}
 						}
 						else
 						{
