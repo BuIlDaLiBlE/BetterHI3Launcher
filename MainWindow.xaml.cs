@@ -5039,7 +5039,8 @@ namespace BetterHI3Launcher
 											{
 												url = urls[j];
 											}
-										
+
+											Directory.CreateDirectory(Path.GetDirectoryName(path));
 											await PartialZipDownloader.DownloadFile(url, corrupted_files[i], path);
 											Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, corrupted_files.Count);});
 											if(!File.Exists(path) || BpUtility.CalculateMD5(path) != corrupted_file_hashes[i])
