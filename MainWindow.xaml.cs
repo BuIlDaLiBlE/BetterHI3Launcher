@@ -31,7 +31,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using BetterHI3Launcher.Utility;
-using static BetterHI3Launcher.Utility.ParallelHttpClient;
+using static BetterHI3Launcher.Utility.HttpClientHelper;
 
 namespace BetterHI3Launcher
 {
@@ -3139,7 +3139,11 @@ namespace BetterHI3Launcher
 				{
 					if(!App.UseLegacyDownload && !CacheDownload)
 					{
-						download_parallel.Dispose();
+						try
+						{
+							await download_parallel.DisposeAndWait();
+						}
+						catch (OperationCanceledException) { }
 					}
 					else
 					{
@@ -3241,6 +3245,7 @@ namespace BetterHI3Launcher
 				{
 					if(!App.UseLegacyDownload)
 					{
+						download_parallel.DownloadProgress += DownloadStatusChanged;
 						download_parallel.Resume();
 					}
 					else
@@ -3439,7 +3444,7 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Normal;
 		}
 
-		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
+		private async void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(LegacyBoxActive)
 			{
@@ -3456,7 +3461,8 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					download_parallel.Stop();
+					await download_parallel.StopAndWait();
+					download_parallel.DownloadProgress -= PreloadDownloadStatusChanged;
 				}
 				PreloadDownload = false;
 				PreloadPauseButton.Background = (ImageBrush)Resources["PreloadResumeButton"];
@@ -5587,7 +5593,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && download_parallel == null || download_parallel.client.Status == ParallelHttpClientStatus.Idle)
+				if(download == null && download_parallel == null || download_parallel.client._DownloadState == DownloadState.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -5602,7 +5608,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Merging)
+					if(download_parallel != null && download_parallel.client._DownloadState == DownloadState.Merging)
 					{
 						e.Cancel = true;
 						return;
@@ -5613,7 +5619,7 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel != null && download_parallel.client.Status == ParallelHttpClientStatus.Downloading)
+						else if(download_parallel != null && (download_parallel.client._DownloadState == DownloadState.Downloading || download_parallel.client._DownloadState == DownloadState.Cancelled))
 						{
 							download_parallel.Pause();
 						}

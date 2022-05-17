@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using static BetterHI3Launcher.Utility.ParallelHttpClient;
+using static BetterHI3Launcher.Utility.HttpClientHelper;
 
 namespace BetterHI3Launcher.Utility
 {
@@ -15,10 +16,13 @@ namespace BetterHI3Launcher.Utility
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private CancellationToken cancelToken;
 		private DownloadProp link;
-		public ParallelHttpClient client;
+		public HttpClientHelper client;
 		public event EventHandler<DownloadChangedProgress> DownloadProgress;
 		public bool Paused;
 		private bool IsCompleted;
+		private bool IsCanceled;
+		private Stopwatch InnerProgressStopwatch;
+		private TimeSpan LastTimeSpan;
 
 		public void InitializeDownload(string source, string target) => link = new DownloadProp{source = source, target = target};
 
@@ -26,46 +30,58 @@ namespace BetterHI3Launcher.Utility
 		{
 			Paused = false;
 			IsCompleted = false;
+			IsCanceled = false;
 			cancelToken = cancelTokenSource.Token;
 
-			client = new ParallelHttpClient(false);
-			client.PartialProgressChanged += DownloadProgressAdapter;
+			client = new HttpClientHelper(false);
+			client.DownloadProgress += DownloadProgressAdapter;
 
 			Task.Run(() =>
 			{
 				try
 				{
-					client.DownloadFileMultipleSession(link.source, link.target, "", App.ParallelDownloadSessions, cancelToken);
+					InnerProgressStopwatch = Stopwatch.StartNew();
+					LastTimeSpan = InnerProgressStopwatch.Elapsed;
+					client.DownloadFile(link.source, link.target, App.ParallelDownloadSessions, cancelToken);
 					IsCompleted = true;
 				}
-				catch(OperationCanceledException){}
+				catch(OperationCanceledException)
+				{
+					IsCanceled = true;
+				}
 				catch(Exception ex)
 				{
 					throw new Exception("", ex);
 				}
 			});
 		}
-
+		
 		public async Task WaitForComplete(int refresh = 1)
 		{
-			while(!IsCompleted)
+			while(!(IsCompleted || IsCanceled))
 			{
-				await Task.Delay(refresh * 1000);
+				await Task.Delay(refresh * 100);
 			}
 
 			if(cancelToken.IsCancellationRequested)
 			{
-				client.PartialProgressChanged -= DownloadProgressAdapter;
+				client.DownloadProgress -= DownloadProgressAdapter;
 				throw new OperationCanceledException("Parallel downloader shutting down...");
 			}
-
-			client.PartialProgressChanged -= DownloadProgressAdapter;
+			client.DownloadProgress -= DownloadProgressAdapter;
 		}
 
 		public void Resume()
 		{
 			cancelTokenSource = new CancellationTokenSource();
 			Start();
+		}
+
+		public async Task ResumeAndWait()
+        {
+			Resume();
+			while (client._DownloadState != DownloadState.Downloading)
+				await Task.Delay(125);
 		}
 
 		public void Pause()
@@ -77,29 +93,51 @@ namespace BetterHI3Launcher.Utility
 		public void Stop()
 		{
 			Pause();
-			IsCompleted = true;
 		}
+
+		public async Task StopAndWait()
+        {
+			Stop();
+			try
+            {
+				await WaitForComplete();
+			}
+			catch (OperationCanceledException) { }
+        }
 
 		public void Dispose()
 		{
 			Stop();
 		}
 
-		public void DownloadProgressAdapter(object sender, PartialDownloadProgressChanged e)
+		public async Task DisposeAndWait()
 		{
-			#if DEBUG
-			Console.Write($"\r{e.ProgressPercentage}");
-			#endif
+			cancelTokenSource.Cancel();
+			await WaitForComplete();
+		}
+
+		private void DownloadProgressAdapter(object sender, _DownloadProgress e)
+		{
 			UpdateProgress(new DownloadChangedProgress
 			{
-				Status = client.Status,
-				BytesReceived = e.BytesReceived,
-				CurrentReceived = e.CurrentReceived,
-				TotalBytesToReceive = e.TotalBytesToReceive,
+				Status = e.DownloadState,
+				BytesReceived = e.DownloadedSize,
+				CurrentReceived = e.CurrentRead,
+				TotalBytesToReceive = e.TotalSizeToDownload,
 				CurrentSpeed = e.CurrentSpeed,
 				ProgressPercentage = e.ProgressPercentage,
-				TimeLeft = e.TimeLeft
+				TimeLeft = GetLastTimeSpan(InnerProgressStopwatch, e.TimeLeft)
 			});
+		}
+
+		private TimeSpan GetLastTimeSpan(Stopwatch sw, TimeSpan ts)
+		{
+			if (sw.ElapsedMilliseconds >= 2000)
+			{
+				InnerProgressStopwatch = Stopwatch.StartNew();
+				LastTimeSpan = ts;
+			}
+			return LastTimeSpan;
 		}
 
 		protected virtual void UpdateProgress(DownloadChangedProgress e) => DownloadProgress?.Invoke(this, e);
@@ -107,11 +145,11 @@ namespace BetterHI3Launcher.Utility
 
 	public class DownloadChangedProgress : EventArgs
 	{
-		public ParallelHttpClientStatus Status {get; set;}
+		public DownloadState Status {get; set;}
 		public long CurrentReceived {get; set;}
 		public long BytesReceived {get; set;}
 		public long TotalBytesToReceive {get; set;}
-		public float ProgressPercentage {get; set;}
+		public double ProgressPercentage {get; set;}
 		public long CurrentSpeed {get; set;}
 		public TimeSpan TimeLeft {get; set;}
 	}
