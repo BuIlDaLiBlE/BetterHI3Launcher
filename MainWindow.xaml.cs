@@ -227,13 +227,13 @@ namespace BetterHI3Launcher
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
 						GameInstallRegistryName = GameFullName;
-						GameWebProfileURL = "https://global.user.honkaiimpact3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.SEA:
 						RegistryVersionInfo = "VersionInfoSEA";
 						GameFullName = "Honkai Impact 3";
 						GameInstallRegistryName = GameFullName;
-						GameWebProfileURL = "https://asia.user.honkaiimpact3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.CN:
 						RegistryVersionInfo = "VersionInfoCN";
@@ -245,13 +245,13 @@ namespace BetterHI3Launcher
 						RegistryVersionInfo = "VersionInfoTW";
 						GameFullName = "崩壊3rd";
 						GameInstallRegistryName = "崩壞3rd";
-						GameWebProfileURL = "https://tw-user.bh3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.KR:
 						RegistryVersionInfo = "VersionInfoKR";
 						GameFullName = "붕괴3rd";
 						GameInstallRegistryName = GameFullName;
-						GameWebProfileURL = "https://kr.user.honkaiimpact3.com";
+						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 
 				}
