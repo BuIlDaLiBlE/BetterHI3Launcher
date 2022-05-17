@@ -16,7 +16,6 @@ namespace BetterHI3Launcher.Utility
 		{
 			this._DownloadedSize = 0;
 			this._LastContinuedSize = 0;
-			this._DownloadState = DownloadState.Merging;
 			this._Stopwatch = Stopwatch.StartNew();
 
 			byte[] Buffer = new byte[_MergeBufferSize];
@@ -36,6 +35,7 @@ namespace BetterHI3Launcher.Utility
 					{
 						while ((Read = SliceStream.Read(Buffer, 0, Buffer.Length)) > 0)
 						{
+							this._DownloadState = DownloadState.Merging;
 							_ThreadToken.ThrowIfCancellationRequested();
 							_DownloadedSize += Read;
 							_LastContinuedSize += Read;
