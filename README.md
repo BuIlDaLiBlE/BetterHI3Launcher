@@ -35,7 +35,7 @@ Great question! This project is actively supported, you are always welcome to [o
 You can also contribute by translating the launcher into a language you speak. **Please only contribute languages the launcher doesn't yet have!**
 
 Here's how to do it:
-1. [Download English source text](https://bpnet.host/bh3?launcher_translations=get_contents_en)
+1. [Download English source text](https://bpnet.work/bh3?launcher_translations=get_contents_en)
 2. You will see a bunch of lines with text, on each line there are two pieces of text: you don't need to touch the one on the left, only translate the one on the right (after the space). Please try your best not to touch special characters such as `{0}`, `\n`, or `\"`, don't add any unnecessary spaces, newlines or other characters.
 3. After you're done, [create an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new?assignees=BuIlDaLiBlE&labels=language+contribution&template=language_contribution.md&title=Language+contribution+%5BNAME+OF+THE+LANGUAGE+HERE%5D) with the name of the language and attach the file with translated strings to it.
 
