@@ -1794,6 +1794,7 @@ namespace BetterHI3Launcher
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
                             await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, true, httpprop.Thread, token.Token);
+							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
                             httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 							Dispatcher.Invoke(() =>
@@ -3263,7 +3264,9 @@ namespace BetterHI3Launcher
 						token = new CancellationTokenSource();
 						httpclient.DownloadProgress += DownloadStatusChanged;
 						await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-					}
+                        await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+                        httpclient.DownloadProgress -= DownloadStatusChanged;
+                    }
 					else
 					{
 						await download.Start();
@@ -3346,6 +3349,7 @@ namespace BetterHI3Launcher
                             httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
                             await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+                            await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
                             httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							Log("Downloaded pre-download archive");
 						}
