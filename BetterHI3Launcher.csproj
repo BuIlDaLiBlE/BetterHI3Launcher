@@ -128,11 +128,6 @@
     <Compile Include="Utility\Hi3HelperCore.Http\Class\Thread.cs" />
     <Compile Include="Utility\Hi3HelperCore.Http\Http.cs" />
     <Compile Include="Utility\Hi3HelperCore.Http\HttpMultisession.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\EventHandler.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\RemoteStreamController.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\SliceController.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\ThreadController.cs" />
-    <Compile Include="Utility\HttpClientHelper\HttpClientHelper.cs" />
     <Compile Include="Utility\miHoYoCRCUtility.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />

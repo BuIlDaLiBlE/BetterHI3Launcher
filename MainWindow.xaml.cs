@@ -30,7 +30,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
-using BetterHI3Launcher.Utility;
 using Hi3Helper.Http;
 
 namespace BetterHI3Launcher
