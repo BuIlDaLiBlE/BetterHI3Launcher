@@ -3265,6 +3265,7 @@ namespace BetterHI3Launcher
 						await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
                         await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
                         httpclient.DownloadProgress -= DownloadStatusChanged;
+						await DownloadGameFile();
                     }
 					else
 					{
