@@ -31,7 +31,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using BetterHI3Launcher.Utility;
-using static BetterHI3Launcher.Utility.HttpClientHelper;
+using Hi3Helper.Http;
 
 namespace BetterHI3Launcher
 {
@@ -47,6 +47,18 @@ namespace BetterHI3Launcher
 	{
 		miHoYo, Hi3Mirror, MediaFire
 	}
+
+	public class HttpProp
+	{
+		public HttpProp(string URL, string Out)
+		{
+			this.URL = URL;
+			this.Out = Out;
+		}
+		public string URL { get; set; }
+		public string Out { get; set; }
+		public byte Thread { get => (byte)App.ParallelDownloadSessions; }
+    }
 
 	public partial class MainWindow : Window
 	{
@@ -72,7 +84,9 @@ namespace BetterHI3Launcher
 		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
-		DownloadParallelAdapter download_parallel;
+		Http httpclient;
+		HttpProp httpprop;
+        CancellationTokenSource token;
 		DownloadPauseable download;
 		DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
 
@@ -1767,10 +1781,10 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							download_parallel = new DownloadParallelAdapter();
-							download_parallel.DownloadProgress += DownloadStatusChanged;
-							download_parallel.InitializeDownload(url, GameArchiveTempPath);
-							await download_parallel.ResumeAndWait();
+                            httpclient = new Http();
+							httpprop = new HttpProp(url, GameArchiveTempPath);
+                            token = new CancellationTokenSource();
+                            httpclient.DownloadProgress += DownloadStatusChanged;
 							Dispatcher.Invoke(() =>
 							{
 								ProgressText.Text = string.Empty;
@@ -1779,9 +1793,8 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							await download_parallel.WaitForComplete();
-							download_parallel.DownloadProgress -= DownloadStatusChanged;
-							download_parallel.Dispose();
+                            await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, true, httpprop.Thread, token.Token);
+                            httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 							Dispatcher.Invoke(() =>
 							{
@@ -1792,7 +1805,7 @@ namespace BetterHI3Launcher
 						}
 						catch(OperationCanceledException)
 						{
-							download_parallel.DownloadProgress -= DownloadStatusChanged;
+                            httpclient.DownloadProgress -= DownloadStatusChanged;
 							return;
 						}
 					}
@@ -3142,10 +3155,7 @@ namespace BetterHI3Launcher
 				{
 					if(!App.UseLegacyDownload && !CacheDownload)
 					{
-						try
-						{
-							await download_parallel.DisposeAndWait();
-						}catch(OperationCanceledException){}
+						token.Cancel();
 					}
 					else
 					{
@@ -3157,8 +3167,8 @@ namespace BetterHI3Launcher
 					{
 						if(!App.UseLegacyDownload)
 						{
-							DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-						}
+							await httpclient.DeleteMultisessionChunks(httpprop.Out);
+                        }
 						else
 						{
 							if(!string.IsNullOrEmpty(GameArchiveTempPath))
@@ -3223,7 +3233,7 @@ namespace BetterHI3Launcher
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
 				if(!App.UseLegacyDownload)
 				{
-					await download_parallel.StopAndWait();
+					token.Cancel();
 				}
 				else
 				{
@@ -3239,23 +3249,28 @@ namespace BetterHI3Launcher
 				DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 				try
 				{
-					if(!App.UseLegacyDownload)
-					{
-						download_parallel.DownloadProgress += DownloadStatusChanged;
-						await download_parallel.ResumeAndWait();
-					}
-					else
-					{
-						await download.Start();
-					}
 					ProgressText.Text = string.Empty;
 					ProgressBar.Visibility = Visibility.Hidden;
 					DownloadPauseButton.Visibility = Visibility.Visible;
 					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 					LaunchButton.IsEnabled = true;
 					LaunchButton.Content = App.TextStrings["button_cancel"];
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+
+					if (!App.UseLegacyDownload)
+					{
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+						httpclient = new Http();
+						token = new CancellationTokenSource();
+						httpclient.DownloadProgress += DownloadStatusChanged;
+						await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+					}
+					else
+					{
+						await download.Start();
+					}
 				}
+				catch(TaskCanceledException) { }
+				catch(OperationCanceledException) { }
 				catch(Exception ex)
 				{
 					Status = LauncherStatus.Error;
@@ -3325,19 +3340,18 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							download_parallel = new DownloadParallelAdapter();
-							download_parallel.DownloadProgress += PreloadDownloadStatusChanged;
-							download_parallel.InitializeDownload(url, tmp_path);
-							await download_parallel.ResumeAndWait();
+							httpclient = new Http();
+							token = new CancellationTokenSource();
+							httpprop = new HttpProp(url, tmp_path);
+                            httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
-							await download_parallel.WaitForComplete();
-							download_parallel.DownloadProgress -= PreloadDownloadStatusChanged;
-							download_parallel.Dispose();
+                            await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+                            httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							Log("Downloaded pre-download archive");
 						}
 						catch(OperationCanceledException)
 						{
-							download_parallel.DownloadProgress -= PreloadDownloadStatusChanged;
+                            httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							return;
 						}
 					}
@@ -3455,7 +3469,7 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			if(download != null || download_parallel.client._DownloadState == DownloadState.Downloading)
+			if(download != null || httpclient.SessionState == MultisessionState.Downloading)
 			{
 				PreloadPauseButton.IsEnabled = false;
 				if(download != null)
@@ -3465,7 +3479,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					await download_parallel.StopAndWait();
+					token.Cancel();
 				}
 				Log("Pre-download paused");
 				PreloadDownload = false;
@@ -5599,7 +5613,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && download_parallel == null || download_parallel.client._DownloadState == DownloadState.Idle)
+				if(download == null && httpclient == null || httpclient.SessionState == MultisessionState.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -5614,7 +5628,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					if(download_parallel != null && download_parallel.client._DownloadState == DownloadState.Merging)
+					if(httpclient != null && httpclient.SessionState == MultisessionState.Merging)
 					{
 						e.Cancel = true;
 						return;
@@ -5625,11 +5639,11 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel != null && (download_parallel.client._DownloadState == DownloadState.Downloading || download_parallel.Paused && download_parallel.client._DownloadState == DownloadState.Cancelled))
+						else if(httpclient != null && httpclient.SessionState == MultisessionState.Downloading || httpclient.SessionState == MultisessionState.CancelledDownloading)
 						{
 							try
 							{
-								await download_parallel.DisposeAndWait();
+								token.Cancel();
 							}catch(OperationCanceledException){}
 						}
 						else

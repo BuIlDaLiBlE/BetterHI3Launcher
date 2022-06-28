@@ -2,11 +2,11 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using static BetterHI3Launcher.Utility.HttpClientHelper;
+using Hi3Helper.Http;
 
 namespace BetterHI3Launcher.Utility
 {
-	public class DownloadParallelAdapter : IDisposable
+	public class DownloadParallelAdapter : Http
 	{
 		public struct DownloadProp
 		{
@@ -16,7 +16,6 @@ namespace BetterHI3Launcher.Utility
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private CancellationToken cancelToken;
 		private DownloadProp link;
-		public HttpClientHelper client;
 		public event EventHandler<DownloadChangedProgress> DownloadProgress;
 		public bool Paused;
 		private bool IsCompleted;
@@ -32,17 +31,16 @@ namespace BetterHI3Launcher.Utility
 			IsCompleted = false;
 			IsCanceled = false;
 			cancelToken = cancelTokenSource.Token;
+			
+			base.DownloadProgress += DownloadProgressAdapter;
 
-			client = new HttpClientHelper(false);
-			client.DownloadProgress += DownloadProgressAdapter;
-
-			Task.Run(() =>
+			Task.Run(async () =>
 			{
 				try
 				{
 					InnerProgressStopwatch = Stopwatch.StartNew();
 					LastTimeSpan = InnerProgressStopwatch.Elapsed;
-					client.DownloadFile(link.source, link.target, App.ParallelDownloadSessions, cancelToken);
+					await DownloadMultisession(link.source, link.target, false, (byte)App.ParallelDownloadSessions, cancelToken);
 					IsCompleted = true;
 				}
 				catch(OperationCanceledException)
@@ -65,10 +63,10 @@ namespace BetterHI3Launcher.Utility
 
 			if(cancelToken.IsCancellationRequested)
 			{
-				client.DownloadProgress -= DownloadProgressAdapter;
+				base.DownloadProgress -= DownloadProgressAdapter;
 				throw new OperationCanceledException("Parallel downloader shutting down...");
 			}
-			client.DownloadProgress -= DownloadProgressAdapter;
+			base.DownloadProgress -= DownloadProgressAdapter;
 		}
 
 		public void Resume()
@@ -80,7 +78,7 @@ namespace BetterHI3Launcher.Utility
 		public async Task ResumeAndWait()
         {
 			Resume();
-			while (client._DownloadState != DownloadState.Downloading)
+			while (SessionState != MultisessionState.Downloading)
 				await Task.Delay(125);
 		}
 
@@ -116,15 +114,15 @@ namespace BetterHI3Launcher.Utility
 			await WaitForComplete();
 		}
 
-		private void DownloadProgressAdapter(object sender, _DownloadProgress e)
+		private void DownloadProgressAdapter(object sender, DownloadEvent e)
 		{
 			UpdateProgress(new DownloadChangedProgress
 			{
-				Status = e.DownloadState,
-				BytesReceived = e.DownloadedSize,
-				CurrentReceived = e.CurrentRead,
-				TotalBytesToReceive = e.TotalSizeToDownload,
-				CurrentSpeed = e.CurrentSpeed,
+				Status = e.State,
+				BytesReceived = e.SizeDownloaded,
+				CurrentReceived = e.Read,
+				TotalBytesToReceive = e.SizeToBeDownloaded,
+				CurrentSpeed = e.Speed,
 				ProgressPercentage = e.ProgressPercentage,
 				TimeLeft = GetLastTimeSpan(InnerProgressStopwatch, e.TimeLeft)
 			});
@@ -145,7 +143,7 @@ namespace BetterHI3Launcher.Utility
 
 	public class DownloadChangedProgress : EventArgs
 	{
-		public DownloadState Status {get; set;}
+		public MultisessionState Status {get; set;}
 		public long CurrentReceived {get; set;}
 		public long BytesReceived {get; set;}
 		public long TotalBytesToReceive {get; set;}
