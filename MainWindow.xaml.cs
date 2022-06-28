@@ -57,7 +57,7 @@ namespace BetterHI3Launcher
 		public string URL { get; set; }
 		public string Out { get; set; }
 		public byte Thread { get => (byte)App.ParallelDownloadSessions; }
-    }
+	}
 
 	public partial class MainWindow : Window
 	{
@@ -85,7 +85,7 @@ namespace BetterHI3Launcher
 		HI3Mirror _downloadmirror;
 		Http httpclient;
 		HttpProp httpprop;
-        CancellationTokenSource token;
+		CancellationTokenSource token;
 		DownloadPauseable download;
 		DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
 
@@ -1780,10 +1780,10 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-                            httpclient = new Http();
+							httpclient = new Http();
 							httpprop = new HttpProp(url, GameArchiveTempPath);
-                            token = new CancellationTokenSource();
-                            httpclient.DownloadProgress += DownloadStatusChanged;
+							token = new CancellationTokenSource();
+							httpclient.DownloadProgress += DownloadStatusChanged;
 							Dispatcher.Invoke(() =>
 							{
 								ProgressText.Text = string.Empty;
@@ -1792,9 +1792,9 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-                            await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, true, httpprop.Thread, token.Token);
+							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, true, httpprop.Thread, token.Token);
 							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
-                            httpclient.DownloadProgress -= DownloadStatusChanged;
+							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 							Dispatcher.Invoke(() =>
 							{
@@ -1805,7 +1805,7 @@ namespace BetterHI3Launcher
 						}
 						catch(OperationCanceledException)
 						{
-                            httpclient.DownloadProgress -= DownloadStatusChanged;
+							httpclient.DownloadProgress -= DownloadStatusChanged;
 							return;
 						}
 					}
@@ -3168,7 +3168,7 @@ namespace BetterHI3Launcher
 						if(!App.UseLegacyDownload)
 						{
 							await httpclient.DeleteMultisessionChunks(httpprop.Out);
-                        }
+						}
 						else
 						{
 							if(!string.IsNullOrEmpty(GameArchiveTempPath))
@@ -3263,10 +3263,10 @@ namespace BetterHI3Launcher
 						token = new CancellationTokenSource();
 						httpclient.DownloadProgress += DownloadStatusChanged;
 						await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-                        await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
-                        httpclient.DownloadProgress -= DownloadStatusChanged;
+						await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+						httpclient.DownloadProgress -= DownloadStatusChanged;
 						await DownloadGameFile();
-                    }
+					}
 					else
 					{
 						await download.Start();
@@ -3346,16 +3346,16 @@ namespace BetterHI3Launcher
 							httpclient = new Http();
 							token = new CancellationTokenSource();
 							httpprop = new HttpProp(url, tmp_path);
-                            httpclient.DownloadProgress += PreloadDownloadStatusChanged;
+							httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
-                            await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-                            await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
-                            httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
+							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							Log("Downloaded pre-download archive");
 						}
 						catch(OperationCanceledException)
 						{
-                            httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
+							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							return;
 						}
 					}
