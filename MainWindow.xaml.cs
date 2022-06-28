@@ -47,16 +47,16 @@ namespace BetterHI3Launcher
 		miHoYo, Hi3Mirror, MediaFire
 	}
 
-	public class HttpProp
+	class HttpProp
 	{
 		public HttpProp(string URL, string Out)
 		{
 			this.URL = URL;
 			this.Out = Out;
 		}
-		public string URL { get; set; }
-		public string Out { get; set; }
-		public byte Thread { get => (byte)App.ParallelDownloadSessions; }
+		public string URL{get;private set;}
+		public string Out{get;private set;}
+		public byte Thread => (byte)App.ParallelDownloadSessions;
 	}
 
 	public partial class MainWindow : Window
