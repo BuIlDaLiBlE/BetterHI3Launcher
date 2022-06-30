@@ -31,7 +31,7 @@ namespace BetterHI3Launcher
 		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate, UseLegacyDownload;
 		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
 		public static bool Starting = true;
-		public static readonly int ParallelDownloadSessions = 8;
+		public static readonly int ParallelDownloadSessions = 4;
 		public static Dictionary<string, string> TextStrings = new Dictionary<string, string>();
 		public static Mutex Mutex = null;
 

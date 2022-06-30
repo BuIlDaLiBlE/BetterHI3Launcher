@@ -1,0 +1,3 @@
+[submodule "Utility/Hi3HelperCore.Http"]
+	path = Utility/Hi3HelperCore.Http
+	url = https://github.com/neon-nyan/Hi3HelperCore.Http
