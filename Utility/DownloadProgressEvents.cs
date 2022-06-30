@@ -10,9 +10,6 @@ namespace BetterHI3Launcher
 	{
 		float RefreshRate = 250f;
 		Stopwatch LastTimeSpan = Stopwatch.StartNew();
-
-		private void DownloadLogListener(object sender, DownloadLogEvent e) => Log(e.Message, true, (int)e.Severity);
-
 		private void DownloadStatusChanged(object sender, DownloadEvent e)
 		{
 			if (LastTimeSpan.Elapsed.TotalMilliseconds >= RefreshRate)
@@ -50,8 +47,8 @@ namespace BetterHI3Launcher
 					PreloadStatusTopRightText.Text = $"{BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)}";
 					PreloadStatusMiddleRightText.Text = string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft);
 					PreloadStatusBottomRightText.Text = $"{BpUtility.ToBytesCount(e.Speed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
-					if (e.State == MultisessionState.Merging)
-					{
+                    if (e.State == MultisessionState.Merging)
+                    {
 						PreloadPauseButton.IsEnabled = false;
 						PreloadBottomText.Text = string.Format(App.TextStrings["label_merged"], DownloadPercentage);
 						PreloadStatusTopLeftText.Text = $"{App.TextStrings["label_merged"].Split(' ')[0]}:";
