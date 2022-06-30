@@ -550,7 +550,6 @@
 						<ComboBox Name="MirrorDropdown" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
 							<ComboBoxItem Content="HoYoverse"/>
 							<ComboBoxItem Content="Hi3Mirror"/>
-							<ComboBoxItem Content="MediaFire"/>
 						</ComboBox>
 					</StackPanel>
 				</StackPanel>
