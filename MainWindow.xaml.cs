@@ -11,13 +11,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -36,7 +34,7 @@ namespace BetterHI3Launcher
 {
 	enum LauncherStatus
 	{
-		Ready, Error, CheckingUpdates, Downloading, Updating, Verifying, Unpacking, CleaningUp, UpdateAvailable, Uninstalling, Working, DownloadPaused, Running, Preloading, PreloadVerifying
+		Ready, Error, CheckingUpdates, Downloading, Updating, Verifying, Unpacking, UpdateAvailable, Uninstalling, Working, DownloadPaused, Running, Preloading, PreloadVerifying
 	}
 	enum HI3Server
 	{
@@ -62,9 +60,9 @@ namespace BetterHI3Launcher
 	public partial class MainWindow : Window
 	{
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
-		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
+		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameExePath;
 		public static string RegistryVersionInfo;
-		public static string GameWebProfileURL, GameFullName, GameInstallRegistryName;
+		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameExeName, GameInstallRegistryName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
@@ -78,7 +76,8 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
-		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata;
+		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo;
+		public dynamic GameGraphicSettings, GameScreenSettings;
 		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
@@ -207,9 +206,6 @@ namespace BetterHI3Launcher
 						DownloadETAText.Visibility = Visibility.Collapsed;
 						DownloadSpeedText.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-						break;
-					case LauncherStatus.CleaningUp:
-						ProgressText.Text = App.TextStrings["progresstext_cleaning_up"];
 						break;
 					case LauncherStatus.UpdateAvailable:
 						ProgressText.Text = string.Empty;
@@ -1225,7 +1221,7 @@ namespace BetterHI3Launcher
 								GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
 								PatchDownload = true;
 							}
-							Log("Game requires an update!");
+							Log("The game requires an update!");
 							Status = LauncherStatus.UpdateAvailable;
 						}
 						else if(LocalVersionInfo.game_info.installed == false)
@@ -1690,16 +1686,16 @@ namespace BetterHI3Launcher
 				}
 				md5 = md5.ToUpper();
 				GameArchiveTempPath = $"{GameArchivePath}_tmp";
-				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
 				ProgressBar.IsIndeterminate = true;
 				if(File.Exists(GameArchivePath))
 				{
 					File.Move(GameArchivePath, GameArchiveTempPath);
 				}
-				if(!App.UseLegacyDownload)
+				if(!File.Exists(GameArchiveTempPath))
 				{
-					if(!File.Exists(GameArchiveTempPath))
+					Log($"Starting to download game archive: {title} ({url})");
+					if(!App.UseLegacyDownload)
 					{
 						try
 						{
@@ -1715,7 +1711,7 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, true, httpprop.Thread, token.Token);
+							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
 							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
 							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
@@ -1732,11 +1728,7 @@ namespace BetterHI3Launcher
 							return;
 						}
 					}
-				}
-				else
-				{
-					DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-					if(!File.Exists(GameArchiveTempPath))
+					else
 					{
 						await Task.Run(() =>
 						{
@@ -2853,6 +2845,7 @@ namespace BetterHI3Launcher
 							DeleteFile(GameArchiveTempPath, true);
 						}
 					}
+					try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
 					DownloadPaused = false;
 					Log("Download cancelled");
 					Status = LauncherStatus.Ready;
@@ -2900,6 +2893,7 @@ namespace BetterHI3Launcher
 					download.Pause();
 				}
 				DownloadResumeButton.Visibility = Visibility.Visible;
+				Log("Download paused");
 			}
 			else
 			{
@@ -2915,8 +2909,9 @@ namespace BetterHI3Launcher
 					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 					LaunchButton.IsEnabled = true;
 					LaunchButton.Content = App.TextStrings["button_cancel"];
+					Log("Download resumed");
 
-					if (!App.UseLegacyDownload)
+					if(!App.UseLegacyDownload)
 					{
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 						httpclient = new Http();
@@ -2932,8 +2927,8 @@ namespace BetterHI3Launcher
 						await download.Start();
 					}
 				}
-				catch(TaskCanceledException) { }
-				catch(OperationCanceledException) { }
+				catch(TaskCanceledException){}
+				catch(OperationCanceledException){}
 				catch(Exception ex)
 				{
 					Status = LauncherStatus.Error;
@@ -3022,7 +3017,6 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					DeleteExistingParallelDownloadFiles(path);
 					await Task.Run(() =>
 					{
 						tracker.NewFile();
@@ -3961,10 +3955,7 @@ namespace BetterHI3Launcher
 				{
 					return;
 				}
-				Status = LauncherStatus.CleaningUp;
-				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-				DeleteFile(GameArchivePath);
-				DeleteFile(CacheArchivePath);
+				DeleteFile(GameArchiveTempPath);
 			}
 
 			try
@@ -4087,8 +4078,7 @@ namespace BetterHI3Launcher
 				}
 				download = null;
 				DownloadPaused = false;
-				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-				DeleteFile(GameArchivePath);
+				DeleteFile(GameArchiveTempPath);
 				if(!PatchDownload)
 				{
 					ResetVersionInfo();
@@ -4167,8 +4157,7 @@ namespace BetterHI3Launcher
 				}
 				download = null;
 				DownloadPaused = false;
-				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-				DeleteFile(GameArchivePath);
+				DeleteFile(GameArchiveTempPath);
 				if(!PatchDownload)
 				{
 					ResetVersionInfo();
@@ -4889,19 +4878,13 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private async void MainWindow_Closing(object sender, CancelEventArgs e)
+		private void MainWindow_Closing(object sender, CancelEventArgs e)
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
 				if(download == null && httpclient == null || httpclient.SessionState == MultisessionState.Idle)
 				{
-					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
-					{
-						Status = LauncherStatus.CleaningUp;
-						DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-						DeleteFile(CacheArchivePath);
-					}
-					else
+					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						e.Cancel = true;
 					}
@@ -4941,7 +4924,7 @@ namespace BetterHI3Launcher
 					}
 				}
 			}
-			else if(Status == LauncherStatus.Verifying || Status == LauncherStatus.Unpacking || Status == LauncherStatus.CleaningUp || Status == LauncherStatus.Uninstalling || Status == LauncherStatus.Working || Status == LauncherStatus.PreloadVerifying)
+			else if(Status == LauncherStatus.Verifying || Status == LauncherStatus.Unpacking || Status == LauncherStatus.Uninstalling || Status == LauncherStatus.Working || Status == LauncherStatus.PreloadVerifying)
 			{
 				e.Cancel = true;
 			}
@@ -5042,20 +5025,6 @@ namespace BetterHI3Launcher
 				}
 			}
 			return -1;
-		}
-
-		private void DeleteExistingParallelDownloadFiles(string file_path)
-		{
-			string partial_name;
-			for(int i = 0; i < App.ParallelDownloadSessions; i++)
-			{
-				partial_name = string.Format("{0}.{1:000}", file_path, i + 1);
-				while(BpUtility.IsFileLocked(new FileInfo(partial_name)))
-				{
-					Thread.Sleep(10);
-				}
-				DeleteFile(partial_name, true);
-			}
 		}
 
 		private void ToggleContextMenuItems(bool val, bool leave_uninstall_enabled = false)

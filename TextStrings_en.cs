@@ -92,7 +92,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_language_contribute", "Want to help?");
 			TextStrings.Add("contextmenu_about", "About");
 			TextStrings.Add("progresstext_checking_update", "Checking for update...");
-			TextStrings.Add("progresstext_cleaning_up", "Cleaning up...");
 			TextStrings.Add("progresstext_downloaded", "Downloaded {0}/{1} ({2})");
 			TextStrings.Add("progresstext_downloading_file", "Downloading file {0}/{1}...");
 			TextStrings.Add("progresstext_error", "Mistakes were made :^(");
