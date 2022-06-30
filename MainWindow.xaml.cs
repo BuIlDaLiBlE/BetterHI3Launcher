@@ -68,7 +68,6 @@ namespace BetterHI3Launcher
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
-		public static RoutedCommand FixSubtitlesCommand = new RoutedCommand();
 		public static RoutedCommand RepairGameCommand = new RoutedCommand();
 		public static RoutedCommand MoveGameCommand = new RoutedCommand();
 		public static RoutedCommand UninstallGameCommand = new RoutedCommand();
@@ -436,9 +435,6 @@ namespace BetterHI3Launcher
 			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
 			CM_Download_Cache.Click += (sender, e) => CM_DownloadCache_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Download_Cache);
-			var CM_Fix_Subtitles = new MenuItem{Header = App.TextStrings["contextmenu_fix_subtitles"], InputGestureText = "Ctrl+S"};
-			CM_Fix_Subtitles.Click += async (sender, e) => await CM_FixSubtitles_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Fix_Subtitles);
 			var CM_Repair = new MenuItem{Header = App.TextStrings["contextmenu_repair"], InputGestureText = "Ctrl+R"};
 			CM_Repair.Click += async (sender, e) => await CM_Repair_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Repair);
@@ -478,7 +474,7 @@ namespace BetterHI3Launcher
 			var CM_ShowLog = new MenuItem{Header = App.TextStrings["contextmenu_show_log"], InputGestureText = "Ctrl+L"};
 			CM_ShowLog.Click += (sender, e) => CM_ShowLog_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_ShowLog);
-			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+Shift+S", IsChecked = true};
+			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+S", IsChecked = true};
 			CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Sounds);
 			var CM_Language = new MenuItem{Header = App.TextStrings["contextmenu_language"]};
@@ -734,7 +730,6 @@ namespace BetterHI3Launcher
 				}
 
 				DownloadCacheCommand.InputGestures.Add(new KeyGesture(Key.D, ModifierKeys.Control));
-				FixSubtitlesCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
 				RepairGameCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
 				MoveGameCommand.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
 				UninstallGameCommand.InputGestures.Add(new KeyGesture(Key.U, ModifierKeys.Control));
@@ -743,7 +738,7 @@ namespace BetterHI3Launcher
 				ChangelogCommand.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control));
 				CustomBackgroundCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
 				ToggleLogCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
-				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift));
+				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
 				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
 				App.NeedsUpdate = LauncherUpdateCheck();
@@ -3567,300 +3562,6 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private async Task CM_FixSubtitles_Click(object sender, RoutedEventArgs e)
-		{
-			if(Status != LauncherStatus.Ready)
-			{
-				return;
-			}
-			if(LegacyBoxActive)
-			{
-				return;
-			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
-			{
-				new DialogWindow(App.TextStrings["contextmenu_fix_subtitles"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
-				return;
-			}
-			if(new DialogWindow(App.TextStrings["contextmenu_fix_subtitles"], App.TextStrings["msgbox_fix_subtitles_1_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-			{
-				return;
-			}
-
-			try
-			{
-				Status = LauncherStatus.Working;
-				Log("Starting to fix subtitles...");
-				var game_video_path = Path.Combine(GameInstallPath, @"BH3_Data\StreamingAssets\Video");
-				if(Directory.Exists(game_video_path))
-				{
-					var subtitle_archives = Directory.EnumerateFiles(game_video_path, "*.zip", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".zip", StringComparison.CurrentCultureIgnoreCase)).ToList();
-					Dispatcher.Invoke(() =>
-					{
-						ProgressBar.IsIndeterminate = false;
-						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-					});
-					if(subtitle_archives.Count > 0)
-					{
-						int unpacked_files = 0;
-						await Task.Run(() =>
-						{
-							var skipped_files = new List<string>();
-							var skipped_file_paths = new List<string>();
-							foreach(var subtitle_archive in subtitle_archives)
-							{
-								bool unpack_ok = true;
-								Dispatcher.Invoke(() =>
-								{
-									ProgressText.Text = string.Format(App.TextStrings["msgbox_fix_subtitles_2_msg"], unpacked_files + 1, subtitle_archives.Count);
-									var progress = (unpacked_files + 1f) / subtitle_archives.Count;
-									ProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-								});
-								using(var archive = ArchiveFactory.Open(subtitle_archive))
-								{
-									var reader = archive.ExtractAllEntries();
-									while(reader.MoveToNextEntry())
-									{
-										try
-										{
-											var entryPath = Path.Combine(game_video_path, reader.Entry.ToString());
-											if(File.Exists(entryPath))
-											{
-												File.SetAttributes(entryPath, File.GetAttributes(entryPath) & ~FileAttributes.ReadOnly);
-											}
-											reader.WriteEntryToDirectory(game_video_path, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
-										}
-										catch
-										{
-											unpack_ok = false;
-											skipped_files.Add($"{reader.Entry} ({Path.GetFileName(subtitle_archive)})");
-											skipped_file_paths.Add(subtitle_archive);
-											Log($"Failed to unpack {subtitle_archive} ({reader.Entry})", true, 1);
-										}
-									}
-								}
-								if(unpack_ok)
-								{
-									Log($"Unpacked {subtitle_archive}");
-								}
-								File.SetAttributes(subtitle_archive, File.GetAttributes(subtitle_archive) & ~FileAttributes.ReadOnly);
-								if(!skipped_file_paths.Contains(subtitle_archive))
-								{
-									DeleteFile(subtitle_archive);
-								}
-								unpacked_files++;
-							}
-							Dispatcher.Invoke(() =>
-							{
-								if(skipped_files.Count > 0)
-								{
-									ToggleLog(true);
-									TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
-									new DialogWindow(App.TextStrings["msgbox_extract_skip_title"], App.TextStrings["msgbox_extract_skip_msg"]).ShowDialog();
-								}
-							});
-							Log($"Unpacked {unpacked_files} archives");
-						});
-					}
-					ProgressBar.IsIndeterminate = true;
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
-					var subtitle_files = Directory.EnumerateFiles(game_video_path, "*.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".srt", StringComparison.CurrentCultureIgnoreCase)).ToList();
-					var subs_fixed = new List<string>();
-					ProgressBar.IsIndeterminate = false;
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-					if(subtitle_files.Count > 0)
-					{
-						int subtitles_parsed = 0;
-						await Task.Run(() =>
-						{
-							foreach(var subtitle_file in subtitle_files)
-							{
-								var subtitle_lines = File.ReadAllLines(subtitle_file);
-								bool subtitle_fixed = false;
-								int line_count = subtitle_lines.Length;
-								int lines_fixed = 0;
-								Dispatcher.Invoke(() =>
-								{
-									ProgressText.Text = string.Format(App.TextStrings["msgbox_fix_subtitles_3_msg"], subtitles_parsed + 1, subtitle_files.Count);
-									var progress = (subtitles_parsed + 1f) / subtitle_files.Count;
-									ProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-								});
-								File.SetAttributes(subtitle_file, File.GetAttributes(subtitle_file) & ~FileAttributes.ReadOnly);
-								if(new FileInfo(subtitle_file).Length == 0)
-								{
-									subtitles_parsed++;
-									continue;
-								}
-								for(int at_line = 1; at_line < line_count; at_line++)
-								{
-									var line = File.ReadLines(subtitle_file).Skip(at_line).Take(1).First();
-									if(string.IsNullOrEmpty(line) || new Regex(@"^\d+$").IsMatch(line))
-									{
-										continue;
-									}
-									int char_offset = 0;
-									if(line.Contains("-->"))
-									{
-										var missing_two_digits_regex = new Regex(@"(?<=:)\d?(?=[:,])").Matches(line);
-										foreach(Match match in missing_two_digits_regex)
-										{
-											if(match.Success)
-											{
-												line = line.Insert(match.Index + char_offset, new string('0', 2 - match.Length));
-												char_offset += 2 - match.Length;
-											}
-										}
-										char_offset = 0;
-										var missing_three_digits_regex = new Regex(@"(?<=[\d:],)\d{0,2}(?=\s|$)").Matches(line);
-										foreach(Match match in missing_three_digits_regex)
-										{
-											if(match.Success)
-											{
-												line = line.Insert(match.Index + char_offset, new string('0', 3 - match.Length));
-												char_offset += 3 - match.Length;
-											}
-										}
-									}
-									char_offset = 0;
-									var keep_one_whitespace_regex = new Regex(@"\s{2,}").Matches(line);
-									foreach(Match match in keep_one_whitespace_regex)
-									{
-										if(match.Success)
-										{
-											line = line.Remove(match.Index + char_offset, match.Length - 1);
-											char_offset -= match.Length - 1;
-										}
-									}
-									char_offset = 0;
-									var trim_regex = new Regex(@"^\s+|\s+$").Matches(line);
-									foreach(Match match in trim_regex)
-									{
-										if(match.Success)
-										{
-											line = line.Remove(match.Index + char_offset, match.Length);
-											char_offset -= match.Length;
-										}
-									}
-
-									if(subtitle_lines[at_line] != line)
-									{
-										if(App.AdvancedFeatures) Log($"Fixed line {1 + at_line}: [{subtitle_lines[at_line]}] -> [{line}]");
-										subtitle_lines[at_line] = line;
-										lines_fixed++;
-									}
-								}
-								if(lines_fixed > 0)
-								{
-									File.WriteAllLines(subtitle_file, subtitle_lines);
-									subtitle_fixed = true;
-								}
-								var subtitle_text = File.ReadAllText(subtitle_file);
-								int removed_chars = 0;
-								var remove_empty_regex = new Regex(@"\d+[\r\n]{2}\s?-->\s?[\r\n]").Matches(subtitle_text);
-								foreach(Match match in remove_empty_regex)
-								{
-									if(match.Success)
-									{
-										subtitle_text = subtitle_text.Remove(match.Index - removed_chars, match.Length);
-										removed_chars += match.Length;
-									}
-								}
-								var remove_newlines_regex = new Regex(@"(?<=[\r\n]{4})[\r\n]+").Matches(subtitle_text);
-								foreach(Match match in remove_newlines_regex)
-								{
-									if(match.Success)
-									{
-										subtitle_text = subtitle_text.Remove(match.Index - removed_chars, match.Length);
-										removed_chars += match.Length;
-									}
-								}
-								if(remove_empty_regex.Count > 0 || remove_newlines_regex.Count > 0)
-								{
-									File.WriteAllText(subtitle_file, subtitle_text);
-									subtitle_fixed = true;
-								}
-								if(subtitle_fixed && !subs_fixed.Contains(subtitle_file))
-								{
-									subs_fixed.Add(subtitle_file);
-									Log($"Subtitle fixed: {subtitle_file}");
-								}
-								subtitles_parsed++;
-							}
-						});
-						Log($"Parsed {subtitles_parsed} subtitles, fixed {subs_fixed.Count} of them");
-					}
-					if(Server == HI3Server.GLB)
-					{
-						ProgressBar.IsIndeterminate = true;
-						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
-						subtitle_files = Directory.EnumerateFiles(game_video_path, "*id.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("id.srt", StringComparison.CurrentCultureIgnoreCase)).ToList();
-						subtitle_files.AddRange(subtitle_files = Directory.EnumerateFiles(game_video_path, "*th.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("th.srt", StringComparison.CurrentCultureIgnoreCase)).ToList());
-						subtitle_files.AddRange(subtitle_files = Directory.EnumerateFiles(game_video_path, "*vn.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("vn.srt", StringComparison.CurrentCultureIgnoreCase)).ToList());
-						if(subtitle_files.Count > 0)
-						{
-							int deleted_subs = 0;
-							await Task.Run(() =>
-							{
-								foreach(var subtitle_file in subtitle_files)
-								{
-									try
-									{
-										if(File.Exists(subtitle_file))
-										{
-											File.Delete(subtitle_file);
-										}
-										deleted_subs++;
-									}
-									catch
-									{
-										Log($"Failed to delete {subtitle_file}", true, 2);
-									}
-								}
-							});
-							Log($"Deleted {deleted_subs} useless subtitles");
-						}
-					}
-					ProgressText.Text = string.Empty;
-					ProgressBar.Visibility = Visibility.Hidden;
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
-					WindowState = WindowState.Normal;
-					if(subtitle_archives.Count > 0 && subs_fixed.Count == 0)
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], string.Format(App.TextStrings["msgbox_fix_subtitles_4_msg"], subtitle_archives.Count)).ShowDialog();
-					}
-					else if(subtitle_archives.Count == 0 && subs_fixed.Count > 0)
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], string.Format(App.TextStrings["msgbox_fix_subtitles_5_msg"], subs_fixed.Count)).ShowDialog();
-					}
-					else if(subtitle_archives.Count > 0 && subs_fixed.Count > 0)
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], $"{string.Format(App.TextStrings["msgbox_fix_subtitles_4_msg"], subtitle_archives.Count)}\n{string.Format(App.TextStrings["msgbox_fix_subtitles_5_msg"], subs_fixed.Count)}").ShowDialog();
-					}
-					else
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], App.TextStrings["msgbox_fix_subtitles_6_msg"]).ShowDialog();
-					}
-				}
-				else
-				{
-					Status = LauncherStatus.Error;
-					Log("No CG directory!", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_generic_error_title"], App.TextStrings["msgbox_no_video_dir_msg"]).ShowDialog();
-				}
-				Status = LauncherStatus.Ready;
-			}
-			catch(Exception ex)
-			{
-				Status = LauncherStatus.Error;
-				Log($"{ex}", true, 1);
-				new DialogWindow(App.TextStrings["msgbox_generic_error_title"], App.TextStrings["msgbox_generic_error_msg"]).ShowDialog();
-				Status = LauncherStatus.Ready;
-				return;
-			}
-		}
-
 		private void CM_CustomFPS_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
@@ -5077,16 +4778,6 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private void FixSubtitlesCommand_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_fix_subtitles"]);
-			if(item.IsEnabled)
-			{
-				var peer = new MenuItemAutomationPeer(item);
-				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-				inv_prov.Invoke();
-			}
-		}
 
 		private void RepairGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{

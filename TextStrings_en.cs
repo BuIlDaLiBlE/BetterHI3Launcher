@@ -59,7 +59,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation, parallel download feature\nRinnosuke93 - Italian language translation\nMartinial - Czech language translation\nKLXLjun - Chinese (Simplified) translation");
 			TextStrings.Add("announcementbox_do_not_show", "Do not show me this next time");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
-			TextStrings.Add("contextmenu_fix_subtitles", "Fix subtitles");
 			TextStrings.Add("contextmenu_repair", "Repair game files");
 			TextStrings.Add("contextmenu_move", "Move game files");
 			TextStrings.Add("contextmenu_uninstall", "Uninstall game");
@@ -138,15 +137,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type and allow you to reselect which assets to download.\nContinue?");
 			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset.");
 			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset.");
-			TextStrings.Add("msgbox_extract_skip_msg", "Unpacking finished, but some files failed to be unpacked. You might want to unpack them manually.\nFor more information take a look at the log.");
-			TextStrings.Add("msgbox_extract_skip_title", "File skip notice");
 			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available for selected server.");
-			TextStrings.Add("msgbox_fix_subtitles_1_msg", "This will attempt to fix CG subtitles. Make sure you have already downloaded all CGs in the game.\nContinue?");
-			TextStrings.Add("msgbox_fix_subtitles_2_msg", "Unpacking subtitle file {0}/{1}...");
-			TextStrings.Add("msgbox_fix_subtitles_3_msg", "Checking subtitle file {0}/{1}...");
-			TextStrings.Add("msgbox_fix_subtitles_4_msg", "Unpacked subtitles for {0} CGs.");
-			TextStrings.Add("msgbox_fix_subtitles_5_msg", "Fixed {0} subtitle files.");
-			TextStrings.Add("msgbox_fix_subtitles_6_msg", "No subtitle files were fixed. They are either not downloaded yet or already fixed.");
 			TextStrings.Add("msgbox_game_download_error_msg", "An error occurred while downloading game files.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_game_download_error_title", "Error downloading game files");
 			TextStrings.Add("msgbox_game_download_mirror_error_msg", "An error occurred while downloading from the mirror.\nFor more information take a look at the log.");
@@ -186,7 +177,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_no_game_dir_title", "No game directory");
 			TextStrings.Add("msgbox_no_game_exe_msg", "Game executable cannot be found.\nWould you like to reset the installation information?");
 			TextStrings.Add("msgbox_no_game_exe_title", "No game executable");
-			TextStrings.Add("msgbox_no_video_dir_msg", "Video directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_notice_title", "Notice");
 			TextStrings.Add("msgbox_pre_install_msg", "You can still enter the game when pre-installing. Are you sure you want to download?\nYou can only download from the miHoYo servers.");
 			TextStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process.\nFor more information take a look at the log.");

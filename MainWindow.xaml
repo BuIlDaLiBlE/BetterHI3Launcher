@@ -22,7 +22,6 @@
 	</Window.TaskbarItemInfo>
 	<Window.CommandBindings>
 		<CommandBinding Command="{x:Static local:MainWindow.DownloadCacheCommand}" Executed="DownloadCacheCommand_Executed"/>
-		<CommandBinding Command="{x:Static local:MainWindow.FixSubtitlesCommand}" Executed="FixSubtitlesCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.RepairGameCommand}" Executed="RepairGameCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.MoveGameCommand}" Executed="MoveGameCommand_Executed"/>
 		<CommandBinding Command="{x:Static local:MainWindow.UninstallGameCommand}" Executed="UninstallGameCommand_Executed"/>
