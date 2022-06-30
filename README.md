@@ -1,18 +1,22 @@
 # Better HI3 Launcher
 A much better Honkai Impact 3rd launcher. Here are the key points:
-* No need to install, everything's in one executable
+* No need to install, it is just one file
 * Supports all game clients (Global, SEA, CN, TW/HK/MO and KR), can switch between them freely
   * **Please note that Steam version is not supported**
 * Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which dramatically speeds up the download process
 * Has mirror support so you have more download sources to choose from
-* Automatically updates itself, so you're always getting the latest and greatest!
+* Automatically updates itself, so you are always getting the latest and greatest!
 * Has lots of useful features, such as:
   * Downloading game cache (fixes the problems that occur during "Updating settings")
-  * Fixing broken subtitles
-  * Repairing game files (only the required files will be downloaded!)
-  * Moving the game
+  * Repairing game files (only the files that are needed will be downloaded)
+  * Moving game files (properly, so that the original launcher still works)
   * Setting custom resolution, custom FPS, resetting download type (to reselect assets download option)
   * Customizable background (supports still images, GIFs, and even videos!)
+
+## Getting the launcher
+Go to the [releases page](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/releases/latest) and click on `BetterHI3Launcher.exe`.
+
+You can save and use it wherever you want, it's that simple!
 
 ## Compatibility
 First of all, a 64-bit version of Windows is required, since the game also requires it.
