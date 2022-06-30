@@ -9,9 +9,6 @@ namespace BetterHI3Launcher
 	{
 		float RefreshRate = 250f;
 		Stopwatch LastTimeSpan = Stopwatch.StartNew();
-
-		private void DownloadLogListener(object sender, DownloadLogEvent e) => Log(e.Message, true, (int)e.Severity);
-
 		private void DownloadStatusChanged(object sender, DownloadEvent e)
 		{
 			if(LastTimeSpan.Elapsed.TotalMilliseconds >= RefreshRate)
