@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Dynamic;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -30,14 +29,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
-using BetterHI3Launcher.Utility;
-using static BetterHI3Launcher.Utility.HttpClientHelper;
+using Hi3Helper.Http;
 
 namespace BetterHI3Launcher
 {
 	enum LauncherStatus
 	{
-		Ready, Error, CheckingUpdates, Downloading, Updating, Verifying, Unpacking, CleaningUp, UpdateAvailable, Uninstalling, Working, DownloadPaused, Running, Preloading, PreloadVerifying
+		Ready, Error, CheckingUpdates, Downloading, Updating, Verifying, Unpacking, UpdateAvailable, Uninstalling, Working, DownloadPaused, Running, Preloading, PreloadVerifying
 	}
 	enum HI3Server
 	{
@@ -45,19 +43,30 @@ namespace BetterHI3Launcher
 	}
 	enum HI3Mirror
 	{
-		miHoYo, Hi3Mirror, MediaFire
+		miHoYo, Hi3Mirror
+	}
+
+	class HttpProp
+	{
+		public HttpProp(string URL, string Out)
+		{
+			this.URL = URL;
+			this.Out = Out;
+		}
+		public string URL{get;private set;}
+		public string Out{get;private set;}
+		public byte Thread => (byte)App.ParallelDownloadSessions;
 	}
 
 	public partial class MainWindow : Window
 	{
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
-		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameArchiveName, GameExeName, GameExePath, CacheArchivePath;
+		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameExePath;
 		public static string RegistryVersionInfo;
-		public static string GameWebProfileURL, GameFullName, GameInstallRegistryName;
-		public static bool DownloadPaused, PatchDownload, PreloadDownload, CacheDownload, BackgroundImageDownloading, LegacyBoxActive;
+		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameExeName, GameInstallRegistryName;
+		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
-		public static RoutedCommand FixSubtitlesCommand = new RoutedCommand();
 		public static RoutedCommand RepairGameCommand = new RoutedCommand();
 		public static RoutedCommand MoveGameCommand = new RoutedCommand();
 		public static RoutedCommand UninstallGameCommand = new RoutedCommand();
@@ -68,11 +77,14 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
-		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo, GameGraphicSettings, GameScreenSettings, GameCacheMetadata;
+		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo;
+		public dynamic GameGraphicSettings, GameScreenSettings;
 		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
-		DownloadParallelAdapter download_parallel;
+		Http httpclient;
+		HttpProp httpprop;
+		CancellationTokenSource token;
 		DownloadPauseable download;
 		DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
 
@@ -195,9 +207,6 @@ namespace BetterHI3Launcher
 						DownloadETAText.Visibility = Visibility.Collapsed;
 						DownloadSpeedText.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-						break;
-					case LauncherStatus.CleaningUp:
-						ProgressText.Text = App.TextStrings["progresstext_cleaning_up"];
 						break;
 					case LauncherStatus.UpdateAvailable:
 						ProgressText.Text = string.Empty;
@@ -421,11 +430,8 @@ namespace BetterHI3Launcher
 
 			OptionsContextMenu.Items.Clear();
 			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
-			CM_Download_Cache.Click += async (sender, e) => await CM_DownloadCache_Click(sender, e);
+			CM_Download_Cache.Click += (sender, e) => CM_DownloadCache_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Download_Cache);
-			var CM_Fix_Subtitles = new MenuItem{Header = App.TextStrings["contextmenu_fix_subtitles"], InputGestureText = "Ctrl+S"};
-			CM_Fix_Subtitles.Click += async (sender, e) => await CM_FixSubtitles_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Fix_Subtitles);
 			var CM_Repair = new MenuItem{Header = App.TextStrings["contextmenu_repair"], InputGestureText = "Ctrl+R"};
 			CM_Repair.Click += async (sender, e) => await CM_Repair_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Repair);
@@ -465,7 +471,7 @@ namespace BetterHI3Launcher
 			var CM_ShowLog = new MenuItem{Header = App.TextStrings["contextmenu_show_log"], InputGestureText = "Ctrl+L"};
 			CM_ShowLog.Click += (sender, e) => CM_ShowLog_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_ShowLog);
-			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+Shift+S", IsChecked = true};
+			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+S", IsChecked = true};
 			CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Sounds);
 			var CM_Language = new MenuItem{Header = App.TextStrings["contextmenu_language"]};
@@ -677,10 +683,6 @@ namespace BetterHI3Launcher
 						{
 							Mirror = HI3Mirror.Hi3Mirror;
 						}
-						else if((int)last_selected_mirror_reg == 2)
-						{
-							Mirror = HI3Mirror.MediaFire;
-						}
 					}
 				}
 				if(Server != HI3Server.GLB && Server != HI3Server.SEA)
@@ -725,7 +727,6 @@ namespace BetterHI3Launcher
 				}
 
 				DownloadCacheCommand.InputGestures.Add(new KeyGesture(Key.D, ModifierKeys.Control));
-				FixSubtitlesCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
 				RepairGameCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
 				MoveGameCommand.InputGestures.Add(new KeyGesture(Key.M, ModifierKeys.Control));
 				UninstallGameCommand.InputGestures.Add(new KeyGesture(Key.U, ModifierKeys.Control));
@@ -734,7 +735,7 @@ namespace BetterHI3Launcher
 				ChangelogCommand.InputGestures.Add(new KeyGesture(Key.C, ModifierKeys.Control));
 				CustomBackgroundCommand.InputGestures.Add(new KeyGesture(Key.B, ModifierKeys.Control));
 				ToggleLogCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
-				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift));
+				ToggleSoundsCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
 				AboutCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
 
 				App.NeedsUpdate = LauncherUpdateCheck();
@@ -824,6 +825,7 @@ namespace BetterHI3Launcher
 		private async void FetchAnnouncements()
 		{
 			Status = LauncherStatus.Working;
+			ProgressBar.Visibility = Visibility.Collapsed;
 			try
 			{
 				await Task.Run(() =>
@@ -1179,26 +1181,6 @@ namespace BetterHI3Launcher
 					}
 					App.Starting = false;
 
-					if(Mirror == HI3Mirror.MediaFire)
-					{
-						dynamic mediafire_metadata = null;
-						switch(Server)
-						{
-							case HI3Server.GLB:
-								mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
-								break;
-							case HI3Server.SEA:
-								mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
-								break;
-						}
-						if(mediafire_metadata == null)
-						{
-							Log("Failed to use the current mirror, switching back to HoYoverse", true, 2);
-							Status = LauncherStatus.Ready;
-							Dispatcher.Invoke(() => {MirrorDropdown.SelectedIndex = 0;});
-							return;
-						}
-					}
 					if(App.LauncherRegKey.GetValue(RegistryVersionInfo) != null)
 					{
 						LocalVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])App.LauncherRegKey.GetValue(RegistryVersionInfo)));
@@ -1240,7 +1222,7 @@ namespace BetterHI3Launcher
 								GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
 								PatchDownload = true;
 							}
-							Log("Game requires an update!");
+							Log("The game requires an update!");
 							Status = LauncherStatus.UpdateAvailable;
 						}
 						else if(LocalVersionInfo.game_info.installed == false)
@@ -1681,14 +1663,12 @@ namespace BetterHI3Launcher
 			{
 				string title;
 				long size = 0;
-				long time;
 				string url;
 				string md5;
 				bool abort = false;
 				if(Mirror == HI3Mirror.miHoYo)
 				{
 					title = GameArchiveName;
-					time = -1;
 					url = miHoYoVersionInfo.game.latest.path.ToString();
 					if(PatchDownload)
 					{
@@ -1699,77 +1679,31 @@ namespace BetterHI3Launcher
 						md5 = miHoYoVersionInfo.game.latest.md5.ToString();
 					}
 				}
-				else if(Mirror == HI3Mirror.Hi3Mirror)
+				else
 				{
 					title = GameArchiveName;
-					time = -1;
 					url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_archive.ToString() + title;
 					md5 = miHoYoVersionInfo.game.latest.md5.ToString();
 				}
-				else
-				{
-					dynamic mediafire_metadata = null;
-					switch(Server)
-					{
-						case HI3Server.GLB:
-							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.id.ToString());
-							break;
-						case HI3Server.SEA:
-							mediafire_metadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.id.ToString());
-							break;
-					}
-					if(mediafire_metadata == null)
-					{
-						return;
-					}
-					title = mediafire_metadata.title.ToString();
-					time = ((DateTimeOffset)mediafire_metadata.modifiedDate).ToUnixTimeSeconds();
-					url = mediafire_metadata.downloadUrl.ToString();
-					md5 = mediafire_metadata.md5Checksum.ToString();
-					GameArchivePath = Path.Combine(GameInstallPath, title);
-					if(!mediafire_metadata.title.Contains(miHoYoVersionInfo.game.latest.version.ToString()))
-					{
-						Status = LauncherStatus.Error;
-						Log("Mirror is outdated!", true, 1);
-						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_old_msg"]).ShowDialog();
-						Status = LauncherStatus.Ready;
-						GameUpdateCheck();
-						return;
-					}
-					try
-					{
-						var web_request = BpUtility.CreateWebRequest(url);
-						var web_response = (HttpWebResponse)web_request.GetResponse();
-					}
-					catch(WebException ex)
-					{
-						Status = LauncherStatus.Error;
-						Log($"Failed to download from MediaFire:\n{ex}", true, 1);
-						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_error_msg"]).ShowDialog();
-						Status = LauncherStatus.Ready;
-						GameUpdateCheck();
-						return;
-					}
-				}
 				md5 = md5.ToUpper();
 				GameArchiveTempPath = $"{GameArchivePath}_tmp";
-				Log($"Starting to download game archive: {title} ({url})");
 				Status = LauncherStatus.Downloading;
 				ProgressBar.IsIndeterminate = true;
 				if(File.Exists(GameArchivePath))
 				{
 					File.Move(GameArchivePath, GameArchiveTempPath);
 				}
-				if(!App.UseLegacyDownload)
+				if(!File.Exists(GameArchiveTempPath))
 				{
-					if(!File.Exists(GameArchiveTempPath))
+					Log($"Starting to download game archive: {title} ({url})");
+					if(!App.UseLegacyDownload)
 					{
 						try
 						{
-							download_parallel = new DownloadParallelAdapter();
-							download_parallel.DownloadProgress += DownloadStatusChanged;
-							download_parallel.InitializeDownload(url, GameArchiveTempPath);
-							await download_parallel.ResumeAndWait();
+							httpclient = new Http();
+							httpprop = new HttpProp(url, GameArchiveTempPath);
+							token = new CancellationTokenSource();
+							httpclient.DownloadProgress += DownloadStatusChanged;
 							Dispatcher.Invoke(() =>
 							{
 								ProgressText.Text = string.Empty;
@@ -1778,9 +1712,9 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							await download_parallel.WaitForComplete();
-							download_parallel.DownloadProgress -= DownloadStatusChanged;
-							download_parallel.Dispose();
+							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 							Dispatcher.Invoke(() =>
 							{
@@ -1791,15 +1725,11 @@ namespace BetterHI3Launcher
 						}
 						catch(OperationCanceledException)
 						{
-							download_parallel.DownloadProgress -= DownloadStatusChanged;
+							httpclient.DownloadProgress -= DownloadStatusChanged;
 							return;
 						}
 					}
-				}
-				else
-				{
-					DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-					if(!File.Exists(GameArchiveTempPath))
+					else
 					{
 						await Task.Run(() =>
 						{
@@ -1965,10 +1895,6 @@ namespace BetterHI3Launcher
 							Log("Successfully installed the game");
 							GameUpdateCheck();
 						});
-						if(time != -1)
-						{
-							SendStatistics(title, time);
-						}
 					});
 				}
 				catch(Exception ex)
@@ -2512,250 +2438,6 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private async void DownloadGameCacheMediaFire()
-		{
-			try
-			{
-				string title = GameCacheMetadata.title.ToString();
-				long time = ((DateTimeOffset)GameCacheMetadata.modifiedDate).ToUnixTimeSeconds();
-				string url = GameCacheMetadata.downloadUrl.ToString();
-				string md5 = GameCacheMetadata.md5Checksum.ToString();
-				long size = (long)GameCacheMetadata.fileSize;
-				bool abort = false;
-				md5 = md5.ToUpper();
-				CacheArchivePath = Path.Combine(miHoYoPath, title);
-
-				var game_cache_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(CacheArchivePath) && x.IsReady).FirstOrDefault();
-				if(game_cache_drive == null)
-				{
-					new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
-					return;
-				}
-				if(game_cache_drive.TotalFreeSpace < size * 2)
-				{
-					if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-					{
-						return;
-					}
-				}
-				try
-				{
-					var web_request = BpUtility.CreateWebRequest(url);
-					var web_response = (HttpWebResponse)web_request.GetResponse();
-				}
-				catch(WebException ex)
-				{
-					Status = LauncherStatus.Error;
-					Log($"Failed to download cache from mirror:\n{ex}", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_error_msg"]).ShowDialog();
-					Status = LauncherStatus.Ready;
-					return;
-				}
-
-				Log($"Starting to download game cache: {title} ({url})");
-				CacheDownload = true;
-				Status = LauncherStatus.Downloading;
-				await Task.Run(() =>
-				{
-					tracker.NewFile();
-					var eta_calc = new ETACalculator();
-					download = new DownloadPauseable(url, CacheArchivePath);
-					download.Start();
-					Dispatcher.Invoke(() =>
-					{
-						ProgressText.Text = string.Empty;
-						ProgressBar.Visibility = Visibility.Hidden;
-						DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-						DownloadPauseButton.Visibility = Visibility.Collapsed;
-						LaunchButton.IsEnabled = true;
-						LaunchButton.Content = App.TextStrings["button_cancel"];
-					});
-					while(download != null && !download.Done)
-					{
-						tracker.SetProgress(download.BytesWritten, download.ContentLength);
-						eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
-						Dispatcher.Invoke(() =>
-						{
-							var progress = tracker.GetProgress();
-							DownloadProgressBar.Value = progress;
-							TaskbarItemInfo.ProgressValue = progress;
-							DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
-							DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-							DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {tracker.GetBytesPerSecondString()}";
-						});
-						Thread.Sleep(500);
-					}
-					if(download == null)
-					{
-						abort = true;
-					}
-					if(abort)
-					{
-						return;
-					}
-					Log("Successfully downloaded game cache");
-					while(BpUtility.IsFileLocked(new FileInfo(CacheArchivePath)))
-					{
-						Thread.Sleep(10);
-					}
-					Dispatcher.Invoke(() =>
-					{
-						ProgressText.Text = string.Empty;
-						DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-						LaunchButton.Content = App.TextStrings["button_launch"];
-					});
-				});
-				try
-				{
-					if(abort)
-					{
-						return;
-					}
-					await Task.Run(() =>
-					{
-						Log("Validating game cache...");
-						Status = LauncherStatus.Verifying;
-						string actual_md5 = BpUtility.CalculateMD5(CacheArchivePath);
-						if(actual_md5 != md5)
-						{
-							Status = LauncherStatus.Error;
-							Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
-							Dispatcher.Invoke(() =>
-							{
-								if(new DialogWindow(App.TextStrings["msgbox_verify_error_title"], App.TextStrings["msgbox_verify_error_2_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-								{
-									DeleteFile(CacheArchivePath);
-									abort = true;
-									Status = LauncherStatus.Ready;
-									GameUpdateCheck();
-								}
-							});
-						}
-						else
-						{
-							Log("success!", false);
-						}
-						if(abort)
-						{
-							return;
-						}
-						try
-						{
-							foreach(var file in Directory.GetFiles(Path.Combine(miHoYoPath, $@"{GameFullName}\Data\data"), "*.unity3d"))
-							{
-								DeleteFile(file);
-							}
-						}catch{}
-						var skipped_files = new List<string>();
-						using(var archive = ArchiveFactory.Open(CacheArchivePath))
-						{
-							int unpacked_files = 0;
-							int file_count = 0;
-
-							Log("Unpacking game cache...");
-							Status = LauncherStatus.Unpacking;
-							foreach(var entry in archive.Entries)
-							{
-								if(!entry.IsDirectory)
-								{
-									file_count++;
-								}
-							}
-							Directory.CreateDirectory(miHoYoPath);
-							var reader = archive.ExtractAllEntries();
-							while(reader.MoveToNextEntry())
-							{
-								try
-								{
-									Dispatcher.Invoke(() =>
-									{
-										var progress = (unpacked_files + 1f) / file_count;
-										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count, Math.Round(progress * 100, 2));
-										DownloadProgressBar.Value = progress;
-										TaskbarItemInfo.ProgressValue = progress;
-									});
-									reader.WriteEntryToDirectory(miHoYoPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
-									if(!reader.Entry.IsDirectory)
-									{
-										unpacked_files++;
-									}
-								}
-								catch
-								{
-									if(!reader.Entry.IsDirectory)
-									{
-										skipped_files.Add(reader.Entry.ToString());
-										file_count--;
-										Log($"Unpack {reader.Entry}");
-									}
-								}
-							}
-						}
-						if(skipped_files.Count > 0)
-						{
-							throw new ArchiveException("Cache archive is corrupt");
-						}
-						CacheDownload = false;
-						Log("success!", false);
-						DeleteFile(CacheArchivePath);
-						SendStatistics(title, time);
-					});
-				}
-				catch(Exception ex)
-				{
-					Status = LauncherStatus.Error;
-					Log($"Failed to install game cache:\n{ex}", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_error_msg"]).ShowDialog();
-				}
-			}
-			catch(Exception ex)
-			{
-				Status = LauncherStatus.Error;
-				Log($"Failed to download game cache:\n{ex}", true, 1);
-				new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_error_msg"]).ShowDialog();
-			}
-			Dispatcher.Invoke(() => {LaunchButton.Content = App.TextStrings["button_launch"];});
-			Status = LauncherStatus.Ready;
-		}
-
-		private void SendStatistics(string file, long time)
-		{
-			if(string.IsNullOrEmpty(file))
-			{
-				throw new ArgumentNullException();
-			}
-
-			string server = (int)Server == 0 ? "global" : "os";
-			string mirror = "mediafire";
-			try
-			{
-				var data = Encoding.ASCII.GetBytes($"save_stats={server}&mirror={mirror}&file={file}&time={time}");
-				var web_request = BpUtility.CreateWebRequest(OnlineVersionInfo.launcher_info.stat_url.ToString(), "POST");
-				web_request.ContentType = "application/x-www-form-urlencoded";
-				web_request.ContentLength = data.Length;
-				using(var stream = web_request.GetRequestStream())
-				{
-					stream.Write(data, 0, data.Length);
-				}
-				using(var web_response = (HttpWebResponse)web_request.GetResponse())
-				{
-					var responseData = new StreamReader(web_response.GetResponseStream()).ReadToEnd();
-					if(!string.IsNullOrEmpty(responseData))
-					{
-						var json = JsonConvert.DeserializeObject<dynamic>(responseData);
-						if(json.status != "success")
-						{
-							Log($"Failed to send download statistics for {file}", true, 2);
-						}
-					}
-				}
-			}
-			catch
-			{
-				Log($"Failed to send download statistics for {file}", true, 2);
-			}
-		}
-
 		private async void Window_ContentRendered(object sender, EventArgs e)
 		{
 			#if DEBUG
@@ -3139,12 +2821,9 @@ namespace BetterHI3Launcher
 			{
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
-					if(!App.UseLegacyDownload && !CacheDownload)
+					if(!App.UseLegacyDownload)
 					{
-						try
-						{
-							await download_parallel.DisposeAndWait();
-						}catch(OperationCanceledException){}
+						token.Cancel();
 					}
 					else
 					{
@@ -3152,36 +2831,22 @@ namespace BetterHI3Launcher
 						download = null;
 					}
 
-					if(!CacheDownload)
+					if(!App.UseLegacyDownload)
 					{
-						if(!App.UseLegacyDownload)
-						{
-							DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-						}
-						else
-						{
-							if(!string.IsNullOrEmpty(GameArchiveTempPath))
-							{
-								while(BpUtility.IsFileLocked(new FileInfo(GameArchiveTempPath)))
-								{
-									Thread.Sleep(10);
-								}
-								DeleteFile(GameArchiveTempPath, true);
-							}
-						}
+						await httpclient.DeleteMultisessionChunks(httpprop.Out);
 					}
 					else
 					{
-						if(!string.IsNullOrEmpty(CacheArchivePath))
+						if(!string.IsNullOrEmpty(GameArchiveTempPath))
 						{
-							while(BpUtility.IsFileLocked(new FileInfo(CacheArchivePath)))
+							while(BpUtility.IsFileLocked(new FileInfo(GameArchiveTempPath)))
 							{
 								Thread.Sleep(10);
 							}
-							DeleteFile(CacheArchivePath, true);
+							DeleteFile(GameArchiveTempPath, true);
 						}
-						CacheDownload = false;
 					}
+					try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
 					DownloadPaused = false;
 					Log("Download cancelled");
 					Status = LauncherStatus.Ready;
@@ -3222,13 +2887,14 @@ namespace BetterHI3Launcher
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
 				if(!App.UseLegacyDownload)
 				{
-					await download_parallel.StopAndWait();
+					token.Cancel();
 				}
 				else
 				{
 					download.Pause();
 				}
 				DownloadResumeButton.Visibility = Visibility.Visible;
+				Log("Download paused");
 			}
 			else
 			{
@@ -3238,23 +2904,32 @@ namespace BetterHI3Launcher
 				DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 				try
 				{
-					if(!App.UseLegacyDownload)
-					{
-						download_parallel.DownloadProgress += DownloadStatusChanged;
-						await download_parallel.ResumeAndWait();
-					}
-					else
-					{
-						await download.Start();
-					}
 					ProgressText.Text = string.Empty;
 					ProgressBar.Visibility = Visibility.Hidden;
 					DownloadPauseButton.Visibility = Visibility.Visible;
 					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 					LaunchButton.IsEnabled = true;
 					LaunchButton.Content = App.TextStrings["button_cancel"];
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+					Log("Download resumed");
+
+					if(!App.UseLegacyDownload)
+					{
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+						httpclient = new Http();
+						token = new CancellationTokenSource();
+						httpclient.DownloadProgress += DownloadStatusChanged;
+						await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+						await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+						httpclient.DownloadProgress -= DownloadStatusChanged;
+						await DownloadGameFile();
+					}
+					else
+					{
+						await download.Start();
+					}
 				}
+				catch(TaskCanceledException){}
+				catch(OperationCanceledException){}
 				catch(Exception ex)
 				{
 					Status = LauncherStatus.Error;
@@ -3324,26 +2999,25 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							download_parallel = new DownloadParallelAdapter();
-							download_parallel.DownloadProgress += PreloadDownloadStatusChanged;
-							download_parallel.InitializeDownload(url, tmp_path);
-							await download_parallel.ResumeAndWait();
+							httpclient = new Http();
+							token = new CancellationTokenSource();
+							httpprop = new HttpProp(url, tmp_path);
+							httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
-							await download_parallel.WaitForComplete();
-							download_parallel.DownloadProgress -= PreloadDownloadStatusChanged;
-							download_parallel.Dispose();
+							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							Log("Downloaded pre-download archive");
 						}
 						catch(OperationCanceledException)
 						{
-							download_parallel.DownloadProgress -= PreloadDownloadStatusChanged;
+							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							return;
 						}
 					}
 				}
 				else
 				{
-					DeleteExistingParallelDownloadFiles(path);
 					await Task.Run(() =>
 					{
 						tracker.NewFile();
@@ -3447,14 +3121,14 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Normal;
 		}
 
-		private async void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
+		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(LegacyBoxActive)
 			{
 				return;
 			}
 
-			if(download != null || download_parallel.client._DownloadState == DownloadState.Downloading)
+			if(download != null || httpclient.SessionState == MultisessionState.Downloading)
 			{
 				PreloadPauseButton.IsEnabled = false;
 				if(download != null)
@@ -3464,7 +3138,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					await download_parallel.StopAndWait();
+					token.Cancel();
 				}
 				Log("Pre-download paused");
 				PreloadDownload = false;
@@ -3490,7 +3164,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private async Task CM_DownloadCache_Click(object sender, RoutedEventArgs e)
+		private void CM_DownloadCache_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
 			{
@@ -3566,7 +3240,7 @@ namespace BetterHI3Launcher
 
 			if(Mirror == HI3Mirror.miHoYo || Mirror == HI3Mirror.Hi3Mirror)
 			{
-				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_3_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
+				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_hi3mirror_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
 				{
 					return;
 				}
@@ -3574,82 +3248,6 @@ namespace BetterHI3Launcher
 				Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_mirror_connect"];});
 				Log("Connecting to Hi3Mirror...");
 				DownloadGameCache(game_language);
-			}
-			else
-			{
-				Status = LauncherStatus.CheckingUpdates;
-				Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_mirror_connect"];});
-				Log("Fetching mirror data...");
-				try
-				{
-					string mirror;
-					string time;
-					string last_updated;
-
-					await Task.Run(() =>
-					{
-						FetchOnlineVersionInfo();
-						switch(Server)
-						{
-							case HI3Server.GLB:
-								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.id.ToString(), 1);
-								break;
-							case HI3Server.SEA:
-								GameCacheMetadata = FetchMediaFireFileMetadata(OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.id.ToString(), 1);
-								break;
-							default:
-								throw new NotSupportedException("This server is not supported.");
-						}
-						if(GameCacheMetadata == null)
-						{
-							Status = LauncherStatus.Ready;
-							return;
-						}
-						mirror = "MediaFire";
-						try
-						{
-							time = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)OnlineVersionInfo.game_info.mirror.mediafire.last_updated).ToString();
-							if(DateTime.Compare(FetchmiHoYoResourceVersionDateModified(), DateTime.Parse(time)) >= 0)
-							{
-								last_updated = $"{DateTime.Parse(time).ToLocalTime().ToString(new CultureInfo(App.OSLanguage))} ({App.TextStrings["outdated"].ToLower()})";
-							}
-							else
-							{
-								last_updated = DateTime.Parse(time).ToLocalTime().ToString(new CultureInfo(App.OSLanguage));
-							}
-							Log("success!", false);
-						}
-						catch
-						{
-							last_updated = App.TextStrings["msgbox_generic_error_title"];
-							Log($"Failed to load last cache update time", true, 2);
-						}
-						Dispatcher.Invoke(() =>
-						{
-							if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_1_msg"], BpUtility.ToBytesCount((long)GameCacheMetadata.fileSize), mirror, last_updated, OnlineVersionInfo.game_info.mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
-							{
-								return;
-							}
-							if(last_updated.Contains(App.TextStrings["outdated"].ToLower()))
-							{
-								if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_download_cache_2_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-								{
-									return;
-								}
-							}
-							Status = LauncherStatus.Ready;
-							DownloadGameCacheMediaFire();
-						});
-					});
-				}
-				catch(Exception ex)
-				{
-					Status = LauncherStatus.Error;
-					Log($"Failed to fetch cache metadata:\n{ex}", true, 1);
-					Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_mirror_error_msg"], ex.Message)).ShowDialog();});
-					Status = LauncherStatus.Ready;
-					return;
-				}
 			}
 		}
 
@@ -3669,7 +3267,6 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			LegacyBoxActive = true;
 			Status = LauncherStatus.CheckingUpdates;
 			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];});
 			Log("Fetching repair data...");
@@ -3683,20 +3280,23 @@ namespace BetterHI3Launcher
 				});
 				if(OnlineRepairInfo.status == "success")
 				{
+					Log("success!", false);
 					OnlineRepairInfo = OnlineRepairInfo.repair_info;
 					if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version && !App.AdvancedFeatures)
 					{
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Hidden;
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_1_msg"]).ShowDialog();
-						return;
 					}
-					Dispatcher.Invoke(() =>
+					else
 					{
-						RepairBox.Visibility = Visibility.Visible;
-						RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
-						Log("success!", false);
-					});
+						Dispatcher.Invoke(() =>
+						{
+							RepairBox.Visibility = Visibility.Visible;
+							RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+						});
+						LegacyBoxActive = true;
+					}
 				}
 				else
 				{
@@ -3707,7 +3307,6 @@ namespace BetterHI3Launcher
 			}
 			catch(Exception ex)
 			{
-				LegacyBoxActive = false;
 				Status = LauncherStatus.Error;
 				Log($"Failed to fetch repair data:\n{ex}", true, 1);
 				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog();});
@@ -3954,300 +3553,6 @@ namespace BetterHI3Launcher
 				Status = LauncherStatus.Error;
 				Log($"Failed to uninstall the game:\n{ex}", true, 1);
 				new DialogWindow(App.TextStrings["msgbox_uninstall_error_title"], App.TextStrings["msgbox_uninstall_error_msg"]).ShowDialog();
-				Status = LauncherStatus.Ready;
-				return;
-			}
-		}
-
-		private async Task CM_FixSubtitles_Click(object sender, RoutedEventArgs e)
-		{
-			if(Status != LauncherStatus.Ready)
-			{
-				return;
-			}
-			if(LegacyBoxActive)
-			{
-				return;
-			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
-			{
-				new DialogWindow(App.TextStrings["contextmenu_fix_subtitles"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
-				return;
-			}
-			if(new DialogWindow(App.TextStrings["contextmenu_fix_subtitles"], App.TextStrings["msgbox_fix_subtitles_1_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-			{
-				return;
-			}
-
-			try
-			{
-				Status = LauncherStatus.Working;
-				Log("Starting to fix subtitles...");
-				var game_video_path = Path.Combine(GameInstallPath, @"BH3_Data\StreamingAssets\Video");
-				if(Directory.Exists(game_video_path))
-				{
-					var subtitle_archives = Directory.EnumerateFiles(game_video_path, "*.zip", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".zip", StringComparison.CurrentCultureIgnoreCase)).ToList();
-					Dispatcher.Invoke(() =>
-					{
-						ProgressBar.IsIndeterminate = false;
-						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-					});
-					if(subtitle_archives.Count > 0)
-					{
-						int unpacked_files = 0;
-						await Task.Run(() =>
-						{
-							var skipped_files = new List<string>();
-							var skipped_file_paths = new List<string>();
-							foreach(var subtitle_archive in subtitle_archives)
-							{
-								bool unpack_ok = true;
-								Dispatcher.Invoke(() =>
-								{
-									ProgressText.Text = string.Format(App.TextStrings["msgbox_fix_subtitles_2_msg"], unpacked_files + 1, subtitle_archives.Count);
-									var progress = (unpacked_files + 1f) / subtitle_archives.Count;
-									ProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-								});
-								using(var archive = ArchiveFactory.Open(subtitle_archive))
-								{
-									var reader = archive.ExtractAllEntries();
-									while(reader.MoveToNextEntry())
-									{
-										try
-										{
-											var entryPath = Path.Combine(game_video_path, reader.Entry.ToString());
-											if(File.Exists(entryPath))
-											{
-												File.SetAttributes(entryPath, File.GetAttributes(entryPath) & ~FileAttributes.ReadOnly);
-											}
-											reader.WriteEntryToDirectory(game_video_path, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
-										}
-										catch
-										{
-											unpack_ok = false;
-											skipped_files.Add($"{reader.Entry} ({Path.GetFileName(subtitle_archive)})");
-											skipped_file_paths.Add(subtitle_archive);
-											Log($"Failed to unpack {subtitle_archive} ({reader.Entry})", true, 1);
-										}
-									}
-								}
-								if(unpack_ok)
-								{
-									Log($"Unpacked {subtitle_archive}");
-								}
-								File.SetAttributes(subtitle_archive, File.GetAttributes(subtitle_archive) & ~FileAttributes.ReadOnly);
-								if(!skipped_file_paths.Contains(subtitle_archive))
-								{
-									DeleteFile(subtitle_archive);
-								}
-								unpacked_files++;
-							}
-							Dispatcher.Invoke(() =>
-							{
-								if(skipped_files.Count > 0)
-								{
-									ToggleLog(true);
-									TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
-									new DialogWindow(App.TextStrings["msgbox_extract_skip_title"], App.TextStrings["msgbox_extract_skip_msg"]).ShowDialog();
-								}
-							});
-							Log($"Unpacked {unpacked_files} archives");
-						});
-					}
-					ProgressBar.IsIndeterminate = true;
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
-					var subtitle_files = Directory.EnumerateFiles(game_video_path, "*.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith(".srt", StringComparison.CurrentCultureIgnoreCase)).ToList();
-					var subs_fixed = new List<string>();
-					ProgressBar.IsIndeterminate = false;
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-					if(subtitle_files.Count > 0)
-					{
-						int subtitles_parsed = 0;
-						await Task.Run(() =>
-						{
-							foreach(var subtitle_file in subtitle_files)
-							{
-								var subtitle_lines = File.ReadAllLines(subtitle_file);
-								bool subtitle_fixed = false;
-								int line_count = subtitle_lines.Length;
-								int lines_fixed = 0;
-								Dispatcher.Invoke(() =>
-								{
-									ProgressText.Text = string.Format(App.TextStrings["msgbox_fix_subtitles_3_msg"], subtitles_parsed + 1, subtitle_files.Count);
-									var progress = (subtitles_parsed + 1f) / subtitle_files.Count;
-									ProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-								});
-								File.SetAttributes(subtitle_file, File.GetAttributes(subtitle_file) & ~FileAttributes.ReadOnly);
-								if(new FileInfo(subtitle_file).Length == 0)
-								{
-									subtitles_parsed++;
-									continue;
-								}
-								for(int at_line = 1; at_line < line_count; at_line++)
-								{
-									var line = File.ReadLines(subtitle_file).Skip(at_line).Take(1).First();
-									if(string.IsNullOrEmpty(line) || new Regex(@"^\d+$").IsMatch(line))
-									{
-										continue;
-									}
-									int char_offset = 0;
-									if(line.Contains("-->"))
-									{
-										var missing_two_digits_regex = new Regex(@"(?<=:)\d?(?=[:,])").Matches(line);
-										foreach(Match match in missing_two_digits_regex)
-										{
-											if(match.Success)
-											{
-												line = line.Insert(match.Index + char_offset, new string('0', 2 - match.Length));
-												char_offset += 2 - match.Length;
-											}
-										}
-										char_offset = 0;
-										var missing_three_digits_regex = new Regex(@"(?<=[\d:],)\d{0,2}(?=\s|$)").Matches(line);
-										foreach(Match match in missing_three_digits_regex)
-										{
-											if(match.Success)
-											{
-												line = line.Insert(match.Index + char_offset, new string('0', 3 - match.Length));
-												char_offset += 3 - match.Length;
-											}
-										}
-									}
-									char_offset = 0;
-									var keep_one_whitespace_regex = new Regex(@"\s{2,}").Matches(line);
-									foreach(Match match in keep_one_whitespace_regex)
-									{
-										if(match.Success)
-										{
-											line = line.Remove(match.Index + char_offset, match.Length - 1);
-											char_offset -= match.Length - 1;
-										}
-									}
-									char_offset = 0;
-									var trim_regex = new Regex(@"^\s+|\s+$").Matches(line);
-									foreach(Match match in trim_regex)
-									{
-										if(match.Success)
-										{
-											line = line.Remove(match.Index + char_offset, match.Length);
-											char_offset -= match.Length;
-										}
-									}
-
-									if(subtitle_lines[at_line] != line)
-									{
-										if(App.AdvancedFeatures) Log($"Fixed line {1 + at_line}: [{subtitle_lines[at_line]}] -> [{line}]");
-										subtitle_lines[at_line] = line;
-										lines_fixed++;
-									}
-								}
-								if(lines_fixed > 0)
-								{
-									File.WriteAllLines(subtitle_file, subtitle_lines);
-									subtitle_fixed = true;
-								}
-								var subtitle_text = File.ReadAllText(subtitle_file);
-								int removed_chars = 0;
-								var remove_empty_regex = new Regex(@"\d+[\r\n]{2}\s?-->\s?[\r\n]").Matches(subtitle_text);
-								foreach(Match match in remove_empty_regex)
-								{
-									if(match.Success)
-									{
-										subtitle_text = subtitle_text.Remove(match.Index - removed_chars, match.Length);
-										removed_chars += match.Length;
-									}
-								}
-								var remove_newlines_regex = new Regex(@"(?<=[\r\n]{4})[\r\n]+").Matches(subtitle_text);
-								foreach(Match match in remove_newlines_regex)
-								{
-									if(match.Success)
-									{
-										subtitle_text = subtitle_text.Remove(match.Index - removed_chars, match.Length);
-										removed_chars += match.Length;
-									}
-								}
-								if(remove_empty_regex.Count > 0 || remove_newlines_regex.Count > 0)
-								{
-									File.WriteAllText(subtitle_file, subtitle_text);
-									subtitle_fixed = true;
-								}
-								if(subtitle_fixed && !subs_fixed.Contains(subtitle_file))
-								{
-									subs_fixed.Add(subtitle_file);
-									Log($"Subtitle fixed: {subtitle_file}");
-								}
-								subtitles_parsed++;
-							}
-						});
-						Log($"Parsed {subtitles_parsed} subtitles, fixed {subs_fixed.Count} of them");
-					}
-					if(Server == HI3Server.GLB)
-					{
-						ProgressBar.IsIndeterminate = true;
-						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Indeterminate;
-						subtitle_files = Directory.EnumerateFiles(game_video_path, "*id.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("id.srt", StringComparison.CurrentCultureIgnoreCase)).ToList();
-						subtitle_files.AddRange(subtitle_files = Directory.EnumerateFiles(game_video_path, "*th.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("th.srt", StringComparison.CurrentCultureIgnoreCase)).ToList());
-						subtitle_files.AddRange(subtitle_files = Directory.EnumerateFiles(game_video_path, "*vn.srt", SearchOption.TopDirectoryOnly).Where(x => x.EndsWith("vn.srt", StringComparison.CurrentCultureIgnoreCase)).ToList());
-						if(subtitle_files.Count > 0)
-						{
-							int deleted_subs = 0;
-							await Task.Run(() =>
-							{
-								foreach(var subtitle_file in subtitle_files)
-								{
-									try
-									{
-										if(File.Exists(subtitle_file))
-										{
-											File.Delete(subtitle_file);
-										}
-										deleted_subs++;
-									}
-									catch
-									{
-										Log($"Failed to delete {subtitle_file}", true, 2);
-									}
-								}
-							});
-							Log($"Deleted {deleted_subs} useless subtitles");
-						}
-					}
-					ProgressText.Text = string.Empty;
-					ProgressBar.Visibility = Visibility.Hidden;
-					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
-					WindowState = WindowState.Normal;
-					if(subtitle_archives.Count > 0 && subs_fixed.Count == 0)
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], string.Format(App.TextStrings["msgbox_fix_subtitles_4_msg"], subtitle_archives.Count)).ShowDialog();
-					}
-					else if(subtitle_archives.Count == 0 && subs_fixed.Count > 0)
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], string.Format(App.TextStrings["msgbox_fix_subtitles_5_msg"], subs_fixed.Count)).ShowDialog();
-					}
-					else if(subtitle_archives.Count > 0 && subs_fixed.Count > 0)
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], $"{string.Format(App.TextStrings["msgbox_fix_subtitles_4_msg"], subtitle_archives.Count)}\n{string.Format(App.TextStrings["msgbox_fix_subtitles_5_msg"], subs_fixed.Count)}").ShowDialog();
-					}
-					else
-					{
-						new DialogWindow(App.TextStrings["msgbox_notice_title"], App.TextStrings["msgbox_fix_subtitles_6_msg"]).ShowDialog();
-					}
-				}
-				else
-				{
-					Status = LauncherStatus.Error;
-					Log("No CG directory!", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_generic_error_title"], App.TextStrings["msgbox_no_video_dir_msg"]).ShowDialog();
-				}
-				Status = LauncherStatus.Ready;
-			}
-			catch(Exception ex)
-			{
-				Status = LauncherStatus.Error;
-				Log($"{ex}", true, 1);
-				new DialogWindow(App.TextStrings["msgbox_generic_error_title"], App.TextStrings["msgbox_generic_error_msg"]).ShowDialog();
 				Status = LauncherStatus.Ready;
 				return;
 			}
@@ -4652,10 +3957,7 @@ namespace BetterHI3Launcher
 				{
 					return;
 				}
-				Status = LauncherStatus.CleaningUp;
-				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-				DeleteFile(GameArchivePath);
-				DeleteFile(CacheArchivePath);
+				DeleteFile(GameArchiveTempPath);
 			}
 
 			try
@@ -4778,14 +4080,12 @@ namespace BetterHI3Launcher
 				}
 				download = null;
 				DownloadPaused = false;
-				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-				DeleteFile(GameArchivePath);
+				DeleteFile(GameArchiveTempPath);
 				if(!PatchDownload)
 				{
 					ResetVersionInfo();
 				}
 			}
-			CacheDownload = false;
 			switch(index)
 			{
 				case 0:
@@ -4859,8 +4159,7 @@ namespace BetterHI3Launcher
 				}
 				download = null;
 				DownloadPaused = false;
-				DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-				DeleteFile(GameArchivePath);
+				DeleteFile(GameArchiveTempPath);
 				if(!PatchDownload)
 				{
 					ResetVersionInfo();
@@ -4888,9 +4187,6 @@ namespace BetterHI3Launcher
 					break;
 				case 1:
 					Mirror = HI3Mirror.Hi3Mirror;
-					break;
-				case 2:
-					Mirror = HI3Mirror.MediaFire;
 					break;
 			}
 			try
@@ -5473,16 +4769,6 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private void FixSubtitlesCommand_Executed(object sender, ExecutedRoutedEventArgs e)
-		{
-			var item = BpUtility.GetMenuItem(OptionsContextMenu.Items, App.TextStrings["contextmenu_fix_subtitles"]);
-			if(item.IsEnabled)
-			{
-				var peer = new MenuItemAutomationPeer(item);
-				var inv_prov = peer.GetPattern(PatternInterface.Invoke) as IInvokeProvider;
-				inv_prov.Invoke();
-			}
-		}
 
 		private void RepairGameCommand_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
@@ -5594,26 +4880,20 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private async void MainWindow_Closing(object sender, CancelEventArgs e)
+		private void MainWindow_Closing(object sender, CancelEventArgs e)
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && download_parallel == null || download_parallel.client._DownloadState == DownloadState.Idle)
+				if(download == null && httpclient == null || httpclient.SessionState == MultisessionState.Idle)
 				{
-					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
-					{
-						Status = LauncherStatus.CleaningUp;
-						DeleteExistingParallelDownloadFiles(GameArchiveTempPath);
-						DeleteFile(CacheArchivePath);
-					}
-					else
+					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						e.Cancel = true;
 					}
 				}
 				else
 				{
-					if(download_parallel != null && download_parallel.client._DownloadState == DownloadState.Merging)
+					if(httpclient != null && httpclient.SessionState == MultisessionState.Merging)
 					{
 						e.Cancel = true;
 						return;
@@ -5624,11 +4904,11 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(download_parallel != null && (download_parallel.client._DownloadState == DownloadState.Downloading || download_parallel.Paused && download_parallel.client._DownloadState == DownloadState.Cancelled))
+						else if(httpclient != null && httpclient.SessionState == MultisessionState.Downloading || httpclient.SessionState == MultisessionState.CancelledDownloading)
 						{
 							try
 							{
-								await download_parallel.DisposeAndWait();
+								token.Cancel();
 							}catch(OperationCanceledException){}
 						}
 						else
@@ -5646,7 +4926,7 @@ namespace BetterHI3Launcher
 					}
 				}
 			}
-			else if(Status == LauncherStatus.Verifying || Status == LauncherStatus.Unpacking || Status == LauncherStatus.CleaningUp || Status == LauncherStatus.Uninstalling || Status == LauncherStatus.Working || Status == LauncherStatus.PreloadVerifying)
+			else if(Status == LauncherStatus.Verifying || Status == LauncherStatus.Unpacking || Status == LauncherStatus.Uninstalling || Status == LauncherStatus.Working || Status == LauncherStatus.PreloadVerifying)
 			{
 				e.Cancel = true;
 			}
@@ -5747,20 +5027,6 @@ namespace BetterHI3Launcher
 				}
 			}
 			return -1;
-		}
-
-		private void DeleteExistingParallelDownloadFiles(string file_path)
-		{
-			string partial_name;
-			for(int i = 0; i < App.ParallelDownloadSessions; i++)
-			{
-				partial_name = string.Format("{0}.{1:000}", file_path, i + 1);
-				while(BpUtility.IsFileLocked(new FileInfo(partial_name)))
-				{
-					Thread.Sleep(10);
-				}
-				DeleteFile(partial_name, true);
-			}
 		}
 
 		private void ToggleContextMenuItems(bool val, bool leave_uninstall_enabled = false)

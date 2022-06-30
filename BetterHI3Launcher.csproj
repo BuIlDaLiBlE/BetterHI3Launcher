@@ -121,13 +121,16 @@
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TextStrings_en.cs" />
-    <Compile Include="Utility\DownloadPartialAdapter.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\EventHandler.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\RemoteStreamController.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\SliceController.cs" />
-    <Compile Include="Utility\HttpClientHelper\Class\ThreadController.cs" />
-    <Compile Include="Utility\HttpClientHelper\HttpClientHelper.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Class\Attribute.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Class\Event.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Class\Exception.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Class\IO.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Class\Merge.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Class\Session.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Class\Thread.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\Http.cs" />
+    <Compile Include="Utility\Hi3HelperCore.Http\HttpMultisession.cs" />
     <Compile Include="Utility\miHoYoCRCUtility.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
@@ -164,6 +167,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="Utility\Hi3HelperCore.Http\Hi3HelperCore.Http.csproj" />
+    <None Include="Utility\Hi3HelperCore.Http\LICENSE" />
+    <None Include="Utility\Hi3HelperCore.Http\README.md" />
     <Resource Include="Assets\Fonts\FZLanTingHei-B-GBK.ttf" />
     <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
@@ -187,6 +193,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Utility\Hi3HelperCore.Http\.gitattributes" />
+    <Content Include="Utility\Hi3HelperCore.Http\.gitignore" />
     <Resource Include="Assets\Images\Icon.ico" />
     <Resource Include="Assets\Images\Button.png" />
     <Resource Include="Assets\Images\Button_Disabled.png" />
@@ -225,21 +233,21 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AssetsTools.NET">
-      <Version>2.0.11</Version>
+      <Version>2.0.12</Version>
     </PackageReference>
     <PackageReference Include="Costura.Fody">
       <Version>5.7.0</Version>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Fody">
-      <Version>6.6.0</Version>
+      <Version>6.6.3</Version>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="ini-parser">
       <Version>2.5.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.Platforms">
-      <Version>6.0.2</Version>
+      <Version>6.0.4</Version>
     </PackageReference>
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.3</Version>
@@ -248,7 +256,7 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
-      <Version>0.30.1</Version>
+      <Version>0.32.1</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
       <Version>6.0.0</Version>

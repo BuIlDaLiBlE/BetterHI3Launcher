@@ -1,18 +1,22 @@
 # Better HI3 Launcher
 A much better Honkai Impact 3rd launcher. Here are the key points:
-* No need to install, everything's in one executable
+* No need to install, it is just one file
 * Supports all game clients (Global, SEA, CN, TW/HK/MO and KR), can switch between them freely
   * **Please note that Steam version is not supported**
 * Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which dramatically speeds up the download process
 * Has mirror support so you have more download sources to choose from
-* Automatically updates itself, so you're always getting the latest and greatest!
+* Automatically updates itself, so you are always getting the latest and greatest!
 * Has lots of useful features, such as:
   * Downloading game cache (fixes the problems that occur during "Updating settings")
-  * Fixing broken subtitles
-  * Repairing game files (only the required files will be downloaded!)
-  * Moving the game
+  * Repairing game files (only the files that are needed will be downloaded)
+  * Moving game files (properly, so that the original launcher still works)
   * Setting custom resolution, custom FPS, resetting download type (to reselect assets download option)
   * Customizable background (supports still images, GIFs, and even videos!)
+
+## Getting the launcher
+Go to the [releases page](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/releases/latest) and click on `BetterHI3Launcher.exe`.
+
+You can save and use it wherever you want, it's that simple!
 
 ## Compatibility
 First of all, a 64-bit version of Windows is required, since the game also requires it.
@@ -35,7 +39,7 @@ Great question! This project is actively supported, you are always welcome to [o
 You can also contribute by translating the launcher into a language you speak. **Please only contribute languages the launcher doesn't yet have!**
 
 Here's how to do it:
-1. [Download English source text](https://bpnet.host/bh3?launcher_translations=get_contents_en)
+1. [Download English source text](https://bpnet.work/bh3?launcher_translations=get_contents_en)
 2. You will see a bunch of lines with text, on each line there are two pieces of text: you don't need to touch the one on the left, only translate the one on the right (after the space). Please try your best not to touch special characters such as `{0}`, `\n`, or `\"`, don't add any unnecessary spaces, newlines or other characters.
 3. After you're done, [create an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new?assignees=BuIlDaLiBlE&labels=language+contribution&template=language_contribution.md&title=Language+contribution+%5BNAME+OF+THE+LANGUAGE+HERE%5D) with the name of the language and attach the file with translated strings to it.
 

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace BetterHI3Launcher
@@ -149,6 +150,18 @@ namespace BetterHI3Launcher
 		private void CustomBackgroundRadioButton_Click(object sender, RoutedEventArgs e)
 		{
 			BpUtility.PlaySound(Properties.Resources.Click);
+		}
+
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			if(Keyboard.Modifiers == ModifierKeys.Alt && e.SystemKey == Key.Space)
+			{
+				e.Handled = true;
+			}
+			else
+			{
+				base.OnKeyDown(e);
+			}
 		}
 
 		private void DialogWindow_Closing(object sender, CancelEventArgs e)
