@@ -3266,7 +3266,6 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			LegacyBoxActive = true;
 			Status = LauncherStatus.CheckingUpdates;
 			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];});
 			Log("Fetching repair data...");
@@ -3280,20 +3279,23 @@ namespace BetterHI3Launcher
 				});
 				if(OnlineRepairInfo.status == "success")
 				{
+					Log("success!", false);
 					OnlineRepairInfo = OnlineRepairInfo.repair_info;
 					if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version && !App.AdvancedFeatures)
 					{
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Hidden;
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_1_msg"]).ShowDialog();
-						return;
 					}
-					Dispatcher.Invoke(() =>
+					else
 					{
-						RepairBox.Visibility = Visibility.Visible;
-						RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
-						Log("success!", false);
-					});
+						Dispatcher.Invoke(() =>
+						{
+							RepairBox.Visibility = Visibility.Visible;
+							RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+						});
+						LegacyBoxActive = true;
+					}
 				}
 				else
 				{
@@ -3304,7 +3306,6 @@ namespace BetterHI3Launcher
 			}
 			catch(Exception ex)
 			{
-				LegacyBoxActive = false;
 				Status = LauncherStatus.Error;
 				Log($"Failed to fetch repair data:\n{ex}", true, 1);
 				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog();});
