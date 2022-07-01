@@ -1049,7 +1049,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private dynamic FetchMediaFireFileMetadata(string id, int type = 0)
+		private dynamic FetchMediaFireFileMetadata(string id)
 		{
 			if(string.IsNullOrEmpty(id))
 			{
@@ -1064,41 +1064,8 @@ namespace BetterHI3Launcher
 				{
 					dynamic metadata = new ExpandoObject();
 					metadata.title = web_response.Headers["Content-Disposition"].Replace("attachment; filename=", string.Empty).Replace("\"", string.Empty);
-					metadata.modifiedDate = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 					metadata.downloadUrl = url;
 					metadata.fileSize = web_response.ContentLength;
-					metadata.md5Checksum = null;
-					switch(type)
-					{
-						case 0:
-							switch(Server)
-							{
-								case HI3Server.GLB:
-									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.global.md5;
-									break;
-								case HI3Server.SEA:
-									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_archive.os.md5;
-									break;
-								default:
-									throw new NotSupportedException("This server is not supported.");
-							}
-							break;
-						case 1:
-							switch(Server)
-							{
-								case HI3Server.GLB:
-									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.global.md5.ToString();
-									break;
-								case HI3Server.SEA:
-									metadata.md5Checksum = OnlineVersionInfo.game_info.mirror.mediafire.game_cache.os.md5.ToString();
-									break;
-								default:
-									throw new NotSupportedException("This server is not supported.");
-							}
-							break;
-						default:
-							throw new Exception("Wrong cache type specified.");
-					}
 					return metadata;
 				}
 			}
