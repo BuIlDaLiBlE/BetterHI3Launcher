@@ -1260,10 +1260,12 @@ namespace BetterHI3Launcher
 					using(httpclient = new Http(true, 5, 1000, App.UserAgent))
 					{
 						token = new CancellationTokenSource();
+						httpclient.DownloadLog += DownloadLogListener;
 						httpclient.DownloadProgress += DownloadStatusChanged;
 						await AssignAndRunHttpTaskOrThrow(httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token));
 						await AssignAndRunHttpTaskOrThrow(httpclient.Merge(token.Token));
 						httpclient.DownloadProgress -= DownloadStatusChanged;
+						httpclient.DownloadLog -= DownloadLogListener;
 						await DownloadGameFile();
 					}
 				}
@@ -1341,11 +1343,13 @@ namespace BetterHI3Launcher
 						{
 							token = new CancellationTokenSource();
 							httpprop = new HttpProp(url, tmp_path);
+							httpclient.DownloadLog += DownloadLogListener;
 							httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
 							await AssignAndRunHttpTaskOrThrow(httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token));
 							await AssignAndRunHttpTaskOrThrow(httpclient.Merge(token.Token));
 							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
+							httpclient.DownloadLog -= DownloadLogListener;
 							Log("Downloaded pre-download archive");
 						}
 					}
