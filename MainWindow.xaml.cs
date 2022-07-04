@@ -114,7 +114,7 @@ namespace BetterHI3Launcher
 				}
 				void ToggleProgressBar(bool val)
 				{
-					ProgressBar.Visibility = val ? Visibility.Visible : Visibility.Hidden;
+					ProgressBar.Visibility = val ? Visibility.Visible : Visibility.Collapsed;
 					ProgressBar.IsIndeterminate = true;
 					TaskbarItemInfo.ProgressState = val ? TaskbarItemProgressState.Indeterminate : TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 				}
@@ -1353,7 +1353,7 @@ namespace BetterHI3Launcher
 			Dispatcher.Invoke(() =>
 			{
 				ProgressText.Text = string.Empty;
-				ProgressBar.Visibility = Visibility.Hidden;
+				ProgressBar.Visibility = Visibility.Collapsed;
 				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 				DownloadPauseButton.Visibility = Visibility.Collapsed;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
@@ -1673,7 +1673,7 @@ namespace BetterHI3Launcher
 							Dispatcher.Invoke(() =>
 							{
 								ProgressText.Text = string.Empty;
-								ProgressBar.Visibility = Visibility.Hidden;
+								ProgressBar.Visibility = Visibility.Collapsed;
 								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
@@ -1706,7 +1706,7 @@ namespace BetterHI3Launcher
 							Dispatcher.Invoke(() =>
 							{
 								ProgressText.Text = string.Empty;
-								ProgressBar.Visibility = Visibility.Hidden;
+								ProgressBar.Visibility = Visibility.Collapsed;
 								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
@@ -2238,7 +2238,7 @@ namespace BetterHI3Launcher
 				});
 
 				ProgressText.Text = string.Empty;
-				ProgressBar.Visibility = Visibility.Hidden;
+				ProgressBar.Visibility = Visibility.Collapsed;
 				ProgressBar.Value = 0;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 				TaskbarItemInfo.ProgressValue = 0;
@@ -2354,7 +2354,7 @@ namespace BetterHI3Launcher
 						{
 							LaunchButton.Content = App.TextStrings["button_launch"];
 							ProgressText.Text = string.Empty;
-							ProgressBar.Visibility = Visibility.Hidden;
+							ProgressBar.Visibility = Visibility.Collapsed;
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						});
 
@@ -2387,7 +2387,7 @@ namespace BetterHI3Launcher
 					Dispatcher.Invoke(() =>
 					{
 						ProgressText.Text = string.Empty;
-						ProgressBar.Visibility = Visibility.Hidden;
+						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 					});
 					new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_repair_2_msg"]).ShowDialog();
@@ -2489,11 +2489,12 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			
+
 			if(App.FirstLaunch)
 			{
 				LegacyBoxActive = true;
 				IntroBox.Visibility = Visibility.Visible;
+				ProgressBar.Visibility = Visibility.Collapsed;
 			}
 			else
 			{
@@ -2785,24 +2786,25 @@ namespace BetterHI3Launcher
 			}
 			else if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
 			{
+				if(!App.UseLegacyDownload)
+				{
+					if(httpclient.SessionState == MultisessionState.Merging)
+					{
+						LaunchButton.IsEnabled = false;
+						return;
+					}
+				}
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
 					if(!App.UseLegacyDownload)
 					{
 						token.Cancel();
+						await httpclient.DeleteMultisessionChunks(httpprop.Out);
 					}
 					else
 					{
 						download.Pause();
 						download = null;
-					}
-
-					if(!App.UseLegacyDownload)
-					{
-						await httpclient.DeleteMultisessionChunks(httpprop.Out);
-					}
-					else
-					{
 						if(!string.IsNullOrEmpty(GameArchiveTempPath))
 						{
 							while(BpUtility.IsFileLocked(new FileInfo(GameArchiveTempPath)))
@@ -2812,6 +2814,7 @@ namespace BetterHI3Launcher
 							DeleteFile(GameArchiveTempPath, true);
 						}
 					}
+
 					try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
 					DownloadPaused = false;
 					Log("Download cancelled");
@@ -2871,7 +2874,7 @@ namespace BetterHI3Launcher
 				try
 				{
 					ProgressText.Text = string.Empty;
-					ProgressBar.Visibility = Visibility.Hidden;
+					ProgressBar.Visibility = Visibility.Collapsed;
 					DownloadPauseButton.Visibility = Visibility.Visible;
 					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 					LaunchButton.IsEnabled = true;
@@ -3251,7 +3254,7 @@ namespace BetterHI3Launcher
 					if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version && !App.AdvancedFeatures)
 					{
 						ProgressText.Text = string.Empty;
-						ProgressBar.Visibility = Visibility.Hidden;
+						ProgressBar.Visibility = Visibility.Collapsed;
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_1_msg"]).ShowDialog();
 					}
 					else
@@ -3506,7 +3509,7 @@ namespace BetterHI3Launcher
 					Dispatcher.Invoke(() =>
 					{
 						ProgressText.Text = string.Empty;
-						ProgressBar.Visibility = Visibility.Hidden;
+						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						WindowState = WindowState.Normal;
 						new DialogWindow(App.TextStrings["msgbox_uninstall_title"], App.TextStrings["msgbox_uninstall_6_msg"] + delete_list).ShowDialog();
@@ -4250,7 +4253,7 @@ namespace BetterHI3Launcher
 						}
 					});
 					ProgressText.Text = string.Empty;
-					ProgressBar.Visibility = Visibility.Hidden;
+					ProgressBar.Visibility = Visibility.Collapsed;
 					ProgressBar.Value = 0;
 					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 					TaskbarItemInfo.ProgressValue = 0;
@@ -4342,7 +4345,7 @@ namespace BetterHI3Launcher
 							{
 								LaunchButton.Content = App.TextStrings["button_launch"];
 								ProgressText.Text = string.Empty;
-								ProgressBar.Visibility = Visibility.Hidden;
+								ProgressBar.Visibility = Visibility.Collapsed;
 								TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 							});
 							if(!abort)
@@ -4376,7 +4379,7 @@ namespace BetterHI3Launcher
 						Dispatcher.Invoke(() =>
 						{
 							ProgressText.Text = string.Empty;
-							ProgressBar.Visibility = Visibility.Hidden;
+							ProgressBar.Visibility = Visibility.Collapsed;
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						});
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_2_msg"]).ShowDialog();
@@ -4497,7 +4500,7 @@ namespace BetterHI3Launcher
 							Log($"Saved JSON: {dialog.FileName}");
 						});
 						ProgressText.Text = string.Empty;
-						ProgressBar.Visibility = Visibility.Hidden;
+						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						if(new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_7_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
