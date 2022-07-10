@@ -4446,17 +4446,17 @@ namespace BetterHI3Launcher
 						Log("Generating game file hashes...");
 						var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x =>
 						!x.Attributes.HasFlag(FileAttributes.Hidden) &&
-						x.Extension != ".log" &&
 						x.Extension != ".bat" &&
+						x.Extension != ".dmp" &&
+						x.Extension != ".log" &&
 						x.Extension != ".zip" &&
+						x.Name != "ACE-BASE.sys" &&
 						x.Name != "blockVerifiedVersion.txt" &&
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
 						x.Name != "pkg_version" &&
-						x.Name != "ThirdPartyNotices.txt" &&
 						x.Name != "UniFairy.sys" &&
 						x.Name != "Version.txt" &&
-						!x.Name.Contains("Blocks_") &&
 						!x.Name.Contains("AUDIO_Avatar") &&
 						!x.Name.Contains("AUDIO_BGM") &&
 						!x.Name.Contains("AUDIO_Dialog") &&
@@ -4467,6 +4467,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Main") &&
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
+						!x.Name.Contains("Blocks_") &&
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
 						!x.DirectoryName.Contains("Video") &&
 						!x.DirectoryName.Contains("webCaches")
