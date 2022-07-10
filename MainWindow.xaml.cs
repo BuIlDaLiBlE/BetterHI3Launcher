@@ -2724,7 +2724,6 @@ namespace BetterHI3Launcher
 								else
 								{
 									path = Directory.CreateDirectory(GameInstallPath).FullName;
-									Directory.Delete(GameInstallPath);
 								}
 							}
 							catch(Exception ex)
@@ -2735,6 +2734,7 @@ namespace BetterHI3Launcher
 
 							if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
 							{
+								try{Directory.Delete(GameInstallPath);}catch{}
 								continue;
 							}
 							var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
