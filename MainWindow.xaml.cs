@@ -1836,13 +1836,17 @@ namespace BetterHI3Launcher
 										unpacked_files++;
 									}
 								}
-								catch
+								catch(IOException)
+								{
+									throw;
+								}
+								catch(Exception ex)
 								{
 									if(!reader.Entry.IsDirectory)
 									{
 										skipped_files.Add(reader.Entry.ToString());
 										file_count--;
-										Log($"Unpack {reader.Entry}");
+										Log($"Failed to unpack {reader.Entry}: {ex.Message}", true, 1);
 									}
 								}
 							}
@@ -2486,6 +2490,7 @@ namespace BetterHI3Launcher
 				Status = LauncherStatus.Error;
 				Log($"Failed to start the launcher:\n{ex}", true, 1);
 				new DialogWindow(App.TextStrings["msgbox_start_error_title"], string.Format(App.TextStrings["msgbox_start_error_msg"], ex.Message)).ShowDialog();
+				Application.Current.Shutdown();
 				return;
 			}
 
