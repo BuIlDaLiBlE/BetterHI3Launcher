@@ -1687,13 +1687,14 @@ namespace BetterHI3Launcher
 				}
 				md5 = md5.ToUpper();
 				GameArchiveTempPath = $"{GameArchivePath}_tmp";
+				string h3mtdpath = GameArchiveTempPath + ".h3mtd";
 				Status = LauncherStatus.Downloading;
 				ProgressBar.IsIndeterminate = true;
 				if(File.Exists(GameArchivePath))
 				{
 					File.Move(GameArchivePath, GameArchiveTempPath);
 				}
-				if(!File.Exists(GameArchiveTempPath))
+				if(!File.Exists(GameArchiveTempPath) || File.Exists(h3mtdpath))
 				{
 					Log($"Starting to download game archive: {title} ({url})");
 					if(!App.UseLegacyDownload)
@@ -1712,8 +1713,17 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+
+							FileInfo OutPath = new FileInfo(httpprop.Out);
+							long zipContent = await httpclient.GetContentLength(httpprop.URL, token.Token) ?? 0;
+
+							if (!OutPath.Exists
+								|| (OutPath.Exists && OutPath.Length != zipContent))
+							{
+								await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
+								await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							}
+
 							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 							Dispatcher.Invoke(() =>
@@ -1797,6 +1807,8 @@ namespace BetterHI3Launcher
 					}
 					await Task.Run(() =>
 					{
+						if (File.Exists(h3mtdpath)) File.Delete(h3mtdpath);
+
 						Log("Validating game archive...");
 						Status = LauncherStatus.Verifying;
 						string actual_md5 = BpUtility.CalculateMD5(GameArchiveTempPath);
