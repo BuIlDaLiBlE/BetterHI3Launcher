@@ -1528,7 +1528,7 @@ namespace BetterHI3Launcher
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
 				string background_image_url;
 				string background_image_md5;
-				var web_request = BpUtility.CreateWebRequest(url);
+				var web_request = BpUtility.CreateWebRequest(url, "GET", 30000);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					using(var data = new MemoryStream())
