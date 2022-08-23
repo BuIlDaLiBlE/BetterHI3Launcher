@@ -4475,7 +4475,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("Blocks_") &&
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
 						!x.DirectoryName.Contains("Video") &&
-						!x.DirectoryName.Contains("webCaches")
+						!x.DirectoryName.Contains("Cache")
 						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
