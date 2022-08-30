@@ -1529,7 +1529,7 @@ namespace BetterHI3Launcher
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
 				string background_image_url;
 				string background_image_md5;
-				var web_request = BpUtility.CreateWebRequest(url);
+				var web_request = BpUtility.CreateWebRequest(url, "GET", 30000);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					using(var data = new MemoryStream())
@@ -1794,16 +1794,6 @@ namespace BetterHI3Launcher
 						{
 							return;
 						}
-						if(!PatchDownload)
-						{
-							try
-							{
-								foreach(var file in Directory.GetFiles(Path.Combine(GameInstallPath, @"BH3_Data\StreamingAssets\Asb\pc"), "*.wmv"))
-								{
-									DeleteFile(file);
-								}
-							}catch{}
-						}
 						var skipped_files = new List<string>();
 						using(var archive = ArchiveFactory.Open(GameArchivePath))
 						{
@@ -1837,13 +1827,17 @@ namespace BetterHI3Launcher
 										unpacked_files++;
 									}
 								}
-								catch
+								catch(IOException)
+								{
+									throw;
+								}
+								catch(Exception ex)
 								{
 									if(!reader.Entry.IsDirectory)
 									{
 										skipped_files.Add(reader.Entry.ToString());
 										file_count--;
-										Log($"Unpack {reader.Entry}");
+										Log($"Failed to unpack {reader.Entry}: {ex.Message}", true, 1);
 									}
 								}
 							}
@@ -2487,6 +2481,7 @@ namespace BetterHI3Launcher
 				Status = LauncherStatus.Error;
 				Log($"Failed to start the launcher:\n{ex}", true, 1);
 				new DialogWindow(App.TextStrings["msgbox_start_error_title"], string.Format(App.TextStrings["msgbox_start_error_msg"], ex.Message)).ShowDialog();
+				Application.Current.Shutdown();
 				return;
 			}
 
@@ -2725,7 +2720,6 @@ namespace BetterHI3Launcher
 								else
 								{
 									path = Directory.CreateDirectory(GameInstallPath).FullName;
-									Directory.Delete(GameInstallPath);
 								}
 							}
 							catch(Exception ex)
@@ -2736,6 +2730,7 @@ namespace BetterHI3Launcher
 
 							if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
 							{
+								try{Directory.Delete(GameInstallPath);}catch{}
 								continue;
 							}
 							var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
@@ -4447,17 +4442,17 @@ namespace BetterHI3Launcher
 						Log("Generating game file hashes...");
 						var files = new DirectoryInfo(GameInstallPath).GetFiles("*", SearchOption.AllDirectories).Where(x =>
 						!x.Attributes.HasFlag(FileAttributes.Hidden) &&
-						x.Extension != ".log" &&
 						x.Extension != ".bat" &&
+						x.Extension != ".dmp" &&
+						x.Extension != ".log" &&
 						x.Extension != ".zip" &&
+						x.Name != "ACE-BASE.sys" &&
 						x.Name != "blockVerifiedVersion.txt" &&
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
 						x.Name != "pkg_version" &&
-						x.Name != "ThirdPartyNotices.txt" &&
 						x.Name != "UniFairy.sys" &&
 						x.Name != "Version.txt" &&
-						!x.Name.Contains("Blocks_") &&
 						!x.Name.Contains("AUDIO_Avatar") &&
 						!x.Name.Contains("AUDIO_BGM") &&
 						!x.Name.Contains("AUDIO_Dialog") &&
@@ -4468,9 +4463,10 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Main") &&
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
+						!x.Name.Contains("Blocks_") &&
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
 						!x.DirectoryName.Contains("Video") &&
-						!x.DirectoryName.Contains("webCaches")
+						!x.DirectoryName.Contains("Cache")
 						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
