@@ -1649,7 +1649,22 @@ namespace BetterHI3Launcher
 				else
 				{
 					title = GameArchiveName;
-					url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_archive.ToString() + title;
+					url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_archive.ToString();
+					switch((int)Server)
+					{
+						case 0:
+							url += "global";
+							break;
+						case 1:
+							url += "sea";
+							break;
+						case 2:
+							url += "cn";
+							break;
+						default:
+							throw new NotSupportedException("This server is not supported.");
+					}
+					url += "/" + title;
 					md5 = miHoYoVersionInfo.game.latest.md5.ToString();
 				}
 				md5 = md5.ToUpper();
@@ -4046,7 +4061,7 @@ namespace BetterHI3Launcher
 				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(!PatchDownload)
+				if(LocalVersionInfo.game_info.installed == false)
 				{
 					ResetVersionInfo();
 				}
@@ -4125,7 +4140,7 @@ namespace BetterHI3Launcher
 				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(!PatchDownload)
+				if(LocalVersionInfo.game_info.installed == false)
 				{
 					ResetVersionInfo();
 				}
@@ -4491,6 +4506,7 @@ namespace BetterHI3Launcher
 									ProgressBar.Value = progress;
 									TaskbarItemInfo.ProgressValue = progress;
 								});
+								Log($"Added: {json.repair_info.files.names[i]}");
 							}
 							File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
 							Log("success!", false);
