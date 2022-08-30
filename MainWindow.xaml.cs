@@ -1793,16 +1793,6 @@ namespace BetterHI3Launcher
 						{
 							return;
 						}
-						if(!PatchDownload)
-						{
-							try
-							{
-								foreach(var file in Directory.GetFiles(Path.Combine(GameInstallPath, @"BH3_Data\StreamingAssets\Asb\pc"), "*.wmv"))
-								{
-									DeleteFile(file);
-								}
-							}catch{}
-						}
 						var skipped_files = new List<string>();
 						using(var archive = ArchiveFactory.Open(GameArchivePath))
 						{
