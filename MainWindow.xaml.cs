@@ -4505,6 +4505,7 @@ namespace BetterHI3Launcher
 									ProgressBar.Value = progress;
 									TaskbarItemInfo.ProgressValue = progress;
 								});
+								Log($"Added: {json.repair_info.files.names[i]}");
 							}
 							File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
 							Log("success!", false);
