@@ -4060,7 +4060,7 @@ namespace BetterHI3Launcher
 				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(!PatchDownload)
+				if(LocalVersionInfo.game_info.installed == false)
 				{
 					ResetVersionInfo();
 				}
@@ -4139,7 +4139,7 @@ namespace BetterHI3Launcher
 				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(!PatchDownload)
+				if(LocalVersionInfo.game_info.installed == false)
 				{
 					ResetVersionInfo();
 				}
