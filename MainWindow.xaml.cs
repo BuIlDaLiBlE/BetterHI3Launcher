@@ -3167,7 +3167,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server != HI3Server.CN && Mirror == HI3Mirror.Hi3Mirror))
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
 			{
 				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
