@@ -538,6 +538,7 @@
 							<ComboBoxItem Content="CN"/>
 							<ComboBoxItem Content="TW/HK/MO"/>
 							<ComboBoxItem Content="KR"/>
+							<ComboBoxItem Content="JP"/>
 						</ComboBox>
 					</StackPanel>
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">

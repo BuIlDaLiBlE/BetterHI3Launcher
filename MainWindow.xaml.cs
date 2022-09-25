@@ -38,7 +38,7 @@ namespace BetterHI3Launcher
 	}
 	enum HI3Server
 	{
-		GLB, SEA, CN, TW, KR
+		GLB, SEA, CN, TW, KR, JP
 	}
 	enum HI3Mirror
 	{
@@ -261,7 +261,12 @@ namespace BetterHI3Launcher
 						GameInstallRegistryName = GameFullName;
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
-
+					case HI3Server.JP:
+						RegistryVersionInfo = "VersionInfoJP";
+						GameFullName = "崩壊3rd";
+						GameInstallRegistryName = GameFullName;
+						GameWebProfileURL = "https://account.hoyoverse.com";
+						break;
 				}
 				GameRegistryPath = $@"SOFTWARE\miHoYo\{GameFullName}";
 				GameCachePath = Path.Combine(miHoYoPath, GameFullName);
@@ -632,6 +637,9 @@ namespace BetterHI3Launcher
 							case 4:
 								Server = HI3Server.KR;
 								break;
+							case 5:
+								Server = HI3Server.JP;
+								break;
 						}
 					}
 				}
@@ -948,6 +956,9 @@ namespace BetterHI3Launcher
 					break;
 				case HI3Server.KR:
 					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.kr.ToString();
+					break;
+				case HI3Server.JP:
+					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.jp.ToString();
 					break;
 			}
 			void Get(int timeout)
@@ -1523,6 +1534,9 @@ namespace BetterHI3Launcher
 						break;
 					case HI3Server.KR:
 						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.kr.ToString();
+						break;
+					case HI3Server.JP:
+						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.jp.ToString();
 						break;
 				}
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
@@ -2649,7 +2663,7 @@ namespace BetterHI3Launcher
 						var possible_paths = new List<string>();
 						possible_paths.Add(App.LauncherRootPath);
 						possible_paths.Add(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
-						string[] game_reg_names = {"Honkai Impact 3rd", "Honkai Impact 3", "崩坏3", "崩壞3rd", "붕괴3rd"};
+						string[] game_reg_names = {"Honkai Impact 3rd", "Honkai Impact 3", "崩坏3", "崩壞3rd", "붕괴3rd", "崩壊3rd"};
 						foreach(string game_reg_name in game_reg_names)
 						{
 							try
@@ -4082,6 +4096,9 @@ namespace BetterHI3Launcher
 				case 4:
 					Server = HI3Server.KR;
 					break;
+				case 5:
+					Server = HI3Server.JP;
+					break;
 			}
 			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
 			{
@@ -4946,7 +4963,8 @@ namespace BetterHI3Launcher
 				Path.Combine(path, "Honkai Impact 3rd glb", "Games"),
 				Path.Combine(path, "Honkai Impact 3 sea", "Games"),
 				Path.Combine(path, "Honkai Impact 3rd tw", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd kr", "Games")
+				Path.Combine(path, "Honkai Impact 3rd kr", "Games"),
+				Path.Combine(path, "Houkai3rd", "Games")
 			});
 
 			foreach(var variant in path_variants)
@@ -4993,6 +5011,14 @@ namespace BetterHI3Launcher
 							}
 							break;
 						case "崩壊3rd":
+							// hack to determine whether it's JP or not
+							if(path.Contains("Houkai3rd"))
+							{
+								if(App.LauncherRegKey.GetValue("VersionInfoJP") == null)
+								{
+									return 5;
+								}
+							}
 							if(App.LauncherRegKey.GetValue("VersionInfoTW") == null)
 							{
 								return 3;
