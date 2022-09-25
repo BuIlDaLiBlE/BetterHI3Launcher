@@ -252,7 +252,7 @@
       <Version>2.5.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.Platforms">
-      <Version>6.0.4</Version>
+      <Version>6.0.5</Version>
     </PackageReference>
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.3</Version>
@@ -261,7 +261,7 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
-      <Version>0.32.1</Version>
+      <Version>0.32.2</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
       <Version>6.0.0</Version>
@@ -306,7 +306,7 @@
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="XamlAnimatedGif">
-      <Version>2.0.2</Version>
+      <Version>2.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
