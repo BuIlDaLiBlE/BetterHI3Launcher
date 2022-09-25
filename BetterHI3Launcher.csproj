@@ -118,6 +118,14 @@
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TextStrings_en.cs" />
+    <Compile Include="Modules\ContextMenu.cs" />
+    <Compile Include="Modules\GameCache.cs" />
+    <Compile Include="Modules\GameOnlineInfo.cs" />
+    <Compile Include="Modules\GameUpdate.cs" />
+    <Compile Include="Modules\LauncherOnlineInfo.cs" />
+    <Compile Include="Modules\LauncherUpdate.cs" />
+    <Compile Include="Modules\LegacyBox.cs" />
+    <Compile Include="Modules\Shared.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
     <Compile Include="Utility\Hi3HelperCore.Http\Class\Attribute.cs" />
     <Compile Include="Utility\Hi3HelperCore.Http\Class\Event.cs" />
