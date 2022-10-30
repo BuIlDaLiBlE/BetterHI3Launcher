@@ -171,7 +171,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="Utility\Hi3Helper.Http\Hi3HelperCore.Http.csproj" />
+    <None Include="Utility\Hi3Helper.Http\Hi3Helper.Http.csproj" />
     <None Include="Utility\Hi3Helper.Http\LICENSE" />
     <None Include="Utility\Hi3Helper.Http\README.md" />
     <Resource Include="Assets\Fonts\FZLanTingHei-B-GBK.ttf" />
