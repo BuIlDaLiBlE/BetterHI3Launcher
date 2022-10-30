@@ -121,16 +121,24 @@
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TextStrings_en.cs" />
+    <Compile Include="Modules\ContextMenu.cs" />
+    <Compile Include="Modules\GameCache.cs" />
+    <Compile Include="Modules\GameOnlineInfo.cs" />
+    <Compile Include="Modules\GameUpdate.cs" />
+    <Compile Include="Modules\LauncherOnlineInfo.cs" />
+    <Compile Include="Modules\LauncherUpdate.cs" />
+    <Compile Include="Modules\LegacyBox.cs" />
+    <Compile Include="Modules\Shared.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Class\Attribute.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Class\Event.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Class\Exception.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Class\IO.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Class\Merge.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Class\Session.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Class\Thread.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\Http.cs" />
-    <Compile Include="Utility\Hi3HelperCore.Http\HttpMultisession.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Attribute.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Exception.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\IO.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Merge.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Thread.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Http.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\HttpMultisession.cs" />
     <Compile Include="Utility\miHoYoCRCUtility.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
@@ -167,9 +175,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="Utility\Hi3HelperCore.Http\Hi3HelperCore.Http.csproj" />
-    <None Include="Utility\Hi3HelperCore.Http\LICENSE" />
-    <None Include="Utility\Hi3HelperCore.Http\README.md" />
+    <None Include="Utility\Hi3Helper.Http\Hi3Helper.Http.csproj" />
+    <None Include="Utility\Hi3Helper.Http\LICENSE" />
+    <None Include="Utility\Hi3Helper.Http\README.md" />
     <Resource Include="Assets\Fonts\FZLanTingHei-B-GBK.ttf" />
     <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
@@ -193,8 +201,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Utility\Hi3HelperCore.Http\.gitattributes" />
-    <Content Include="Utility\Hi3HelperCore.Http\.gitignore" />
+    <Content Include="Utility\Hi3Helper.Http\.gitattributes" />
+    <Content Include="Utility\Hi3Helper.Http\.gitignore" />
     <Resource Include="Assets\Images\Icon.ico" />
     <Resource Include="Assets\Images\Button.png" />
     <Resource Include="Assets\Images\Button_Disabled.png" />
@@ -240,14 +248,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Fody">
-      <Version>6.6.3</Version>
+      <Version>6.6.4</Version>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="ini-parser">
       <Version>2.5.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.Platforms">
-      <Version>6.0.4</Version>
+      <Version>6.0.6</Version>
     </PackageReference>
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.3</Version>
@@ -256,7 +264,7 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="SharpCompress">
-      <Version>0.32.1</Version>
+      <Version>0.32.2</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
       <Version>6.0.0</Version>
@@ -301,7 +309,7 @@
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="XamlAnimatedGif">
-      <Version>2.0.2</Version>
+      <Version>2.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

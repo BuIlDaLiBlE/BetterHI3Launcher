@@ -1,7 +1,7 @@
 # Better HI3 Launcher
 A much better Honkai Impact 3rd launcher. Here are the key points:
 * No need to install, it is just one file
-* Supports all game clients (Global, SEA, CN, TW/HK/MO and KR), can switch between them freely
+* Supports all game clients (Global, SEA, CN, TW/HK/MO, KR and JP), can switch between them freely
   * **Please note that Steam version is not supported**
 * Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which dramatically speeds up the download process
 * Has mirror support so you have more download sources to choose from
