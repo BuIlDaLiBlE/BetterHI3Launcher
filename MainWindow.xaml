@@ -525,7 +525,7 @@
 					</TextBlock.Effect>
 				</TextBlock>
 				<StackPanel HorizontalAlignment="Center">
-					<ProgressBar Name="ProgressBar" Style="{StaticResource ProgressBarStyle}" Margin="0,0,0,5" Height="5" Visibility="Visible"/>
+					<ProgressBar Name="ProgressBar" Style="{StaticResource ProgressBarStyle}" Margin="0,0,0,5" Height="5" Visibility="Collapsed"/>
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,5">
 						<TextBlock Name="ServerLabel" Margin="0,0,5,0" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16">
 							<TextBlock.Effect>
@@ -538,6 +538,7 @@
 							<ComboBoxItem Content="CN"/>
 							<ComboBoxItem Content="TW/HK/MO"/>
 							<ComboBoxItem Content="KR"/>
+							<ComboBoxItem Content="JP"/>
 						</ComboBox>
 					</StackPanel>
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
