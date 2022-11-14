@@ -39,7 +39,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -130,15 +130,6 @@
     <Compile Include="Modules\LegacyBox.cs" />
     <Compile Include="Modules\Shared.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Attribute.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Exception.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\IO.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Merge.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Session.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Thread.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Http.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\HttpMultisession.cs" />
     <Compile Include="Utility\miHoYoCRCUtility.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
@@ -155,6 +146,21 @@
     <Compile Include="Utility\PartialZip\Services\DeflateService.cs" />
     <Compile Include="Utility\PartialZip\Services\HttpService.cs" />
     <Compile Include="Utility\BpUtility.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\Attributes.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\AttributesSize.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadEvent.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\Event.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Exception.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\IO.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\Session.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionManager.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionMerge.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionMetadata.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionTask.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionVerification.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\SimpleHash\SimpleChecksum.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Http.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\HttpMulti.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -175,9 +181,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="Utility\Hi3Helper.Http\Hi3Helper.Http.csproj" />
-    <None Include="Utility\Hi3Helper.Http\LICENSE" />
-    <None Include="Utility\Hi3Helper.Http\README.md" />
     <Resource Include="Assets\Fonts\FZLanTingHei-B-GBK.ttf" />
     <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
@@ -201,8 +204,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Utility\Hi3Helper.Http\.gitattributes" />
-    <Content Include="Utility\Hi3Helper.Http\.gitignore" />
     <Resource Include="Assets\Images\Icon.ico" />
     <Resource Include="Assets\Images\Button.png" />
     <Resource Include="Assets\Images\Button_Disabled.png" />

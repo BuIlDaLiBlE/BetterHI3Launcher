@@ -536,8 +536,8 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
+							await httpclient.Merge();
 							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 							Dispatcher.Invoke(() =>

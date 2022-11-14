@@ -1123,7 +1123,7 @@ namespace BetterHI3Launcher
 			{
 				if(!App.UseLegacyDownload)
 				{
-					if(httpclient.SessionState == MultisessionState.Merging)
+					if(httpclient.DownloadState == MultisessionState.Merging)
 					{
 						LaunchButton.IsEnabled = false;
 						return;
@@ -1134,7 +1134,8 @@ namespace BetterHI3Launcher
 					if(!App.UseLegacyDownload)
 					{
 						token.Cancel();
-						await httpclient.DeleteMultisessionChunks(httpprop.Out);
+						await httpclient.WaitUntillAllSessionDisposed();
+						httpclient.DeleteMultisessionFiles(httpprop.Out, httpprop.Thread);
 					}
 					else
 					{
@@ -1222,8 +1223,8 @@ namespace BetterHI3Launcher
 						httpclient = new Http();
 						token = new CancellationTokenSource();
 						httpclient.DownloadProgress += DownloadStatusChanged;
-						await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-						await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+						await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
+						await httpclient.Merge();
 						httpclient.DownloadProgress -= DownloadStatusChanged;
 						await DownloadGameFile();
 					}
@@ -1308,8 +1309,8 @@ namespace BetterHI3Launcher
 							httpprop = new HttpProp(url, tmp_path);
 							httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
-							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
+							await httpclient.Merge();
 							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							Log("Downloaded pre-download archive");
 						}
@@ -1432,7 +1433,7 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			if(download != null || httpclient.SessionState == MultisessionState.Downloading)
+			if(download != null || httpclient.DownloadState == MultisessionState.Downloading)
 			{
 				PreloadPauseButton.IsEnabled = false;
 				if(download != null)
@@ -1623,7 +1624,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && httpclient == null || httpclient.SessionState == MultisessionState.Idle)
+				if(download == null && httpclient == null || httpclient.DownloadState == MultisessionState.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -1632,7 +1633,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					if(httpclient != null && httpclient.SessionState == MultisessionState.Merging)
+					if(httpclient != null && httpclient.DownloadState == MultisessionState.Merging)
 					{
 						e.Cancel = true;
 						return;
@@ -1643,7 +1644,7 @@ namespace BetterHI3Launcher
 						{	
 							download.Pause();
 						}
-						else if(httpclient != null && httpclient.SessionState == MultisessionState.Downloading || httpclient.SessionState == MultisessionState.CancelledDownloading)
+						else if(httpclient != null && httpclient.DownloadState == MultisessionState.Downloading || httpclient.DownloadState == MultisessionState.CancelledDownloading)
 						{
 							try
 							{
