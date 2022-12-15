@@ -308,7 +308,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_BGM") &&
 						!x.Name.Contains("AUDIO_Dialog") &&
 						!x.Name.Contains("AUDIO_DLC") &&
-						!x.Name.Contains("AUDIO_EVENT") &&
+						!x.Name.Contains("AUDIO_Event") &&
 						!x.Name.Contains("AUDIO_Ex") &&
 						!x.Name.Contains("AUDIO_HOT_FIX") &&
 						!x.Name.Contains("AUDIO_Main") &&
