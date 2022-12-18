@@ -97,41 +97,7 @@ namespace BetterHI3Launcher
 				GameVersionText.Text = $"{App.TextStrings["version"]}: {miHoYoVersionInfo.game.latest.version.ToString()}";
 			});
 		}
-		private DateTime FetchmiHoYoResourceVersionDateModified()
-		{
-			var url = new string[3];
-			var time = new DateTime[3];
-			switch(Server)
-			{
-				case HI3Server.GLB:
-					url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[0].ToString();
-					url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[1].ToString();
-					url[2] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.global[2].ToString();
-					break;
-				case HI3Server.SEA:
-					url[0] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[0].ToString();
-					url[1] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[1].ToString();
-					url[2] = OnlineVersionInfo.game_info.mirror.mihoyo.resource_version.os[2].ToString();
-					break;
-			}
-			try
-			{
-				for(int i = 0; i < url.Length; i++)
-				{
-					var web_request = BpUtility.CreateWebRequest(url[i], "HEAD");
-					using(var web_response = (HttpWebResponse)web_request.GetResponse())
-					{
-						time[i] = web_response.LastModified.ToUniversalTime();
-					}
-				}
-				Array.Sort(time);
-				return time[time.Length - 1];
-			}
-			catch
-			{
-				return new DateTime();
-			}
-		}
+
 		private dynamic FetchMediaFireFileMetadata(string id)
 		{
 			if(string.IsNullOrEmpty(id))

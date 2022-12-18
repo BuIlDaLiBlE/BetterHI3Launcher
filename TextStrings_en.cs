@@ -99,7 +99,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("progresstext_fetching_hashes", "Fetching file hashes...");
 			TextStrings.Add("progresstext_generating_hash", "Generating hash for file {0}/{1}...");
 			TextStrings.Add("progresstext_initiating_download", "Initiating download...");
-			TextStrings.Add("progresstext_mirror_connect", "Connecting to mirror...");
 			TextStrings.Add("progresstext_moving_files", "Moving game files...");
 			TextStrings.Add("progresstext_uninstalling", "Uninstalling the game...");
 			TextStrings.Add("progresstext_unpacking_1", "Unpacking game files...");
@@ -132,6 +131,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_custom_resolution_1_msg", "Height being greater than width is not recommended.\nContinue?");
 			TextStrings.Add("msgbox_custom_resolution_2_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
 			TextStrings.Add("msgbox_custom_launch_options_msg", "Advanced users may enter custom launch options here.\nNote: they are applied independently per server.");
+			TextStrings.Add("msgbox_download_cache_msg", "The entire game cache will be checked and can be downloaded if needed. It can take a while.\nContinue?");
 			TextStrings.Add("msgbox_download_cache_hi3mirror_msg", "The entire game cache will be checked and can be downloaded if needed. It can take a while.\nHi3Mirror is a project courtesy of {0}.\nContinue?");
 			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type and allow you to reselect which assets to download.\nContinue?");
 			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset.");

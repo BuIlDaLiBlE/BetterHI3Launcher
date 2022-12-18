@@ -29,7 +29,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
+			if(Mirror == HI3Mirror.Hi3Mirror && Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
 			{
 				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
@@ -93,17 +93,23 @@ namespace BetterHI3Launcher
 					goto case 0;
 			}
 
-			if(Mirror == HI3Mirror.miHoYo || Mirror == HI3Mirror.Hi3Mirror)
+			string dialog_message;
+			if(Mirror == HI3Mirror.miHoYo)
 			{
-				if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_download_cache_hi3mirror_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString()), DialogWindow.DialogType.Question).ShowDialog() == false)
-				{
-					return;
-				}
-				Status = LauncherStatus.CheckingUpdates;
-				Dispatcher.Invoke(() => { ProgressText.Text = App.TextStrings["progresstext_mirror_connect"]; });
-				Log("Connecting to Hi3Mirror...");
-				DownloadGameCache(game_language);
+				dialog_message = App.TextStrings["msgbox_download_cache_msg"];
 			}
+			else
+			{
+				dialog_message = string.Format(App.TextStrings["msgbox_download_cache_hi3mirror_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString());
+			}
+			if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], dialog_message, DialogWindow.DialogType.Question).ShowDialog() == false)
+			{
+				return;
+			}
+			Status = LauncherStatus.CheckingUpdates;
+			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];});
+			Log("Fetching cache data...");
+			DownloadGameCache(game_language);
 		}
 
 		private async Task CM_Repair_Click(object sender, RoutedEventArgs e)
@@ -123,7 +129,7 @@ namespace BetterHI3Launcher
 			}
 
 			Status = LauncherStatus.CheckingUpdates;
-			Dispatcher.Invoke(() => { ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"]; });
+			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];});
 			Log("Fetching repair data...");
 			try
 			{
@@ -164,7 +170,7 @@ namespace BetterHI3Launcher
 			{
 				Status = LauncherStatus.Error;
 				Log($"Failed to fetch repair data:\n{ex}", true, 1);
-				Dispatcher.Invoke(() => { new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog(); });
+				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog();});
 			}
 			Status = LauncherStatus.Ready;
 		}
@@ -295,7 +301,7 @@ namespace BetterHI3Launcher
 					{
 						Status = LauncherStatus.Error;
 						Log($"Failed to move the game:\n{ex}", true, 1);
-						Dispatcher.Invoke(() => { new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_generic_error_msg"]).ShowDialog(); });
+						Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_generic_error_msg"]).ShowDialog();});
 						Status = LauncherStatus.Ready;
 					}
 				});
@@ -432,8 +438,7 @@ namespace BetterHI3Launcher
 						{
 							key.DeleteValue(value);
 						}
-					}
-					catch { }
+					}catch{}
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
@@ -494,8 +499,7 @@ namespace BetterHI3Launcher
 						{
 							key.DeleteValue(value);
 						}
-					}
-					catch { }
+					}catch{}
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
@@ -561,8 +565,7 @@ namespace BetterHI3Launcher
 				try
 				{
 					dialog.CustomLaunchOptionsTextBox.Text = LocalVersionInfo.launch_options.ToString().Trim();
-				}
-				catch { }
+				}catch{}
 				if(dialog.ShowDialog() == false)
 				{
 					return;
@@ -604,7 +607,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
-				string[] values = { "GENERAL_DATA_V2_ResourceDownloadType_h2238376574", "GENERAL_DATA_V2_ResourceDownloadVersion_h1528433916" };
+				string[] values = {"GENERAL_DATA_V2_ResourceDownloadType_h2238376574", "GENERAL_DATA_V2_ResourceDownloadVersion_h1528433916"};
 				foreach(string value in values)
 				{
 					if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.DWord)
@@ -615,8 +618,7 @@ namespace BetterHI3Launcher
 							{
 								key.DeleteValue(value);
 							}
-						}
-						catch { }
+						}catch{}
 					}
 				}
 				var value_before = key.GetValue(values[0]);
@@ -823,7 +825,7 @@ namespace BetterHI3Launcher
 			{
 				if(lang == App.TextStrings["contextmenu_language_system"])
 				{
-					try { BpUtility.DeleteFromRegistry("Language"); } catch { }
+					try{BpUtility.DeleteFromRegistry("Language");} catch{}
 				}
 				else
 				{
@@ -1047,8 +1049,7 @@ namespace BetterHI3Launcher
 							Thread.Sleep(100);
 						}
 						BackgroundMedia.Source = old_source;
-					}
-					catch { }
+					}catch{}
 				}
 			}
 			else
