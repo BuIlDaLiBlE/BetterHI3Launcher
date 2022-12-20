@@ -1191,8 +1191,8 @@ namespace BetterHI3Launcher
 				if(!App.UseLegacyDownload)
 				{
 					token.Cancel();
-                    await httpclient.WaitUntilInstanceDisposed();
-                }
+					await httpclient.WaitUntilInstanceDisposed();
+				}
 				else
 				{
 					download.Pause();
@@ -1448,8 +1448,8 @@ namespace BetterHI3Launcher
 				else
 				{
 					token.Cancel();
-                    await httpclient.WaitUntilInstanceDisposed();
-                }
+					await httpclient.WaitUntilInstanceDisposed();
+				}
 				Log("Pre-download paused");
 				PreloadDownload = false;
 				PreloadPauseButton.IsEnabled = true;
