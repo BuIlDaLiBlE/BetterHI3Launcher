@@ -1220,7 +1220,7 @@ namespace BetterHI3Launcher
 					{
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 
-						using (httpclient = new Http())
+						using (httpclient = new Http(true, 5, 1000, App.UserAgentStandard()))
 						{
 							token = new CancellationTokenSource();
 							httpclient.DownloadProgress += DownloadStatusChanged;
@@ -1306,7 +1306,7 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							using (httpclient = new Http())
+							using (httpclient = new Http(true, 5, 1000, App.UserAgentStandard()))
 							{
 								token = new CancellationTokenSource();
 								httpprop = new HttpProp(url, tmp_path);

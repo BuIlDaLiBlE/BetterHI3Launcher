@@ -524,7 +524,7 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							using (httpclient = new Http())
+							using (httpclient = new Http(true, 5, 1000, App.UserAgentStandard()))
 							{
 								httpprop = new HttpProp(url, GameArchiveTempPath);
 								token = new CancellationTokenSource();
