@@ -1182,12 +1182,6 @@ namespace BetterHI3Launcher
 
 			if(!DownloadPaused)
 			{
-				Status = LauncherStatus.DownloadPaused;
-				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-				DownloadETAText.Visibility = Visibility.Hidden;
-				DownloadSpeedText.Visibility = Visibility.Hidden;
-				DownloadPauseButton.Visibility = Visibility.Collapsed;
-				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
 				if(!App.UseLegacyDownload)
 				{
 					token.Cancel();
@@ -1197,6 +1191,12 @@ namespace BetterHI3Launcher
 				{
 					download.Pause();
 				}
+				Status = LauncherStatus.DownloadPaused;
+				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+				DownloadETAText.Visibility = Visibility.Hidden;
+				DownloadSpeedText.Visibility = Visibility.Hidden;
+				DownloadPauseButton.Visibility = Visibility.Collapsed;
+				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
 				DownloadResumeButton.Visibility = Visibility.Visible;
 				Log("Download paused");
 			}
