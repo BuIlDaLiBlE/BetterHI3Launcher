@@ -20,9 +20,8 @@ namespace BetterHI3Launcher
 		public static readonly string LauncherBackgroundsPath = Path.Combine(LauncherDataPath, "Backgrounds");
 		public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
 		public static readonly string LauncherTranslationsFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-translations.json");
-		public static string UserAgent = $"BetterHI3Launcher v{LocalLauncherVersion}";
-		// TODO: Replace this with Regular Expression
-		public static string UserAgentStandard() => UserAgent.Replace('[','(').Replace(']',')');
+		public static string UserAgent = $"BetterHI3Launcher/v{LocalLauncherVersion}";
+		public static List<string> UserAgentComment = new List<string>();
 		public static string LauncherExeName, LauncherPath, LauncherArchivePath, LauncherLanguage;
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
@@ -63,7 +62,7 @@ namespace BetterHI3Launcher
 			CultureInfo.DefaultThreadCurrentUICulture = culture;
 			#if DEBUG
 			WinConsole.Initialize();
-			UserAgent += " [DEBUG]";
+			UserAgentComment.Add("DEBUG");
 			#endif
 			TextStrings_English();
 			switch(OSLanguage)

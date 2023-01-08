@@ -252,6 +252,7 @@ namespace BetterHI3Launcher
 		public MainWindow()
 		{
 			InitializeComponent();
+
 			var args = new List<string>();
 			for(int i = 1; i < App.CommandLineArgs.Length; i++)
 			{
@@ -291,7 +292,8 @@ namespace BetterHI3Launcher
 				}
 			}
 			DeleteFile(App.LauncherLogFile, true);
-			Log(App.UserAgent, false);
+
+			Log($"BetterHI3Launcher v{App.LocalLauncherVersion}", false);
 			Log($"Working directory: {App.LauncherRootPath}");
 			Log($"OS version: {App.OSVersion}");
 			Log($"OS language: {App.OSLanguage}");
@@ -299,38 +301,39 @@ namespace BetterHI3Launcher
 			if(args.Contains("NOUPDATE"))
 			{
 				App.DisableAutoUpdate = true;
-				App.UserAgent += " [NOUPDATE]";
+				App.UserAgentComment.Add("NOUPDATE");
 				Log("Auto-update disabled");
 			}
 			#endif
 			if(args.Contains("NOLOG"))
 			{
-				App.UserAgent += " [NOLOG]";
+				App.UserAgentComment.Add("NOLOG");
 				Log("Logging to file disabled");
 			}
 			if(args.Contains("NOTRANSLATIONS"))
 			{
 				App.DisableTranslations = true;
 				App.LauncherLanguage = "en";
-				App.UserAgent += " [NOTRANSLATIONS]";
+				App.UserAgentComment.Add("NOTRANSLATIONS");
 				Log("Translations disabled, only English will be available");
 			}
 			if(args.Contains("LEGACYDOWNLOAD"))
 			{
 				App.UseLegacyDownload = true;
-				App.UserAgent += " [LEGACYDOWNLOAD]";
+				App.UserAgentComment.Add("LEGACYDOWNLOAD");
 				Log("Using legacy download method");
 			}
 			if(args.Contains("ADVANCED"))
 			{
 				App.AdvancedFeatures = true;
-				App.UserAgent += " [ADVANCED]";
+				App.UserAgentComment.Add("ADVANCED");
 				Log("Advanced features enabled");
 			}
 			else
 			{
 				RepairBoxGenerateButton.Visibility = Visibility.Collapsed;
 			}
+
 			string language_log_msg = "Launcher language: {0}";
 			var language_reg = App.LauncherRegKey.GetValue("Language");
 			if(!App.DisableTranslations)
@@ -350,7 +353,10 @@ namespace BetterHI3Launcher
 			}
 			language_log_msg = string.Format(language_log_msg, App.LauncherLanguage);
 			Log(language_log_msg);
-			App.UserAgent += $" [{App.LauncherLanguage}] [{App.OSVersion}]";
+			App.UserAgentComment.Add(App.LauncherLanguage);
+			App.UserAgentComment.Add(App.OSLanguage);
+			App.UserAgentComment.Add(App.OSVersion);
+			App.UserAgent += $" ({string.Join("; ", App.UserAgentComment)})";
 
 			LaunchButton.Content = App.TextStrings["button_download"];
 			OptionsButton.Content = App.TextStrings["button_options"];
@@ -1220,7 +1226,7 @@ namespace BetterHI3Launcher
 					{
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 
-						using (httpclient = new Http(true, 5, 1000, App.UserAgentStandard()))
+						using(httpclient = new Http(true, 5, 1000, App.UserAgent))
 						{
 							token = new CancellationTokenSource();
 							httpclient.DownloadProgress += DownloadStatusChanged;
@@ -1306,7 +1312,7 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							using (httpclient = new Http(true, 5, 1000, App.UserAgentStandard()))
+							using(httpclient = new Http(true, 5, 1000, App.UserAgent))
 							{
 								token = new CancellationTokenSource();
 								httpprop = new HttpProp(url, tmp_path);
