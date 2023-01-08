@@ -1285,7 +1285,7 @@ namespace BetterHI3Launcher
 				{
 					size = web_response.ContentLength;
 				}
-				if(App.UseLegacyDownload && !File.Exists(tmp_path) || !App.UseLegacyDownload && !File.Exists($"{tmp_path}.001"))
+				if(Directory.GetFiles(GameInstallPath, $"{title}*", SearchOption.TopDirectoryOnly).Length > 0)
 				{
 					if(new DialogWindow(App.TextStrings["label_pre_install"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
