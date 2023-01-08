@@ -50,7 +50,6 @@ namespace BetterHI3Launcher
 		Http httpclient;
 		HttpProp httpprop;
 		CancellationTokenSource token;
-		DownloadPauseable download;
 		DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
 
 		internal LauncherStatus Status
@@ -1353,19 +1352,11 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			if(download != null || httpclient.DownloadState == DownloadState.Downloading)
+			if(httpclient.DownloadState == DownloadState.Downloading)
 			{
 				PreloadPauseButton.IsEnabled = false;
-				if(download != null)
-				{
-					download.Pause();
-					download = null;
-				}
-				else
-				{
-					token.Cancel();
-					await httpclient.WaitUntilInstanceDisposed();
-				}
+				token.Cancel();
+				await httpclient.WaitUntilInstanceDisposed();
 				Log("Pre-download paused");
 				PreloadDownload = false;
 				PreloadPauseButton.IsEnabled = true;
@@ -1415,7 +1406,6 @@ namespace BetterHI3Launcher
 					ServerDropdown.SelectedIndex = (int)Server;
 					return;
 				}
-				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
 				if(LocalVersionInfo.game_info.installed == false)
@@ -1497,7 +1487,6 @@ namespace BetterHI3Launcher
 					MirrorDropdown.SelectedIndex = (int)Mirror;
 					return;
 				}
-				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
 				if(LocalVersionInfo.game_info.installed == false)
@@ -1545,7 +1534,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && httpclient == null || httpclient.DownloadState == DownloadState.Idle)
+				if(httpclient == null || httpclient.DownloadState == DownloadState.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -1561,11 +1550,7 @@ namespace BetterHI3Launcher
 					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
-						if(download != null)
-						{	
-							download.Pause();
-						}
-						else if(httpclient != null && httpclient.DownloadState == DownloadState.Downloading || httpclient.DownloadState == DownloadState.CancelledDownloading)
+						if(httpclient != null && httpclient.DownloadState == DownloadState.Downloading || httpclient.DownloadState == DownloadState.CancelledDownloading)
 						{
 							try
 							{
