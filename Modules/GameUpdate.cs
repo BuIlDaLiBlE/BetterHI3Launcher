@@ -256,10 +256,44 @@ namespace BetterHI3Launcher
 				switch(Server)
 				{
 					case HI3Server.GLB:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString();
+						string lang;
+						switch(App.LauncherLanguage)
+						{
+							case "de":
+								lang = "de-de";
+								break;
+							case "fr":
+								lang = "fr-fr";
+								break;
+							case "zh-CN":
+								lang = "zh-cn";
+								break;
+							default:
+								lang = "en-us";
+								break;
+						}
+						url = string.Format(OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString(), lang);
 						break;
 					case HI3Server.SEA:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString();
+						switch(App.LauncherLanguage)
+						{
+							case "id":
+								lang = "id-id";
+								break;
+							case "th":
+								lang = "th-th";
+								break;
+							case "vn":
+								lang = "vi-vn";
+								break;
+							case "zh-CN":
+								lang = "zh-cn";
+								break;
+							default:
+								lang = "en-us";
+								break;
+						}
+						url = string.Format(OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString(), lang);
 						break;
 					case HI3Server.CN:
 						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.cn.ToString();
@@ -292,6 +326,7 @@ namespace BetterHI3Launcher
 							}
 							else
 							{
+								Log("Background image info is missing!", true, 2);
 								BackgroundImageDownloading = false;
 								return;
 							}
