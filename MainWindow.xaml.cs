@@ -29,7 +29,7 @@ namespace BetterHI3Launcher
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameExePath;
 		public static string RegistryVersionInfo;
 		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameExeName, GameInstallRegistryName;
-		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive;
+		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive, ActionAbort;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
 		public static RoutedCommand RepairGameCommand = new RoutedCommand();
@@ -1161,6 +1161,11 @@ namespace BetterHI3Launcher
 					Status = LauncherStatus.Ready;
 					GameUpdateCheck();
 				}
+			}
+			else if(Status == LauncherStatus.Working)
+			{
+				LaunchButton.IsEnabled = false;
+				ActionAbort = true;
 			}
 		}
 

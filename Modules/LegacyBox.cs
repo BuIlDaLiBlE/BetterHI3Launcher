@@ -114,7 +114,11 @@ namespace BetterHI3Launcher
 							int repaired_files = 0;
 							bool abort = false;
 
-							Status = LauncherStatus.Downloading;
+							Status = LauncherStatus.Working;
+							ProgressBar.IsIndeterminate = false;
+							LaunchButton.IsEnabled = true;
+							LaunchButton.Content = App.TextStrings["button_cancel"];
+
 							await Task.Run(async () =>
 							{
 								if(urls.Length == 0)
@@ -125,6 +129,12 @@ namespace BetterHI3Launcher
 								{
 									string path = Path.Combine(GameInstallPath, corrupted_files[i]);
 
+									if(ActionAbort)
+									{
+										Log("Task cancelled");
+										ActionAbort = false;
+										break;
+									}
 									Dispatcher.Invoke(() =>
 									{
 										ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, corrupted_files.Count);
