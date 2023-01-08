@@ -524,22 +524,24 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							httpclient = new Http();
-							httpprop = new HttpProp(url, GameArchiveTempPath);
-							token = new CancellationTokenSource();
-							httpclient.DownloadProgress += DownloadStatusChanged;
-							Dispatcher.Invoke(() =>
+							using (httpclient = new Http(true, 5, 1000, App.UserAgentStandard()))
 							{
-								ProgressText.Text = string.Empty;
-								ProgressBar.Visibility = Visibility.Collapsed;
-								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-								LaunchButton.IsEnabled = true;
-								LaunchButton.Content = App.TextStrings["button_cancel"];
-							});
-							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
-							httpclient.DownloadProgress -= DownloadStatusChanged;
-							Log("Successfully downloaded game archive");
+								httpprop = new HttpProp(url, GameArchiveTempPath);
+								token = new CancellationTokenSource();
+								httpclient.DownloadProgress += DownloadStatusChanged;
+								Dispatcher.Invoke(() =>
+								{
+									ProgressText.Text = string.Empty;
+									ProgressBar.Visibility = Visibility.Collapsed;
+									DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
+									LaunchButton.IsEnabled = true;
+									LaunchButton.Content = App.TextStrings["button_cancel"];
+								});
+								await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
+								await httpclient.Merge();
+								httpclient.DownloadProgress -= DownloadStatusChanged;
+								Log("Successfully downloaded game archive");
+							}
 							Dispatcher.Invoke(() =>
 							{
 								ProgressText.Text = string.Empty;

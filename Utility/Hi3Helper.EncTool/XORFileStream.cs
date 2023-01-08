@@ -29,7 +29,7 @@ namespace Hi3Helper.EncTool
 			_stream = new MemoryStream();
 		}
 
-		~XORStream() => Dispose();
+		~XORStream() => Dispose(true);
 
 		private void WriteBytes(byte[] buffer, int offset, int count)
 		{

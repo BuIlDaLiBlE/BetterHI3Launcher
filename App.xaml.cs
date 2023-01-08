@@ -21,6 +21,8 @@ namespace BetterHI3Launcher
 		public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
 		public static readonly string LauncherTranslationsFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-translations.json");
 		public static string UserAgent = $"BetterHI3Launcher v{LocalLauncherVersion}";
+		// TODO: Replace this with Regular Expression
+		public static string UserAgentStandard() => UserAgent.Replace('[','(').Replace(']',')');
 		public static string LauncherExeName, LauncherPath, LauncherArchivePath, LauncherLanguage;
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
