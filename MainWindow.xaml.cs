@@ -1235,7 +1235,7 @@ namespace BetterHI3Launcher
 				{
 					size = web_response.ContentLength;
 				}
-				if(Directory.GetFiles(GameInstallPath, $"{title}*", SearchOption.TopDirectoryOnly).Length > 0)
+				if(Directory.GetFiles(GameInstallPath, $"{title}_tmp.*").Length == 0)
 				{
 					if(new DialogWindow(App.TextStrings["label_pre_install"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -1352,7 +1352,7 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			if(httpclient.DownloadState == DownloadState.Downloading)
+			if(PreloadDownload)
 			{
 				PreloadPauseButton.IsEnabled = false;
 				token.Cancel();
