@@ -29,7 +29,7 @@ namespace BetterHI3Launcher
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameExePath;
 		public static string RegistryVersionInfo;
 		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameExeName, GameInstallRegistryName;
-		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive;
+		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive, ActionAbort;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
 		public static RoutedCommand RepairGameCommand = new RoutedCommand();
@@ -50,7 +50,6 @@ namespace BetterHI3Launcher
 		Http httpclient;
 		HttpProp httpprop;
 		CancellationTokenSource token;
-		DownloadPauseable download;
 		DownloadProgressTracker tracker = new DownloadProgressTracker(50, TimeSpan.FromMilliseconds(500));
 
 		internal LauncherStatus Status
@@ -252,6 +251,7 @@ namespace BetterHI3Launcher
 		public MainWindow()
 		{
 			InitializeComponent();
+
 			var args = new List<string>();
 			for(int i = 1; i < App.CommandLineArgs.Length; i++)
 			{
@@ -291,7 +291,8 @@ namespace BetterHI3Launcher
 				}
 			}
 			DeleteFile(App.LauncherLogFile, true);
-			Log(App.UserAgent, false);
+
+			Log($"BetterHI3Launcher v{App.LocalLauncherVersion}", false);
 			Log($"Working directory: {App.LauncherRootPath}");
 			Log($"OS version: {App.OSVersion}");
 			Log($"OS language: {App.OSLanguage}");
@@ -299,38 +300,33 @@ namespace BetterHI3Launcher
 			if(args.Contains("NOUPDATE"))
 			{
 				App.DisableAutoUpdate = true;
-				App.UserAgent += " [NOUPDATE]";
+				App.UserAgentComment.Add("NOUPDATE");
 				Log("Auto-update disabled");
 			}
 			#endif
 			if(args.Contains("NOLOG"))
 			{
-				App.UserAgent += " [NOLOG]";
+				App.UserAgentComment.Add("NOLOG");
 				Log("Logging to file disabled");
 			}
 			if(args.Contains("NOTRANSLATIONS"))
 			{
 				App.DisableTranslations = true;
 				App.LauncherLanguage = "en";
-				App.UserAgent += " [NOTRANSLATIONS]";
+				App.UserAgentComment.Add("NOTRANSLATIONS");
 				Log("Translations disabled, only English will be available");
-			}
-			if(args.Contains("LEGACYDOWNLOAD"))
-			{
-				App.UseLegacyDownload = true;
-				App.UserAgent += " [LEGACYDOWNLOAD]";
-				Log("Using legacy download method");
 			}
 			if(args.Contains("ADVANCED"))
 			{
 				App.AdvancedFeatures = true;
-				App.UserAgent += " [ADVANCED]";
+				App.UserAgentComment.Add("ADVANCED");
 				Log("Advanced features enabled");
 			}
 			else
 			{
 				RepairBoxGenerateButton.Visibility = Visibility.Collapsed;
 			}
+
 			string language_log_msg = "Launcher language: {0}";
 			var language_reg = App.LauncherRegKey.GetValue("Language");
 			if(!App.DisableTranslations)
@@ -350,7 +346,10 @@ namespace BetterHI3Launcher
 			}
 			language_log_msg = string.Format(language_log_msg, App.LauncherLanguage);
 			Log(language_log_msg);
-			App.UserAgent += $" [{App.LauncherLanguage}] [{App.OSVersion}]";
+			App.UserAgentComment.Add(App.LauncherLanguage);
+			App.UserAgentComment.Add(App.OSLanguage);
+			App.UserAgentComment.Add(App.OSVersion);
+			App.UserAgent += $" ({string.Join("; ", App.UserAgentComment)})";
 
 			LaunchButton.Content = App.TextStrings["button_download"];
 			OptionsButton.Content = App.TextStrings["button_options"];
@@ -1046,17 +1045,10 @@ namespace BetterHI3Launcher
 
 							try
 							{
-								if(!App.UseLegacyDownload)
+								path = GameInstallPath;
+								if(!Directory.Exists(GameInstallPath))
 								{
-									path = GameInstallPath;
-									if(!Directory.Exists(GameInstallPath))
-									{
-										Directory.CreateDirectory(GameInstallPath);
-									}
-								}
-								else
-								{
-									path = Directory.CreateDirectory(GameInstallPath).FullName;
+									Directory.CreateDirectory(GameInstallPath);
 								}
 							}
 							catch(Exception ex)
@@ -1119,41 +1111,27 @@ namespace BetterHI3Launcher
 			}
 			else if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
 			{
-				if(!App.UseLegacyDownload)
+				if(httpclient.DownloadState == DownloadState.Merging)
 				{
-					if(httpclient.SessionState == MultisessionState.Merging)
-					{
-						LaunchButton.IsEnabled = false;
-						return;
-					}
+					LaunchButton.IsEnabled = false;
+					return;
 				}
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
-					if(!App.UseLegacyDownload)
-					{
-						token.Cancel();
-						await httpclient.DeleteMultisessionChunks(httpprop.Out);
-					}
-					else
-					{
-						download.Pause();
-						download = null;
-						if(!string.IsNullOrEmpty(GameArchiveTempPath))
-						{
-							while(BpUtility.IsFileLocked(new FileInfo(GameArchiveTempPath)))
-							{
-								Thread.Sleep(10);
-							}
-							DeleteFile(GameArchiveTempPath, true);
-						}
-					}
-
+					token.Cancel();
+					await httpclient.WaitUntilInstanceDisposed();
+					httpclient.DeleteMultisessionFiles(httpprop.Out, httpprop.Thread);
 					try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
 					DownloadPaused = false;
 					Log("Download cancelled");
 					Status = LauncherStatus.Ready;
 					GameUpdateCheck();
 				}
+			}
+			else if(Status == LauncherStatus.Working)
+			{
+				LaunchButton.IsEnabled = false;
+				ActionAbort = true;
 			}
 		}
 
@@ -1181,20 +1159,14 @@ namespace BetterHI3Launcher
 
 			if(!DownloadPaused)
 			{
+				token.Cancel();
+				await httpclient.WaitUntilInstanceDisposed();
 				Status = LauncherStatus.DownloadPaused;
 				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 				DownloadETAText.Visibility = Visibility.Hidden;
 				DownloadSpeedText.Visibility = Visibility.Hidden;
 				DownloadPauseButton.Visibility = Visibility.Collapsed;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
-				if(!App.UseLegacyDownload)
-				{
-					token.Cancel();
-				}
-				else
-				{
-					download.Pause();
-				}
 				DownloadResumeButton.Visibility = Visibility.Visible;
 				Log("Download paused");
 			}
@@ -1212,22 +1184,17 @@ namespace BetterHI3Launcher
 					DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 					LaunchButton.IsEnabled = true;
 					LaunchButton.Content = App.TextStrings["button_cancel"];
+					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 					Log("Download resumed");
 
-					if(!App.UseLegacyDownload)
+					using(httpclient = new Http(true, 5, 1000, App.UserAgent))
 					{
-						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-						httpclient = new Http();
 						token = new CancellationTokenSource();
 						httpclient.DownloadProgress += DownloadStatusChanged;
-						await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-						await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+						await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
+						await httpclient.Merge();
 						httpclient.DownloadProgress -= DownloadStatusChanged;
 						await DownloadGameFile();
-					}
-					else
-					{
-						await download.Start();
 					}
 				}
 				catch(TaskCanceledException){}
@@ -1262,14 +1229,13 @@ namespace BetterHI3Launcher
 				string md5 = miHoYoVersionInfo.pre_download_game.latest.md5.ToString();
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
-				bool abort = false;
 
 				var web_request = BpUtility.CreateWebRequest(url, "HEAD");
 				using(var web_response = (HttpWebResponse) web_request.GetResponse())
 				{
 					size = web_response.ContentLength;
 				}
-				if(App.UseLegacyDownload && !File.Exists(tmp_path) || !App.UseLegacyDownload && !File.Exists($"{tmp_path}.001"))
+				if(Directory.GetFiles(GameInstallPath, $"{title}_tmp.*").Length == 0)
 				{
 					if(new DialogWindow(App.TextStrings["label_pre_install"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -1295,69 +1261,25 @@ namespace BetterHI3Launcher
 				{
 					File.Move(path, tmp_path);
 				}
-				if(!App.UseLegacyDownload)
+				if(!File.Exists(tmp_path))
 				{
-					if(!File.Exists(tmp_path))
+					try
 					{
-						try
+						using(httpclient = new Http(true, 5, 1000, App.UserAgent))
 						{
-							httpclient = new Http();
 							token = new CancellationTokenSource();
 							httpprop = new HttpProp(url, tmp_path);
 							httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
-							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
+							await httpclient.Merge();
 							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							Log("Downloaded pre-download archive");
 						}
-						catch(OperationCanceledException)
-						{
-							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
-							return;
-						}
 					}
-				}
-				else
-				{
-					await Task.Run(() =>
+					catch(OperationCanceledException)
 					{
-						tracker.NewFile();
-						var eta_calc = new ETACalculator();
-						download = new DownloadPauseable(url, tmp_path);
-						download.Start();
-						while(download != null && !download.Done)
-						{
-							tracker.SetProgress(download.BytesWritten, download.ContentLength);
-							eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
-							Dispatcher.Invoke(() =>
-							{
-								var progress = tracker.GetProgress();
-								PreloadCircleProgressBar.Value = progress;
-								TaskbarItemInfo.ProgressValue = progress;
-								PreloadBottomText.Text = string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100));
-								PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
-								PreloadStatusTopRightText.Text = $"{BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)}";
-								PreloadStatusMiddleRightText.Text = eta_calc.ETR.ToString("hh\\:mm\\:ss");
-								PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
-								PreloadStatusBottomRightText.Text = tracker.GetBytesPerSecondString();
-							});
-							Thread.Sleep(500);
-						}
-						if(download == null)
-						{
-							abort = true;
-							Status = LauncherStatus.Ready;
-							return;
-						}
-						Log("Downloaded pre-download archive");
-						while(BpUtility.IsFileLocked(new FileInfo(tmp_path)))
-						{
-							Thread.Sleep(10);
-						}
-					});
-					if(abort)
-					{
+						httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 						return;
 					}
 				}
@@ -1423,25 +1345,18 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Normal;
 		}
 
-		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
+		private async void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(LegacyBoxActive)
 			{
 				return;
 			}
 
-			if(download != null || httpclient.SessionState == MultisessionState.Downloading)
+			if(PreloadDownload)
 			{
 				PreloadPauseButton.IsEnabled = false;
-				if(download != null)
-				{
-					download.Pause();
-					download = null;
-				}
-				else
-				{
-					token.Cancel();
-				}
+				token.Cancel();
+				await httpclient.WaitUntilInstanceDisposed();
 				Log("Pre-download paused");
 				PreloadDownload = false;
 				PreloadPauseButton.IsEnabled = true;
@@ -1491,7 +1406,6 @@ namespace BetterHI3Launcher
 					ServerDropdown.SelectedIndex = (int)Server;
 					return;
 				}
-				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
 				if(LocalVersionInfo.game_info.installed == false)
@@ -1573,7 +1487,6 @@ namespace BetterHI3Launcher
 					MirrorDropdown.SelectedIndex = (int)Mirror;
 					return;
 				}
-				download = null;
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
 				if(LocalVersionInfo.game_info.installed == false)
@@ -1621,7 +1534,7 @@ namespace BetterHI3Launcher
 		{
 			if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused || Status == LauncherStatus.Preloading)
 			{
-				if(download == null && httpclient == null || httpclient.SessionState == MultisessionState.Idle)
+				if(httpclient == null || httpclient.DownloadState == DownloadState.Idle)
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
@@ -1630,18 +1543,14 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					if(httpclient != null && httpclient.SessionState == MultisessionState.Merging)
+					if(httpclient != null && httpclient.DownloadState == DownloadState.Merging)
 					{
 						e.Cancel = true;
 						return;
 					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
-						if(download != null)
-						{	
-							download.Pause();
-						}
-						else if(httpclient != null && httpclient.SessionState == MultisessionState.Downloading || httpclient.SessionState == MultisessionState.CancelledDownloading)
+						if(httpclient != null && httpclient.DownloadState == DownloadState.Downloading || httpclient.DownloadState == DownloadState.CancelledDownloading)
 						{
 							try
 							{

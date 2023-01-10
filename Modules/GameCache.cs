@@ -408,12 +408,23 @@ namespace BetterHI3Launcher
 					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						int downloaded_files = 0;
-						Status = LauncherStatus.Downloading;
+
+						Status = LauncherStatus.Working;
+						ProgressBar.IsIndeterminate = false;
+						LaunchButton.IsEnabled = true;
+						LaunchButton.Content = App.TextStrings["button_cancel"];
 
 						await Task.Run(async () =>
 						{
 							for(int i = 0; i < bad_files.Count; i++)
 							{
+								if(ActionAbort)
+								{
+									Log("Task cancelled");
+									ActionAbort = false;
+									break;
+								}
+
 								path = $"{NormalizePath(bad_files[i].N)}_{bad_files[i].CRC}.unity3d";
 								switch(bad_files[i].Type)
 								{
@@ -523,7 +534,6 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_repair_2_msg"]).ShowDialog();
 				}
 				Status = LauncherStatus.Ready;
-
 			}
 			catch(Exception ex)
 			{
