@@ -201,6 +201,7 @@ namespace BetterHI3Launcher
 			}
 			return false;
 		}
+
 		public static HttpWebRequest CreateWebRequest(string url, string method = "GET", int timeout = 10000)
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(url);
@@ -288,11 +289,9 @@ namespace BetterHI3Launcher
 		{
 			double speed = GetBytesPerSecond();
 			string[] prefix;
-			switch(App.OSLanguage)
+			switch(App.LauncherLanguage)
 			{
-				case "ru-RU":
-				case "uk-UA":
-				case "be-BY":
+				case "ru":
 					prefix = new[]{"", "К", "М", "Г"};
 					break;
 				default:

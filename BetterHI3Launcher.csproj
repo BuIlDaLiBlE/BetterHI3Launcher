@@ -130,16 +130,24 @@
     <Compile Include="Modules\LegacyBox.cs" />
     <Compile Include="Modules\Shared.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Attribute.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadLogEvent.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\Enums.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Exception.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\IO.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Merge.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Session.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Thread.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\Attributes.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\AttributesSize.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadEvent.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\Event.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\Session.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionManager.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionMerge.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionMetadata.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionTask.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionVerification.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Http.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\HttpMultisession.cs" />
-    <Compile Include="Utility\miHoYoCRCUtility.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\HttpMulti.cs" />
+    <Compile Include="Utility\Hi3Helper.EncTool\mhyEncTool.cs" />
+    <Compile Include="Utility\Hi3Helper.EncTool\XORFileStream.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
     <Compile Include="Utility\PartialZip\Exceptions\PartialZipParsingException.cs" />
@@ -255,7 +263,7 @@
       <Version>2.5.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.Platforms">
-      <Version>6.0.6</Version>
+      <Version>6.0.7</Version>
     </PackageReference>
     <PackageReference Include="NETStandard.Library">
       <Version>2.0.3</Version>

@@ -256,10 +256,44 @@ namespace BetterHI3Launcher
 				switch(Server)
 				{
 					case HI3Server.GLB:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString();
+						string lang;
+						switch(App.LauncherLanguage)
+						{
+							case "de":
+								lang = "de-de";
+								break;
+							case "fr":
+								lang = "fr-fr";
+								break;
+							case "zh-CN":
+								lang = "zh-cn";
+								break;
+							default:
+								lang = "en-us";
+								break;
+						}
+						url = string.Format(OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString(), lang);
 						break;
 					case HI3Server.SEA:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString();
+						switch(App.LauncherLanguage)
+						{
+							case "id":
+								lang = "id-id";
+								break;
+							case "th":
+								lang = "th-th";
+								break;
+							case "vn":
+								lang = "vi-vn";
+								break;
+							case "zh-CN":
+								lang = "zh-cn";
+								break;
+							default:
+								lang = "en-us";
+								break;
+						}
+						url = string.Format(OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString(), lang);
 						break;
 					case HI3Server.CN:
 						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.cn.ToString();
@@ -292,6 +326,7 @@ namespace BetterHI3Launcher
 							}
 							else
 							{
+								Log("Background image info is missing!", true, 2);
 								BackgroundImageDownloading = false;
 								return;
 							}
@@ -520,11 +555,10 @@ namespace BetterHI3Launcher
 				if(!File.Exists(GameArchiveTempPath))
 				{
 					Log($"Starting to download game archive: {title} ({url})");
-					if(!App.UseLegacyDownload)
+					try
 					{
-						try
+						using(httpclient = new Http(true, 5, 1000, App.UserAgent))
 						{
-							httpclient = new Http();
 							httpprop = new HttpProp(url, GameArchiveTempPath);
 							token = new CancellationTokenSource();
 							httpclient.DownloadProgress += DownloadStatusChanged;
@@ -536,80 +570,22 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							await httpclient.DownloadMultisession(httpprop.URL, httpprop.Out, false, httpprop.Thread, token.Token);
-							await httpclient.MergeMultisession(httpprop.Out, httpprop.Thread, token.Token);
+							await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
+							await httpclient.Merge();
 							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
-							Dispatcher.Invoke(() =>
-							{
-								ProgressText.Text = string.Empty;
-								DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-								LaunchButton.Content = App.TextStrings["button_launch"];
-							});
 						}
-						catch(OperationCanceledException)
+						Dispatcher.Invoke(() =>
 						{
-							httpclient.DownloadProgress -= DownloadStatusChanged;
-							return;
-						}
-					}
-					else
-					{
-						await Task.Run(() =>
-						{
-							tracker.NewFile();
-							var eta_calc = new ETACalculator();
-							download = new DownloadPauseable(url, GameArchiveTempPath);
-							download.Start();
-							Dispatcher.Invoke(() =>
-							{
-								ProgressText.Text = string.Empty;
-								ProgressBar.Visibility = Visibility.Collapsed;
-								DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
-								LaunchButton.IsEnabled = true;
-								LaunchButton.Content = App.TextStrings["button_cancel"];
-							});
-							while(download != null && !download.Done)
-							{
-								if(DownloadPaused)
-								{
-									continue;
-								}
-								size = download.ContentLength;
-								tracker.SetProgress(download.BytesWritten, download.ContentLength);
-								eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
-								Dispatcher.Invoke(() =>
-								{
-									var progress = tracker.GetProgress();
-									DownloadProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-									DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], Math.Round(progress * 100))} ({BpUtility.ToBytesCount(download.BytesWritten)}/{BpUtility.ToBytesCount(download.ContentLength)})";
-									DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], eta_calc.ETR.ToString("hh\\:mm\\:ss"));
-									DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {tracker.GetBytesPerSecondString()}";
-								});
-								Thread.Sleep(500);
-							}
-							if(download == null)
-							{
-								abort = true;
-							}
-							if(abort)
-							{
-								return;
-							}
-							download = null;
-							Log("Successfully downloaded game archive");
-							while(BpUtility.IsFileLocked(new FileInfo(GameArchiveTempPath)))
-							{
-								Thread.Sleep(10);
-							}
-							Dispatcher.Invoke(() =>
-							{
-								ProgressText.Text = string.Empty;
-								DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-								LaunchButton.Content = App.TextStrings["button_launch"];
-							});
+							ProgressText.Text = string.Empty;
+							DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+							LaunchButton.Content = App.TextStrings["button_launch"];
 						});
+					}
+					catch(OperationCanceledException)
+					{
+						httpclient.DownloadProgress -= DownloadStatusChanged;
+						return;
 					}
 				}
 

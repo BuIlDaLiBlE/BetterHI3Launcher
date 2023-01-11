@@ -13,14 +13,15 @@ namespace BetterHI3Launcher
 {
 	public partial class App : Application
 	{
-		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.3.20221030.0");
+		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.4.20230111.0");
 		public static readonly string LauncherRootPath = AppDomain.CurrentDomain.BaseDirectory;
 		public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
 		public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
 		public static readonly string LauncherBackgroundsPath = Path.Combine(LauncherDataPath, "Backgrounds");
 		public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
 		public static readonly string LauncherTranslationsFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-translations.json");
-		public static string UserAgent = $"BetterHI3Launcher v{LocalLauncherVersion}";
+		public static string UserAgent = $"BetterHI3Launcher/v{LocalLauncherVersion}";
+		public static List<string> UserAgentComment = new List<string>();
 		public static string LauncherExeName, LauncherPath, LauncherArchivePath, LauncherLanguage;
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
@@ -28,7 +29,7 @@ namespace BetterHI3Launcher
 		public static List<string> SeenAnnouncements = new List<string>();
 		public static JArray Announcements = new JArray();
 		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
-		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate, UseLegacyDownload;
+		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate;
 		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
 		public static bool Starting = true;
 		public static readonly int ParallelDownloadSessions = 4;
@@ -61,7 +62,7 @@ namespace BetterHI3Launcher
 			CultureInfo.DefaultThreadCurrentUICulture = culture;
 			#if DEBUG
 			WinConsole.Initialize();
-			UserAgent += " [DEBUG]";
+			UserAgentComment.Add("DEBUG");
 			#endif
 			TextStrings_English();
 			switch(OSLanguage)

@@ -27,7 +27,7 @@ namespace BetterHI3Launcher
 		{
 			bool IsTextAllowed(string text)
 			{
-				return Array.TrueForAll(text.ToCharArray(), delegate (char c) { return char.IsDigit(c) || char.IsControl(c); });
+				return Array.TrueForAll(text.ToCharArray(), delegate (char c) {return char.IsDigit(c) || char.IsControl(c);});
 			}
 
 			if(e.DataObject.GetDataPresent(typeof(string)))
@@ -114,7 +114,11 @@ namespace BetterHI3Launcher
 							int repaired_files = 0;
 							bool abort = false;
 
-							Status = LauncherStatus.Downloading;
+							Status = LauncherStatus.Working;
+							ProgressBar.IsIndeterminate = false;
+							LaunchButton.IsEnabled = true;
+							LaunchButton.Content = App.TextStrings["button_cancel"];
+
 							await Task.Run(async () =>
 							{
 								if(urls.Length == 0)
@@ -125,6 +129,12 @@ namespace BetterHI3Launcher
 								{
 									string path = Path.Combine(GameInstallPath, corrupted_files[i]);
 
+									if(ActionAbort)
+									{
+										Log("Task cancelled");
+										ActionAbort = false;
+										break;
+									}
 									Dispatcher.Invoke(() =>
 									{
 										ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, corrupted_files.Count);
@@ -154,7 +164,7 @@ namespace BetterHI3Launcher
 
 											Directory.CreateDirectory(Path.GetDirectoryName(path));
 											await PartialZipDownloader.DownloadFile(url, corrupted_files[i], path);
-											Dispatcher.Invoke(() => { ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, corrupted_files.Count); });
+											Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, corrupted_files.Count);});
 											if(!File.Exists(path) || BpUtility.CalculateMD5(path) != corrupted_file_hashes[i])
 											{
 												Log($"Failed to repair file {corrupted_files[i]}", true, 1);
@@ -308,7 +318,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_BGM") &&
 						!x.Name.Contains("AUDIO_Dialog") &&
 						!x.Name.Contains("AUDIO_DLC") &&
-						!x.Name.Contains("AUDIO_EVENT") &&
+						!x.Name.Contains("AUDIO_Event") &&
 						!x.Name.Contains("AUDIO_Ex") &&
 						!x.Name.Contains("AUDIO_HOT_FIX") &&
 						!x.Name.Contains("AUDIO_Main") &&
