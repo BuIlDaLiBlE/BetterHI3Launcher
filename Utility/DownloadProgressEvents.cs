@@ -12,7 +12,7 @@ namespace BetterHI3Launcher
 		Stopwatch LastTimeSpan = Stopwatch.StartNew();
 		private void DownloadStatusChanged(object sender, DownloadEvent e)
 		{
-			if (LastTimeSpan.Elapsed.TotalMilliseconds >= RefreshRate)
+			if(LastTimeSpan.Elapsed.TotalMilliseconds >= RefreshRate)
 			{
 				Dispatcher.Invoke(() =>
 				{
@@ -20,15 +20,15 @@ namespace BetterHI3Launcher
 					DownloadProgressBar.Value = DownloadPercentage / 100;
 					TaskbarItemInfo.ProgressValue = DownloadPercentage / 100;
 					DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft));
-					if (e.State == DownloadState.Merging)
+					if(e.State == DownloadState.Merging)
 					{
-						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_merged"], DownloadPercentage)} ({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
+						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_merged"], DownloadPercentage)}({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
 						DownloadSpeedText.Text = $"{App.TextStrings["label_merge_speed"]} {BpUtility.ToBytesCount(e.Speed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
 						DownloadPauseButton.Visibility = Visibility.Collapsed;
 					}
 					else
 					{
-						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], DownloadPercentage)} ({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
+						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], DownloadPercentage)}({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
 						DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {BpUtility.ToBytesCount(e.Speed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
 					}
 				});
@@ -37,7 +37,7 @@ namespace BetterHI3Launcher
 		}
 		private void PreloadDownloadStatusChanged(object sender, DownloadEvent e)
 		{
-			if (LastTimeSpan.Elapsed.TotalMilliseconds >= RefreshRate)
+			if(LastTimeSpan.Elapsed.TotalMilliseconds >= RefreshRate)
 			{
 				Dispatcher.Invoke(() =>
 				{
@@ -47,7 +47,7 @@ namespace BetterHI3Launcher
 					PreloadStatusTopRightText.Text = $"{BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)}";
 					PreloadStatusMiddleRightText.Text = string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft);
 					PreloadStatusBottomRightText.Text = $"{BpUtility.ToBytesCount(e.Speed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
-					if (e.State == DownloadState.Merging)
+					if(e.State == DownloadState.Merging)
 					{
 						PreloadPauseButton.IsEnabled = false;
 						PreloadBottomText.Text = string.Format(App.TextStrings["label_merged"], DownloadPercentage);

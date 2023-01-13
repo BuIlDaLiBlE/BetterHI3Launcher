@@ -326,6 +326,7 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
 						!x.Name.Contains("Blocks_") &&
+						!x.DirectoryName.Contains("Predownload") &&
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
 						!x.DirectoryName.Contains("Video") &&
 						!x.DirectoryName.Contains("Cache")
