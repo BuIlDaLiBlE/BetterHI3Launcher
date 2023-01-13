@@ -410,9 +410,10 @@ namespace BetterHI3Launcher
 						int downloaded_files = 0;
 
 						Status = LauncherStatus.Working;
-						ProgressBar.IsIndeterminate = false;
 						LaunchButton.IsEnabled = true;
 						LaunchButton.Content = App.TextStrings["button_cancel"];
+						ProgressBar.IsIndeterminate = false;
+						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 
 						await Task.Run(async () =>
 						{
