@@ -535,9 +535,6 @@ namespace BetterHI3Launcher
 						case 1:
 							url += "sea";
 							break;
-						case 2:
-							url += "cn";
-							break;
 						default:
 							throw new NotSupportedException("This server is not supported.");
 					}

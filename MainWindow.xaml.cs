@@ -62,7 +62,7 @@ namespace BetterHI3Launcher
 					LaunchButton.IsEnabled = val;
 					OptionsButton.IsEnabled = val;
 					ServerDropdown.IsEnabled = val;
-					if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
+					if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 					{
 						MirrorDropdown.IsEnabled = false;
 					}
@@ -1434,7 +1434,7 @@ namespace BetterHI3Launcher
 					Server = HI3Server.JP;
 					break;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				Mirror = HI3Mirror.miHoYo;
@@ -1454,7 +1454,7 @@ namespace BetterHI3Launcher
 		private void MirrorDropdown_Opened(object sender, EventArgs e)
 		{
 			BpUtility.PlaySound(Properties.Resources.Click);
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
@@ -1473,7 +1473,7 @@ namespace BetterHI3Launcher
 				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server == HI3Server.CN && index > 1))
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
