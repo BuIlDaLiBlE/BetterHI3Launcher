@@ -400,6 +400,9 @@ namespace BetterHI3Launcher
 			AnnouncementBox.Visibility = Visibility.Collapsed;
 
 			OptionsContextMenu.Items.Clear();
+			var CM_Screenshots = new MenuItem {Header = App.TextStrings["contextmenu_open_screenshots_folder"], InputGestureText = "Ctrl+S"};
+			CM_Screenshots.Click += (sender, e) => CM_Screenshots_Click(sender, e);
+			OptionsContextMenu.Items.Add(CM_Screenshots);
 			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
 			CM_Download_Cache.Click += (sender, e) => CM_DownloadCache_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Download_Cache);

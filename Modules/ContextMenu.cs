@@ -19,6 +19,19 @@ namespace BetterHI3Launcher
 {
 	public partial class MainWindow
 	{
+		private void CM_Screenshots_Click(object sender, RoutedEventArgs e)
+		{
+			var path = $@"{GameInstallPath}\ScreenShot";
+			if(Directory.Exists(path))
+			{
+				BpUtility.StartProcess(path, null, GameInstallPath, true);
+			}
+			else
+			{
+				new DialogWindow(App.TextStrings["contextmenu_open_screenshots_folder"], App.TextStrings["msgbox_no_screenshot_dir_msg"]).ShowDialog();
+			}
+		}
+
 		private void CM_DownloadCache_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)

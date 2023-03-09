@@ -58,6 +58,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
 			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with miHoYo and is completely open source.\nAny feedback is greatly appreciated.\nSpecial thanks to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation, parallel download feature\nRinnosuke93 - Italian language translation\nMartinial - Czech language translation\nKLXLjun - Chinese (Simplified) translation");
 			TextStrings.Add("announcementbox_do_not_show", "Do not show me this next time");
+			TextStrings.Add("contextmenu_open_screenshots_folder", "Open screenshots folder");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
 			TextStrings.Add("contextmenu_repair", "Repair game files");
 			TextStrings.Add("contextmenu_move", "Move game files");
@@ -176,6 +177,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_no_game_dir_title", "No game directory");
 			TextStrings.Add("msgbox_no_game_exe_msg", "Game executable cannot be found.\nWould you like to reset the installation information?");
 			TextStrings.Add("msgbox_no_game_exe_title", "No game executable");
+			TextStrings.Add("msgbox_no_screenshot_dir_msg", "There are no screenshots. Go take some!");
 			TextStrings.Add("msgbox_notice_title", "Notice");
 			TextStrings.Add("msgbox_pre_install_msg", "You can still enter the game when pre-installing. Are you sure you want to download?\nYou can only download from the miHoYo servers.");
 			TextStrings.Add("msgbox_process_start_error_msg", "An error occurred while starting the process.\nFor more information take a look at the log.");
