@@ -116,7 +116,7 @@ namespace BetterHI3Launcher
 		{
 			LegacyBoxActive = true;
 			AnnouncementBoxTitleTextBlock.Text = announcement.content.title;
-			AnnouncementBoxMessageTextBlock.Text = announcement.content.text;
+			TextBlockExt.SetFormattedText(AnnouncementBoxMessageTextBlock, announcement.content.text.ToString());
 			AnnouncementBox.Visibility = Visibility.Visible;
 		}
 
