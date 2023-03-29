@@ -400,7 +400,7 @@ namespace BetterHI3Launcher
 			AnnouncementBox.Visibility = Visibility.Collapsed;
 
 			OptionsContextMenu.Items.Clear();
-			var CM_Screenshots = new MenuItem {Header = App.TextStrings["contextmenu_open_screenshots_folder"], InputGestureText = "Ctrl+S"};
+			var CM_Screenshots = new MenuItem {Header = App.TextStrings["contextmenu_open_screenshots_dir"], InputGestureText = "Ctrl+S"};
 			CM_Screenshots.Click += (sender, e) => CM_Screenshots_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Screenshots);
 			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
@@ -575,7 +575,7 @@ namespace BetterHI3Launcher
 			}
 
 			var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
-			if(key == null || (int)key.GetValue("Release") < 394254)
+			if(key == null || (int)key.GetValue("Release") < 394802)
 			{
 				MessageBox.Show(App.TextStrings["msgbox_net_version_old_msg"], App.TextStrings["msgbox_start_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 				Application.Current.Shutdown();

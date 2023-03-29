@@ -326,10 +326,12 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
 						!x.Name.Contains("Blocks_") &&
+						!x.Name.Contains("EOSSDK") &&
+						!x.DirectoryName.Contains("Cache") &&
 						!x.DirectoryName.Contains("Predownload") &&
+						!x.DirectoryName.Contains("ScreenShot") &&
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
-						!x.DirectoryName.Contains("Video") &&
-						!x.DirectoryName.Contains("Cache")
+						!x.DirectoryName.Contains("Video")
 						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
@@ -357,7 +359,6 @@ namespace BetterHI3Launcher
 								Log($"Added: {json.repair_info.files.names[i]}");
 							}
 							File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
-							Log("success!", false);
 							Log($"Saved JSON: {dialog.FileName}");
 						});
 						ProgressText.Text = string.Empty;
@@ -368,7 +369,7 @@ namespace BetterHI3Launcher
 							ProgressBar.Visibility = Visibility.Visible;
 							await Task.Run(() =>
 							{
-								Log("Creating ZIP file...");
+								Log("Zipping, this will take a while...");
 								var zip_name = dialog.FileName.Replace(".json", ".zip");
 								DeleteFile(zip_name);
 								using(var archive = ZipFile.Open(zip_name, ZipArchiveMode.Create))

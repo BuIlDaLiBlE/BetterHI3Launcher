@@ -22,13 +22,13 @@ namespace BetterHI3Launcher
 					DownloadETAText.Text = string.Format(App.TextStrings["progresstext_eta"], string.Format("{0:hh\\:mm\\:ss}", e.TimeLeft));
 					if(e.State == DownloadState.Merging)
 					{
-						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_merged"], DownloadPercentage)}({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
+						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_merged"], $"{DownloadPercentage:0.00}")} ({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
 						DownloadSpeedText.Text = $"{App.TextStrings["label_merge_speed"]} {BpUtility.ToBytesCount(e.Speed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
 						DownloadPauseButton.Visibility = Visibility.Collapsed;
 					}
 					else
 					{
-						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], DownloadPercentage)}({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
+						DownloadProgressText.Text = $"{string.Format(App.TextStrings["label_downloaded_1"], $"{DownloadPercentage:0.00}")} ({BpUtility.ToBytesCount(e.SizeDownloaded)}/{BpUtility.ToBytesCount(e.SizeToBeDownloaded)})";
 						DownloadSpeedText.Text = $"{App.TextStrings["label_download_speed"]} {BpUtility.ToBytesCount(e.Speed)}{App.TextStrings["bytes_per_second"].Substring(1)}";
 					}
 				});
@@ -50,13 +50,13 @@ namespace BetterHI3Launcher
 					if(e.State == DownloadState.Merging)
 					{
 						PreloadPauseButton.IsEnabled = false;
-						PreloadBottomText.Text = string.Format(App.TextStrings["label_merged"], DownloadPercentage);
+						PreloadBottomText.Text = string.Format(App.TextStrings["label_merged"], $"{DownloadPercentage:0.00}");
 						PreloadStatusTopLeftText.Text = $"{App.TextStrings["label_merged"].Split(' ')[0]}:";
 						PreloadStatusBottomLeftText.Text = App.TextStrings["label_merge_speed"];
 					}
 					else
 					{
-						PreloadBottomText.Text = string.Format(App.TextStrings["label_downloaded_1"], DownloadPercentage);
+						PreloadBottomText.Text = string.Format(App.TextStrings["label_downloaded_1"], $"{DownloadPercentage:0.00}");
 						PreloadStatusTopLeftText.Text = App.TextStrings["label_downloaded_2"];
 						PreloadStatusBottomLeftText.Text = App.TextStrings["label_download_speed"];
 					}
