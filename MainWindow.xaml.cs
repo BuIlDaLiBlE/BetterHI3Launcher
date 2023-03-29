@@ -64,7 +64,7 @@ namespace BetterHI3Launcher
 					LaunchButton.IsEnabled = val;
 					OptionsButton.IsEnabled = val;
 					ServerDropdown.IsEnabled = val;
-					if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
+					if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 					{
 						MirrorDropdown.IsEnabled = false;
 					}
@@ -102,6 +102,7 @@ namespace BetterHI3Launcher
 						ProgressBar.IsIndeterminate = false;
 						ToggleLog(true);
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
+						FlashMainWindow();
 						break;
 					case LauncherStatus.CheckingUpdates:
 						ProgressText.Text = App.TextStrings["progresstext_checking_update"];
@@ -402,6 +403,9 @@ namespace BetterHI3Launcher
 			AnnouncementBox.Visibility = Visibility.Collapsed;
 
 			OptionsContextMenu.Items.Clear();
+			var CM_Screenshots = new MenuItem {Header = App.TextStrings["contextmenu_open_screenshots_dir"], InputGestureText = "Ctrl+S"};
+			CM_Screenshots.Click += (sender, e) => CM_Screenshots_Click(sender, e);
+			OptionsContextMenu.Items.Add(CM_Screenshots);
 			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
 			CM_Download_Cache.Click += (sender, e) => CM_DownloadCache_Click(sender, e);
 			OptionsContextMenu.Items.Add(CM_Download_Cache);
@@ -574,7 +578,7 @@ namespace BetterHI3Launcher
 			}
 
 			var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
-			if(key == null || (int)key.GetValue("Release") < 394254)
+			if(key == null || (int)key.GetValue("Release") < 394802)
 			{
 				MessageBox.Show(App.TextStrings["msgbox_net_version_old_msg"], App.TextStrings["msgbox_start_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 				Application.Current.Shutdown();
@@ -1436,7 +1440,7 @@ namespace BetterHI3Launcher
 					Server = HI3Server.JP;
 					break;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
+			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				Mirror = HI3Mirror.miHoYo;
@@ -1456,11 +1460,6 @@ namespace BetterHI3Launcher
 		private void MirrorDropdown_Opened(object sender, EventArgs e)
 		{
 			BpUtility.PlaySound(Properties.Resources.Click);
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
-			{
-				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
-				return;
-			}
 		}
 
 		private void MirrorDropdown_Changed(object sender, SelectionChangedEventArgs e)
@@ -1475,7 +1474,7 @@ namespace BetterHI3Launcher
 				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA && (Server == HI3Server.CN && index > 1))
+			if(!(bool)OnlineVersionInfo.game_info.mirror.hi3mirror.available && index == 1)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();

@@ -19,6 +19,19 @@ namespace BetterHI3Launcher
 {
 	public partial class MainWindow
 	{
+		private void CM_Screenshots_Click(object sender, RoutedEventArgs e)
+		{
+			var path = $@"{GameInstallPath}\ScreenShot";
+			if(Directory.Exists(path))
+			{
+				BpUtility.StartProcess(path, null, GameInstallPath, true);
+			}
+			else
+			{
+				new DialogWindow(App.TextStrings["contextmenu_open_screenshots_dir"], App.TextStrings["msgbox_no_screenshot_dir_msg"]).ShowDialog();
+			}
+		}
+
 		private void CM_DownloadCache_Click(object sender, RoutedEventArgs e)
 		{
 			if(Status != LauncherStatus.Ready)
@@ -29,7 +42,7 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(Mirror == HI3Mirror.Hi3Mirror && Server != HI3Server.GLB && Server != HI3Server.SEA && Server != HI3Server.CN)
+			if(Mirror == HI3Mirror.Hi3Mirror && Server != HI3Server.GLB && Server != HI3Server.SEA)
 			{
 				new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
 				return;
@@ -147,6 +160,7 @@ namespace BetterHI3Launcher
 					{
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
+						FlashMainWindow();
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_1_msg"]).ShowDialog();
 					}
 					else
@@ -295,6 +309,7 @@ namespace BetterHI3Launcher
 						GameInstallPath = path;
 						WriteVersionInfo(false, true);
 						Log("Successfully moved game files");
+						Dispatcher.Invoke(() => {FlashMainWindow();});
 						GameUpdateCheck();
 					}
 					catch(Exception ex)
@@ -404,6 +419,7 @@ namespace BetterHI3Launcher
 						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						WindowState = WindowState.Normal;
+						FlashMainWindow();
 						new DialogWindow(App.TextStrings["msgbox_uninstall_title"], App.TextStrings["msgbox_uninstall_6_msg"] + delete_list).ShowDialog();
 					});
 					GameUpdateCheck();

@@ -108,6 +108,7 @@ namespace BetterHI3Launcher
 					if(corrupted_files.Count > 0)
 					{
 						Log($"Finished verifying files, found corrupted/missing files: {corrupted_files.Count}");
+						FlashMainWindow();
 						if(new DialogWindow(App.TextStrings["contextmenu_repair"], string.Format(App.TextStrings["msgbox_repair_3_msg"], corrupted_files.Count, BpUtility.ToBytesCount(corrupted_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
 							string[] urls = OnlineRepairInfo.zip_urls.ToObject<string[]>();
@@ -208,6 +209,7 @@ namespace BetterHI3Launcher
 							});
 							if(!abort)
 							{
+								FlashMainWindow();
 								if(repaired_files == corrupted_files.Count)
 								{
 									Log($"Successfully repaired {repaired_files} file(s)");
@@ -239,6 +241,7 @@ namespace BetterHI3Launcher
 							ProgressText.Text = string.Empty;
 							ProgressBar.Visibility = Visibility.Collapsed;
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+							FlashMainWindow();
 						});
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_2_msg"]).ShowDialog();
 					}
@@ -326,10 +329,12 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
 						!x.Name.Contains("Blocks_") &&
+						!x.Name.Contains("EOSSDK") &&
+						!x.DirectoryName.Contains("Cache") &&
 						!x.DirectoryName.Contains("Predownload") &&
+						!x.DirectoryName.Contains("ScreenShot") &&
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
-						!x.DirectoryName.Contains("Video") &&
-						!x.DirectoryName.Contains("Cache")
+						!x.DirectoryName.Contains("Video")
 						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
@@ -357,18 +362,18 @@ namespace BetterHI3Launcher
 								Log($"Added: {json.repair_info.files.names[i]}");
 							}
 							File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
-							Log("success!", false);
 							Log($"Saved JSON: {dialog.FileName}");
 						});
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+						FlashMainWindow();
 						if(new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_7_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
 							ProgressBar.Visibility = Visibility.Visible;
 							await Task.Run(() =>
 							{
-								Log("Creating ZIP file...");
+								Log("Zipping, this will take a while...");
 								var zip_name = dialog.FileName.Replace(".json", ".zip");
 								DeleteFile(zip_name);
 								using(var archive = ZipFile.Open(zip_name, ZipArchiveMode.Create))
