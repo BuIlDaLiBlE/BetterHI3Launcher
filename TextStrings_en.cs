@@ -137,7 +137,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type and allow you to reselect which assets to download.\nContinue?");
 			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset.");
 			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset.");
-			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available for selected server.");
+			TextStrings.Add("msgbox_feature_not_available_msg", "This feature is not available.");
 			TextStrings.Add("msgbox_game_download_error_msg", "An error occurred while downloading game files.\nFor more information take a look at the log.");
 			TextStrings.Add("msgbox_game_download_error_title", "Error downloading game files");
 			TextStrings.Add("msgbox_game_download_mirror_error_msg", "An error occurred while downloading from the mirror.\nFor more information take a look at the log.");
