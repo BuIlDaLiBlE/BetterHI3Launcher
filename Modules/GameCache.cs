@@ -405,6 +405,7 @@ namespace BetterHI3Launcher
 				if(bad_files.Count > 0)
 				{
 					Log($"Finished verifying files, found corrupted/missing files: {bad_files.Count}");
+					FlashMainWindow();
 					if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], string.Format(App.TextStrings["msgbox_repair_3_msg"], bad_files.Count, BpUtility.ToBytesCount(bad_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						int downloaded_files = 0;
@@ -497,6 +498,7 @@ namespace BetterHI3Launcher
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						});
 
+						FlashMainWindow();
 						if(downloaded_files == bad_files.Count)
 						{
 							Log($"Successfully downloaded {downloaded_files} file(s)");
@@ -529,6 +531,7 @@ namespace BetterHI3Launcher
 						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 					});
+					FlashMainWindow();
 					new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_repair_2_msg"]).ShowDialog();
 				}
 				Status = LauncherStatus.Ready;

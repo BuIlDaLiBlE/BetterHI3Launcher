@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Xml;
@@ -273,6 +275,16 @@ namespace BetterHI3Launcher
 
 	public partial class MainWindow
 	{
+		[DllImport("user32.dll")] private static extern int FlashWindow(IntPtr hwnd, bool bInvert);
+
+		private void FlashMainWindow()
+		{
+			if(!IsActive)
+			{
+				FlashWindow(new WindowInteropHelper(this).Handle, true);
+			}
+		}
+
 		private void OnGameExit()
 		{
 			Dispatcher.Invoke(() =>

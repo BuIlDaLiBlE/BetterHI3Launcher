@@ -684,6 +684,7 @@ namespace BetterHI3Launcher
 							PatchDownload = false;
 							WriteVersionInfo(false, true);
 							Log("Successfully installed the game");
+							FlashMainWindow();
 							GameUpdateCheck();
 						});
 					});

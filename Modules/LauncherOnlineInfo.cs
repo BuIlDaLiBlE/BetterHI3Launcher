@@ -104,7 +104,7 @@ namespace BetterHI3Launcher
 			}
 			if(App.Announcements.Count > 0)
 			{
-				Dispatcher.Invoke(() => { ShowAnnouncement(App.Announcements.First); });
+				Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
 			}
 			else
 			{
@@ -118,6 +118,7 @@ namespace BetterHI3Launcher
 			AnnouncementBoxTitleTextBlock.Text = announcement.content.title;
 			TextBlockExt.SetFormattedText(AnnouncementBoxMessageTextBlock, announcement.content.text.ToString());
 			AnnouncementBox.Visibility = Visibility.Visible;
+			FlashMainWindow();
 		}
 
 		private async void FetchChangelog()
@@ -128,12 +129,12 @@ namespace BetterHI3Launcher
 			}
 
 			string changelog = null;
-			Dispatcher.Invoke(() => { ChangelogBoxTextBox.Text = App.TextStrings["changelogbox_2_msg"]; });
+			Dispatcher.Invoke(() => {ChangelogBoxTextBox.Text = App.TextStrings["changelogbox_2_msg"];});
 			await Task.Run(() =>
 			{
 				void Get(int timeout)
 				{
-					var web_client = new BpWebClient { Timeout = timeout };
+					var web_client = new BpWebClient {Timeout = timeout};
 					if(App.LauncherLanguage == "ru")
 					{
 						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.ru.ToString());
@@ -173,7 +174,7 @@ namespace BetterHI3Launcher
 					Log($"Bp Network connection error, giving up...", true, 2);
 					changelog = App.TextStrings["changelogbox_3_msg"];
 				}
-				Dispatcher.Invoke(() => { ChangelogBoxTextBox.Text = changelog; });
+				Dispatcher.Invoke(() => {ChangelogBoxTextBox.Text = changelog;});
 			});
 		}
 	}

@@ -160,6 +160,7 @@ namespace BetterHI3Launcher
 					{
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
+						FlashMainWindow();
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_1_msg"]).ShowDialog();
 					}
 					else
@@ -308,6 +309,7 @@ namespace BetterHI3Launcher
 						GameInstallPath = path;
 						WriteVersionInfo(false, true);
 						Log("Successfully moved game files");
+						Dispatcher.Invoke(() => {FlashMainWindow();});
 						GameUpdateCheck();
 					}
 					catch(Exception ex)
@@ -417,6 +419,7 @@ namespace BetterHI3Launcher
 						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 						WindowState = WindowState.Normal;
+						FlashMainWindow();
 						new DialogWindow(App.TextStrings["msgbox_uninstall_title"], App.TextStrings["msgbox_uninstall_6_msg"] + delete_list).ShowDialog();
 					});
 					GameUpdateCheck();

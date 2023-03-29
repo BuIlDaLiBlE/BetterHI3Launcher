@@ -100,6 +100,7 @@ namespace BetterHI3Launcher
 						ProgressBar.IsIndeterminate = false;
 						ToggleLog(true);
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
+						FlashMainWindow();
 						break;
 					case LauncherStatus.CheckingUpdates:
 						ProgressText.Text = App.TextStrings["progresstext_checking_update"];
