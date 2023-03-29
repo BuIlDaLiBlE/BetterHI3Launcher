@@ -28,7 +28,7 @@ namespace BetterHI3Launcher
 			}
 			else
 			{
-				new DialogWindow(App.TextStrings["contextmenu_open_screenshots_folder"], App.TextStrings["msgbox_no_screenshot_dir_msg"]).ShowDialog();
+				new DialogWindow(App.TextStrings["contextmenu_open_screenshots_dir"], App.TextStrings["msgbox_no_screenshot_dir_msg"]).ShowDialog();
 			}
 		}
 
