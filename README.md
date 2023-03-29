@@ -1,17 +1,22 @@
+﻿![](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/raw/master/Assets/Images/GitHubREADME.webp)
+> Screenshot taken during Version Kiana, the background image changes as new versions get released
+
 # Better HI3 Launcher
 A much better Honkai Impact 3rd launcher. Here are the key points:
-* No need to install, it is just one file
-* Supports all game clients (Global, SEA, CN, TW/HK/MO, KR and JP), can switch between them freely
+* Very portable, the launcher is just one file (updates automatically too!)
+* Supports all game servers (Global, SEA, CN, TW/HK/MO, KR and JP), can install and switch between them freely
   * **Please note that Steam version is not supported**
+  * Epic Games version is technically supported, however to make purchases via Epic Games you have to launch the game using Epic Games Launcher
 * Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which dramatically speeds up the download process
-* Has mirror support so you have more download sources to choose from
-* Automatically updates itself, so you are always getting the latest and greatest!
-* Has lots of useful features, such as:
-  * Downloading game cache (fixes the problems that occur during "Updating settings")
-  * Repairing game files (only the files that are needed will be downloaded)
-  * Moving game files (properly, so that the original launcher still works)
-  * Setting custom resolution, custom FPS, resetting download type (to reselect assets download option)
-  * Customizable background (supports still images, GIFs, and even videos!)
+* Has mirror support so you have more means of getting the game
+  * **Unfortunately, as of Mar 29 2023 [the Hi3Mirror project has been permanently shut down](https://github.com/neon-nyan/Hi3MirrorWiki/blob/be743fee70018497570baa0b25dcceb8e3da1c4d/README.md) and there are no other mirrors available at this time**
+* Includes other useful features, such as:
+  * Downloading game cache - helps you get through the annoying "Updating settings" step
+  * Repairing game files - uses a better method compared to the official launcher
+  * Moving game files - the official launcher will still see the game
+  * Better options for uninstallation, allowing to free more disk space
+  * Setting custom resolution, custom FPS cap, resetting download type (so you can reselect which assets to download)
+  * Customizable background - still images, GIFs, and even videos are supported!
 
 ## Getting the launcher
 Go to the [releases page](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/releases/latest) and click on `BetterHI3Launcher.exe`.
@@ -19,32 +24,32 @@ Go to the [releases page](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/relea
 You can save and use it wherever you want, it's that simple!
 
 ## Compatibility
-First of all, a 64-bit version of Windows is required, since the game also requires it.
+Of course, a 64-bit version of Windows is required, since the game also requires it.
 
-Confirmed to work on Windows 10 and Windows 11, but the machine I develop on runs Windows 10.
+The launcher is confirmed to work on Windows 10 and Windows 11, but I personally develop and test on Windows 10.
 
 Windows 8.1 should work if .NET Framework 4.6.1 or newer is installed.
 
 Windows 7 should technically work too if the above condition is met, however it's not supported by Microsoft since January of 2020 so I may not provide much support.
 
 ## Is this safe?
-I started this project with hope to help fellow Captains have a better experience with the game. Since the release in January of 2021 there have been no cases of bans.
-After all, this is just an app that downloads the game and has some helpful utilities. However, it is wise to remember that this project is not affiliated with HoYoverse and thus they have the final say about it.
+I started this project to help fellow Captains have a better experience with the game. Since the release in January of 2021 there have been no cases of banned accounts.
+After all, this is just an app that downloads the game and has some helpful utilities. Though it's probably a good idea to keep in mind that this project is not affiliated with HoYoverse in any way.
 
-Ultimately, it is for you to decide whether to trust me or not. The launcher's code is open source though, so you're always welcome to look at it. On that note...
+Ultimately it is for you to decide whether to trust me or not. The launcher's code is open source, so you're more than welcome to examine it. On that note...
 
 ## How can I contribute? 
-Great question! This project is actively supported, you are always welcome to [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) (report a bug or suggest something) or directly contribute to the project via [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/pulls).
+Great question! This project is mainly supported by me alone, so I'd love to hear your feedback. You can [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) to report a bug/suggest something or you can directly contribute with [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/pulls) (please set the merge branch to `dev`).
 
-You can also contribute by translating the launcher into a language you speak. **Please only contribute languages the launcher doesn't yet have!**
+You can also contribute by translating the launcher into a language you speak. **Please only contribute languages the launcher doesn't yet have! Check the issues for existing contributions.**
 
 Here's how to do it:
 1. [Download English source text](https://bpnet.work/bh3?launcher_translations=get_contents_en)
-2. You will see a bunch of lines with text, on each line there are two pieces of text: you don't need to touch the one on the left, only translate the one on the right (after the space). Please try your best not to touch special characters such as `{0}`, `\n`, or `\"`, don't add any unnecessary spaces, newlines or other characters.
-3. After you're done, [create an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new?assignees=BuIlDaLiBlE&labels=language+contribution&template=language_contribution.md&title=Language+contribution+%5BNAME+OF+THE+LANGUAGE+HERE%5D) with the name of the language and attach the file with translated strings to it.
+2. You will see a bunch of lines with text, on each line there are two pieces of text: you don't need to touch the one on the left, only translate the one on the right (after the space). Please try your best not to touch special characters such as `{0}`, `\n`, or `\"`, also make sure to not add any unnecessary spaces, newlines or other characters.
+3. After you're done, [create an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new?assignees=BuIlDaLiBlE&labels=language+contribution&template=language_contribution.md&title=Language+contribution+%5BNAME+OF+THE+LANGUAGE+HERE%5D) with the name of the language and attach the file with translated text to it.
 
 That's it, you're done! Please be ready to answer if there happens to be something that I need to clarify about your translation.
 
-After I verify your submission and implement it you can be sure I will list your name in the "About" section of the launcher.
+After I verify your submission and implement it I will list your name in the "About" page of the launcher as a token of gratitude. (´｡• ᵕ •｡`)
 
-Translations may need updating in the future as I keep adding and changing things so I'd be eternally grateful if you keep being subscribed to the issue so that you receive notifications whenever I need more help.
+Translations may need updating in the future as I keep adding and changing things so it would be a huge help if you subscribe to the issue so that you can receive notifications whenever I will be needing more help (won't be very often, I promise!). Thank you in advance!
