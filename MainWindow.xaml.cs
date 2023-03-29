@@ -1458,11 +1458,6 @@ namespace BetterHI3Launcher
 		private void MirrorDropdown_Opened(object sender, EventArgs e)
 		{
 			BpUtility.PlaySound(Properties.Resources.Click);
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA || !(bool)OnlineVersionInfo.game_info.mirror.hi3mirror.available)
-			{
-				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
-				return;
-			}
 		}
 
 		private void MirrorDropdown_Changed(object sender, SelectionChangedEventArgs e)
@@ -1477,7 +1472,7 @@ namespace BetterHI3Launcher
 				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA || !(bool)OnlineVersionInfo.game_info.mirror.hi3mirror.available)
+			if(!(bool)OnlineVersionInfo.game_info.mirror.hi3mirror.available && index == 1)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();

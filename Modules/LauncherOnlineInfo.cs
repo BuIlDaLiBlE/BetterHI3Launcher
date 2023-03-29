@@ -71,8 +71,6 @@ namespace BetterHI3Launcher
 
 		private async void FetchAnnouncements()
 		{
-			Status = LauncherStatus.Working;
-			ProgressBar.Visibility = Visibility.Collapsed;
 			try
 			{
 				await Task.Run(() =>
