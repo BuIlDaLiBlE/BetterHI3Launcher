@@ -28,7 +28,7 @@ Of course, a 64-bit version of Windows is required, since the game also requires
 
 The launcher is confirmed to work on Windows 10 and Windows 11, but I personally develop and test on Windows 10.
 
-Windows 8.1 should work if .NET Framework 4.6.1 or newer is installed.
+Windows 8.1 should work if .NET Framework 4.6.2 or newer is installed.
 
 Windows 7 should technically work too if the above condition is met, however it's not supported by Microsoft since January of 2020 so I may not provide much support.
 
