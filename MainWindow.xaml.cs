@@ -1099,6 +1099,15 @@ namespace BetterHI3Launcher
 			}
 			else if(Status == LauncherStatus.UpdateAvailable)
 			{
+				if(!File.Exists(GameExePath))
+				{
+					if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
+					{
+						ResetVersionInfo();
+						GameUpdateCheck();
+					}
+					return;
+				}
 				var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
 				if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
 				{
