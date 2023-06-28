@@ -1255,7 +1255,7 @@ namespace BetterHI3Launcher
 					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
 					string pre_install_message = $"{App.TextStrings["msgbox_pre_install_msg"]}" +
 						$"\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}" +
-						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(size + (long)miHoYoVersionInfo.game.latest.size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
+						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.game.latest.size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
 					if(new DialogWindow(App.TextStrings["label_pre_install"], pre_install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
