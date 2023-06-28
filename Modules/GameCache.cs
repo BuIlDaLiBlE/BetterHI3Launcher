@@ -1,12 +1,12 @@
 ﻿using AssetsTools.NET.Extra;
 using Hi3Helper.EncTool;
 using Newtonsoft.Json;
-using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shell;
@@ -97,7 +97,7 @@ namespace BetterHI3Launcher
 			byte[] salt = new mhyEncTool(hash_salt, OnlineVersionInfo.game_info.mirror.mihoyo.master_key.ToString()).GetSalt();
 			using(FileStream stream = new FileStream(path, FileMode.Open))
 			{
-				byte[] hash = new System.Security.Cryptography.HMACSHA1(salt).ComputeHash(stream);
+				byte[] hash = new HMACSHA1(salt).ComputeHash(stream);
 				return BitConverter.ToString(hash).Replace("-", string.Empty);
 			}
 		}

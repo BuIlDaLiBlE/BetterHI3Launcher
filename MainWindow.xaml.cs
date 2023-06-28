@@ -1,7 +1,6 @@
-﻿using Microsoft.Win32;
-using SharpCompress.Archives;
-using SharpCompress.Common;
-using SharpCompress.Readers;
+﻿using Hi3Helper.Http;
+using Microsoft.Win32;
+using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,7 +18,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
-using Hi3Helper.Http;
 
 namespace BetterHI3Launcher
 {
@@ -793,13 +791,9 @@ namespace BetterHI3Launcher
 						Log("success!", false);
 						Log("Performing update...");
 						File.Move(Path.Combine(App.LauncherRootPath, exe_name), Path.Combine(App.LauncherRootPath, old_exe_name));
-						using(var archive = ArchiveFactory.Open(App.LauncherArchivePath))
+						using(var archive = new SevenZipExtractor(App.LauncherArchivePath))
 						{
-							var reader = archive.ExtractAllEntries();
-							while(reader.MoveToNextEntry())
-							{
-								reader.WriteEntryToDirectory(App.LauncherRootPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
-							}
+							archive.ExtractArchive(App.LauncherRootPath);
 						}
 						Log("success!", false);
 						Dispatcher.Invoke(() => {BpUtility.RestartApp();});
