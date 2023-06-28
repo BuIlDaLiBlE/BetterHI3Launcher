@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
-using SharpCompress.Common;
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Windows;
 using System.Windows.Shell;

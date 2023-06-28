@@ -164,7 +164,7 @@
 		<ScrollViewer Name="DialogMessageScrollViewer" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,25" Width="500" Height="135" Focusable="False" ScrollViewer.VerticalScrollBarVisibility="Hidden">
 			<TextBlock Name="DialogMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="500" MaxHeight="147" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"/>
 		</ScrollViewer>
-		<StackPanel Name="InstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,50,0,0" Visibility="Collapsed">
+		<StackPanel Name="InstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,25,0,0" Visibility="Collapsed">
 			<StackPanel Orientation="Horizontal">
 				<TextBox Name="InstallPathTextBox" Width="380" Height="20" TextChanged="InstallPathTextBox_TextChanged"/>
 				<Button Style="{DynamicResource ButtonStyle}" Height="20" Margin="5,0,0,0" FontSize="16" Content="..." Click="BrowseButton_Click"/>
