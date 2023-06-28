@@ -1009,7 +1009,7 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							var dialog = new DialogWindow(App.TextStrings["msgbox_install_title"], $"{App.TextStrings["msgbox_install_1_msg"]}\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.size))}\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.game.latest.size))}", DialogWindow.DialogType.Install);
+							var dialog = new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_1_msg"], DialogWindow.DialogType.Install);
 							dialog.InstallPathTextBox.Text = Path.Combine(Environment.ExpandEnvironmentVariables("%ProgramW6432%"), GameFullName);
 							if(dialog.ShowDialog() == false)
 							{
@@ -1041,12 +1041,22 @@ namespace BetterHI3Launcher
 								}
 							}
 
+							var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
+							if(game_install_drive == null || game_install_drive.DriveType == DriveType.CDRom)
+							{
+								new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
+								continue;
+							}
+
 							try
 							{
-								path = GameInstallPath;
 								if(!Directory.Exists(GameInstallPath))
 								{
 									Directory.CreateDirectory(GameInstallPath);
+								}
+								if(new DirectoryInfo(GameInstallPath).Parent == null)
+								{
+									throw new Exception("Installation directory cannot be drive root");
 								}
 							}
 							catch(Exception ex)
@@ -1055,18 +1065,16 @@ namespace BetterHI3Launcher
 								continue;
 							}
 
-							if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath), DialogWindow.DialogType.Question).ShowDialog() == false)
+							long free_space_recommended = (long)miHoYoVersionInfo.size + (long)miHoYoVersionInfo.game.latest.size;
+							string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.size))}" +
+								$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(free_space_recommended), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}" +
+								$"\n{string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath)}";
+							if(new DialogWindow(App.TextStrings["msgbox_install_title"], install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
 							{
 								try{Directory.Delete(GameInstallPath);}catch{}
 								continue;
 							}
-							var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
-							if(game_install_drive == null || game_install_drive.DriveType == DriveType.CDRom)
-							{
-								new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
-								continue;
-							}
-							if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
+							if(game_install_drive.TotalFreeSpace < free_space_recommended)
 							{
 								if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 								{
@@ -1244,11 +1252,14 @@ namespace BetterHI3Launcher
 				}
 				if(Directory.GetFiles(GameInstallPath, $"{title}_tmp.*").Length == 0)
 				{
-					if(new DialogWindow(App.TextStrings["label_pre_install"], $"{App.TextStrings["msgbox_pre_install_msg"]}\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}", DialogWindow.DialogType.Question).ShowDialog() == false)
+					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
+					string pre_install_message = $"{App.TextStrings["msgbox_pre_install_msg"]}" +
+						$"\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}" +
+						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(size + (long)miHoYoVersionInfo.game.latest.size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
+					if(new DialogWindow(App.TextStrings["label_pre_install"], pre_install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
-					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
 					if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.pre_download_game.latest.size)
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
