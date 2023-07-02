@@ -9,7 +9,7 @@ A much better Honkai Impact 3rd launcher. Here are the key points:
   * Epic Games version is technically supported, however to make purchases via Epic Games you have to launch the game using Epic Games Launcher
 * Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which dramatically speeds up the download process
 * Has mirror support so you have more means of getting the game
-  * **Unfortunately, as of Mar 29 2023 [the Hi3Mirror project has been permanently shut down](https://github.com/neon-nyan/Hi3MirrorWiki/blob/be743fee70018497570baa0b25dcceb8e3da1c4d/README.md) and there are no other mirrors available at this time**
+  * **Unfortunately, as of Mar 29 2023 the Hi3Mirror project has been permanently shut down and there are no other mirrors available at this time**
 * Includes other useful features, such as:
   * Downloading game cache - helps you get through the annoying "Updating settings" step
   * Repairing game files - uses a better method compared to the official launcher
