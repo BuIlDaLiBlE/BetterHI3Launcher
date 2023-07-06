@@ -223,11 +223,11 @@ namespace BetterHI3Launcher
 									var data_entries = new List<dynamic>();
 									foreach(string line in data_lines)
 									{
-										try
+										if(line.StartsWith("{") && line.EndsWith("}"))
 										{
 											var json = JsonConvert.DeserializeObject<dynamic>(line);
 											data_entries.Add(json);
-										}catch{}
+										}
 									}
 									if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
 									data = JsonConvert.SerializeObject(data_entries);
