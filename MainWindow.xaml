@@ -41,9 +41,12 @@
 		<BitmapImage x:Key="PreloadCircle" UriSource="/Assets/Images/Button_Preload_Circle.png"/>
 		<BitmapImage x:Key="PreloadCheckmark" UriSource="/Assets/Images/Button_Preload_Checkmark.png"/>
 		<ImageBrush x:Key="BackgroundShadow" ImageSource="/Assets/Images/BackgroundShadow.png"/>
-		<ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
-		<ImageBrush x:Key="ButtonPressed" ImageSource="/Assets/Images/Button_Pressed.png"/>
-		<ImageBrush x:Key="ButtonDisabled" ImageSource="/Assets/Images/Button_Disabled.png"/>
+		<ImageBrush x:Key="ButtonLaunch" ImageSource="/Assets/Images/Button_Launch.png"/>
+		<ImageBrush x:Key="ButtonLaunchPressed" ImageSource="/Assets/Images/Button_Launch_Pressed.png"/>
+		<ImageBrush x:Key="ButtonLaunchDisabled" ImageSource="/Assets/Images/Button_Launch_Disabled.png"/>
+		<ImageBrush x:Key="ButtonOptions" ImageSource="/Assets/Images/Button_Options.png"/>
+		<ImageBrush x:Key="ButtonOptionsPressed" ImageSource="/Assets/Images/Button_Options_Pressed.png"/>
+		<ImageBrush x:Key="ButtonOptionsDisabled" ImageSource="/Assets/Images/Button_Options_Disabled.png"/>
 		<ImageBrush x:Key="CloseButton" ImageSource="/Assets/Images/Button_Close.png"/>
 		<ImageBrush x:Key="CloseButtonPressed" ImageSource="/Assets/Images/Button_Close_Pressed.png"/>
 		<ImageBrush x:Key="CloseButtonHighlighted" ImageSource="/Assets/Images/Button_Close_Highlighted.png"/>
@@ -138,12 +141,12 @@
 		</Style>
 		<Style x:Key="LaunchButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
-			<Setter Property="Background" Value="{StaticResource Button}"/>
+			<Setter Property="Background" Value="{StaticResource ButtonLaunch}"/>
 			<Setter Property="Foreground" Value="#313131"/>
 			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="HorizontalAlignment" Value="Right"/>
+			<Setter Property="HorizontalAlignment" Value="Left"/>
 			<Setter Property="VerticalAlignment" Value="Bottom"/>
-			<Setter Property="Width" Value="218"/>
+			<Setter Property="Width" Value="187"/>
 			<Setter Property="Height" Value="46"/>
 			<Setter Property="FontFamily" Value="{DynamicResource Font}"/>
 			<Setter Property="FontSize" Value="24"/>
@@ -156,10 +159,41 @@
 						</Border>
 						<ControlTemplate.Triggers>
 							<Trigger Property="IsPressed" Value="True">
-								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonPressed}"/>
+								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonLaunchPressed}"/>
 							</Trigger>
 							<Trigger Property="IsEnabled" Value="False">
-								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDisabled}"/>
+								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonLaunchDisabled}"/>
+								<Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#333333"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="OptionsButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+			<Setter Property="Background" Value="{StaticResource ButtonOptions}"/>
+			<Setter Property="Foreground" Value="#313131"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="HorizontalAlignment" Value="Right"/>
+			<Setter Property="VerticalAlignment" Value="Bottom"/>
+			<Setter Property="Width" Value="31"/>
+			<Setter Property="Height" Value="46"/>
+			<Setter Property="FontFamily" Value="{DynamicResource Font}"/>
+			<Setter Property="FontSize" Value="24"/>
+			<Setter Property="UseLayoutRounding" Value="True"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonOptionsPressed}"/>
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonOptionsDisabled}"/>
 								<Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#333333"/>
 							</Trigger>
 						</ControlTemplate.Triggers>
@@ -515,10 +549,26 @@
 		<Grid Name="Grid" Width="1280" Height="730">
 			<Image Name="BackgroundImage" Stretch="Fill" Source="{DynamicResource BackgroundImage}"/>
 			<MediaElement Name="BackgroundMedia" IsMuted="True" Stretch="Fill" Focusable="False" ScrubbingEnabled="True" Visibility="Collapsed"/>
-			<Rectangle VerticalAlignment="Top" HorizontalAlignment="Right" Width="64" Height="32" Fill="#C8141414"/>
-			<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
-			<Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Margin="0,0,32,0" Click="MinimizeButton_Click"/>
-			<StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,57,0" MaxWidth="218">
+			<Grid Name="TitleBar" VerticalAlignment="Top">
+				<Rectangle Height="32" Fill="#D8141414"/>
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Name="GameNameText" VerticalAlignment="Center" Margin="5" Foreground="#FFFFFF" FontFamily="Segoe UI" FontSize="15">
+						<TextBlock.Effect>
+							<DropShadowEffect ShadowDepth="0"/>
+						</TextBlock.Effect>
+					</TextBlock>
+					<TextBlock Name="GameVersionText" VerticalAlignment="Center" Foreground="#434343" FontFamily="Segoe UI" FontSize="15">
+						<TextBlock.Effect>
+							<DropShadowEffect ShadowDepth="0"/>
+						</TextBlock.Effect>
+					</TextBlock>
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+					<Button Name="MinimizeButton" Style="{DynamicResource MinimizeButtonStyle}" Click="MinimizeButton_Click"/>
+					<Button Name="CloseButton" Style="{DynamicResource CloseButtonStyle}" Click="CloseButton_Click"/>
+				</StackPanel>
+			</Grid>
+			<StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,57,25" MaxWidth="218">
 				<TextBlock Name="ProgressText" HorizontalAlignment="Center" Margin="0,0,0,5" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="12" TextAlignment="Center" TextWrapping="Wrap">
 					<TextBlock.Effect>
 						<DropShadowEffect ShadowDepth="0"/>
@@ -549,21 +599,18 @@
 						</TextBlock>
 						<ComboBox Name="MirrorDropdown" Width="120" Height="20" DropDownOpened="MirrorDropdown_Opened" SelectionChanged="MirrorDropdown_Changed">
 							<ComboBoxItem Content="HoYoverse"/>
-							<ComboBoxItem Content="Hi3Mirror"/>
+							<ComboBoxItem Content="Bp Network"/>
 						</ComboBox>
 					</StackPanel>
 				</StackPanel>
-				<Button Name="OptionsButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,0,13" Click="OptionsButton_Click" IsEnabled="False">
-					<Button.ContextMenu>
-						<ContextMenu Name="OptionsContextMenu"/>
-					</Button.ContextMenu>
-				</Button>
-				<Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" Margin="0,0,0,8" Click="LaunchButton_Click" IsEnabled="False"/>
-				<TextBlock Name="GameVersionText" HorizontalAlignment="Center" Margin="0,0,0,25" Foreground="#A7FFFFFF" FontFamily="{DynamicResource Font}" FontSize="12">
-					<TextBlock.Effect>
-						<DropShadowEffect ShadowDepth="0"/>
-					</TextBlock.Effect>
-				</TextBlock>
+				<StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+					<Button Name="LaunchButton" Style="{DynamicResource LaunchButtonStyle}" Click="LaunchButton_Click" IsEnabled="False"/>
+					<Button Name="OptionsButton" Style="{DynamicResource OptionsButtonStyle}" Click="OptionsButton_Click" IsEnabled="False">
+						<Button.ContextMenu>
+							<ContextMenu Name="OptionsContextMenu"/>
+						</Button.ContextMenu>
+					</Button>
+				</StackPanel>
 			</StackPanel>
 			<Grid Name="PreloadGrid" Visibility="Collapsed">
 				<Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,364,50" Width="240" Height="50">
@@ -647,7 +694,7 @@
 					</StackPanel>
 				</Grid>
 			</Grid>
-			<StackPanel Name="DownloadProgressBarStackPanel" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="50,36">
+			<StackPanel Name="DownloadProgressBarStackPanel" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="50,20">
 				<TextBlock Name="DownloadProgressText" VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="{DynamicResource Font}" FontSize="14" Foreground="White">
 					<TextBlock.Effect>
 						<DropShadowEffect BlurRadius="1" ShadowDepth="2"/>
@@ -669,7 +716,7 @@
 					</TextBlock.Effect>
 				</TextBlock>
 			</StackPanel>
-			<Grid Name="LogBox" Margin="10,128" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="900" Height="470" UseLayoutRounding="True" Visibility="Collapsed">
+			<Grid Name="LogBox" Margin="50,100" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="820" Height="470" UseLayoutRounding="True" Visibility="Collapsed">
 				<StackPanel>
 					<ScrollViewer Name="LogBoxScrollViewer" Width="{Binding Path=ActualWidth, ElementName=LogBox, Mode=OneWay}" Height="{Binding Path=ActualHeight, ElementName=LogBox, Mode=OneWay}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
 						<RichTextBox Name="LogBoxRichTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#C8000000" Foreground="White" FontFamily="Consolas" FocusVisualStyle="{StaticResource FocusVisual}" IsReadOnly="True">

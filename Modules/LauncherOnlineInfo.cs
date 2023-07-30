@@ -56,7 +56,7 @@ namespace BetterHI3Launcher
 				OnlineVersionInfo = OnlineVersionInfo.launcher_status;
 				App.LauncherExeName = OnlineVersionInfo.launcher_info.name;
 				App.LauncherPath = Path.Combine(App.LauncherRootPath, App.LauncherExeName);
-				App.LauncherArchivePath = Path.Combine(App.LauncherRootPath, OnlineVersionInfo.launcher_info.url.ToString().Substring(OnlineVersionInfo.launcher_info.url.ToString().LastIndexOf('/') + 1));
+				App.LauncherArchivePath = Path.Combine(App.LauncherRootPath, BpUtility.GetFileNameFromUrl(OnlineVersionInfo.launcher_info.url.ToString()));
 			}
 			else
 			{

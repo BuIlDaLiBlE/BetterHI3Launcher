@@ -107,8 +107,6 @@ namespace BetterHI3Launcher
 			string hash_salt = string.Empty;
 			string data_url;
 			string data;
-			string hi3mirror_api_url = OnlineVersionInfo.game_info.mirror.hi3mirror.api.ToString();
-			int hi3mirror_server = 0;
 
 			List<CacheDataPropertiesHi3Mirror> cache_files, bad_files;
 			CacheType cache_type;
@@ -116,49 +114,28 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				if(Mirror == HI3Mirror.miHoYo)
+				switch((int)Server)
 				{
-					switch((int)Server)
-					{
-						case 0:
-							data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.global.ToString();
-							break;
-						case 1:
-							data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.os.ToString();
-							break;
-						case 2:
-							data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.cn.ToString();
-							break;
-						case 3:
-							data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.tw.ToString();
-							break;
-						case 4:
-							data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.kr.ToString();
-							break;
-						case 5:
-							data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.jp.ToString();
-							break;
-						default:
-							throw new NotSupportedException("This server is not supported.");
-					}
-				}
-				else
-				{
-					data_url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_cache.ToString();
-					switch((int)Server)
-					{
-						case 0:
-							hi3mirror_server = 1;
-							break;
-						case 1:
-							hi3mirror_server = 0;
-							break;
-						case 2:
-							hi3mirror_server = 2;
-							break;
-						default:
-							throw new NotSupportedException("This server is not supported.");
-					}
+					case 0:
+						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.global.ToString();
+						break;
+					case 1:
+						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.os.ToString();
+						break;
+					case 2:
+						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.cn.ToString();
+						break;
+					case 3:
+						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.tw.ToString();
+						break;
+					case 4:
+						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.kr.ToString();
+						break;
+					case 5:
+						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.jp.ToString();
+						break;
+					default:
+						throw new NotSupportedException("This server is not supported.");
 				}
 
 				cache_files = new List<CacheDataPropertiesHi3Mirror>();
@@ -188,90 +165,60 @@ namespace BetterHI3Launcher
 								break;
 						}
 
-						if(Mirror == HI3Mirror.miHoYo)
+						dynamic data_info;
+						switch((int)Server)
 						{
-							dynamic data_info;
-							switch((int)Server)
-							{
-								case 0:
-									data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.global[i].ToString();
-									break;
-								case 1:
-									data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.os[i].ToString();
-									break;
-								case 2:
-									data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.cn[i].ToString();
-									break;
-								case 3:
-									data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.tw[i].ToString();
-									break;
-								case 4:
-									data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.kr[i].ToString();
-									break;
-								case 5:
-									data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.jp[i].ToString();
-									break;
-								default:
-									throw new NotSupportedException("This server is not supported.");
-							}
+							case 0:
+								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.global[i].ToString();
+								break;
+							case 1:
+								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.os[i].ToString();
+								break;
+							case 2:
+								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.cn[i].ToString();
+								break;
+							case 3:
+								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.tw[i].ToString();
+								break;
+							case 4:
+								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.kr[i].ToString();
+								break;
+							case 5:
+								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.jp[i].ToString();
+								break;
+							default:
+								throw new NotSupportedException("This server is not supported.");
+						}
 
-							using(var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info))))
+						using(var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info))))
+						{
+							using(var xor_stream = new XORStream(stream))
 							{
-								using(var xor_stream = new XORStream(stream))
+								var data_lines = GetPackageVersion(xor_stream).Split(new string[]{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+								var data_entries = new List<dynamic>();
+								foreach(string line in data_lines)
 								{
-									var data_lines = GetPackageVersion(xor_stream).Split(new string[]{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
-									var data_entries = new List<dynamic>();
-									foreach(string line in data_lines)
+									if(line.StartsWith("{") && line.EndsWith("}"))
 									{
-										try
-										{
-											var json = JsonConvert.DeserializeObject<dynamic>(line);
-											data_entries.Add(json);
-										}catch{}
-									}
-									if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
-									data = JsonConvert.SerializeObject(data_entries);
-									foreach(CacheDataProperties file in JsonConvert.DeserializeObject<List<CacheDataProperties>>(data))
-									{
-										if(FilterRegion(file.N, game_language) > 0)
-										{
-											cache_files.Add(new CacheDataPropertiesHi3Mirror
-											{
-												N = file.N,
-												CRC = file.CRC,
-												CS = file.CS,
-												IsNecessary = file.DLM == 1,
-												Type = cache_type
-											});
-										}
+										var json = JsonConvert.DeserializeObject<dynamic>(line);
+										data_entries.Add(json);
 									}
 								}
-							}
-						}
-						else
-						{
-							// Get URL and API data
-							var url = string.Format(hi3mirror_api_url, i, hi3mirror_server);
-							var api_data = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString(url));
-							if(cache_type == CacheType.Data) hash_salt = api_data.HashSalt;
-							data = JsonConvert.SerializeObject(api_data.Content);
-							// Do Elimination Process
-							// Deserialize string and make it to Object as List<CacheDataPropertiesHi3Mirror>
-							foreach(CacheDataPropertiesHi3Mirror file in JsonConvert.DeserializeObject<List<CacheDataPropertiesHi3Mirror>>(data))
-							{
-								// Do check whenever the file is included regional language as game_language defined
-								// Then add it to cache_files list
-								if(FilterRegion(file.N, game_language) > 0)
+								if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
+								data = JsonConvert.SerializeObject(data_entries);
+								foreach(CacheDataProperties file in JsonConvert.DeserializeObject<List<CacheDataProperties>>(data))
 								{
-									// Do add if the Filter passed.
-									cache_files.Add(new CacheDataPropertiesHi3Mirror
+									if(FilterRegion(file.N, game_language) > 0)
 									{
-										N = file.N,
-										CRC = file.CRC,
-										CS = file.CS,
-										IsNecessary = file.IsNecessary,
-										Type = cache_type
-									});
+										cache_files.Add(new CacheDataPropertiesHi3Mirror
+										{
+											N = file.N,
+											CRC = file.CRC,
+											CS = file.CS,
+											IsNecessary = file.DLM == 1,
+											Type = cache_type
+										});
+									}
 								}
 							}
 						}
@@ -282,7 +229,7 @@ namespace BetterHI3Launcher
 			catch(WebException ex)
 			{
 				Status = LauncherStatus.Error;
-				Log($"Failed to connect to Hi3Mirror:\n{ex}", true, 1);
+				Log($"Failed to fetch cache data:\n{ex}", true, 1);
 				new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], ex.Message)).ShowDialog();
 				Status = LauncherStatus.Ready;
 				return;
@@ -439,26 +386,7 @@ namespace BetterHI3Launcher
 										break;
 								}
 
-								if(Mirror == HI3Mirror.miHoYo)
-								{
-									url = string.Format(data_url, ReturnCacheTypeEnum(bad_files[i].Type), $"{bad_files[i].N}_{bad_files[i].CRC}");
-								}
-								else
-								{
-									string server;
-									switch((int)Server)
-									{
-										case 0:
-											server = "global";
-											break;
-										case 1:
-											server = "sea";
-											break;
-										default:
-											throw new NotSupportedException("This server is not supported.");
-									}
-									url = string.Format(data_url, server, ReturnCacheTypeEnum(bad_files[i].Type), $"{bad_files[i].N}_{bad_files[i].CRC}");
-								}
+								url = string.Format(data_url, ReturnCacheTypeEnum(bad_files[i].Type), $"{bad_files[i].N}_{bad_files[i].CRC}");
 								Log($"Downloading from {url}...");
 								Dispatcher.Invoke(() =>
 								{

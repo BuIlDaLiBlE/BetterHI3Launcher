@@ -62,14 +62,7 @@ namespace BetterHI3Launcher
 					LaunchButton.IsEnabled = val;
 					OptionsButton.IsEnabled = val;
 					ServerDropdown.IsEnabled = val;
-					if(Server != HI3Server.GLB && Server != HI3Server.SEA)
-					{
-						MirrorDropdown.IsEnabled = false;
-					}
-					else
-					{
-						MirrorDropdown.IsEnabled = val;
-					}
+					MirrorDropdown.IsEnabled = val;
 					ToggleContextMenuItems(val);
 					DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 					DownloadETAText.Visibility = Visibility.Visible;
@@ -353,7 +346,6 @@ namespace BetterHI3Launcher
 			App.UserAgent += $" ({string.Join("; ", App.UserAgentComment)})";
 
 			LaunchButton.Content = App.TextStrings["button_download"];
-			OptionsButton.Content = App.TextStrings["button_options"];
 			ServerLabel.Text = $"{App.TextStrings["label_server"]}:";
 			MirrorLabel.Text = $"{App.TextStrings["label_mirror"]}:";
 			IntroBoxTitleTextBlock.Text = App.TextStrings["introbox_title"];
@@ -387,7 +379,7 @@ namespace BetterHI3Launcher
 			PreloadTopText.Text = App.TextStrings["label_pre_install"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
 
-			Grid.MouseLeftButtonDown += delegate{DragMove();};
+			TitleBar.MouseLeftButtonDown += delegate{DragMove();};
 			PreloadGrid.Visibility = Visibility.Collapsed;
 			DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 			LogBox.Visibility = Visibility.Collapsed;
@@ -659,7 +651,7 @@ namespace BetterHI3Launcher
 						}
 						else if((int)last_selected_mirror_reg == 1)
 						{
-							Mirror = HI3Mirror.Hi3Mirror;
+							Mirror = HI3Mirror.BpNetwork;
 						}
 					}
 				}
@@ -758,7 +750,6 @@ namespace BetterHI3Launcher
 					return;
 				}
 				DeleteFile(Path.Combine(App.LauncherRootPath, old_exe_name), true);
-				DeleteFile(Path.Combine(App.LauncherRootPath, "BetterHI3Launcher.exe.bak"), true); // legacy name
 				await Task.Run(() =>
 				{
 					if(App.DisableAutoUpdate)
@@ -804,7 +795,6 @@ namespace BetterHI3Launcher
 					else
 					{
 						DeleteFile(App.LauncherArchivePath, true);
-						DeleteFile(Path.Combine(App.LauncherRootPath, "BetterHI3Launcher.7z"), true); // legacy name
 						if(!File.Exists(App.LauncherPath))
 						{
 							File.Copy(Path.Combine(App.LauncherRootPath, exe_name), App.LauncherPath, true);
@@ -1160,9 +1150,8 @@ namespace BetterHI3Launcher
 			}
 
 			var button = sender as Button;
-			OptionsContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
-			OptionsContextMenu.PlacementTarget = button;
-			OptionsContextMenu.VerticalOffset = button.Height;
+			OptionsContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+			OptionsContextMenu.PlacementTarget = LaunchButton;
 			OptionsContextMenu.IsOpen = true;
 			BpUtility.PlaySound(Properties.Resources.Click);
 		}
@@ -1241,7 +1230,7 @@ namespace BetterHI3Launcher
 			try
 			{
 				string url = miHoYoVersionInfo.pre_download_game.latest.path.ToString();
-				string title = Path.GetFileName(HttpUtility.UrlDecode(url));
+				string title = BpUtility.GetFileNameFromUrl(url);
 				long size;
 				string md5 = miHoYoVersionInfo.pre_download_game.latest.md5.ToString();
 				string path = Path.Combine(GameInstallPath, title);
@@ -1428,7 +1417,7 @@ namespace BetterHI3Launcher
 				}
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(LocalVersionInfo.game_info.installed == false)
+				if(LocalVersionInfo != null && LocalVersionInfo.game_info.installed == false)
 				{
 					ResetVersionInfo();
 				}
@@ -1453,11 +1442,6 @@ namespace BetterHI3Launcher
 				case 5:
 					Server = HI3Server.JP;
 					break;
-			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
-			{
-				MirrorDropdown.SelectedIndex = 0;
-				Mirror = HI3Mirror.miHoYo;
 			}
 			try
 			{
@@ -1488,7 +1472,7 @@ namespace BetterHI3Launcher
 				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
-			if(!(bool)OnlineVersionInfo.game_info.mirror.hi3mirror.available && index == 1)
+			if(!(bool)OnlineVersionInfo.game_info.mirror.bpnetwork.available && index == 1)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
@@ -1530,7 +1514,7 @@ namespace BetterHI3Launcher
 					Mirror = HI3Mirror.miHoYo;
 					break;
 				case 1:
-					Mirror = HI3Mirror.Hi3Mirror;
+					Mirror = HI3Mirror.BpNetwork;
 					break;
 			}
 			try
