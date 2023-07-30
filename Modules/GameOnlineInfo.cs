@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Web;
-using System.Windows;
 
 namespace BetterHI3Launcher
 {
@@ -94,7 +93,8 @@ namespace BetterHI3Launcher
 			}
 			Dispatcher.Invoke(() =>
 			{
-				GameVersionText.Text = $"{App.TextStrings["version"]}: {miHoYoVersionInfo.game.latest.version.ToString()}";
+				GameNameText.Text = GameFullName;
+				GameVersionText.Text = miHoYoVersionInfo.game.latest.version.ToString();
 			});
 		}
 

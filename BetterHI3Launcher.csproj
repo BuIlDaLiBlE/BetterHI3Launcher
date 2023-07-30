@@ -204,21 +204,28 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Utility\Hi3Helper.Http\.gitattributes" />
-    <Content Include="Utility\Hi3Helper.Http\.gitignore" />
-    <Resource Include="Assets\Images\Icon.ico" />
-    <Resource Include="Assets\Images\Button.png" />
-    <Resource Include="Assets\Images\Button_Disabled.png" />
-    <Resource Include="Assets\Images\Button_Pressed.png" />
-    <Resource Include="Assets\Images\Button_Close.png" />
-    <Resource Include="Assets\Images\Button_Close_Pressed.png" />
-    <Resource Include="Assets\Images\Button_Close_Highlighted.png" />
+    <Resource Include="Assets\Images\BackgroundShadow.png" />
     <Resource Include="Assets\Images\Button_Box_Close.png" />
     <Resource Include="Assets\Images\Button_Box_Close_Highlighted.png" />
     <Resource Include="Assets\Images\Button_Box_Close_Pressed.png" />
+    <Resource Include="Assets\Images\Button_Close.png" />
+    <Resource Include="Assets\Images\Button_Close_Pressed.png" />
+    <Resource Include="Assets\Images\Button_Close_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Dialog.png" />
+    <Resource Include="Assets\Images\Button_Dialog_Pressed.png" />
+    <Resource Include="Assets\Images\Button_Dialog_Disabled.png" />
+    <Resource Include="Assets\Images\Button_Launch.png" />
+    <Resource Include="Assets\Images\Button_Launch_Disabled.png" />
+    <Resource Include="Assets\Images\Button_Launch_Pressed.png" />
     <Resource Include="Assets\Images\Button_Minimize.png" />
     <Resource Include="Assets\Images\Button_Minimize_Highlighted.png" />
     <Resource Include="Assets\Images\Button_Minimize_Pressed.png" />
+    <Resource Include="Assets\Images\Button_Options_Disabled.png" />
+    <Resource Include="Assets\Images\Button_Options_Pressed.png" />
+    <Resource Include="Assets\Images\Button_Options.png" />
+    <Resource Include="Assets\Images\Button_Pause.png" />
+    <Resource Include="Assets\Images\Button_Pause_Highlighted.png" />
+    <Resource Include="Assets\Images\Button_Pause_Pressed.png" />
     <Resource Include="Assets\Images\Button_Preload.png" />
     <Resource Include="Assets\Images\Button_Preload_Checkmark.png" />
     <Resource Include="Assets\Images\Button_Preload_Circle.png" />
@@ -226,14 +233,11 @@
     <Resource Include="Assets\Images\Button_Preload_Pressed.png" />
     <Resource Include="Assets\Images\Button_Preload_Pause.png" />
     <Resource Include="Assets\Images\Button_Preload_Resume.png" />
-    <Resource Include="Assets\Images\Button_Pause.png" />
-    <Resource Include="Assets\Images\Button_Pause_Highlighted.png" />
-    <Resource Include="Assets\Images\Button_Pause_Pressed.png" />
     <Resource Include="Assets\Images\Button_Resume.png" />
     <Resource Include="Assets\Images\Button_Resume_Highlighted.png" />
     <Resource Include="Assets\Images\Button_Resume_Pressed.png" />
-    <Resource Include="Assets\Images\BackgroundShadow.png" />
     <Resource Include="Assets\Images\HoV_Dance.gif" />
+    <Resource Include="Assets\Images\Icon.ico" />
     <Resource Include="Assets\Images\Window_Dialog.png" />
     <Resource Include="Assets\Images\Checkbox_On.png" />
     <Resource Include="Assets\Images\Checkbox_Off.png" />

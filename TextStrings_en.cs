@@ -21,7 +21,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("button_update", "Update");
 			TextStrings.Add("button_pause", "Pause");
 			TextStrings.Add("button_launch", "Launch");
-			TextStrings.Add("button_options", "Options");
 			TextStrings.Add("button_resume", "Resume");
 			TextStrings.Add("button_ok", "OK");
 			TextStrings.Add("button_confirm", "Confirm");

@@ -351,7 +351,6 @@ namespace BetterHI3Launcher
 			App.UserAgent += $" ({string.Join("; ", App.UserAgentComment)})";
 
 			LaunchButton.Content = App.TextStrings["button_download"];
-			OptionsButton.Content = App.TextStrings["button_options"];
 			ServerLabel.Text = $"{App.TextStrings["label_server"]}:";
 			MirrorLabel.Text = $"{App.TextStrings["label_mirror"]}:";
 			IntroBoxTitleTextBlock.Text = App.TextStrings["introbox_title"];
@@ -385,7 +384,7 @@ namespace BetterHI3Launcher
 			PreloadTopText.Text = App.TextStrings["label_pre_install"];
 			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
 
-			Grid.MouseLeftButtonDown += delegate{DragMove();};
+			TitleBar.MouseLeftButtonDown += delegate{DragMove();};
 			PreloadGrid.Visibility = Visibility.Collapsed;
 			DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
 			LogBox.Visibility = Visibility.Collapsed;
