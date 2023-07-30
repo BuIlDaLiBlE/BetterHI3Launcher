@@ -15,7 +15,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
@@ -83,7 +82,7 @@ namespace BetterHI3Launcher
 							if(game_needs_update == 2 && Mirror == HI3Mirror.miHoYo)
 							{
 								var url = miHoYoVersionInfo.game.diffs[PatchDownloadInt].path.ToString();
-								GameArchiveName = Path.GetFileName(HttpUtility.UrlDecode(url));
+								GameArchiveName = BpUtility.GetFileNameFromUrl(url);
 								GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
 								PatchDownload = true;
 							}
@@ -145,7 +144,7 @@ namespace BetterHI3Launcher
 							{
 								if(miHoYoVersionInfo.pre_download_game != null)
 								{
-									var path = Path.Combine(GameInstallPath, Path.GetFileName(HttpUtility.UrlDecode(miHoYoVersionInfo.pre_download_game.latest.path.ToString())));
+									var path = Path.Combine(GameInstallPath, BpUtility.GetFileNameFromUrl(miHoYoVersionInfo.pre_download_game.latest.path.ToString()));
 									if(File.Exists(path))
 									{
 										PreloadButton.Visibility = Visibility.Collapsed;
@@ -338,7 +337,7 @@ namespace BetterHI3Launcher
 						}
 					}
 				}
-				string background_image_name = Path.GetFileName(HttpUtility.UrlDecode(background_image_url));
+				string background_image_name = BpUtility.GetFileNameFromUrl(background_image_url);
 				string background_image_path = Path.Combine(App.LauncherBackgroundsPath, background_image_name);
 				background_image_md5 = background_image_name.Split('_')[0].ToUpper();
 				bool Validate()
@@ -524,21 +523,44 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					title = GameArchiveName;
-					url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_archive.ToString();
-					switch((int)Server)
+					dynamic metadata = null;
+					switch(Server)
 					{
-						case 0:
-							url += "global";
+						case HI3Server.GLB:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.global.ToString());
 							break;
-						case 1:
-							url += "sea";
+						case HI3Server.SEA:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.os.ToString());
 							break;
-						default:
-							throw new NotSupportedException("This server is not supported.");
+						case HI3Server.CN:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.cn.ToString());
+							break;
+						case HI3Server.TW:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.tw.ToString());
+							break;
+						case HI3Server.KR:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.kr.ToString());
+							break;
+						case HI3Server.JP:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.jp.ToString());
+							break;
 					}
-					url += "/" + title;
+					if(metadata == null)
+					{
+						return;
+					}
+					title = metadata.downloadUrl;
+					url = metadata.downloadUrl;
 					md5 = miHoYoVersionInfo.game.latest.md5.ToString();
+					if((DateTimeOffset)metadata.modifiedDate < (DateTimeOffset)miHoYoVersionInfo.last_modified)
+					{
+						Status = LauncherStatus.Error;
+						Log("The seleted mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
+						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_old_msg"]).ShowDialog();
+						Status = LauncherStatus.Ready;
+						GameUpdateCheck();
+						return;
+					}
 				}
 				md5 = md5.ToUpper();
 				GameArchiveTempPath = $"{GameArchivePath}_tmp";

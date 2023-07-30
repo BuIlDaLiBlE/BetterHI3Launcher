@@ -22,7 +22,7 @@ namespace BetterHI3Launcher
 			e.Handled = !e.Text.Any(x => char.IsDigit(x));
 		}
 
-		// https://stackoverflow.com/q/1268552/7570821
+		// https://stackoverflow.com/q/1268552
 		private void FPSInputBoxTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
 		{
 			bool IsTextAllowed(string text)
@@ -156,7 +156,7 @@ namespace BetterHI3Launcher
 											}
 											else if(urls[j].Contains("www.mediafire.com"))
 											{
-												var metadata = FetchMediaFireFileMetadata(urls[j].Substring(31, 15));
+												var metadata = FetchFileMetadata(urls[j]);
 												url = metadata.downloadUrl.ToString();
 											}
 											else

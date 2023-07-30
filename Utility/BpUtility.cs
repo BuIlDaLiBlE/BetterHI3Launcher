@@ -52,7 +52,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		// https://stackoverflow.com/a/10520086/7570821
+		// https://stackoverflow.com/a/10520086
 		public static string CalculateMD5(string filename)
 		{
 			using(var md5 = MD5.Create())
@@ -64,7 +64,7 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		// https://stackoverflow.com/a/49535675/7570821
+		// https://stackoverflow.com/a/49535675
 		public static string ToBytesCount(long bytes)
 		{
 			int unit = 1024;
@@ -73,6 +73,13 @@ namespace BetterHI3Launcher
 			else unitStr = unitStr.ToUpper();
 			int exp = (int)(Math.Log(bytes) / Math.Log(unit));
 			return string.Format("{0:##.##} {1}{2}", bytes / Math.Pow(unit, exp), App.TextStrings["binary_prefixes"][exp - 1], unitStr);
+		}
+
+		// https://stackoverflow.com/a/32594058
+		public static string GetFileNameFromUrl(string url)
+		{
+			Uri uri = new Uri(url);
+			return System.IO.Path.GetFileName(uri.AbsolutePath);
 		}
 
 		public static string GetWindowsVersion()
@@ -230,7 +237,7 @@ namespace BetterHI3Launcher
 		}
 	}
 
-	// https://stackoverflow.com/a/42725580/7570821
+	// https://stackoverflow.com/a/42725580
 	public class DownloadProgressTracker
 	{
 		private long _totalFileSize;
@@ -350,7 +357,7 @@ namespace BetterHI3Launcher
 		}
 	}
 
-	// https://stackoverflow.com/a/62039306/7570821
+	// https://stackoverflow.com/a/62039306
 	public class DownloadPauseable
 	{
 		private volatile bool _allowedToRun;
@@ -473,7 +480,7 @@ namespace BetterHI3Launcher
 		}
 	}
 
-	// https://stackoverflow.com/a/23047288/7570821
+	// https://stackoverflow.com/a/23047288
 	public class Arc : Shape
 	{
 		public double StartAngle
@@ -741,7 +748,7 @@ namespace BetterHI3Launcher
 	}
 
 	#if DEBUG
-	// https://stackoverflow.com/a/48864902/7570821
+	// https://stackoverflow.com/a/48864902
 	static class WinConsole
 	{
 		static public void Initialize(bool alwaysCreateNewConsole = true)

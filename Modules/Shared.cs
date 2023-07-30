@@ -23,7 +23,7 @@ namespace BetterHI3Launcher
 	}
 	public enum HI3Mirror
 	{
-		miHoYo, Hi3Mirror
+		miHoYo, BpNetwork
 	}
 
 	public struct LauncherVersion
@@ -146,7 +146,7 @@ namespace BetterHI3Launcher
 		public byte Thread => (byte)App.ParallelDownloadSessions;
 	}
 
-	// https://stackoverflow.com/a/55768143/7570821
+	// https://stackoverflow.com/a/55768143
 	internal class TextBlockExt
 	{
 		static Regex _regex = new Regex(@"http[s]?://[^\s]*[^\s\.]", RegexOptions.Compiled);
