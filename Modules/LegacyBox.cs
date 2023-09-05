@@ -176,6 +176,7 @@ namespace BetterHI3Launcher
 												Log($"Repaired file {corrupted_files[i]}");
 												repaired_files++;
 											}
+											break;
 										}
 										catch(Exception ex)
 										{
