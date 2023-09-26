@@ -798,7 +798,7 @@ namespace BetterHI3Launcher
 						}
 						game_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
 						game_config_ini_data["General"]["game_version"] = version_info.game_info.version;
-						ini_parser.WriteFile(game_config_ini_file, game_config_ini_data);
+						ini_parser.WriteFile(game_config_ini_file, game_config_ini_data, new UTF8Encoding(false));
 					}
 					catch(Exception ex)
 					{
@@ -813,7 +813,7 @@ namespace BetterHI3Launcher
 							if(launcher_config_ini_data["launcher"]["game_install_path"] != path)
 							{
 								launcher_config_ini_data["launcher"]["game_install_path"] = path;
-								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data);
+								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data, new UTF8Encoding(false));
 							}
 						}
 					}
