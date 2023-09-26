@@ -763,6 +763,7 @@ namespace BetterHI3Launcher
 
 			if (consoleAttached)
 			{
+				Console.OutputEncoding = Encoding.UTF8;
 				InitializeOutStream();
 				InitializeInStream();
 			}
