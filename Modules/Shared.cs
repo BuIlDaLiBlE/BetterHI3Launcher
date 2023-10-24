@@ -292,7 +292,7 @@ namespace BetterHI3Launcher
 				LaunchButton.Content = App.TextStrings["button_launch"];
 				if(!PreloadDownload)
 				{
-					Status = LauncherStatus.Ready;
+					GameUpdateCheck();
 				}
 			});
 		}
