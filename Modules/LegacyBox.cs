@@ -312,11 +312,13 @@ namespace BetterHI3Launcher
 						x.Extension != ".dmp" &&
 						x.Extension != ".log" &&
 						x.Extension != ".zip" &&
+						x.Extension != ".7z" &&
+						!x.Extension.Contains("_tmp") &&
 						x.Name != "ACE-BASE.sys" &&
 						x.Name != "blockVerifiedVersion.txt" &&
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
-						x.Name != "pkg_version" &&
+						x.Name != "sdk_pkg_version" &&
 						x.Name != "UniFairy.sys" &&
 						x.Name != "Version.txt" &&
 						!x.Name.Contains("AUDIO_Avatar") &&
