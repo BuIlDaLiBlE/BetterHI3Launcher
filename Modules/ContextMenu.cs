@@ -135,18 +135,36 @@ namespace BetterHI3Launcher
 			{
 				return;
 			}
-			if(Server != HI3Server.GLB && Server != HI3Server.SEA)
-			{
-				new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
-				return;
-			}
 
 			Status = LauncherStatus.CheckingUpdates;
 			Dispatcher.Invoke(() => {ProgressText.Text = App.TextStrings["progresstext_fetching_hashes"];});
 			Log("Fetching repair data...");
 			try
 			{
-				string server = (int)Server == 0 ? "global" : "os";
+				string server;
+				switch((int)Server)
+				{
+					case 0:
+						server = "global";
+						break;
+					case 1:
+						server = "os";
+						break;
+					case 2:
+						server = "cn";
+						break;
+					case 3:
+						server = "tw";
+						break;
+					case 4:
+						server = "kr";
+						break;
+					case 5:
+						server = "jp";
+						break;
+					default:
+						throw new NotSupportedException("This server is not supported.");
+				}
 				var web_client = new BpWebClient();
 				await Task.Run(() =>
 				{
