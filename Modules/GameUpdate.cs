@@ -122,7 +122,7 @@ namespace BetterHI3Launcher
 						}
 						if(Status == LauncherStatus.UpdateAvailable)
 						{
-							if(File.Exists(GameArchiveTempPath))
+							if(!(bool)LocalVersionInfo.game_info.installed)
 							{
 								DownloadPaused = true;
 								Dispatcher.Invoke(() =>

@@ -1090,7 +1090,7 @@ namespace BetterHI3Launcher
 			}
 			else if(Status == LauncherStatus.UpdateAvailable)
 			{
-				if(!File.Exists(GameExePath))
+				if((bool)LocalVersionInfo.game_info.installed && !File.Exists(GameExePath))
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -1146,7 +1146,6 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			var button = sender as Button;
 			OptionsContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
 			OptionsContextMenu.PlacementTarget = LaunchButton;
 			OptionsContextMenu.IsOpen = true;
@@ -1546,16 +1545,12 @@ namespace BetterHI3Launcher
 					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
-						if(httpclient != null && httpclient.DownloadState == DownloadState.Downloading || httpclient.DownloadState == DownloadState.CancelledDownloading)
+						if(httpclient != null)
 						{
 							try
 							{
 								token.Cancel();
 							}catch(OperationCanceledException){}
-						}
-						else
-						{
-							e.Cancel = true;
 						}
 						if(Status != LauncherStatus.Preloading)
 						{
