@@ -40,13 +40,6 @@ namespace BetterHI3Launcher
 					{
 						Log($"Bp Network connection error, attempt №{i + 2}...", true, 2);
 						timeout_add += 2500;
-						#if !DEBUG
-						if(i == 3)
-						{
-							// fallback server with basic information needed to start the launcher
-							version_info_url = "https://serioussam.ucoz.ru/bbh3l_prod.json";
-						}
-						#endif
 					}
 				}
 			}
