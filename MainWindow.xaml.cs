@@ -492,10 +492,10 @@ namespace BetterHI3Launcher
 				CM_Download_Type.Click += (sender, e) => CM_ResetDownloadType_Click(sender, e);
 				CM_Game_Settings.Items.Add(CM_Download_Type);
 				OptionsContextMenu.Items.Add(CM_Game_Settings);
-				OptionsContextMenu.Items.Add(new Separator());
 				var CM_Web_Profile = new MenuItem{Header = App.TextStrings["contextmenu_web_profile"], InputGestureText = "Ctrl+P"};
 				CM_Web_Profile.Click += (sender, e) => BpUtility.StartProcess(GameWebProfileURL, null, App.LauncherRootPath, true);
 				OptionsContextMenu.Items.Add(CM_Web_Profile);
+				OptionsContextMenu.Items.Add(new Separator());
 				var CM_Feedback = new MenuItem{Header = App.TextStrings["contextmenu_feedback"], InputGestureText = "Ctrl+F"};
 				CM_Feedback.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.feedback.ToString(), null, App.LauncherRootPath, true);
 				OptionsContextMenu.Items.Add(CM_Feedback);
