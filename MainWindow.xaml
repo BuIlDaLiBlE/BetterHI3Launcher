@@ -612,7 +612,7 @@
 					</Button>
 				</StackPanel>
 			</StackPanel>
-			<Grid Name="PreloadGrid" Visibility="Collapsed">
+			<Grid Name="PreloadGrid" Visibility="Collapsed" ZIndex="1">
 				<Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,364,50" Width="240" Height="50">
 					<StackPanel Orientation="Horizontal">
 						<Grid HorizontalAlignment="Left">

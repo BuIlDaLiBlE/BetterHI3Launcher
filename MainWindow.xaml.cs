@@ -6,17 +6,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
@@ -286,298 +283,124 @@ namespace BetterHI3Launcher
 			}
 			DeleteFile(App.LauncherLogFile, true);
 
-			Log($"BetterHI3Launcher v{App.LocalLauncherVersion}", false);
-			Log($"Working directory: {App.LauncherRootPath}");
-			Log($"OS version: {App.OSVersion}");
-			Log($"OS language: {App.OSLanguage}");
-			#if !DEBUG
-			if(args.Contains("NOUPDATE"))
-			{
-				App.DisableAutoUpdate = true;
-				App.UserAgentComment.Add("NOUPDATE");
-				Log("Auto-update disabled");
-			}
-			#endif
-			if(args.Contains("NOLOG"))
-			{
-				App.UserAgentComment.Add("NOLOG");
-				Log("Logging to file disabled");
-			}
-			if(args.Contains("NOTRANSLATIONS"))
-			{
-				App.DisableTranslations = true;
-				App.LauncherLanguage = "en";
-				App.UserAgentComment.Add("NOTRANSLATIONS");
-				Log("Translations disabled, only English will be available");
-			}
-			if(args.Contains("ADVANCED"))
-			{
-				App.AdvancedFeatures = true;
-				App.UserAgentComment.Add("ADVANCED");
-				Log("Advanced features enabled");
-			}
-			else
-			{
-				RepairBoxGenerateButton.Visibility = Visibility.Collapsed;
-			}
-
-			string language_log_msg = "Launcher language: {0}";
-			var language_reg = App.LauncherRegKey.GetValue("Language");
-			if(!App.DisableTranslations)
-			{
-				if(language_reg != null)
-				{
-					if(App.LauncherRegKey.GetValueKind("Language") == RegistryValueKind.String)
-					{
-						SetLanguage(language_reg.ToString());
-					}
-				}
-				else
-				{
-					SetLanguage(App.LauncherLanguage);
-					language_log_msg += " (autodetect)";
-				}
-			}
-			language_log_msg = string.Format(language_log_msg, App.LauncherLanguage);
-			Log(language_log_msg);
-			App.UserAgentComment.Add(App.LauncherLanguage);
-			App.UserAgentComment.Add(App.OSLanguage);
-			App.UserAgentComment.Add(App.OSVersion);
-			App.UserAgent += $" ({string.Join("; ", App.UserAgentComment)})";
-
-			LaunchButton.Content = App.TextStrings["button_download"];
-			ServerLabel.Text = $"{App.TextStrings["label_server"]}:";
-			MirrorLabel.Text = $"{App.TextStrings["label_mirror"]}:";
-			IntroBoxTitleTextBlock.Text = App.TextStrings["introbox_title"];
-			IntroBoxMessageTextBlock.Text = App.TextStrings["introbox_msg"];
-			IntroBoxOKButton.Content = App.TextStrings["button_ok"];
-			RepairBoxTitleTextBlock.Text = App.TextStrings["contextmenu_repair"];
-			RepairBoxYesButton.Content = App.TextStrings["button_yes"];
-			RepairBoxNoButton.Content = App.TextStrings["button_no"];
-			RepairBoxGenerateButton.Content = App.TextStrings["button_generate"];
-			FPSInputBoxTitleTextBlock.Text = App.TextStrings["fpsinputbox_title"];
-			CombatFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_combatfps"];
-			MenuFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_menufps"];
-			FPSInputBoxOKButton.Content = App.TextStrings["button_confirm"];
-			FPSInputBoxCancelButton.Content = App.TextStrings["button_cancel"];
-			ResolutionInputBoxTitleTextBlock.Text = App.TextStrings["resolutioninputbox_title"];
-			ResolutionInputBoxWidthTextBlock.Text = $"{App.TextStrings["resolutioninputbox_label_width"]}:";
-			ResolutionInputBoxHeightTextBlock.Text = $"{App.TextStrings["resolutioninputbox_label_height"]}:";
-			ResolutionInputBoxFullscreenTextBlock.Text = $"{App.TextStrings["resolutioninputbox_label_fullscreen"]}:";
-			ResolutionInputBoxOKButton.Content = App.TextStrings["button_confirm"];
-			ResolutionInputBoxCancelButton.Content = App.TextStrings["button_cancel"];
-			ChangelogBoxTitleTextBlock.Text = App.TextStrings["changelogbox_title"];
-			ChangelogBoxMessageTextBlock.Text = App.TextStrings["changelogbox_1_msg"];
-			ChangelogBoxOKButton.Content = App.TextStrings["button_ok"];
-			AboutBoxTitleTextBlock.Text = App.TextStrings["contextmenu_about"];
-			AboutBoxAppNameTextBlock.Text += $" v{App.LocalLauncherVersion}";
-			AboutBoxMessageTextBlock.Text = $"{App.TextStrings["aboutbox_msg"]}\n\nMade by Bp (BuIlDaLiBlE production).";
-			AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
-			AboutBoxOKButton.Content = App.TextStrings["button_ok"];
-			AnnouncementBoxOKButton.Content = App.TextStrings["button_ok"];
-			AnnouncementBoxDoNotShowCheckbox.Content = App.TextStrings["announcementbox_do_not_show"];
-			PreloadTopText.Text = App.TextStrings["label_pre_install"];
-			PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
-
-			TitleBar.MouseLeftButtonDown += delegate{DragMove();};
-			PreloadGrid.Visibility = Visibility.Collapsed;
-			DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
-			LogBox.Visibility = Visibility.Collapsed;
-			LogBoxRichTextBox.Document.PageWidth = LogBox.Width;
-			IntroBox.Visibility = Visibility.Collapsed;
-			RepairBox.Visibility = Visibility.Collapsed;
-			FPSInputBox.Visibility = Visibility.Collapsed;
-			ResolutionInputBox.Visibility = Visibility.Collapsed;
-			ChangelogBox.Visibility = Visibility.Collapsed;
-			AboutBox.Visibility = Visibility.Collapsed;
-			AnnouncementBox.Visibility = Visibility.Collapsed;
-
-			OptionsContextMenu.Items.Clear();
-			var CM_Screenshots = new MenuItem {Header = App.TextStrings["contextmenu_open_screenshots_dir"], InputGestureText = "Ctrl+S"};
-			CM_Screenshots.Click += (sender, e) => CM_Screenshots_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Screenshots);
-			var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
-			CM_Download_Cache.Click += (sender, e) => CM_DownloadCache_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Download_Cache);
-			var CM_Repair = new MenuItem{Header = App.TextStrings["contextmenu_repair"], InputGestureText = "Ctrl+R"};
-			CM_Repair.Click += async (sender, e) => await CM_Repair_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Repair);
-			var CM_Move = new MenuItem{Header = App.TextStrings["contextmenu_move"], InputGestureText = "Ctrl+M"};
-			CM_Move.Click += async (sender, e) => await CM_Move_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Move);
-			var CM_Uninstall = new MenuItem{Header = App.TextStrings["contextmenu_uninstall"], InputGestureText = "Ctrl+U"};
-			CM_Uninstall.Click += async (sender, e) => await CM_Uninstall_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Uninstall);
-			var CM_Game_Settings = new MenuItem{Header = App.TextStrings["contextmenu_game_settings"]};
-			var CM_Custom_FPS = new MenuItem{Header = App.TextStrings["contextmenu_custom_fps"]};
-			CM_Custom_FPS.Click += (sender, e) => CM_CustomFPS_Click(sender, e);
-			CM_Game_Settings.Items.Add(CM_Custom_FPS);
-			var CM_Custom_Resolution = new MenuItem{Header = App.TextStrings["contextmenu_custom_resolution"]};
-			CM_Custom_Resolution.Click += (sender, e) => CM_CustomResolution_Click(sender, e);
-			CM_Game_Settings.Items.Add(CM_Custom_Resolution);
-			var CM_Custom_Launch_Options = new MenuItem{Header = App.TextStrings["contextmenu_custom_launch_options"]};
-			CM_Custom_Launch_Options.Click += (sender, e) => CM_CustomLaunchOptions_Click(sender, e);
-			CM_Game_Settings.Items.Add(CM_Custom_Launch_Options);
-			var CM_Download_Type = new MenuItem{Header = App.TextStrings["contextmenu_reset_download_type"]};
-			CM_Download_Type.Click += (sender, e) => CM_ResetDownloadType_Click(sender, e);
-			CM_Game_Settings.Items.Add(CM_Download_Type);
-			OptionsContextMenu.Items.Add(CM_Game_Settings);
-			OptionsContextMenu.Items.Add(new Separator());
-			var CM_Web_Profile = new MenuItem{Header = App.TextStrings["contextmenu_web_profile"], InputGestureText = "Ctrl+P"};
-			CM_Web_Profile.Click += (sender, e) => BpUtility.StartProcess(GameWebProfileURL, null, App.LauncherRootPath, true);
-			OptionsContextMenu.Items.Add(CM_Web_Profile);
-			var CM_Feedback = new MenuItem{Header = App.TextStrings["contextmenu_feedback"], InputGestureText = "Ctrl+F"};
-			CM_Feedback.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose", null, App.LauncherRootPath, true);
-			OptionsContextMenu.Items.Add(CM_Feedback);
-			var CM_Changelog = new MenuItem{Header = App.TextStrings["contextmenu_changelog"], InputGestureText = "Ctrl+C"};
-			CM_Changelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Changelog);
-			var CM_Custom_Background = new MenuItem{Header = App.TextStrings["contextmenu_custom_background"], InputGestureText = "Ctrl+B"};
-			CM_Custom_Background.Click += (sender, e) => CM_CustomBackground_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Custom_Background);
-			var CM_ShowLog = new MenuItem{Header = App.TextStrings["contextmenu_show_log"], InputGestureText = "Ctrl+L"};
-			CM_ShowLog.Click += (sender, e) => CM_ShowLog_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_ShowLog);
-			var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+S", IsChecked = true};
-			CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_Sounds);
-			var CM_Language = new MenuItem{Header = App.TextStrings["contextmenu_language"]};
-			var CM_Language_System = new MenuItem{Header = App.TextStrings["contextmenu_language_system"]};
-			CM_Language_System.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_System);
-			var CM_Language_Chinese_Simplified = new MenuItem {Header = App.TextStrings["contextmenu_language_chinese_simplified"]};
-			CM_Language_Chinese_Simplified.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Chinese_Simplified);
-			var CM_Language_Czech = new MenuItem {Header = App.TextStrings["contextmenu_language_czech"]};
-			CM_Language_Czech.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Czech);
-			var CM_Language_English = new MenuItem{Header = App.TextStrings["contextmenu_language_english"]};
-			CM_Language_English.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_English);
-			var CM_Language_French = new MenuItem{Header = App.TextStrings["contextmenu_language_french"]};
-			CM_Language_French.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_French);
-			var CM_Language_German = new MenuItem{Header = App.TextStrings["contextmenu_language_german"]};
-			CM_Language_German.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_German);
-			var CM_Language_Indonesian = new MenuItem{Header = App.TextStrings["contextmenu_language_indonesian"]};
-			CM_Language_Indonesian.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Indonesian);
-			var CM_Language_Italian = new MenuItem {Header = App.TextStrings["contextmenu_language_italian"]};
-			CM_Language_Italian.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Italian);
-			var CM_Language_Portuguese_Brazil = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_brazil"]};
-			CM_Language_Portuguese_Brazil.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Portuguese_Brazil);
-			var CM_Language_Portuguese_Portugal = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_portugal"]};
-			CM_Language_Portuguese_Portugal.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Portuguese_Portugal);
-			var CM_Language_Russian = new MenuItem{Header = App.TextStrings["contextmenu_language_russian"]};
-			CM_Language_Russian.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Russian);
-			var CM_Language_Serbian = new MenuItem{Header = App.TextStrings["contextmenu_language_serbian"]};
-			CM_Language_Serbian.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Serbian);
-			var CM_Language_Spanish = new MenuItem{Header = App.TextStrings["contextmenu_language_spanish"]};
-			CM_Language_Spanish.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Spanish);
-			var CM_Language_Thai = new MenuItem{Header = App.TextStrings["contextmenu_language_thai"]};
-			CM_Language_Thai.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Thai);
-			var CM_Language_Vietnamese = new MenuItem{Header = App.TextStrings["contextmenu_language_vietnamese"]};
-			CM_Language_Vietnamese.Click += (sender, e) => CM_Language_Click(sender, e);
-			CM_Language.Items.Add(CM_Language_Vietnamese);
-			CM_Language.Items.Add(new Separator());
-			var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
-			CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher#how-can-i-contribute", null, App.LauncherRootPath, true);
-			CM_Language.Items.Add(CM_Language_Contribute);
-			OptionsContextMenu.Items.Add(CM_Language);
-			var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"], InputGestureText = "Ctrl+A"};
-			CM_About.Click += (sender, e) => CM_About_Click(sender, e);
-			OptionsContextMenu.Items.Add(CM_About);
-
-			if(!App.DisableTranslations)
-			{
-				if(language_reg == null)
-				{
-					CM_Language_System.IsChecked = true;
-				}
-				else
-				{
-					switch(language_reg.ToString())
-					{
-						case "cs":
-							CM_Language_Czech.IsChecked = true;
-							break;
-						case "fr":
-							CM_Language_French.IsChecked = true;
-							break;
-						case "de":
-							CM_Language_German.IsChecked = true;
-							break;
-						case "id":
-							CM_Language_Indonesian.IsChecked = true;
-							break;
-						case "it":
-							CM_Language_Italian.IsChecked = true;
-							break;
-						case "pt-BR":
-							CM_Language_Portuguese_Brazil.IsChecked = true;
-							break;
-						case "pt-PT":
-							CM_Language_Portuguese_Portugal.IsChecked = true;
-							break;
-						case "ru":
-							CM_Language_Russian.IsChecked = true;
-							break;
-						case "sr":
-							CM_Language_Serbian.IsChecked = true;
-							break;
-						case "es":
-							CM_Language_Spanish.IsChecked = true;
-							break;
-						case "th":
-							CM_Language_Thai.IsChecked = true;
-							break;
-						case "vi":
-							CM_Language_Vietnamese.IsChecked = true;
-							break;
-						case "zh-CN":
-							CM_Language_Chinese_Simplified.IsChecked = true;
-							break;
-						default:
-							CM_Language_English.IsChecked = true;
-							break;
-					}
-				}
-			}
-			else
-			{
-				CM_Language_English.IsChecked = true;
-				foreach(dynamic item in CM_Language.Items)
-				{
-					if(item.GetType() == typeof(MenuItem))
-					{
-						if(item.Header.ToString() == App.TextStrings["contextmenu_language_contribute"])
-						{
-							continue;
-						}
-					}
-					item.IsEnabled = false;
-				}
-			}
-
-			var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
-			if(key == null || (int)key.GetValue("Release") < 394802)
-			{
-				MessageBox.Show(App.TextStrings["msgbox_net_version_old_msg"], App.TextStrings["msgbox_start_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
-				Application.Current.Shutdown();
-				return;
-			}
-
-			Server = HI3Server.GLB;
 			try
 			{
+				Log($"BetterHI3Launcher v{App.LocalLauncherVersion}", false);
+				Log($"Working directory: {App.LauncherRootPath}");
+				Log($"OS version: {App.OSVersion}");
+				Log($"OS language: {App.OSLanguage}");
+				#if !DEBUG
+				if(args.Contains("NOUPDATE"))
+				{
+					App.DisableAutoUpdate = true;
+					App.UserAgentComment.Add("NOUPDATE");
+					Log("Auto-update disabled");
+				}
+				#endif
+				if(args.Contains("NOLOG"))
+				{
+					App.UserAgentComment.Add("NOLOG");
+					Log("Logging to file disabled");
+				}
+				if(args.Contains("NOTRANSLATIONS"))
+				{
+					App.DisableTranslations = true;
+					App.LauncherLanguage = "en";
+					App.UserAgentComment.Add("NOTRANSLATIONS");
+					Log("Translations disabled, only English will be available");
+				}
+				if(args.Contains("ADVANCED"))
+				{
+					App.AdvancedFeatures = true;
+					App.UserAgentComment.Add("ADVANCED");
+					Log("Advanced features enabled");
+				}
+				else
+				{
+					RepairBoxGenerateButton.Visibility = Visibility.Collapsed;
+				}
+
+				string language_log_msg = "Launcher language: {0}";
+				var language_reg = App.LauncherRegKey.GetValue("Language");
+				if(!App.DisableTranslations)
+				{
+					if(language_reg != null)
+					{
+						if(App.LauncherRegKey.GetValueKind("Language") == RegistryValueKind.String)
+						{
+							SetLanguage(language_reg.ToString());
+						}
+					}
+					else
+					{
+						SetLanguage(App.LauncherLanguage);
+						language_log_msg += " (autodetect)";
+					}
+				}
+				language_log_msg = string.Format(language_log_msg, App.LauncherLanguage);
+				Log(language_log_msg);
+				App.UserAgentComment.Add(App.LauncherLanguage);
+				App.UserAgentComment.Add(App.OSLanguage);
+				App.UserAgentComment.Add(App.OSVersion);
+				App.UserAgent += $" ({string.Join("; ", App.UserAgentComment)})";
+
+				LaunchButton.Content = App.TextStrings["button_download"];
+				ServerLabel.Text = $"{App.TextStrings["label_server"]}:";
+				MirrorLabel.Text = $"{App.TextStrings["label_mirror"]}:";
+				IntroBoxTitleTextBlock.Text = App.TextStrings["introbox_title"];
+				IntroBoxMessageTextBlock.Text = App.TextStrings["introbox_msg"];
+				IntroBoxOKButton.Content = App.TextStrings["button_ok"];
+				RepairBoxTitleTextBlock.Text = App.TextStrings["contextmenu_repair"];
+				RepairBoxYesButton.Content = App.TextStrings["button_yes"];
+				RepairBoxNoButton.Content = App.TextStrings["button_no"];
+				RepairBoxGenerateButton.Content = App.TextStrings["button_generate"];
+				FPSInputBoxTitleTextBlock.Text = App.TextStrings["fpsinputbox_title"];
+				CombatFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_combatfps"];
+				MenuFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_menufps"];
+				FPSInputBoxOKButton.Content = App.TextStrings["button_confirm"];
+				FPSInputBoxCancelButton.Content = App.TextStrings["button_cancel"];
+				ResolutionInputBoxTitleTextBlock.Text = App.TextStrings["resolutioninputbox_title"];
+				ResolutionInputBoxWidthTextBlock.Text = $"{App.TextStrings["resolutioninputbox_label_width"]}:";
+				ResolutionInputBoxHeightTextBlock.Text = $"{App.TextStrings["resolutioninputbox_label_height"]}:";
+				ResolutionInputBoxFullscreenTextBlock.Text = $"{App.TextStrings["resolutioninputbox_label_fullscreen"]}:";
+				ResolutionInputBoxOKButton.Content = App.TextStrings["button_confirm"];
+				ResolutionInputBoxCancelButton.Content = App.TextStrings["button_cancel"];
+				ChangelogBoxTitleTextBlock.Text = App.TextStrings["changelogbox_title"];
+				ChangelogBoxMessageTextBlock.Text = App.TextStrings["changelogbox_1_msg"];
+				ChangelogBoxOKButton.Content = App.TextStrings["button_ok"];
+				AboutBoxTitleTextBlock.Text = App.TextStrings["contextmenu_about"];
+				AboutBoxAppNameTextBlock.Text += $" v{App.LocalLauncherVersion}";
+				AboutBoxMessageTextBlock.Text = $"{App.TextStrings["aboutbox_msg"]}\n\nMade by Bp (BuIlDaLiBlE production).";
+				AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
+				AboutBoxOKButton.Content = App.TextStrings["button_ok"];
+				AnnouncementBoxOKButton.Content = App.TextStrings["button_ok"];
+				AnnouncementBoxDoNotShowCheckbox.Content = App.TextStrings["announcementbox_do_not_show"];
+				PreloadTopText.Text = App.TextStrings["label_pre_install"];
+				PreloadStatusMiddleLeftText.Text = App.TextStrings["label_eta"];
+
+				TitleBar.MouseLeftButtonDown += delegate{DragMove();};
+				PreloadGrid.Visibility = Visibility.Collapsed;
+				DownloadProgressBarStackPanel.Visibility = Visibility.Collapsed;
+				LogBox.Visibility = Visibility.Collapsed;
+				LogBoxRichTextBox.Document.PageWidth = LogBox.Width;
+				IntroBox.Visibility = Visibility.Collapsed;
+				RepairBox.Visibility = Visibility.Collapsed;
+				FPSInputBox.Visibility = Visibility.Collapsed;
+				ResolutionInputBox.Visibility = Visibility.Collapsed;
+				ChangelogBox.Visibility = Visibility.Collapsed;
+				AboutBox.Visibility = Visibility.Collapsed;
+				AnnouncementBox.Visibility = Visibility.Collapsed;
+
+				var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
+				if(key == null || (int)key.GetValue("Release") < 394802)
+				{
+					MessageBox.Show(App.TextStrings["msgbox_net_version_old_msg"], App.TextStrings["msgbox_start_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+					Application.Current.Shutdown();
+					return;
+				}
+
+				Server = HI3Server.GLB;
+			
 				var last_selected_server_reg = App.LauncherRegKey.GetValue("LastSelectedServer");
 				if(last_selected_server_reg != null)
 				{
@@ -637,6 +460,181 @@ namespace BetterHI3Launcher
 					MessageBox.Show($"{App.TextStrings["msgbox_conn_mihoyo_error_msg"]}\n{ex.Message}", App.TextStrings["msgbox_net_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 					Application.Current.Shutdown();
 					return;
+				}
+
+				OptionsContextMenu.Items.Clear();
+				var CM_Screenshots = new MenuItem {Header = App.TextStrings["contextmenu_open_screenshots_dir"], InputGestureText = "Ctrl+S"};
+				CM_Screenshots.Click += (sender, e) => CM_Screenshots_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Screenshots);
+				var CM_Download_Cache = new MenuItem{Header = App.TextStrings["contextmenu_download_cache"], InputGestureText = "Ctrl+D"};
+				CM_Download_Cache.Click += (sender, e) => CM_DownloadCache_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Download_Cache);
+				var CM_Repair = new MenuItem{Header = App.TextStrings["contextmenu_repair"], InputGestureText = "Ctrl+R"};
+				CM_Repair.Click += async (sender, e) => await CM_Repair_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Repair);
+				var CM_Move = new MenuItem{Header = App.TextStrings["contextmenu_move"], InputGestureText = "Ctrl+M"};
+				CM_Move.Click += async (sender, e) => await CM_Move_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Move);
+				var CM_Uninstall = new MenuItem{Header = App.TextStrings["contextmenu_uninstall"], InputGestureText = "Ctrl+U"};
+				CM_Uninstall.Click += async (sender, e) => await CM_Uninstall_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Uninstall);
+				var CM_Game_Settings = new MenuItem{Header = App.TextStrings["contextmenu_game_settings"]};
+				var CM_Custom_FPS = new MenuItem{Header = App.TextStrings["contextmenu_custom_fps"]};
+				CM_Custom_FPS.Click += (sender, e) => CM_CustomFPS_Click(sender, e);
+				CM_Game_Settings.Items.Add(CM_Custom_FPS);
+				var CM_Custom_Resolution = new MenuItem{Header = App.TextStrings["contextmenu_custom_resolution"]};
+				CM_Custom_Resolution.Click += (sender, e) => CM_CustomResolution_Click(sender, e);
+				CM_Game_Settings.Items.Add(CM_Custom_Resolution);
+				var CM_Custom_Launch_Options = new MenuItem{Header = App.TextStrings["contextmenu_custom_launch_options"]};
+				CM_Custom_Launch_Options.Click += (sender, e) => CM_CustomLaunchOptions_Click(sender, e);
+				CM_Game_Settings.Items.Add(CM_Custom_Launch_Options);
+				var CM_Download_Type = new MenuItem{Header = App.TextStrings["contextmenu_reset_download_type"]};
+				CM_Download_Type.Click += (sender, e) => CM_ResetDownloadType_Click(sender, e);
+				CM_Game_Settings.Items.Add(CM_Download_Type);
+				OptionsContextMenu.Items.Add(CM_Game_Settings);
+				var CM_Web_Profile = new MenuItem{Header = App.TextStrings["contextmenu_web_profile"], InputGestureText = "Ctrl+P"};
+				CM_Web_Profile.Click += (sender, e) => BpUtility.StartProcess(GameWebProfileURL, null, App.LauncherRootPath, true);
+				OptionsContextMenu.Items.Add(CM_Web_Profile);
+				OptionsContextMenu.Items.Add(new Separator());
+				var CM_Feedback = new MenuItem{Header = App.TextStrings["contextmenu_feedback"], InputGestureText = "Ctrl+F"};
+				CM_Feedback.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.feedback.ToString(), null, App.LauncherRootPath, true);
+				OptionsContextMenu.Items.Add(CM_Feedback);
+				var CM_Changelog = new MenuItem{Header = App.TextStrings["contextmenu_changelog"], InputGestureText = "Ctrl+C"};
+				CM_Changelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Changelog);
+				var CM_Custom_Background = new MenuItem{Header = App.TextStrings["contextmenu_custom_background"], InputGestureText = "Ctrl+B"};
+				CM_Custom_Background.Click += (sender, e) => CM_CustomBackground_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Custom_Background);
+				var CM_ShowLog = new MenuItem{Header = App.TextStrings["contextmenu_show_log"], InputGestureText = "Ctrl+L"};
+				CM_ShowLog.Click += (sender, e) => CM_ShowLog_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_ShowLog);
+				var CM_Sounds = new MenuItem{Header = App.TextStrings["contextmenu_sounds"], InputGestureText = "Ctrl+S", IsChecked = true};
+				CM_Sounds.Click += (sender, e) => CM_Sounds_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_Sounds);
+				var CM_Language = new MenuItem{Header = App.TextStrings["contextmenu_language"]};
+				var CM_Language_System = new MenuItem{Header = App.TextStrings["contextmenu_language_system"]};
+				CM_Language_System.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_System);
+				var CM_Language_Chinese_Simplified = new MenuItem {Header = App.TextStrings["contextmenu_language_chinese_simplified"]};
+				CM_Language_Chinese_Simplified.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Chinese_Simplified);
+				var CM_Language_Czech = new MenuItem {Header = App.TextStrings["contextmenu_language_czech"]};
+				CM_Language_Czech.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Czech);
+				var CM_Language_English = new MenuItem{Header = App.TextStrings["contextmenu_language_english"]};
+				CM_Language_English.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_English);
+				var CM_Language_French = new MenuItem{Header = App.TextStrings["contextmenu_language_french"]};
+				CM_Language_French.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_French);
+				var CM_Language_German = new MenuItem{Header = App.TextStrings["contextmenu_language_german"]};
+				CM_Language_German.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_German);
+				var CM_Language_Indonesian = new MenuItem{Header = App.TextStrings["contextmenu_language_indonesian"]};
+				CM_Language_Indonesian.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Indonesian);
+				var CM_Language_Italian = new MenuItem {Header = App.TextStrings["contextmenu_language_italian"]};
+				CM_Language_Italian.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Italian);
+				var CM_Language_Portuguese_Brazil = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_brazil"]};
+				CM_Language_Portuguese_Brazil.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Portuguese_Brazil);
+				var CM_Language_Portuguese_Portugal = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_portugal"]};
+				CM_Language_Portuguese_Portugal.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Portuguese_Portugal);
+				var CM_Language_Russian = new MenuItem{Header = App.TextStrings["contextmenu_language_russian"]};
+				CM_Language_Russian.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Russian);
+				var CM_Language_Serbian = new MenuItem{Header = App.TextStrings["contextmenu_language_serbian"]};
+				CM_Language_Serbian.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Serbian);
+				var CM_Language_Spanish = new MenuItem{Header = App.TextStrings["contextmenu_language_spanish"]};
+				CM_Language_Spanish.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Spanish);
+				var CM_Language_Thai = new MenuItem{Header = App.TextStrings["contextmenu_language_thai"]};
+				CM_Language_Thai.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Thai);
+				var CM_Language_Vietnamese = new MenuItem{Header = App.TextStrings["contextmenu_language_vietnamese"]};
+				CM_Language_Vietnamese.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Vietnamese);
+				CM_Language.Items.Add(new Separator());
+				var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
+				CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.language_contribute.ToString(), null, App.LauncherRootPath, true);
+				CM_Language.Items.Add(CM_Language_Contribute);
+				OptionsContextMenu.Items.Add(CM_Language);
+				var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"], InputGestureText = "Ctrl+A"};
+				CM_About.Click += (sender, e) => CM_About_Click(sender, e);
+				OptionsContextMenu.Items.Add(CM_About);
+
+				if(!App.DisableTranslations)
+				{
+					if(language_reg == null)
+					{
+						CM_Language_System.IsChecked = true;
+					}
+					else
+					{
+						switch(language_reg.ToString())
+						{
+							case "cs":
+								CM_Language_Czech.IsChecked = true;
+								break;
+							case "fr":
+								CM_Language_French.IsChecked = true;
+								break;
+							case "de":
+								CM_Language_German.IsChecked = true;
+								break;
+							case "id":
+								CM_Language_Indonesian.IsChecked = true;
+								break;
+							case "it":
+								CM_Language_Italian.IsChecked = true;
+								break;
+							case "pt-BR":
+								CM_Language_Portuguese_Brazil.IsChecked = true;
+								break;
+							case "pt-PT":
+								CM_Language_Portuguese_Portugal.IsChecked = true;
+								break;
+							case "ru":
+								CM_Language_Russian.IsChecked = true;
+								break;
+							case "sr":
+								CM_Language_Serbian.IsChecked = true;
+								break;
+							case "es":
+								CM_Language_Spanish.IsChecked = true;
+								break;
+							case "th":
+								CM_Language_Thai.IsChecked = true;
+								break;
+							case "vi":
+								CM_Language_Vietnamese.IsChecked = true;
+								break;
+							case "zh-CN":
+								CM_Language_Chinese_Simplified.IsChecked = true;
+								break;
+							default:
+								CM_Language_English.IsChecked = true;
+								break;
+						}
+					}
+				}
+				else
+				{
+					CM_Language_English.IsChecked = true;
+					foreach(dynamic item in CM_Language.Items)
+					{
+						if(item.GetType() == typeof(MenuItem))
+						{
+							if(item.Header.ToString() == App.TextStrings["contextmenu_language_contribute"])
+							{
+								continue;
+							}
+						}
+						item.IsEnabled = false;
+					}
 				}
 
 				Mirror = HI3Mirror.miHoYo;
@@ -1093,7 +1091,7 @@ namespace BetterHI3Launcher
 			}
 			else if(Status == LauncherStatus.UpdateAvailable)
 			{
-				if(!File.Exists(GameExePath))
+				if((bool)LocalVersionInfo.game_info.installed && !File.Exists(GameExePath))
 				{
 					if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
@@ -1149,7 +1147,6 @@ namespace BetterHI3Launcher
 				return;
 			}
 
-			var button = sender as Button;
 			OptionsContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
 			OptionsContextMenu.PlacementTarget = LaunchButton;
 			OptionsContextMenu.IsOpen = true;
@@ -1549,16 +1546,12 @@ namespace BetterHI3Launcher
 					}
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_1_msg"]}\n{App.TextStrings["msgbox_abort_4_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
-						if(httpclient != null && httpclient.DownloadState == DownloadState.Downloading || httpclient.DownloadState == DownloadState.CancelledDownloading)
+						if(httpclient != null)
 						{
 							try
 							{
 								token.Cancel();
 							}catch(OperationCanceledException){}
-						}
-						else
-						{
-							e.Cancel = true;
 						}
 						if(Status != LauncherStatus.Preloading)
 						{

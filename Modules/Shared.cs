@@ -290,9 +290,13 @@ namespace BetterHI3Launcher
 			Dispatcher.Invoke(() =>
 			{
 				LaunchButton.Content = App.TextStrings["button_launch"];
-				if(!PreloadDownload)
+				if(PreloadDownload)
 				{
-					Status = LauncherStatus.Ready;
+					LaunchButton.IsEnabled = true;
+				}
+				else
+				{
+					GameUpdateCheck();
 				}
 			});
 		}
