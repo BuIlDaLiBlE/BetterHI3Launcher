@@ -119,6 +119,7 @@ namespace BetterHI3Launcher
 								Status = LauncherStatus.Ready;
 								Dispatcher.Invoke(() => {LaunchButton.Content = App.TextStrings["button_launch"];});
 							}
+							Log("The game version is the latest");
 						}
 						if(Status == LauncherStatus.UpdateAvailable)
 						{

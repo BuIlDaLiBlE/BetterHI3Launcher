@@ -557,8 +557,9 @@ namespace BetterHI3Launcher
 
 		private void AboutBoxGitHubButton_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = false;
 			AboutBox.Visibility = Visibility.Collapsed;
-			BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher", null, App.LauncherRootPath, true);
+			BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.github.ToString(), null, App.LauncherRootPath, true);
 		}
 
 		private void AboutBoxCloseButton_Click(object sender, RoutedEventArgs e)
