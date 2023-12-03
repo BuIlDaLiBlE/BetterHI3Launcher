@@ -70,7 +70,7 @@ namespace BetterHI3Launcher
 				{
 					var web_client = new BpWebClient();
 					dynamic announcements;
-					announcements = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"{OnlineVersionInfo.launcher_info.announcements_url.ToString()}&lang={App.LauncherLanguage}"));
+					announcements = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"{OnlineVersionInfo.launcher_info.links.announcements.ToString()}&lang={App.LauncherLanguage}"));
 					if(announcements.status == "success")
 					{
 						announcements = announcements.announcements;
@@ -128,11 +128,11 @@ namespace BetterHI3Launcher
 					var web_client = new BpWebClient {Timeout = timeout};
 					if(App.LauncherLanguage == "ru")
 					{
-						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.ru.ToString());
+						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.links.changelog.ru.ToString());
 					}
 					else
 					{
-						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.changelog_url.en.ToString());
+						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.links.changelog.en.ToString());
 					}
 				}
 				try
