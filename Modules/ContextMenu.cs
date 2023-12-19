@@ -106,16 +106,7 @@ namespace BetterHI3Launcher
 					goto case 0;
 			}
 
-			string dialog_message;
-			if(Mirror == HI3Mirror.miHoYo)
-			{
-				dialog_message = App.TextStrings["msgbox_download_cache_msg"];
-			}
-			else
-			{
-				dialog_message = string.Format(App.TextStrings["msgbox_download_cache_hi3mirror_msg"], OnlineVersionInfo.game_info.mirror.hi3mirror.maintainer.ToString());
-			}
-			if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], dialog_message, DialogWindow.DialogType.Question).ShowDialog() == false)
+			if(new DialogWindow(App.TextStrings["contextmenu_download_cache"], App.TextStrings["msgbox_download_cache_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 			{
 				return;
 			}
@@ -919,6 +910,10 @@ namespace BetterHI3Launcher
 					{
 						App.LauncherLanguage = "zh-CN";
 					}
+					else if(lang == App.TextStrings["contextmenu_language_japanese"])
+					{
+						App.LauncherLanguage = "ja";
+					}
 					else
 					{
 						Log($"Translation for {lang} does not exist", true, 1);
@@ -1020,7 +1015,7 @@ namespace BetterHI3Launcher
 					BpUtility.RestartApp();
 				}
 			}
-			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN")
+			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN" && App.LauncherLanguage != "ja")
 			{
 				Resources["Font"] = new FontFamily("Segoe UI Bold");
 			}
