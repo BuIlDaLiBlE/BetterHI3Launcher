@@ -536,6 +536,9 @@ namespace BetterHI3Launcher
 				var CM_Language_Italian = new MenuItem {Header = App.TextStrings["contextmenu_language_italian"]};
 				CM_Language_Italian.Click += (sender, e) => CM_Language_Click(sender, e);
 				CM_Language.Items.Add(CM_Language_Italian);
+				var CM_Language_Japanese = new MenuItem {Header = App.TextStrings["contextmenu_language_japanese"]};
+				CM_Language_Japanese.Click += (sender, e) => CM_Language_Click(sender, e);
+				CM_Language.Items.Add(CM_Language_Japanese);
 				var CM_Language_Portuguese_Brazil = new MenuItem{Header = App.TextStrings["contextmenu_language_portuguese_brazil"]};
 				CM_Language_Portuguese_Brazil.Click += (sender, e) => CM_Language_Click(sender, e);
 				CM_Language.Items.Add(CM_Language_Portuguese_Brazil);
@@ -590,6 +593,9 @@ namespace BetterHI3Launcher
 								break;
 							case "it":
 								CM_Language_Italian.IsChecked = true;
+								break;
+							case "ja":
+								CM_Language_Japanese.IsChecked = true;
 								break;
 							case "pt-BR":
 								CM_Language_Portuguese_Brazil.IsChecked = true;

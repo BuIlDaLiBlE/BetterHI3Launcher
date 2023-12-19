@@ -55,7 +55,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("changelogbox_1_msg", "Better HI3 Launcher has just become even better. Here's what happened:");
 			TextStrings.Add("changelogbox_2_msg", "Loading changelog...");
 			TextStrings.Add("changelogbox_3_msg", "Failed to load the changelog.");
-			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with HoYoverse and is completely open source.\nAny feedback is greatly appreciated.\n\nSpecial thanks goes to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation, parallel download feature\nRinnosuke93 - Italian language translation\nMartinial - Czech language translation\nKLXLjun - Chinese (Simplified) translation");
+			TextStrings.Add("aboutbox_msg", "Well it is much more advanced, isn't it? :^)\nThis project was made with hope for many captains to have a better experience with the game.\nIt is not affiliated with HoYoverse and is completely open source.\nAny feedback is greatly appreciated.\n\nSpecial thanks goes to these GitHub contributors:\nSinsOfSeven - Custom resolution contribution\nProxy-E23 - Spanish language translation\nSpookyKisuy - Portuguese (Brazil) language translation\nbulawin1, Vrontis - German language translation\nKorewaLidesu - Vietnamese language translation\nSm1leAway - Serbian language translation\nVoRTeXStarz - Thai language translation\nTrilip - French language translation\nfabio-silva-pt - Portuguese (Portugal) language translation\nneon-nyan - Indonesian language translation, parallel download feature\nRinnosuke93 - Italian language translation\nMartinial - Czech language translation\nKLXLjun - Chinese (Simplified) translation\nVermilion-Sinsha - Japanese language translation");
 			TextStrings.Add("announcementbox_do_not_show", "Do not show me this next time");
 			TextStrings.Add("contextmenu_open_screenshots_dir", "Open screenshots directory");
 			TextStrings.Add("contextmenu_download_cache", "Download cache");
@@ -82,6 +82,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_language_german", "German");
 			TextStrings.Add("contextmenu_language_indonesian", "Indonesian");
 			TextStrings.Add("contextmenu_language_italian", "Italian");
+			TextStrings.Add("contextmenu_language_japanese", "Japanese");
 			TextStrings.Add("contextmenu_language_portuguese_brazil", "Portuguese (Brazil)");
 			TextStrings.Add("contextmenu_language_portuguese_portugal", "Portuguese (Portugal)");
 			TextStrings.Add("contextmenu_language_russian", "Russian");
@@ -132,7 +133,6 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_custom_resolution_2_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
 			TextStrings.Add("msgbox_custom_launch_options_msg", "Advanced users may enter custom launch options here.\nNote: they are applied independently per server.");
 			TextStrings.Add("msgbox_download_cache_msg", "The entire game cache will be checked and can be downloaded if needed. It can take a while.\nContinue?");
-			TextStrings.Add("msgbox_download_cache_hi3mirror_msg", "The entire game cache will be checked and can be downloaded if needed. It can take a while.\nHi3Mirror is a project courtesy of {0}.\nContinue?");
 			TextStrings.Add("msgbox_download_type_1_msg", "This will reset game's resource download type and allow you to reselect which assets to download.\nContinue?");
 			TextStrings.Add("msgbox_download_type_2_msg", "Download type has been reset.");
 			TextStrings.Add("msgbox_download_type_3_msg", "Download type has already been reset.");

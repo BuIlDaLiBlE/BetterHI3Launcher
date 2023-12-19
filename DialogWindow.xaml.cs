@@ -72,7 +72,7 @@ namespace BetterHI3Launcher
 					CustomBackgroundDeleteLabel.Text = App.TextStrings["msgbox_custom_background_delete"];
 					break;
 			}
-			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN")
+			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN" && App.LauncherLanguage != "ja")
 			{
 				Resources["Font"] = new FontFamily("Segoe UI Bold");
 			}
