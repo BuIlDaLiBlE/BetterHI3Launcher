@@ -69,6 +69,7 @@ namespace BetterHI3Launcher
 				}
 				void ToggleProgressBar(bool val)
 				{
+					ProgressText.Visibility = val ? Visibility.Visible : Visibility.Collapsed;
 					ProgressBar.Visibility = val ? Visibility.Visible : Visibility.Collapsed;
 					ProgressBar.IsIndeterminate = true;
 					TaskbarItemInfo.ProgressState = val ? TaskbarItemProgressState.Indeterminate : TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
