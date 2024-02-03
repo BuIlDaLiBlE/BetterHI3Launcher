@@ -22,7 +22,7 @@ namespace BetterHI3Launcher
 			e.Handled = !e.Text.Any(x => char.IsDigit(x));
 		}
 
-		// https://stackoverflow.com/q/1268552/7570821
+		// https://stackoverflow.com/q/1268552
 		private void FPSInputBoxTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
 		{
 			bool IsTextAllowed(string text)
@@ -108,6 +108,7 @@ namespace BetterHI3Launcher
 					if(corrupted_files.Count > 0)
 					{
 						Log($"Finished verifying files, found corrupted/missing files: {corrupted_files.Count}");
+						FlashMainWindow();
 						if(new DialogWindow(App.TextStrings["contextmenu_repair"], string.Format(App.TextStrings["msgbox_repair_3_msg"], corrupted_files.Count, BpUtility.ToBytesCount(corrupted_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
 							string[] urls = OnlineRepairInfo.zip_urls.ToObject<string[]>();
@@ -115,9 +116,10 @@ namespace BetterHI3Launcher
 							bool abort = false;
 
 							Status = LauncherStatus.Working;
-							ProgressBar.IsIndeterminate = false;
 							LaunchButton.IsEnabled = true;
 							LaunchButton.Content = App.TextStrings["button_cancel"];
+							ProgressBar.IsIndeterminate = false;
+							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 
 							await Task.Run(async () =>
 							{
@@ -154,7 +156,7 @@ namespace BetterHI3Launcher
 											}
 											else if(urls[j].Contains("www.mediafire.com"))
 											{
-												var metadata = FetchMediaFireFileMetadata(urls[j].Substring(31, 15));
+												var metadata = FetchFileMetadata(urls[j]);
 												url = metadata.downloadUrl.ToString();
 											}
 											else
@@ -174,6 +176,7 @@ namespace BetterHI3Launcher
 												Log($"Repaired file {corrupted_files[i]}");
 												repaired_files++;
 											}
+											break;
 										}
 										catch(Exception ex)
 										{
@@ -207,6 +210,7 @@ namespace BetterHI3Launcher
 							});
 							if(!abort)
 							{
+								FlashMainWindow();
 								if(repaired_files == corrupted_files.Count)
 								{
 									Log($"Successfully repaired {repaired_files} file(s)");
@@ -238,6 +242,7 @@ namespace BetterHI3Launcher
 							ProgressText.Text = string.Empty;
 							ProgressBar.Visibility = Visibility.Collapsed;
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+							FlashMainWindow();
 						});
 						new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_2_msg"]).ShowDialog();
 					}
@@ -307,11 +312,13 @@ namespace BetterHI3Launcher
 						x.Extension != ".dmp" &&
 						x.Extension != ".log" &&
 						x.Extension != ".zip" &&
+						x.Extension != ".7z" &&
+						!x.Extension.Contains("_tmp") &&
 						x.Name != "ACE-BASE.sys" &&
 						x.Name != "blockVerifiedVersion.txt" &&
 						x.Name != "config.ini" &&
 						x.Name != "manifest.m" &&
-						x.Name != "pkg_version" &&
+						x.Name != "sdk_pkg_version" &&
 						x.Name != "UniFairy.sys" &&
 						x.Name != "Version.txt" &&
 						!x.Name.Contains("AUDIO_Avatar") &&
@@ -325,9 +332,12 @@ namespace BetterHI3Launcher
 						!x.Name.Contains("AUDIO_Story") &&
 						!x.Name.Contains("AUDIO_Vanilla") &&
 						!x.Name.Contains("Blocks_") &&
+						!x.Name.Contains("EOSSDK") &&
+						!x.DirectoryName.Contains("Cache") &&
+						!x.DirectoryName.Contains("Predownload") &&
+						!x.DirectoryName.Contains("ScreenShot") &&
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
-						!x.DirectoryName.Contains("Video") &&
-						!x.DirectoryName.Contains("Cache")
+						!x.DirectoryName.Contains("Video")
 						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
@@ -355,18 +365,18 @@ namespace BetterHI3Launcher
 								Log($"Added: {json.repair_info.files.names[i]}");
 							}
 							File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
-							Log("success!", false);
 							Log($"Saved JSON: {dialog.FileName}");
 						});
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+						FlashMainWindow();
 						if(new DialogWindow(App.TextStrings["contextmenu_repair"], App.TextStrings["msgbox_repair_7_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
 							ProgressBar.Visibility = Visibility.Visible;
 							await Task.Run(() =>
 							{
-								Log("Creating ZIP file...");
+								Log("Zipping, this will take a while...");
 								var zip_name = dialog.FileName.Replace(".json", ".zip");
 								DeleteFile(zip_name);
 								using(var archive = ZipFile.Open(zip_name, ZipArchiveMode.Create))
@@ -547,8 +557,9 @@ namespace BetterHI3Launcher
 
 		private void AboutBoxGitHubButton_Click(object sender, RoutedEventArgs e)
 		{
+			LegacyBoxActive = false;
 			AboutBox.Visibility = Visibility.Collapsed;
-			BpUtility.StartProcess("https://github.com/BuIlDaLiBlE/BetterHI3Launcher", null, App.LauncherRootPath, true);
+			BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.github.ToString(), null, App.LauncherRootPath, true);
 		}
 
 		private void AboutBoxCloseButton_Click(object sender, RoutedEventArgs e)

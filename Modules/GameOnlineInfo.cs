@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Web;
-using System.Windows;
 
 namespace BetterHI3Launcher
 {
@@ -62,12 +61,12 @@ namespace BetterHI3Launcher
 					}
 				}
 				GameExeName = miHoYoVersionInfo.game.latest.entry.ToString();
-				GameArchiveName = Path.GetFileName(HttpUtility.UrlDecode(miHoYoVersionInfo.game.latest.path.ToString()));
+				GameArchiveName = BpUtility.GetFileNameFromUrl(miHoYoVersionInfo.game.latest.path.ToString());
 				web_request = BpUtility.CreateWebRequest(miHoYoVersionInfo.game.latest.path.ToString(), "HEAD", timeout);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					miHoYoVersionInfo.size = web_response.ContentLength;
-					miHoYoVersionInfo.last_modified = web_response.LastModified.ToUniversalTime().ToString();
+					miHoYoVersionInfo.last_modified = (DateTimeOffset)web_response.LastModified;
 				}
 			}
 			int attempts = 6;
@@ -94,34 +93,58 @@ namespace BetterHI3Launcher
 			}
 			Dispatcher.Invoke(() =>
 			{
-				GameVersionText.Text = $"{App.TextStrings["version"]}: {miHoYoVersionInfo.game.latest.version.ToString()}";
+				GameNameText.Text = GameFullName;
+				GameVersionText.Text = miHoYoVersionInfo.game.latest.version.ToString();
 			});
 		}
 
-		private dynamic FetchMediaFireFileMetadata(string id)
+		private dynamic FetchFileMetadata(string url)
 		{
-			if(string.IsNullOrEmpty(id))
+			if(string.IsNullOrEmpty(url))
 			{
 				throw new ArgumentNullException();
 			}
 
-			string url = $"https://www.mediafire.com/file/{id}";
 			try
 			{
 				var web_request = BpUtility.CreateWebRequest(url, "HEAD");
+				web_request.AllowAutoRedirect = false;
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
 					dynamic metadata = new ExpandoObject();
-					metadata.title = web_response.Headers["Content-Disposition"].Replace("attachment; filename=", string.Empty).Replace("\"", string.Empty);
-					metadata.downloadUrl = url;
-					metadata.fileSize = web_response.ContentLength;
+					bool is_redirect = false;
+					switch(web_response.StatusCode)
+					{
+						case HttpStatusCode.Moved:
+						case HttpStatusCode.Found:
+						case HttpStatusCode.SeeOther:
+						case HttpStatusCode.TemporaryRedirect:
+							is_redirect = true;
+							metadata.downloadUrl = web_response.Headers["Location"].ToString();
+							break;
+						default:
+							metadata.downloadUrl = url;
+							metadata.modifiedDate = web_response.LastModified;
+							metadata.fileSize = web_response.ContentLength;
+							break;
+					}
+					metadata.title = BpUtility.GetFileNameFromUrl(metadata.downloadUrl);
+					if(is_redirect)
+					{
+						var web_request_redirect = BpUtility.CreateWebRequest(metadata.downloadUrl, "HEAD");
+						using(var web_response_redirect = (HttpWebResponse)web_request_redirect.GetResponse())
+						{
+							metadata.modifiedDate = web_response_redirect.LastModified;
+							metadata.fileSize = web_response_redirect.ContentLength;
+						}
+					}
 					return metadata;
 				}
 			}
 			catch(WebException ex)
 			{
 				Status = LauncherStatus.Error;
-				Log($"Failed to fetch MediaFire file metadata:\n{ex}", true, 1);
+				Log($"Failed to fetch file metadata:\n{ex}", true, 1);
 				Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_mirror_error_msg"], ex.Message)).ShowDialog();});
 			}
 			return null;

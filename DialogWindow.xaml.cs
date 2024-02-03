@@ -72,9 +72,17 @@ namespace BetterHI3Launcher
 					CustomBackgroundDeleteLabel.Text = App.TextStrings["msgbox_custom_background_delete"];
 					break;
 			}
-			if(App.LauncherLanguage != "en" && App.LauncherLanguage != "zh-CN")
+			switch(App.LauncherLanguage)
 			{
-				Resources["Font"] = new FontFamily("Segoe UI Bold");
+				case "en":
+				case "zh-CN":
+					break;
+				case "ja":
+					Resources["Font"] = new FontFamily("Meiryo UI Bold");
+					break;
+				default:
+					Resources["Font"] = new FontFamily("Segoe UI Bold");
+					break;
 			}
 			Application.Current.MainWindow.WindowState = WindowState.Normal;
 			BpUtility.PlaySound(Properties.Resources.Window_Open);

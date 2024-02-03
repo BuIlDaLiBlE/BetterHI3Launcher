@@ -16,9 +16,9 @@
 		Title="DialogWindow" Width="1280" Height="730">
 	<Window.Resources>
 		<FontFamily x:Key="Font">/BetterHI3Launcher;component/Assets/Fonts/#FZLanTingHei-B-GBK</FontFamily>
-		<ImageBrush x:Key="Button" ImageSource="/Assets/Images/Button.png"/>
-		<ImageBrush x:Key="ButtonPressed" ImageSource="/Assets/Images/Button_Pressed.png"/>
-		<ImageBrush x:Key="ButtonDisabled" ImageSource="/Assets/Images/Button_Disabled.png"/>
+		<ImageBrush x:Key="ButtonDialog" ImageSource="/Assets/Images/Button_Dialog.png"/>
+		<ImageBrush x:Key="ButtonDialogPressed" ImageSource="/Assets/Images/Button_Dialog_Pressed.png"/>
+		<ImageBrush x:Key="ButtonDialogDisabled" ImageSource="/Assets/Images/Button_Dialog_Disabled.png"/>
 		<Style x:Key="FocusVisual">
 			<Setter Property="Control.Template">
 				<Setter.Value>
@@ -30,7 +30,7 @@
 		</Style>
 		<Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
-			<Setter Property="Background" Value="{StaticResource Button}"/>
+			<Setter Property="Background" Value="{StaticResource ButtonDialog}"/>
 			<Setter Property="BorderBrush" Value="{x:Null}"/>
 			<Setter Property="Foreground" Value="#313131"/>
 			<Setter Property="BorderThickness" Value="0"/>
@@ -50,10 +50,10 @@
 								<Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
 							</Trigger>
 							<Trigger Property="IsPressed" Value="true">
-								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonPressed}"/>
+								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDialogPressed}"/>
 							</Trigger>
 							<Trigger Property="IsEnabled" Value="false">
-								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDisabled}"/>
+								<Setter Property="Background" TargetName="border" Value="{StaticResource ButtonDialogDisabled}"/>
 								<Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#333333"/>
 							</Trigger>
 						</ControlTemplate.Triggers>
@@ -164,7 +164,7 @@
 		<ScrollViewer Name="DialogMessageScrollViewer" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,25" Width="500" Height="135" Focusable="False" ScrollViewer.VerticalScrollBarVisibility="Hidden">
 			<TextBlock Name="DialogMessage" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="500" MaxHeight="147" Foreground="White" FontFamily="{DynamicResource Font}" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"/>
 		</ScrollViewer>
-		<StackPanel Name="InstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,50,0,0" Visibility="Collapsed">
+		<StackPanel Name="InstallStackPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,25,0,0" Visibility="Collapsed">
 			<StackPanel Orientation="Horizontal">
 				<TextBox Name="InstallPathTextBox" Width="380" Height="20" TextChanged="InstallPathTextBox_TextChanged"/>
 				<Button Style="{DynamicResource ButtonStyle}" Height="20" Margin="5,0,0,0" FontSize="16" Content="..." Click="BrowseButton_Click"/>

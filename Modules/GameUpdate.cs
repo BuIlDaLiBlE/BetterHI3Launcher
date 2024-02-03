@@ -3,9 +3,7 @@ using IniParser;
 using IniParser.Model;
 using Microsoft.Win32;
 using Newtonsoft.Json;
-using SharpCompress.Archives;
-using SharpCompress.Common;
-using SharpCompress.Readers;
+using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,10 +11,10 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
@@ -84,7 +82,7 @@ namespace BetterHI3Launcher
 							if(game_needs_update == 2 && Mirror == HI3Mirror.miHoYo)
 							{
 								var url = miHoYoVersionInfo.game.diffs[PatchDownloadInt].path.ToString();
-								GameArchiveName = Path.GetFileName(HttpUtility.UrlDecode(url));
+								GameArchiveName = BpUtility.GetFileNameFromUrl(url);
 								GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
 								PatchDownload = true;
 							}
@@ -121,10 +119,11 @@ namespace BetterHI3Launcher
 								Status = LauncherStatus.Ready;
 								Dispatcher.Invoke(() => {LaunchButton.Content = App.TextStrings["button_launch"];});
 							}
+							Log("The game version is the latest");
 						}
 						if(Status == LauncherStatus.UpdateAvailable)
 						{
-							if(File.Exists(GameArchiveTempPath))
+							if(!(bool)LocalVersionInfo.game_info.installed)
 							{
 								DownloadPaused = true;
 								Dispatcher.Invoke(() =>
@@ -146,7 +145,7 @@ namespace BetterHI3Launcher
 							{
 								if(miHoYoVersionInfo.pre_download_game != null)
 								{
-									var path = Path.Combine(GameInstallPath, Path.GetFileName(HttpUtility.UrlDecode(miHoYoVersionInfo.pre_download_game.latest.path.ToString())));
+									var path = Path.Combine(GameInstallPath, BpUtility.GetFileNameFromUrl(miHoYoVersionInfo.pre_download_game.latest.path.ToString()));
 									if(File.Exists(path))
 									{
 										PreloadButton.Visibility = Visibility.Collapsed;
@@ -339,7 +338,7 @@ namespace BetterHI3Launcher
 						}
 					}
 				}
-				string background_image_name = Path.GetFileName(HttpUtility.UrlDecode(background_image_url));
+				string background_image_name = BpUtility.GetFileNameFromUrl(background_image_url);
 				string background_image_path = Path.Combine(App.LauncherBackgroundsPath, background_image_name);
 				background_image_md5 = background_image_name.Split('_')[0].ToUpper();
 				bool Validate()
@@ -525,24 +524,44 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					title = GameArchiveName;
-					url = OnlineVersionInfo.game_info.mirror.hi3mirror.game_archive.ToString();
-					switch((int)Server)
+					dynamic metadata = null;
+					switch(Server)
 					{
-						case 0:
-							url += "global";
+						case HI3Server.GLB:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.global.ToString());
 							break;
-						case 1:
-							url += "sea";
+						case HI3Server.SEA:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.os.ToString());
 							break;
-						case 2:
-							url += "cn";
+						case HI3Server.CN:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.cn.ToString());
 							break;
-						default:
-							throw new NotSupportedException("This server is not supported.");
+						case HI3Server.TW:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.tw.ToString());
+							break;
+						case HI3Server.KR:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.kr.ToString());
+							break;
+						case HI3Server.JP:
+							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.jp.ToString());
+							break;
 					}
-					url += "/" + title;
+					if(metadata == null)
+					{
+						return;
+					}
+					title = metadata.downloadUrl;
+					url = metadata.downloadUrl;
 					md5 = miHoYoVersionInfo.game.latest.md5.ToString();
+					if((DateTimeOffset)metadata.modifiedDate < (DateTimeOffset)miHoYoVersionInfo.last_modified)
+					{
+						Status = LauncherStatus.Error;
+						Log("The seleted mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
+						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_old_msg"]).ShowDialog();
+						Status = LauncherStatus.Ready;
+						GameUpdateCheck();
+						return;
+					}
 				}
 				md5 = md5.ToUpper();
 				GameArchiveTempPath = $"{GameArchivePath}_tmp";
@@ -627,58 +646,44 @@ namespace BetterHI3Launcher
 						{
 							return;
 						}
-						var skipped_files = new List<string>();
-						using(var archive = ArchiveFactory.Open(GameArchivePath))
+						uint skipped_files = 0;
+						using(var archive = new SevenZipExtractor(GameArchivePath))
 						{
-							int unpacked_files = 0;
-							int file_count = 0;
+							uint unpacked_count = 0;
+							uint total_count = archive.FilesCount;
 
 							Log("Unpacking game archive...");
 							Status = LauncherStatus.Unpacking;
-							foreach(var entry in archive.Entries)
+						    archive.FileExtractionFinished += (sender, args) =>
 							{
-								if(!entry.IsDirectory)
+								double progress = (unpacked_count + 1f) / total_count;
+								unpacked_count++;
+								Dispatcher.Invoke(() =>
 								{
-									file_count++;
-								}
+									DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_count, total_count, $"{progress * 100:0.00}");
+									DownloadProgressBar.Value = progress;
+									TaskbarItemInfo.ProgressValue = progress;
+								});
+							};
+							try
+							{
+								archive.ExtractArchive(GameInstallPath);
 							}
-							var reader = archive.ExtractAllEntries();
-							while(reader.MoveToNextEntry())
+							catch(IOException)
 							{
-								try
-								{
-									Dispatcher.Invoke(() =>
-									{
-										var progress = (unpacked_files + 1f) / file_count;
-										DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_files + 1, file_count, Math.Round(progress * 100, 2));
-										DownloadProgressBar.Value = progress;
-										TaskbarItemInfo.ProgressValue = progress;
-									});
-									reader.WriteEntryToDirectory(GameInstallPath, new ExtractionOptions(){ExtractFullPath = true, Overwrite = true, PreserveFileTime = true});
-									if(!reader.Entry.IsDirectory)
-									{
-										unpacked_files++;
-									}
-								}
-								catch(IOException)
-								{
-									throw;
-								}
-								catch(Exception ex)
-								{
-									if(!reader.Entry.IsDirectory)
-									{
-										skipped_files.Add(reader.Entry.ToString());
-										file_count--;
-										Log($"Failed to unpack {reader.Entry}: {ex.Message}", true, 1);
-									}
-								}
+								throw;
+							}
+							catch(Exception ex)
+							{
+								Log($"Failed to unpack file №{unpacked_count + 1}: {ex.Message}", true, 1);
+								skipped_files++;
+								total_count--;
 							}
 						}
-						if(skipped_files.Count > 0)
+						if(skipped_files > 0)
 						{
 							DeleteFile(GameArchivePath);
-							throw new ArchiveException("Game archive is corrupt");
+							throw new SevenZipArchiveException("Game archive is corrupted, please download again");
 						}
 						Log("success!", false);
 						DeleteFile(GameArchivePath);
@@ -687,6 +692,7 @@ namespace BetterHI3Launcher
 							PatchDownload = false;
 							WriteVersionInfo(false, true);
 							Log("Successfully installed the game");
+							FlashMainWindow();
 							GameUpdateCheck();
 						});
 					});
@@ -793,7 +799,7 @@ namespace BetterHI3Launcher
 						}
 						game_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
 						game_config_ini_data["General"]["game_version"] = version_info.game_info.version;
-						ini_parser.WriteFile(game_config_ini_file, game_config_ini_data);
+						ini_parser.WriteFile(game_config_ini_file, game_config_ini_data, new UTF8Encoding(false));
 					}
 					catch(Exception ex)
 					{
@@ -808,7 +814,7 @@ namespace BetterHI3Launcher
 							if(launcher_config_ini_data["launcher"]["game_install_path"] != path)
 							{
 								launcher_config_ini_data["launcher"]["game_install_path"] = path;
-								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data);
+								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data, new UTF8Encoding(false));
 							}
 						}
 					}

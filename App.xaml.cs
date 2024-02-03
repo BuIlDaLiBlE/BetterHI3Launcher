@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
+using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace BetterHI3Launcher
 {
 	public partial class App : Application
 	{
-		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.3.20221030.0");
+		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.5.20231219.0");
 		public static readonly string LauncherRootPath = AppDomain.CurrentDomain.BaseDirectory;
 		public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
 		public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
@@ -35,6 +36,7 @@ namespace BetterHI3Launcher
 		public static readonly int ParallelDownloadSessions = 4;
 		public static Dictionary<string, string> TextStrings = new Dictionary<string, string>();
 		public static Mutex Mutex = null;
+		private static readonly string AssemblyTempPath = Path.GetDirectoryName(typeof(ArchiveFileInfo).Assembly.GetFile("sevenzipsharp.dll").Name);
 
 		public App() : base()
 		{
@@ -113,6 +115,9 @@ namespace BetterHI3Launcher
 				case "it-IT":
 					LauncherLanguage = "it";
 					break;
+				case "ja-JP":
+					LauncherLanguage = "ja";
+					break;
 				case "pt-BR":
 					LauncherLanguage = "pt-BR";
 					break;
@@ -120,8 +125,6 @@ namespace BetterHI3Launcher
 					LauncherLanguage = "pt-PT";
 					break;
 				case "ru-RU":
-				case "uk-UA":
-				case "be-BY":
 					LauncherLanguage = "ru";
 					break;
 				case "sr-Cyrl-BA":
@@ -148,6 +151,7 @@ namespace BetterHI3Launcher
 					LauncherLanguage = "en";
 					break;
 			}
+			SevenZipBase.SetLibraryPath(Path.Combine(AssemblyTempPath, "7zxa.dll"));
 			base.OnStartup(e);
 		}
 
