@@ -590,7 +590,7 @@ namespace BetterHI3Launcher
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
 							await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
-							await httpclient.Merge();
+							await httpclient.Merge(token.Token);
 							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 						}
