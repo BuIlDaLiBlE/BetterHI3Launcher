@@ -1131,7 +1131,6 @@ namespace BetterHI3Launcher
 				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 				{
 					token.Cancel();
-					await httpclient.WaitUntilInstanceDisposed();
 					httpclient.DeleteMultisessionFiles(httpprop.Out, httpprop.Thread);
 					try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
 					DownloadPaused = false;
@@ -1170,7 +1169,6 @@ namespace BetterHI3Launcher
 			if(!DownloadPaused)
 			{
 				token.Cancel();
-				await httpclient.WaitUntilInstanceDisposed();
 				Status = LauncherStatus.DownloadPaused;
 				DownloadProgressBarStackPanel.Visibility = Visibility.Visible;
 				DownloadETAText.Visibility = Visibility.Hidden;
@@ -1358,7 +1356,7 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Normal;
 		}
 
-		private async void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
+		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(LegacyBoxActive)
 			{
@@ -1369,7 +1367,6 @@ namespace BetterHI3Launcher
 			{
 				PreloadPauseButton.IsEnabled = false;
 				token.Cancel();
-				await httpclient.WaitUntilInstanceDisposed();
 				Log("Pre-download paused");
 				PreloadDownload = false;
 				PreloadPauseButton.IsEnabled = true;
