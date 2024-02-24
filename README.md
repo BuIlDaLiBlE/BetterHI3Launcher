@@ -25,9 +25,9 @@ You can save and use it wherever you want, it's that simple!
 ## Compatibility
 Of course, a 64-bit version of Windows is required, since the game also requires it.
 
-The launcher is confirmed to work on Windows 10 and Windows 11, but I personally develop and test on Windows 10.
+The launcher is tested to work on modern versions of Windows (10 and 11).
 
-Windows 8.1 and 7 should technically work if .NET Framework 4.6.2 or newer is installed, however they are no longer supported by Microsoft so I will not be accepting bug reports from those Windows versions.
+Windows 8.1 and 7 should technically work if .NET Framework 4.6.2 or newer is installed, however they are no longer supported by Microsoft so I will not be accepting reports from those Windows versions.
 
 ## Is this safe?
 I started this project to help fellow Captains have a better experience with the game. Since the release in January of 2021 there have been no cases of banned accounts.
@@ -40,8 +40,6 @@ Great question! This project is mainly supported by me alone, so I'd love to hea
 
 > [!NOTE]
 > * Set the merge branch to `dev` when creating a PR
-> * The project is made with Visual Studio 2019, so there could be problems on a different version of Visual Studio
->   * That said, if you do use a different version then you should not include any project changes in your PR
 
 You can also contribute by translating the launcher into a language you speak. **Please only contribute languages the launcher doesn't yet have! Check the issues for existing contributions.**
 
