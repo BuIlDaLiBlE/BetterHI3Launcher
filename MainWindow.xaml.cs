@@ -1234,7 +1234,7 @@ namespace BetterHI3Launcher
 				string url = miHoYoVersionInfo.pre_download_game.latest.path.ToString();
 				string title = BpUtility.GetFileNameFromUrl(url);
 				long size;
-				string md5 = miHoYoVersionInfo.pre_download_game.latest.md5.ToString();
+				string md5 = miHoYoVersionInfo.pre_download_game.latest.md5.ToString().ToUpper();
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
@@ -1301,7 +1301,7 @@ namespace BetterHI3Launcher
 					{
 						Log("Validating pre-download archive...");
 						string actual_md5 = BpUtility.CalculateMD5(tmp_path);
-						if(actual_md5 == md5.ToUpper())
+						if(actual_md5 == md5)
 						{
 							Log("success!", false);
 							if(!File.Exists(path))
