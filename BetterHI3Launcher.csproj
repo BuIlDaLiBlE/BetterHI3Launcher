@@ -126,18 +126,19 @@
     <Compile Include="Modules\LegacyBox.cs" />
     <Compile Include="Modules\Shared.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadLogEvent.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event\Enums.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Exception.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\IO.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\Attributes.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\AttributesSize.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadEvent.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadLogEvent.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\Enums.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Event\Event.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Exception.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\IO.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Session\Session.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionManager.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionMerge.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionTask.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\TaskExtensions.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Http.cs" />
     <Compile Include="Utility\Hi3Helper.Http\HttpMulti.cs" />
     <Compile Include="Utility\Hi3Helper.EncTool\mhyEncTool.cs" />
@@ -316,7 +317,7 @@
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="XamlAnimatedGif">
-      <Version>2.2.0</Version>
+      <Version>2.2.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
