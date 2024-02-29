@@ -1320,7 +1320,7 @@ namespace BetterHI3Launcher
 						else
 						{
 							Status = LauncherStatus.Error;
-							Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
+							Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}.\nThis is most likely caused by a corrupted download. Please check your storage device for errors and use a stable Internet connection.", true, 1);
 							DeleteFile(tmp_path);
 							Dispatcher.Invoke(() =>
 							{
