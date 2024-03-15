@@ -234,7 +234,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_3_msg"]).ShowDialog();
 					continue;
 				}
-				var game_move_to_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(path) && x.IsReady).FirstOrDefault();
+				var game_move_to_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(path).ToUpper() && x.IsReady).FirstOrDefault();
 				if(game_move_to_drive == null)
 				{
 					new DialogWindow(App.TextStrings["msgbox_move_error_title"], App.TextStrings["msgbox_move_wrong_drive_type_msg"]).ShowDialog();
@@ -738,7 +738,7 @@ namespace BetterHI3Launcher
 					{
 						long file_size = new FileInfo(dialog.FileName).Length;
 						int file_size_limit = 52428800;
-						var launcher_data_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(App.LauncherDataPath) && x.IsReady).FirstOrDefault();
+						var launcher_data_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(App.LauncherDataPath).ToUpper() && x.IsReady).FirstOrDefault();
 						if(launcher_data_drive == null)
 						{
 							throw new DriveNotFoundException("Launcher data drive is unavailable");
