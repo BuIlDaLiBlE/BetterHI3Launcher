@@ -1,5 +1,5 @@
 ﻿![](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/raw/master/Assets/Images/GitHubREADME.webp)
-> Screenshot taken during Version 6.7, the background image changes as new versions get released
+> Screenshot taken during Version 6.7, background image changes with each new major version of the game
 
 # Better HI3 Launcher
 A much better Honkai Impact 3rd launcher. Here are the key points:
@@ -7,14 +7,14 @@ A much better Honkai Impact 3rd launcher. Here are the key points:
 * Supports all game servers (Global, SEA, CN, TW/HK/MO, KR and JP), can install and switch between them freely
   * **Please note that Steam version is not supported**
   * Epic Games version is technically supported, however to make purchases via Epic Games you have to launch the game using Epic Games Launcher
-* Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which dramatically speeds up the download process
-* Has mirror support so you have more means of getting the game
-* Includes other useful features, such as:
-  * Downloading game cache - helps you get through the annoying "Updating settings" step
-  * Repairing game files - uses a better method compared to the official launcher
-  * Moving game files - the official launcher will still see the game
+* Uses parallel downloading mechanism: Instead of downloading the game as one continuous stream of data it is now divided to several chunks, which really speeds up the download process
+* Has mirror server support so you have alternaive sources of getting the game
+* Other various useful features:
+  * Downloading game cache - helps you get through the "Updating settings" step in-game
+  * Repairing game files - uses a slightly different method compared to the official launcher which may provide a better help
+  * Moving game files - the official launcher will still recognize the game
   * Better options for uninstallation, allowing to free more disk space
-  * Setting custom resolution, custom FPS cap, resetting download type (so you can reselect which assets to download)
+  * Setting custom resolution, custom FPS cap, resetting download type so you can reselect which asset type to download (HD/Full)
   * Customizable background - still images, GIFs, and even videos are supported!
 
 ## Getting the launcher
@@ -23,20 +23,18 @@ Go to the [releases page](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/relea
 You can save and use it wherever you want, it's that simple!
 
 ## Compatibility
-Of course, a 64-bit version of Windows is required, since the game also requires it.
+Of course, a 64-bit version of Windows is required since the game also requires it. The launcher is tested to work on modern versions of Windows (10 and 11).
 
-The launcher is tested to work on modern versions of Windows (10 and 11).
-
-Windows 8.1 and 7 should technically work if .NET Framework 4.6.2 or newer is installed, however they are no longer supported by Microsoft so I will not be accepting reports from those Windows versions.
+Windows 8.1 and 7 should technically work if .NET Framework 4.6.2 or newer is installed, however they are no longer supported by Microsoft so I may not accept bug reports from these versions of Windows.
 
 ## Is this safe?
 I started this project to help fellow Captains have a better experience with the game. Since the release in January of 2021 there have been no cases of banned accounts.
-After all, this is just an app that downloads the game and has some helpful utilities. Though it's probably a good idea to keep in mind that this project is not affiliated with HoYoverse in any way.
+After all, this is just an app that downloads the game and has some helpful utilities. Though it's probably a good idea to keep in mind that this project is not affiliated with HoYoverse in any way and they reserve the final say.
 
-Ultimately it is for you to decide whether to trust me or not. The launcher's code is open source, so you're more than welcome to examine it. On that note...
+Ultimately it is for you to decide whether to trust the project or not. The launcher's code is open source, so you're more than welcome to examine it. On that note...
 
 ## How can I contribute? 
-Great question! This project is mainly supported by me alone, so I'd love to hear your feedback. You can [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) to report a bug/suggest something or you can directly contribute with [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/pulls).
+Great question! This project is mainly supported by the main developer (@BuIlDaLiBlE) alone, so I'd love to hear your feedback. You can [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) to report a bug/suggest something or you can directly contribute with [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/pulls).
 
 > [!NOTE]
 > * Set the merge branch to `dev` when creating a PR
