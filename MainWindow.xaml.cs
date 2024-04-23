@@ -874,33 +874,73 @@ namespace BetterHI3Launcher
 			}
 
 			BpUtility.PlaySound(Properties.Resources.Click);
-			if(Status == LauncherStatus.Ready || Status == LauncherStatus.Preloading || Status == LauncherStatus.PreloadVerifying)
+			switch(Status)
 			{
-				if(DownloadPaused)
+				case LauncherStatus.Ready:
+				case LauncherStatus.Preloading:
+				case LauncherStatus.PreloadVerifying:
 				{
-					DownloadPaused = false;
-					await DownloadGameFile();
-					return;
-				}
-
-				if(LocalVersionInfo != null)
-				{
-					if(!File.Exists(GameExePath))
+					if(DownloadPaused)
 					{
-						if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
-						{
-							ResetVersionInfo();
-							GameUpdateCheck();
-						}
+						DownloadPaused = false;
+						await DownloadGameFile();
 						return;
 					}
-					try
+
+					if(LocalVersionInfo != null)
 					{
-						var processes = Process.GetProcessesByName("BH3");
-						if(processes.Length > 0)
+						if(!File.Exists(GameExePath))
 						{
-							processes[0].EnableRaisingEvents = true;
-							processes[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
+							if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
+							{
+								ResetVersionInfo();
+								GameUpdateCheck();
+							}
+							return;
+						}
+						try
+						{
+							var processes = Process.GetProcessesByName("BH3");
+							if(processes.Length > 0)
+							{
+								processes[0].EnableRaisingEvents = true;
+								processes[0].Exited += new EventHandler((object s, EventArgs ea) => {OnGameExit();});
+								if(PreloadDownload)
+								{
+									Dispatcher.Invoke(() =>
+									{
+										LaunchButton.Content = App.TextStrings["button_running"];
+										LaunchButton.IsEnabled = false;
+									});
+								}
+								else
+								{
+									Status = LauncherStatus.Running;
+								}
+								return;
+							}
+							var start_info = new ProcessStartInfo(GameExePath);
+							start_info.WorkingDirectory = GameInstallPath;
+							start_info.UseShellExecute = true;
+							try
+							{
+								start_info.Arguments = LocalVersionInfo.launch_options.ToString();
+							}catch{}
+							var process = Process.Start(start_info);
+							process.EnableRaisingEvents = true;
+							process.Exited += new EventHandler((object s1, EventArgs ea1) =>
+							{
+								processes = Process.GetProcessesByName("BH3");
+								if(processes.Length > 0)
+								{
+									processes[0].EnableRaisingEvents = true;
+									processes[0].Exited += new EventHandler((object s2, EventArgs ea2) => {OnGameExit();});
+								}
+								else
+								{
+									OnGameExit();
+								}
+							});
 							if(PreloadDownload)
 							{
 								Dispatcher.Invoke(() =>
@@ -913,236 +953,205 @@ namespace BetterHI3Launcher
 							{
 								Status = LauncherStatus.Running;
 							}
-							return;
-						}
-						var start_info = new ProcessStartInfo(GameExePath);
-						start_info.WorkingDirectory = GameInstallPath;
-						start_info.UseShellExecute = true;
-						try
-						{
-							start_info.Arguments = LocalVersionInfo.launch_options.ToString();
-						}catch{}
-						var process = Process.Start(start_info);
-						process.EnableRaisingEvents = true;
-						process.Exited += new EventHandler((object s1, EventArgs ea1) =>
-						{
-							processes = Process.GetProcessesByName("BH3");
-							if(processes.Length > 0)
-							{
-								processes[0].EnableRaisingEvents = true;
-								processes[0].Exited += new EventHandler((object s2, EventArgs ea2) => {OnGameExit();});
-							}
-							else
-							{
-								OnGameExit();
-							}
-						});
-						if(PreloadDownload)
-						{
-							Dispatcher.Invoke(() =>
-							{
-								LaunchButton.Content = App.TextStrings["button_running"];
-								LaunchButton.IsEnabled = false;
-							});
-						}
-						else
-						{
-							Status = LauncherStatus.Running;
-						}
-						WindowState = WindowState.Minimized;
-					}
-					catch(Exception ex)
-					{
-						Status = LauncherStatus.Error;
-						Log($"Failed to start the game:\n{ex}", true, 1);
-						new DialogWindow(App.TextStrings["msgbox_start_error_title"], App.TextStrings["msgbox_process_start_error_msg"]).ShowDialog();
-						Status = LauncherStatus.Ready;
-					}
-				}
-				else
-				{
-					try
-					{
-						var possible_paths = new List<string>();
-						possible_paths.Add(App.LauncherRootPath);
-						possible_paths.Add(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
-						string[] game_reg_names = {"Honkai Impact 3rd", "Honkai Impact 3", "崩坏3", "崩壞3rd", "붕괴3rd", "崩壊3rd"};
-						foreach(string game_reg_name in game_reg_names)
-						{
-							try
-							{
-								var path = CheckForExistingGameDirectory(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString());
-								if(!string.IsNullOrEmpty(path))
-								{
-									possible_paths.Add(path);
-								}
-							}catch{}
-						}
-						foreach(string path in possible_paths)
-						{
-							if(!string.IsNullOrEmpty(CheckForExistingGameDirectory(path)))
-							{
-								var server = CheckForExistingGameClientServer(path);
-								if(server >= 0)
-								{
-									if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
-									{
-										Log($"Existing installation directory selected: {path}");
-										GameInstallPath = path;
-										if((int)Server != server)
-										{
-											ServerDropdown.SelectedIndex = server;
-										}
-										WriteVersionInfo(true, true);
-										GameUpdateCheck();
-										return;
-									}
-								}
-							}
-						}
-					}catch{}
-
-					while(true)
-					{
-						try
-						{
-							var dialog = new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_1_msg"], DialogWindow.DialogType.Install);
-							dialog.InstallPathTextBox.Text = Path.Combine(Environment.ExpandEnvironmentVariables("%ProgramW6432%"), GameFullName);
-							if(dialog.ShowDialog() == false)
-							{
-								return;
-							}
-							GameInstallPath = dialog.InstallPathTextBox.Text;
-							string path = CheckForExistingGameDirectory(GameInstallPath);
-							if(!string.IsNullOrEmpty(path))
-							{
-								var server = CheckForExistingGameClientServer(path);
-								if(server >= 0)
-								{
-									if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
-									{
-										Log($"Existing installation directory selected: {path}");
-										GameInstallPath = path;
-										if((int)Server != server)
-										{
-											ServerDropdown.SelectedIndex = server;
-										}
-										WriteVersionInfo(true, true);
-										GameUpdateCheck();
-										return;
-									}
-									else
-									{
-										continue;
-									}
-								}
-							}
-
-							var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
-							if(game_install_drive == null || game_install_drive.DriveType == DriveType.CDRom)
-							{
-								new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
-								continue;
-							}
-
-							try
-							{
-								if(!Directory.Exists(GameInstallPath))
-								{
-									Directory.CreateDirectory(GameInstallPath);
-								}
-								if(new DirectoryInfo(GameInstallPath).Parent == null)
-								{
-									throw new Exception("Installation directory cannot be drive root");
-								}
-							}
-							catch(Exception ex)
-							{
-								new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
-								continue;
-							}
-
-							long free_space_recommended = (long)miHoYoVersionInfo.size + (long)miHoYoVersionInfo.game.latest.size;
-							string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.size))}" +
-								$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(free_space_recommended), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}" +
-								$"\n{string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath)}";
-							if(new DialogWindow(App.TextStrings["msgbox_install_title"], install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
-							{
-								try{Directory.Delete(GameInstallPath);}catch{}
-								continue;
-							}
-							if(game_install_drive.TotalFreeSpace < free_space_recommended)
-							{
-								if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
-								{
-									continue;
-								}
-							}
-							Directory.CreateDirectory(GameInstallPath);
-							GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
-							GameExePath = Path.Combine(GameInstallPath, GameExeName);
-							Log($"Installation directory selected: {GameInstallPath}");
-							await DownloadGameFile();
-							return;
+							WindowState = WindowState.Minimized;
 						}
 						catch(Exception ex)
 						{
 							Status = LauncherStatus.Error;
-							Log($"Failed to select game installation directory:\n{ex}", true, 1);
-							new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], App.TextStrings["msgbox_install_dir_error_msg"]).ShowDialog();
+							Log($"Failed to start the game:\n{ex}", true, 1);
+							new DialogWindow(App.TextStrings["msgbox_start_error_title"], App.TextStrings["msgbox_process_start_error_msg"]).ShowDialog();
 							Status = LauncherStatus.Ready;
+						}
+					}
+					else
+					{
+						try
+						{
+							var possible_paths = new List<string>();
+							possible_paths.Add(App.LauncherRootPath);
+							possible_paths.Add(Environment.ExpandEnvironmentVariables("%ProgramW6432%"));
+							string[] game_reg_names = {"Honkai Impact 3rd", "Honkai Impact 3", "崩坏3", "崩壞3rd", "붕괴3rd", "崩壊3rd"};
+							foreach(string game_reg_name in game_reg_names)
+							{
+								try
+								{
+									var path = CheckForExistingGameDirectory(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString());
+									if(!string.IsNullOrEmpty(path))
+									{
+										possible_paths.Add(path);
+									}
+								}catch{}
+							}
+							foreach(string path in possible_paths)
+							{
+								if(!string.IsNullOrEmpty(CheckForExistingGameDirectory(path)))
+								{
+									var server = CheckForExistingGameClientServer(path);
+									if(server >= 0)
+									{
+										if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
+										{
+											Log($"Existing installation directory selected: {path}");
+											GameInstallPath = path;
+											if((int)Server != server)
+											{
+												ServerDropdown.SelectedIndex = server;
+											}
+											WriteVersionInfo(true, true);
+											GameUpdateCheck();
+											return;
+										}
+									}
+								}
+							}
+						}catch{}
+
+						while(true)
+						{
+							try
+							{
+								var dialog = new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_1_msg"], DialogWindow.DialogType.Install);
+								dialog.InstallPathTextBox.Text = Path.Combine(Environment.ExpandEnvironmentVariables("%ProgramW6432%"), GameFullName);
+								if(dialog.ShowDialog() == false)
+								{
+									return;
+								}
+								GameInstallPath = dialog.InstallPathTextBox.Text;
+								string path = CheckForExistingGameDirectory(GameInstallPath);
+								if(!string.IsNullOrEmpty(path))
+								{
+									var server = CheckForExistingGameClientServer(path);
+									if(server >= 0)
+									{
+										if(new DialogWindow(App.TextStrings["msgbox_install_title"], string.Format(App.TextStrings["msgbox_install_existing_dir_msg"], path), DialogWindow.DialogType.Question).ShowDialog() == true)
+										{
+											Log($"Existing installation directory selected: {path}");
+											GameInstallPath = path;
+											if((int)Server != server)
+											{
+												ServerDropdown.SelectedIndex = server;
+											}
+											WriteVersionInfo(true, true);
+											GameUpdateCheck();
+											return;
+										}
+										else
+										{
+											continue;
+										}
+									}
+								}
+
+								var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
+								if(game_install_drive == null || game_install_drive.DriveType == DriveType.CDRom)
+								{
+									new DialogWindow(App.TextStrings["msgbox_install_error_title"], App.TextStrings["msgbox_install_wrong_drive_type_msg"]).ShowDialog();
+									continue;
+								}
+
+								try
+								{
+									if(!Directory.Exists(GameInstallPath))
+									{
+										Directory.CreateDirectory(GameInstallPath);
+									}
+									if(new DirectoryInfo(GameInstallPath).Parent == null)
+									{
+										throw new Exception("Installation directory cannot be drive root");
+									}
+								}
+								catch(Exception ex)
+								{
+									new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], ex.Message).ShowDialog();
+									continue;
+								}
+
+								long free_space_recommended = (long)miHoYoVersionInfo.size + (long)miHoYoVersionInfo.game.latest.size;
+								string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.size))}" +
+									$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(free_space_recommended), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}" +
+									$"\n{string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath)}";
+								if(new DialogWindow(App.TextStrings["msgbox_install_title"], install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
+								{
+									try{Directory.Delete(GameInstallPath);}catch{}
+									continue;
+								}
+								if(game_install_drive.TotalFreeSpace < free_space_recommended)
+								{
+									if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+									{
+										continue;
+									}
+								}
+								Directory.CreateDirectory(GameInstallPath);
+								GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
+								GameExePath = Path.Combine(GameInstallPath, GameExeName);
+								Log($"Installation directory selected: {GameInstallPath}");
+								await DownloadGameFile();
+								return;
+							}
+							catch(Exception ex)
+							{
+								Status = LauncherStatus.Error;
+								Log($"Failed to select game installation directory:\n{ex}", true, 1);
+								new DialogWindow(App.TextStrings["msgbox_install_dir_error_title"], App.TextStrings["msgbox_install_dir_error_msg"]).ShowDialog();
+								Status = LauncherStatus.Ready;
+								return;
+							}
+						}
+					}
+					break;
+				}
+				case LauncherStatus.UpdateAvailable:
+				{
+					if((bool)LocalVersionInfo.game_info.installed && !File.Exists(GameExePath))
+					{
+						if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
+						{
+							ResetVersionInfo();
+							GameUpdateCheck();
+						}
+						return;
+					}
+					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
+					if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
+					{
+						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+						{
 							return;
 						}
 					}
-				}
-			}
-			else if(Status == LauncherStatus.UpdateAvailable)
-			{
-				if((bool)LocalVersionInfo.game_info.installed && !File.Exists(GameExePath))
-				{
-					if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
+					if(!PatchDownload)
 					{
-						ResetVersionInfo();
-						GameUpdateCheck();
+						Directory.CreateDirectory(GameInstallPath);
 					}
-					return;
+					await DownloadGameFile();
+					break;
 				}
-				var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
-				if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
-				{
-					if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
+				case LauncherStatus.Downloading:
+				case LauncherStatus.DownloadPaused:
+					if(httpclient.DownloadState == DownloadState.Merging)
 					{
+						LaunchButton.IsEnabled = false;
 						return;
 					}
-				}
-				if(!PatchDownload)
-				{
-					Directory.CreateDirectory(GameInstallPath);
-				}
-				await DownloadGameFile();
-			}
-			else if(Status == LauncherStatus.Downloading || Status == LauncherStatus.DownloadPaused)
-			{
-				if(httpclient.DownloadState == DownloadState.Merging)
-				{
+					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
+					{
+						token.Cancel();
+						httpclient.DeleteMultisessionFiles(httpprop.Out, httpprop.Thread);
+						try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
+						DownloadPaused = false;
+						Log("Download cancelled");
+						Status = LauncherStatus.Ready;
+						GameUpdateCheck();
+					}
+					break;
+				case LauncherStatus.Working:
 					LaunchButton.IsEnabled = false;
-					return;
-				}
-				if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
-				{
-					token.Cancel();
-					httpclient.DeleteMultisessionFiles(httpprop.Out, httpprop.Thread);
-					try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
-					DownloadPaused = false;
-					Log("Download cancelled");
-					Status = LauncherStatus.Ready;
-					GameUpdateCheck();
-				}
-			}
-			else if(Status == LauncherStatus.Working)
-			{
-				LaunchButton.IsEnabled = false;
-				ActionAbort = true;
+					ActionAbort = true;
+					break;
+				default:
+					// No action
+					break;
 			}
 		}
 
@@ -1234,7 +1243,7 @@ namespace BetterHI3Launcher
 				string url = miHoYoVersionInfo.pre_download_game.latest.path.ToString();
 				string title = BpUtility.GetFileNameFromUrl(url);
 				long size;
-				string md5 = miHoYoVersionInfo.pre_download_game.latest.md5.ToString();
+				string md5 = miHoYoVersionInfo.pre_download_game.latest.md5.ToString().ToUpper();
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
@@ -1245,7 +1254,7 @@ namespace BetterHI3Launcher
 				}
 				if(Directory.GetFiles(GameInstallPath, $"{title}_tmp.*").Length == 0)
 				{
-					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath) && x.IsReady).FirstOrDefault();
+					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
 					string pre_install_message = $"{App.TextStrings["msgbox_pre_install_msg"]}" +
 						$"\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}" +
 						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.game.latest.size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
@@ -1301,7 +1310,7 @@ namespace BetterHI3Launcher
 					{
 						Log("Validating pre-download archive...");
 						string actual_md5 = BpUtility.CalculateMD5(tmp_path);
-						if(actual_md5 == md5.ToUpper())
+						if(actual_md5 == md5)
 						{
 							Log("success!", false);
 							if(!File.Exists(path))
@@ -1320,7 +1329,7 @@ namespace BetterHI3Launcher
 						else
 						{
 							Status = LauncherStatus.Error;
-							Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}", true, 1);
+							Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}.\nThis is most likely caused by a corrupted download. Please check your storage device for errors and use a stable Internet connection.", true, 1);
 							DeleteFile(tmp_path);
 							Dispatcher.Invoke(() =>
 							{
