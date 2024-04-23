@@ -269,10 +269,10 @@
       <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="Squid-Box.SevenZipSharp">
-      <Version>1.6.1.23</Version>
+      <Version>1.6.2.24</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>8.0.0</Version>
+      <Version>8.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Globalization.Calendars">
       <Version>4.3.0</Version>
