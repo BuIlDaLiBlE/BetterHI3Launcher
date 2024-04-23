@@ -1,4 +1,4 @@
-﻿![](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/raw/master/Assets/Images/GitHubREADME.webp)
+﻿![](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/raw/master/.github/GitHubREADME.webp)
 > Screenshot taken during Version 6.7, background image changes with each new major version of the game
 
 # Better HI3 Launcher
