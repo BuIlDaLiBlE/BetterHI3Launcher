@@ -67,7 +67,7 @@ namespace BetterHI3Launcher
 					{
 						for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
 						{
-							string name = OnlineRepairInfo.files.names[i].ToString().Replace("/", "\\");
+							string name = OnlineRepairInfo.files.names[i].ToString();
 							string md5 = OnlineRepairInfo.files.hashes[i].ToString().ToUpper();
 							long size = OnlineRepairInfo.files.sizes[i];
 							string path = Path.Combine(GameInstallPath, name);
