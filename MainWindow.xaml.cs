@@ -1385,7 +1385,7 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Normal;
 		}
 
-		private void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
+		private async void PreloadPauseButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(LegacyBoxActive)
 			{
