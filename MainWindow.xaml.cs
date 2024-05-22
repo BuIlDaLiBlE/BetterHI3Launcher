@@ -867,6 +867,18 @@ namespace BetterHI3Launcher
 			WindowState = WindowState.Minimized;
 		}
 
+		private async Task AssignAndRunHttpTaskOrThrow(Task task)
+		{
+			httptask = task;
+			if (task.Exception != null)
+				throw task.Exception;
+
+			await task;
+
+			if (task.Exception != null)
+				throw task.Exception;
+		}
+
 		private async Task WaitUntilTaskIsCompleted(Task task, double refreshInterval = 0.25)
 		{
 			// Run loop
@@ -1224,10 +1236,8 @@ namespace BetterHI3Launcher
 					{
 						token = new CancellationTokenSource();
 						httpclient.DownloadProgress += DownloadStatusChanged;
-						httptask = httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
-						await httptask;
-						httptask = httpclient.Merge(token.Token);
-						await httptask;
+						await AssignAndRunHttpTaskOrThrow(httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token));
+						await AssignAndRunHttpTaskOrThrow(httpclient.Merge(token.Token));
 						httpclient.DownloadProgress -= DownloadStatusChanged;
 						await DownloadGameFile();
 					}
@@ -1309,10 +1319,8 @@ namespace BetterHI3Launcher
 							httpprop = new HttpProp(url, tmp_path);
 							httpclient.DownloadProgress += PreloadDownloadStatusChanged;
 							PreloadPauseButton.IsEnabled = true;
-							httptask = httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
-							await httptask;
-							httptask = httpclient.Merge(token.Token);
-							await httptask;
+							await AssignAndRunHttpTaskOrThrow(httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token));
+							await AssignAndRunHttpTaskOrThrow(httpclient.Merge(token.Token));
 							httpclient.DownloadProgress -= PreloadDownloadStatusChanged;
 							Log("Downloaded pre-download archive");
 						}

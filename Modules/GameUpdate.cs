@@ -589,10 +589,8 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							httptask = httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
-							await httptask;
-							httptask = httpclient.Merge(token.Token);
-							await httptask;
+							await AssignAndRunHttpTaskOrThrow(httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token));
+							await AssignAndRunHttpTaskOrThrow(httpclient.Merge(token.Token));
 							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 						}
