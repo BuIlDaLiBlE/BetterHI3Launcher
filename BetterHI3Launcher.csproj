@@ -6,6 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{FEB42181-FC9E-4FCD-B931-8F972EAA7110}</ProjectGuid>
     <OutputType>WinExe</OutputType>
+    <LangVersion>8.0</LangVersion>
     <RootNamespace>BetterHI3Launcher</RootNamespace>
     <AssemblyName>BetterHI3Launcher</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
@@ -126,18 +127,11 @@
     <Compile Include="Modules\LegacyBox.cs" />
     <Compile Include="Modules\Shared.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\Attributes.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\AttributesSize.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadEvent.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event\DownloadLogEvent.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event\Enums.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Event\Event.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\*.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Event\*.cs" />
+    <Compile Include="Utility\Hi3Helper.Http\Class\Session\*.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Exception.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\IO.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Session\Session.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionManager.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionMerge.cs" />
-    <Compile Include="Utility\Hi3Helper.Http\Class\Session\SessionTask.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\TaskExtensions.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Http.cs" />
     <Compile Include="Utility\Hi3Helper.Http\HttpMulti.cs" />
@@ -262,6 +256,9 @@
     <PackageReference Include="ini-parser">
       <Version>2.5.2</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
+      <Version>8.0.0</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.Platforms">
       <Version>7.0.4</Version>
     </PackageReference>
@@ -305,6 +302,9 @@
       <Version>4.3.2</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Encoding.CodePages">
+      <Version>8.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Threading.Tasks.Dataflow">
       <Version>8.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Xml.ReaderWriter">
