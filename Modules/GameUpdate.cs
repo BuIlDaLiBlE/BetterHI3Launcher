@@ -724,10 +724,10 @@ namespace BetterHI3Launcher
 			try
 			{
 				string game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
-				string launcher_config_ini_file = null;
+				string legacy_launcher_config_ini_file = null;
 				try
 				{
-					launcher_config_ini_file = Path.Combine(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{GameInstallRegistryName}").GetValue("InstallPath").ToString(), "config.ini");
+					legacy_launcher_config_ini_file = Path.Combine(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{GameInstallRegistryName}").GetValue("InstallPath").ToString(), "config.ini");
 				}catch{}
 				IniData game_config_ini_data = null;
 				IniData launcher_config_ini_data = null;
@@ -736,9 +736,9 @@ namespace BetterHI3Launcher
 				{
 					game_config_ini_data = ini_parser.ReadFile(game_config_ini_file);
 				}
-				if(File.Exists(launcher_config_ini_file))
+				if(File.Exists(legacy_launcher_config_ini_file))
 				{
-					launcher_config_ini_data = ini_parser.ReadFile(launcher_config_ini_file);
+					launcher_config_ini_data = ini_parser.ReadFile(legacy_launcher_config_ini_file);
 				}
 				var version_info = LocalVersionInfo;
 				if(version_info == null)
@@ -766,7 +766,7 @@ namespace BetterHI3Launcher
 					var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 					try
 					{
-						if(game_config_ini_data["General"]["game_version"] != null)
+						if(game_config_ini_data["General"]["game_version"] != null || game_config_ini_data["general"]["game_version"] != null)
 						{
 							version_info.game_info.version = game_config_ini_data["General"]["game_version"];
 						}
@@ -807,6 +807,29 @@ namespace BetterHI3Launcher
 					}
 					try
 					{
+						string hyp_registry_path = null;
+						switch(Server)
+						{
+							case HI3Server.CN:
+								hyp_registry_path = @"SOFTWARE\miHoYo\HYP\1_1";
+								break;
+							default:
+								hyp_registry_path = @"SOFTWARE\Cognosphere\HYP\1_0";
+								break;
+						}
+						var key = Registry.CurrentUser.OpenSubKey($@"{hyp_registry_path}\{GameHYPName}", true);
+						if(key != null)
+						{
+							key.SetValue("GameInstallPath", GameInstallPath);
+							key.Close();
+						}
+					}
+					catch(Exception ex)
+					{
+						Log($"Failed to write installation path to HoYoPlay registry: {ex.Message}", true, 2);
+					}
+					try
+					{
 						if(launcher_config_ini_data != null)
 						{
 							string path = BpUtility.GetCNotatedStringPath(GameInstallPath.Replace("\\", "/"));
@@ -814,13 +837,13 @@ namespace BetterHI3Launcher
 							if(launcher_config_ini_data["launcher"]["game_install_path"] != path)
 							{
 								launcher_config_ini_data["launcher"]["game_install_path"] = path;
-								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data, new UTF8Encoding(false));
+								ini_parser.WriteFile(legacy_launcher_config_ini_file, launcher_config_ini_data, new UTF8Encoding(false));
 							}
 						}
 					}
 					catch(Exception ex)
 					{
-						Log($"Failed to write path to launcher config.ini: {ex.Message}", true, 2);
+						Log($"Failed to write installation path to legacy launcher's config.ini file: {ex.Message}", true, 2);
 					}
 				}
 				Log("success!", false);
