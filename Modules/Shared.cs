@@ -287,6 +287,7 @@ namespace BetterHI3Launcher
 
 		private void OnGameExit()
 		{
+			Log("Game exited");
 			Dispatcher.Invoke(() =>
 			{
 				LaunchButton.Content = App.TextStrings["button_launch"];
@@ -355,6 +356,11 @@ namespace BetterHI3Launcher
 					ccolor = ConsoleColor.Gray;
 					#endif
 					break;
+			}
+
+			if(newline)
+			{
+				msg = $"[{DateTime.Now:yyyy-MM-dd HH:mm:sszzz}] {msg}";
 			}
 			#if DEBUG
 			Console.ForegroundColor = ccolor;
