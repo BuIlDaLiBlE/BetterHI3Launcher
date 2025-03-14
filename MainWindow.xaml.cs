@@ -25,7 +25,7 @@ namespace BetterHI3Launcher
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameExePath;
 		public static string RegistryVersionInfo;
-		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameExeName, GameInstallRegistryName, GameHYPName;
+		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameExeName, GameInstallRegistryName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive, ActionAbort;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
@@ -193,43 +193,37 @@ namespace BetterHI3Launcher
 					case HI3Server.GLB:
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_globalglb_official";
+						GameInstallRegistryName = "bh3_globalglb_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.SEA:
 						RegistryVersionInfo = "VersionInfoSEA";
 						GameFullName = "Honkai Impact 3";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_globaloverseas_official";
+						GameInstallRegistryName = "bh3_globaloverseas_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.CN:
 						RegistryVersionInfo = "VersionInfoCN";
 						GameFullName = "崩坏3";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_cn";
+						GameInstallRegistryName = "bh3_cn";
 						GameWebProfileURL = "https://user.mihoyo.com";
 						break;
 					case HI3Server.TW:
 						RegistryVersionInfo = "VersionInfoTW";
 						GameFullName = "崩壊3rd";
-						GameInstallRegistryName = "崩壞3rd";
-						GameHYPName = "bh3_globalasia_official";
+						GameInstallRegistryName = "bh3_globalasia_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.KR:
 						RegistryVersionInfo = "VersionInfoKR";
 						GameFullName = "붕괴3rd";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_globalkr_official";
+						GameInstallRegistryName = "bh3_globalkr_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.JP:
 						RegistryVersionInfo = "VersionInfoJP";
 						GameFullName = "崩壊3rd";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_globaljp_official";
+						GameInstallRegistryName = "bh3_globaljp_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 				}
