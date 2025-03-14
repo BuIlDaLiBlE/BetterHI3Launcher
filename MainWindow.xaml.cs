@@ -194,14 +194,14 @@ namespace BetterHI3Launcher
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
 						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_global";
+						GameHYPName = "bh3_globalglb_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.SEA:
 						RegistryVersionInfo = "VersionInfoSEA";
 						GameFullName = "Honkai Impact 3";
 						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_os";
+						GameHYPName = "bh3_globaloverseas_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.CN:
@@ -215,21 +215,21 @@ namespace BetterHI3Launcher
 						RegistryVersionInfo = "VersionInfoTW";
 						GameFullName = "崩壊3rd";
 						GameInstallRegistryName = "崩壞3rd";
-						GameHYPName = "bh3_tw";
+						GameHYPName = "bh3_globalasia_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.KR:
 						RegistryVersionInfo = "VersionInfoKR";
 						GameFullName = "붕괴3rd";
 						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_kr";
+						GameHYPName = "bh3_globalkr_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.JP:
 						RegistryVersionInfo = "VersionInfoJP";
 						GameFullName = "崩壊3rd";
 						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_jp";
+						GameHYPName = "bh3_globaljp_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 				}
@@ -1005,31 +1005,24 @@ namespace BetterHI3Launcher
 								App.LauncherRootPath,
 								Environment.ExpandEnvironmentVariables("%ProgramW6432%")
 							};
-							string[] game_reg_names = {"Honkai Impact 3rd", "Honkai Impact 3", "崩坏3", "崩壞3rd", "붕괴3rd", "崩壊3rd"};
-							foreach(string game_reg_name in game_reg_names)
+							string[] game_company_names = {"miHoYo", "Cognosphere"};
+							string[] hyp_versions = {"1_0", "1_1"};
+							foreach(string game_company_name in game_company_names)
 							{
 								try
 								{
-									string path = CheckForExistingGameDirectory(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString());
-									if(!string.IsNullOrEmpty(path))
+									foreach(string hyp_version in hyp_versions)
 									{
-										possible_paths.Add(path);
+										foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}").GetSubKeyNames())
+										{
+											string path = CheckForExistingGameDirectory(Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString());
+											if(!string.IsNullOrEmpty(path))
+											{
+												possible_paths.Add(path);
+											}
+										}
 									}
 								}catch{}
-							}
-							foreach(string hyp_version in Registry.CurrentUser.OpenSubKey(@"SOFTWARE\miHoYo\HYP").GetSubKeyNames())
-							{
-								foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\miHoYo\HYP\{hyp_version}").GetSubKeyNames())
-								{
-									try
-									{
-										string path = CheckForExistingGameDirectory(Registry.CurrentUser.OpenSubKey($@"SOFTWARE\miHoYo\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString());
-										if(!string.IsNullOrEmpty(path))
-										{
-											possible_paths.Add(path);
-										}
-									}catch{}
-								}
 							}
 							foreach(string path in possible_paths)
 							{

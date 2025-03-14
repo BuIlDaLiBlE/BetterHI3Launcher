@@ -766,9 +766,13 @@ namespace BetterHI3Launcher
 					var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 					try
 					{
-						if(game_config_ini_data["General"]["game_version"] != null || game_config_ini_data["general"]["game_version"] != null)
+						if(game_config_ini_data["General"]["game_version"] != null)
 						{
 							version_info.game_info.version = game_config_ini_data["General"]["game_version"];
+						}
+						else if(game_config_ini_data["general"]["game_version"] != null)
+						{
+							version_info.game_info.version = game_config_ini_data["general"]["game_version"];
 						}
 						else
 						{
