@@ -419,16 +419,11 @@ namespace BetterHI3Launcher
 				Path.Combine(path, "Games"),
 				Path.Combine(path, "Honkai Impact 3rd"),
 				Path.Combine(path, "Honkai Impact 3"),
-				Path.Combine(path, "崩坏3"),
-				Path.Combine(path, "崩壊3rd"),
-				Path.Combine(path, "붕괴3rd"),
-				Path.Combine(path, "Honkai Impact 3rd", "Games"),
-				Path.Combine(path, "Honkai Impact 3", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd glb", "Games"),
-				Path.Combine(path, "Honkai Impact 3 sea", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd tw", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd kr", "Games"),
-				Path.Combine(path, "Houkai3rd", "Games")
+				Path.Combine(path, "Honkai Impact 3rd game", "Games"),
+				Path.Combine(path, "Honkai Impact 3 game", "Games"),
+				Path.Combine(path, "Honkai Impact 3rd asia game", "Games"),
+				Path.Combine(path, "Honkai Impact 3rd kr game", "Games"),
+				Path.Combine(path, "Houkai3rd game", "Games")
 			});
 
 			foreach(var variant in path_variants)

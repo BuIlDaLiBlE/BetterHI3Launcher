@@ -994,7 +994,7 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							var possible_paths = new List<string>
+							var possible_paths = new HashSet<string>
 							{
 								App.LauncherRootPath,
 								Environment.ExpandEnvironmentVariables("%ProgramW6432%")
@@ -1003,18 +1003,50 @@ namespace BetterHI3Launcher
 							string[] hyp_versions = {"1_0", "1_1"};
 							foreach(string game_company_name in game_company_names)
 							{
-								try
+								// Normal HYP
+								foreach(string hyp_version in hyp_versions)
 								{
-									foreach(string hyp_version in hyp_versions)
+									try
 									{
 										foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}").GetSubKeyNames())
 										{
-											string path = CheckForExistingGameDirectory(Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString());
-											if(!string.IsNullOrEmpty(path))
+											try
 											{
-												possible_paths.Add(path);
-											}
+												string path = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString().Replace("/", @"\");
+												if(!string.IsNullOrEmpty(path))
+												{
+													possible_paths.Add(path);
+												}
+											}catch{}
 										}
+									}catch{}
+								}
+								// So called "standalone" HYP, e.g. Epic, Google
+								try
+								{
+									foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone").GetSubKeyNames())
+									{
+										try
+										{
+											foreach(string game_id in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global").GetSubKeyNames())
+											{
+												try
+												{
+													foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}").GetSubKeyNames())
+													{
+														try
+														{
+															var game_reg_name_key = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}\{game_reg_name}");
+															string path = game_reg_name_key.GetValue("GameInstallPath").ToString().Replace("/", @"\");
+															if(!string.IsNullOrEmpty(path))
+															{
+																possible_paths.Add(path);
+															}
+														}catch{}
+													}
+												}catch{}
+											}
+										}catch{}
 									}
 								}catch{}
 							}
