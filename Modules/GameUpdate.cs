@@ -52,14 +52,16 @@ namespace BetterHI3Launcher
 						var game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
 						if(File.Exists(game_config_ini_file))
 						{
-							var data = new FileIniDataParser().ReadFile(game_config_ini_file);
-							if(data["General"]["game_version"] != null)
+							var parser = new FileIniDataParser();
+							parser.Parser.Configuration.CaseInsensitive = true;
+							var data = parser.ReadFile(game_config_ini_file);
+							if(data["general"]["game_version"] != null)
 							{
-								if(data["General"]["game_version"] == miHoYoVersionInfo.game.latest.version.ToString())
+								if(data["general"]["game_version"] == miHoYoVersionInfo.game.latest.version.ToString())
 								{
 									LocalVersionInfo.game_info.installed = true;
 								}
-								LocalVersionInfo.game_info.version = data["General"]["game_version"];
+								LocalVersionInfo.game_info.version = data["general"]["game_version"];
 							}
 						}
 						var local_game_version = new GameVersion(LocalVersionInfo.game_info.version.ToString());
@@ -721,6 +723,7 @@ namespace BetterHI3Launcher
 				string game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
 				IniData game_config_ini_data = null;
 				var ini_parser = new FileIniDataParser();
+				ini_parser.Parser.Configuration.CaseInsensitive = true;
 				if(File.Exists(game_config_ini_file))
 				{
 					game_config_ini_data = ini_parser.ReadFile(game_config_ini_file);
@@ -751,11 +754,7 @@ namespace BetterHI3Launcher
 					var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 					try
 					{
-						if(game_config_ini_data["General"]["game_version"] != null)
-						{
-							version_info.game_info.version = game_config_ini_data["General"]["game_version"];
-						}
-						else if(game_config_ini_data["general"]["game_version"] != null)
+						if(game_config_ini_data["general"]["game_version"] != null)
 						{
 							version_info.game_info.version = game_config_ini_data["general"]["game_version"];
 						}
