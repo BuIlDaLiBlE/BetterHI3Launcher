@@ -44,9 +44,8 @@ namespace BetterHI3Launcher
 			TextStrings.Add("introbox_title", "Welcome to Better HI3 Launcher!");
 			TextStrings.Add("introbox_msg", "Seems like this is your first time using the launcher. I'm glad you've decided to give it a try so in case you'd like to give feedback don't hesitate to do so by clicking \"Options\" button and selecting \"Send feedback\".\nIf you already have the game installed just press the \"Download\" button and point to where your game is. The launcher will detect your game version automatically and you won't have to download the game again.");
 			TextStrings.Add("repairbox_msg", "This will check every game file and attempt to repair if any is broken. It can take a while.\nContinue?\nAvailable mirrors: {0}.\nCurrent mirror maintainer is {1}.");
-			TextStrings.Add("fpsinputbox_title", "Enter max FPS cap");
-			TextStrings.Add("fpsinputbox_label_combatfps", "FPS in-game");
-			TextStrings.Add("fpsinputbox_label_menufps", "FPS in menu");
+			TextStrings.Add("fpsinputbox_title", "Enter max FPS limit");
+			TextStrings.Add("fpsinputbox_label_fps_limit", "FPS limit");
 			TextStrings.Add("resolutioninputbox_title", "Enter custom resolution");
 			TextStrings.Add("resolutioninputbox_label_width", "Width");
 			TextStrings.Add("resolutioninputbox_label_height", "Height");
@@ -63,7 +62,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("contextmenu_move", "Move game files");
 			TextStrings.Add("contextmenu_uninstall", "Uninstall game");
 			TextStrings.Add("contextmenu_game_settings", "Manage game settings");
-			TextStrings.Add("contextmenu_custom_fps", "Set custom FPS cap");
+			TextStrings.Add("contextmenu_custom_fps", "Set custom FPS limit");
 			TextStrings.Add("contextmenu_custom_resolution", "Set custom resolution");
 			TextStrings.Add("contextmenu_custom_launch_options", "Set custom launch options");
 			TextStrings.Add("contextmenu_reset_download_type", "Reset download type");
@@ -125,10 +124,10 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_custom_background_8_msg", "Failed to load selected file.");
 			TextStrings.Add("msgbox_custom_background_edit", "Change it");
 			TextStrings.Add("msgbox_custom_background_delete", "Reset to official");
-			TextStrings.Add("msgbox_custom_fps_1_msg", "Values must not be empty.");
-			TextStrings.Add("msgbox_custom_fps_2_msg", "Values must not be zero or negative.");
-			TextStrings.Add("msgbox_custom_fps_3_msg", "Values lower than 30 are not recommended. Continue?");
-			TextStrings.Add("msgbox_custom_fps_4_msg", "In-game and menu FPS cap successfully set to {0} and {1} respectively.");
+			TextStrings.Add("msgbox_custom_fps_1_msg", "Value must not be empty.");
+			TextStrings.Add("msgbox_custom_fps_2_msg", "Value must not be zero or negative.");
+			TextStrings.Add("msgbox_custom_fps_3_msg", "Value lower than 30 is not recommended. Continue?");
+			TextStrings.Add("msgbox_custom_fps_4_msg", "FPS limit successfully set to {0}.");
 			TextStrings.Add("msgbox_custom_resolution_1_msg", "Height being greater than width is not recommended.\nContinue?");
 			TextStrings.Add("msgbox_custom_resolution_2_msg", "Resolution successfully set to {0}x{1} with fullscreen {2}.");
 			TextStrings.Add("msgbox_custom_launch_options_msg", "Advanced users may enter custom launch options here.\nNote: they are applied independently per server.");

@@ -357,8 +357,7 @@ namespace BetterHI3Launcher
 				RepairBoxNoButton.Content = App.TextStrings["button_no"];
 				RepairBoxGenerateButton.Content = App.TextStrings["button_generate"];
 				FPSInputBoxTitleTextBlock.Text = App.TextStrings["fpsinputbox_title"];
-				CombatFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_combatfps"];
-				MenuFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_menufps"];
+				FPSLimitInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_fps_limit"];
 				FPSInputBoxOKButton.Content = App.TextStrings["button_confirm"];
 				FPSInputBoxCancelButton.Content = App.TextStrings["button_cancel"];
 				ResolutionInputBoxTitleTextBlock.Text = App.TextStrings["resolutioninputbox_title"];
