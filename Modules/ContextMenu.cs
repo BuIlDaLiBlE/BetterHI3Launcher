@@ -478,19 +478,11 @@ namespace BetterHI3Launcher
 				FPSInputBox.Visibility = Visibility.Visible;
 				if(json.TargetFrameRateForInLevel != null)
 				{
-					CombatFPSInputBoxTextBox.Text = json.TargetFrameRateForInLevel;
+					FPSLimitInputBoxTextBox.Text = json.TargetFrameRateForInLevel;
 				}
 				else
 				{
-					CombatFPSInputBoxTextBox.Text = "60";
-				}
-				if(json.TargetFrameRateForOthers != null)
-				{
-					MenuFPSInputBoxTextBox.Text = json.TargetFrameRateForOthers;
-				}
-				else
-				{
-					MenuFPSInputBoxTextBox.Text = "60";
+					FPSLimitInputBoxTextBox.Text = "60";
 				}
 				GameGraphicSettings = json;
 				LegacyBoxActive = true;

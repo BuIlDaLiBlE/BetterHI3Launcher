@@ -67,7 +67,7 @@ namespace BetterHI3Launcher
 					{
 						for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
 						{
-							string name = OnlineRepairInfo.files.names[i].ToString().Replace("/", "\\");
+							string name = OnlineRepairInfo.files.names[i].ToString();
 							string md5 = OnlineRepairInfo.files.hashes[i].ToString().ToUpper();
 							long size = OnlineRepairInfo.files.sizes[i];
 							string path = Path.Combine(GameInstallPath, name);
@@ -341,7 +341,7 @@ namespace BetterHI3Launcher
 						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
-						json.repair_info.game_version = miHoYoVersionInfo.game.latest.version;
+						json.repair_info.game_version = HYPGamePackageData.main.major.version;
 						json.repair_info.mirrors = string.Empty;
 						json.repair_info.zip_urls = Array.Empty<string>();
 						json.repair_info.files = new ExpandoObject();
@@ -427,30 +427,28 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
-				CombatFPSInputBoxTextBox.Text = string.Concat(CombatFPSInputBoxTextBox.Text.Where(c => !char.IsWhiteSpace(c)));
-				MenuFPSInputBoxTextBox.Text = string.Concat(MenuFPSInputBoxTextBox.Text.Where(c => !char.IsWhiteSpace(c)));
-				if(string.IsNullOrEmpty(CombatFPSInputBoxTextBox.Text) || string.IsNullOrEmpty(MenuFPSInputBoxTextBox.Text))
+				FPSLimitInputBoxTextBox.Text = string.Concat(FPSLimitInputBoxTextBox.Text.Where(c => !char.IsWhiteSpace(c)));
+				if(string.IsNullOrEmpty(FPSLimitInputBoxTextBox.Text))
 				{
 					new DialogWindow(App.TextStrings["contextmenu_custom_fps"], App.TextStrings["msgbox_custom_fps_1_msg"]).ShowDialog();
 					return;
 				}
-				int fps_combat = int.Parse(CombatFPSInputBoxTextBox.Text);
-				int fps_menu = int.Parse(MenuFPSInputBoxTextBox.Text);
-				if(fps_combat < 1 || fps_menu < 1)
+				int fps_limit = int.Parse(FPSLimitInputBoxTextBox.Text);
+				if(fps_limit < 1)
 				{
 					new DialogWindow(App.TextStrings["contextmenu_custom_fps"], App.TextStrings["msgbox_custom_fps_2_msg"]).ShowDialog();
 					return;
 				}
-				if(fps_combat < 30 || fps_menu < 30)
+				if(fps_limit < 30)
 				{
 					if(new DialogWindow(App.TextStrings["contextmenu_custom_fps"], App.TextStrings["msgbox_custom_fps_3_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
 				}
-				Log($"Setting in-game FPS to {fps_combat}, menu FPS to {fps_menu}...");
-				GameGraphicSettings.TargetFrameRateForInLevel = fps_combat;
-				GameGraphicSettings.TargetFrameRateForOthers = fps_menu;
+				Log($"Setting FPS limit to {fps_limit}...");
+				GameGraphicSettings.TargetFrameRateForInLevel = fps_limit;
+				GameGraphicSettings.TargetFrameRateForOthers = fps_limit;
 				var value_after = Encoding.UTF8.GetBytes($"{JsonConvert.SerializeObject(GameGraphicSettings)}\0");
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
 				key.SetValue("GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519", value_after, RegistryValueKind.Binary);
@@ -458,7 +456,7 @@ namespace BetterHI3Launcher
 				FPSInputBox.Visibility = Visibility.Collapsed;
 				LegacyBoxActive = false;
 				Log("success!", false);
-				new DialogWindow(App.TextStrings["contextmenu_custom_fps"], string.Format(App.TextStrings["msgbox_custom_fps_4_msg"], fps_combat, fps_menu)).ShowDialog();
+				new DialogWindow(App.TextStrings["contextmenu_custom_fps"], string.Format(App.TextStrings["msgbox_custom_fps_4_msg"], fps_limit)).ShowDialog();
 			}
 			catch(Exception ex)
 			{

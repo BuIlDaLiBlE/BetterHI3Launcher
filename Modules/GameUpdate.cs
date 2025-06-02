@@ -43,7 +43,6 @@ namespace BetterHI3Launcher
 					{
 						FetchOnlineVersionInfo();
 					}
-					App.Starting = false;
 
 					if(App.LauncherRegKey.GetValue(RegistryVersionInfo) != null)
 					{
@@ -52,10 +51,15 @@ namespace BetterHI3Launcher
 						var game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
 						if(File.Exists(game_config_ini_file))
 						{
-							var data = new FileIniDataParser().ReadFile(game_config_ini_file);
+							var parser = new FileIniDataParser();
+							parser.Parser.Configuration.AllowDuplicateKeys = true;
+							parser.Parser.Configuration.AllowDuplicateSections = true;
+							parser.Parser.Configuration.CaseInsensitive = true;
+							parser.Parser.Configuration.OverrideDuplicateKeys = true;
+							var data = parser.ReadFile(game_config_ini_file);
 							if(data["General"]["game_version"] != null)
 							{
-								if(data["General"]["game_version"] == miHoYoVersionInfo.game.latest.version.ToString())
+								if(data["General"]["game_version"] == HYPGamePackageData.main.major.version.ToString())
 								{
 									LocalVersionInfo.game_info.installed = true;
 								}
@@ -81,7 +85,7 @@ namespace BetterHI3Launcher
 							PatchDownload = false;
 							if(game_needs_update == 2 && Mirror == HI3Mirror.miHoYo)
 							{
-								var url = miHoYoVersionInfo.game.diffs[PatchDownloadInt].path.ToString();
+								var url = HYPGamePackageData.main.patches[PatchDownloadInt].game_pkgs[0].url.ToString();
 								GameArchiveName = BpUtility.GetFileNameFromUrl(url);
 								GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
 								PatchDownload = true;
@@ -143,9 +147,9 @@ namespace BetterHI3Launcher
 						{
 							Dispatcher.Invoke(() =>
 							{
-								if(miHoYoVersionInfo.pre_download_game != null)
+								if(HYPGamePackageData.pre_download.major != null)
 								{
-									var path = Path.Combine(GameInstallPath, BpUtility.GetFileNameFromUrl(miHoYoVersionInfo.pre_download_game.latest.path.ToString()));
+									var path = Path.Combine(GameInstallPath, BpUtility.GetFileNameFromUrl(HYPGamePackageData.pre_download.major.game_pkgs[0].url.ToString()));
 									if(File.Exists(path))
 									{
 										PreloadButton.Visibility = Visibility.Collapsed;
@@ -179,7 +183,7 @@ namespace BetterHI3Launcher
 						Log("Ready to install the game");
 						if(server_changed)
 						{
-							FetchmiHoYoVersionInfo();
+							FetchHYPGamePackageData();
 						}
 						DownloadPaused = false;
 						Status = LauncherStatus.Ready;
@@ -193,6 +197,7 @@ namespace BetterHI3Launcher
 					{
 						DownloadBackgroundImage();
 					}
+					App.Starting = false;
 				}
 				catch(Exception ex)
 				{
@@ -221,13 +226,16 @@ namespace BetterHI3Launcher
 		{
 			if(LocalVersionInfo != null)
 			{
-				FetchmiHoYoVersionInfo();
-				var online_game_version = new GameVersion(miHoYoVersionInfo.game.latest.version.ToString());
+				if(!App.Starting)
+				{
+					FetchHYPGamePackageData();
+				}
+				var online_game_version = new GameVersion(HYPGamePackageData.main.major.version.ToString());
 				if(online_game_version.IsNewerThan(local_game_version))
 				{
-					for(var i = 0; i < miHoYoVersionInfo.game.diffs.Count; i++)
+					for(var i = 0; i < HYPGamePackageData.main.patches.Count; i++)
 					{
-						if(miHoYoVersionInfo.game.diffs[i].version == local_game_version.ToString())
+						if(HYPGamePackageData.main.patches[i].version == local_game_version.ToString())
 						{
 							PatchDownloadInt = i;
 							return 2;
@@ -319,9 +327,9 @@ namespace BetterHI3Launcher
 						var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
 						if(json.retcode == 0)
 						{
-							if(json.data != null && json.data.adv != null && json.data.adv.background != null)
+							if(json.data != null && json.data.game_info_list != null && json.data.game_info_list.Count > 0)
 							{
-								background_image_url = json.data.adv.background.ToString();
+								background_image_url = json.data.game_info_list[0].backgrounds[0].background.url.ToString();
 							}
 							else
 							{
@@ -419,16 +427,11 @@ namespace BetterHI3Launcher
 				Path.Combine(path, "Games"),
 				Path.Combine(path, "Honkai Impact 3rd"),
 				Path.Combine(path, "Honkai Impact 3"),
-				Path.Combine(path, "崩坏3"),
-				Path.Combine(path, "崩壊3rd"),
-				Path.Combine(path, "붕괴3rd"),
-				Path.Combine(path, "Honkai Impact 3rd", "Games"),
-				Path.Combine(path, "Honkai Impact 3", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd glb", "Games"),
-				Path.Combine(path, "Honkai Impact 3 sea", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd tw", "Games"),
-				Path.Combine(path, "Honkai Impact 3rd kr", "Games"),
-				Path.Combine(path, "Houkai3rd", "Games")
+				Path.Combine(path, "Honkai Impact 3rd game", "Games"),
+				Path.Combine(path, "Honkai Impact 3 game", "Games"),
+				Path.Combine(path, "Honkai Impact 3rd asia game", "Games"),
+				Path.Combine(path, "Honkai Impact 3rd kr game", "Games"),
+				Path.Combine(path, "Houkai3rd game", "Games")
 			});
 
 			foreach(var variant in path_variants)
@@ -512,14 +515,16 @@ namespace BetterHI3Launcher
 				if(Mirror == HI3Mirror.miHoYo)
 				{
 					title = GameArchiveName;
-					url = miHoYoVersionInfo.game.latest.path.ToString();
-					if(PatchDownload)
+					
+					if(!PatchDownload)
 					{
-						md5 = miHoYoVersionInfo.game.diffs[PatchDownloadInt].md5.ToString();
+						url = HYPGamePackageData.main.major.game_pkgs[0].url.ToString();
+						md5 = HYPGamePackageData.main.major.game_pkgs[0].md5.ToString();
 					}
 					else
 					{
-						md5 = miHoYoVersionInfo.game.latest.md5.ToString();
+						url = HYPGamePackageData.main.patches[PatchDownloadInt].game_pkgs[0].url.ToString();
+						md5 = HYPGamePackageData.main.patches[PatchDownloadInt].game_pkgs[0].md5.ToString();
 					}
 				}
 				else
@@ -552,11 +557,11 @@ namespace BetterHI3Launcher
 					}
 					title = metadata.downloadUrl;
 					url = metadata.downloadUrl;
-					md5 = miHoYoVersionInfo.game.latest.md5.ToString();
-					if((DateTimeOffset)metadata.modifiedDate < (DateTimeOffset)miHoYoVersionInfo.last_modified)
+					md5 = HYPGamePackageData.main.major.game_pkgs[0].md5.ToString();
+					if((DateTimeOffset)metadata.modifiedDate < (DateTimeOffset)HYPGamePackageData.main.major.game_pkgs[0].last_modified)
 					{
 						Status = LauncherStatus.Error;
-						Log("The seleted mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
+						Log("The selected mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
 						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_old_msg"]).ShowDialog();
 						Status = LauncherStatus.Ready;
 						GameUpdateCheck();
@@ -589,8 +594,8 @@ namespace BetterHI3Launcher
 								LaunchButton.IsEnabled = true;
 								LaunchButton.Content = App.TextStrings["button_cancel"];
 							});
-							await httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token);
-							await httpclient.Merge(token.Token);
+							await AssignAndRunHttpTaskOrThrow(httpclient.Download(httpprop.URL, httpprop.Out, httpprop.Thread, false, token.Token));
+							await AssignAndRunHttpTaskOrThrow(httpclient.Merge(token.Token));
 							httpclient.DownloadProgress -= DownloadStatusChanged;
 							Log("Successfully downloaded game archive");
 						}
@@ -724,21 +729,15 @@ namespace BetterHI3Launcher
 			try
 			{
 				string game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
-				string launcher_config_ini_file = null;
-				try
-				{
-					launcher_config_ini_file = Path.Combine(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{GameInstallRegistryName}").GetValue("InstallPath").ToString(), "config.ini");
-				}catch{}
 				IniData game_config_ini_data = null;
-				IniData launcher_config_ini_data = null;
 				var ini_parser = new FileIniDataParser();
+				ini_parser.Parser.Configuration.AllowDuplicateKeys = true;
+				ini_parser.Parser.Configuration.AllowDuplicateSections = true;
+				ini_parser.Parser.Configuration.CaseInsensitive = true;
+				ini_parser.Parser.Configuration.OverrideDuplicateKeys = true;
 				if(File.Exists(game_config_ini_file))
 				{
 					game_config_ini_data = ini_parser.ReadFile(game_config_ini_file);
-				}
-				if(File.Exists(launcher_config_ini_file))
-				{
-					launcher_config_ini_data = ini_parser.ReadFile(launcher_config_ini_file);
 				}
 				var version_info = LocalVersionInfo;
 				if(version_info == null)
@@ -748,7 +747,7 @@ namespace BetterHI3Launcher
 				}
 				if(!PatchDownload)
 				{
-					version_info.game_info.version = miHoYoVersionInfo.game.latest.version.ToString();
+					version_info.game_info.version = HYPGamePackageData.main.major.version.ToString();
 				}
 				else
 				{
@@ -807,20 +806,34 @@ namespace BetterHI3Launcher
 					}
 					try
 					{
-						if(launcher_config_ini_data != null)
+						string hyp_registry_path = null;
+						switch(Server)
 						{
-							string path = BpUtility.GetCNotatedStringPath(GameInstallPath.Replace("\\", "/"));
-							launcher_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
-							if(launcher_config_ini_data["launcher"]["game_install_path"] != path)
-							{
-								launcher_config_ini_data["launcher"]["game_install_path"] = path;
-								ini_parser.WriteFile(launcher_config_ini_file, launcher_config_ini_data, new UTF8Encoding(false));
-							}
+							case HI3Server.GLB:
+								// If this file exists, then it must be the Epic version
+								if(File.Exists(Path.Combine(GameInstallPath, "sdk_pkg_version")))
+								{
+									hyp_registry_path = @"SOFTWARE\Cognosphere\HYP\standalone\1_3\bh3_global\ACQazS79kX";
+									break;
+								}
+								goto default;
+							case HI3Server.CN:
+								hyp_registry_path = @"SOFTWARE\miHoYo\HYP\1_1";
+								break;
+							default:
+								hyp_registry_path = @"SOFTWARE\Cognosphere\HYP\1_0";
+								break;
+						}
+						var key = Registry.CurrentUser.OpenSubKey($@"{hyp_registry_path}\{GameInstallRegistryName}", true);
+						if(key != null)
+						{
+							key.SetValue("GameInstallPath", GameInstallPath);
+							key.Close();
 						}
 					}
 					catch(Exception ex)
 					{
-						Log($"Failed to write path to launcher config.ini: {ex.Message}", true, 2);
+						Log($"Failed to write installation path to HoYoPlay registry: {ex.Message}", true, 2);
 					}
 				}
 				Log("success!", false);
