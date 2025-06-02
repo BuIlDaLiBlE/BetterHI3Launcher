@@ -553,7 +553,7 @@ namespace BetterHI3Launcher
 					if((DateTimeOffset)metadata.modifiedDate < (DateTimeOffset)miHoYoVersionInfo.last_modified)
 					{
 						Status = LauncherStatus.Error;
-						Log("The seleted mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
+						Log("The selected mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
 						new DialogWindow(App.TextStrings["msgbox_game_download_error_title"], App.TextStrings["msgbox_game_download_mirror_old_msg"]).ShowDialog();
 						Status = LauncherStatus.Ready;
 						GameUpdateCheck();
