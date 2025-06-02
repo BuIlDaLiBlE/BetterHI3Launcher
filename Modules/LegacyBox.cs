@@ -341,7 +341,7 @@ namespace BetterHI3Launcher
 						).ToList();
 						dynamic json = new ExpandoObject();
 						json.repair_info = new ExpandoObject();
-						json.repair_info.game_version = miHoYoVersionInfo.game.latest.version;
+						json.repair_info.game_version = HYPGamePackageData.main.major.version;
 						json.repair_info.mirrors = string.Empty;
 						json.repair_info.zip_urls = Array.Empty<string>();
 						json.repair_info.files = new ExpandoObject();
