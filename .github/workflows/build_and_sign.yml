@@ -11,23 +11,25 @@ on:
         options:
           - Debug
           - Release
+  push: 
 
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+    with:
+      configuration: ${{ inputs.configuration || 'Debug' }}
   sign:
     needs: build
-	runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
+      BUILD_CONFIG: ${{ inputs.configuration || 'Debug' }}
+      PROJECT_SLUG: BetterHI3Launcher
       SIGNPATH_ARTIFACT_SLUG: initial
       SIGNING_POLICY_SLUG: ""
     steps:
       - name: Set environment variables
-        id: set_env
         run: |
-          $branch_name = $env:GITHUB_REF_NAME
-
-          if($branch_name -eq "master")
+          if($env:GITHUB_REF_NAME -eq "master")
           {
             echo "SIGNING_POLICY_SLUG=release" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
           }
@@ -38,12 +40,12 @@ jobs:
       - name: Sign artifact
         uses: signpath/github-action-submit-signing-request@v1.1
         with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
-          project-slug: Bp
-          signing-policy-slug: ${{ env.SIGNING_POLICY_SLUG }}
-          artifact-configuration-slug: ${{ env.SIGNPATH_ARTIFACT_SLUG }}
-          github-artifact-id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
+          api-token: "${{ secrets.SIGNPATH_API_TOKEN }}"
+          organization-id: "${{ secrets.SIGNPATH_ORG_ID }}"
+          project-slug: "${{ env.PROJECT_SLUG }}"
+          signing-policy-slug: "${{ env.SIGNING_POLICY_SLUG }}"
+          artifact-configuration-slug: "${{ env.SIGNPATH_ARTIFACT_SLUG }}"
+          github-artifact-id: ${{ needs.build.outputs.artifact_id }}
           output-artifact-directory: bin-signed\${{ env.BUILD_CONFIG }}
 
       - name: Upload signed artifact

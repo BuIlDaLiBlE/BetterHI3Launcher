@@ -7,6 +7,9 @@ on:
         required: true
         type: string
         default: Debug
+    outputs:
+      artifact_id:
+        value: ${{ jobs.build.outputs.artifact_id }}
   workflow_dispatch:
     inputs:
       configuration:
@@ -23,7 +26,9 @@ jobs:
     runs-on: windows-latest
     env:
       SOLUTION_FILE: BetterHI3Launcher.sln
-      BUILD_CONFIG: ${{ inputs.configuration || "Debug" }}
+      BUILD_CONFIG: ${{ inputs.configuration || 'Debug' }}
+    outputs:
+      artifact_id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
