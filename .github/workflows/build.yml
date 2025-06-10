@@ -26,8 +26,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
-    continue-on-error: false
+    runs-on: windows-latest
     env:
       SOLUTION_FILE: BetterHI3Launcher.sln
       BUILD_CONFIG: ${{ inputs.configuration || 'Debug' }}
@@ -38,14 +37,12 @@ jobs:
           submodules: recursive
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
-        with:
-          msbuild-architecture: x64
       - name: Build app
-        run: msbuild $env:SOLUTION_FILE -p:Configuration=$env:BUILD_CONFIG
+        run: msbuild -r -p:Configuration=$env:BUILD_CONFIG $env:SOLUTION_FILE
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: BetterHI3Launcher.exe
-          path: bin\${{ matrix.configuration }}\BetterHI3Launcher.exe
+          path: bin\${{ env.BUILD_CONFIG }}\BetterHI3Launcher.exe
           compression-level: 0
           overwrite: true
