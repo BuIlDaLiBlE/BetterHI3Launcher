@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        required: true
+        type: string
+        default: 'Debug'
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: Configuration
+        required: true
+        type: choice
+        default: 'Debug'
+        options:
+          - Debug
+          - Release
+  push:
+    branches:
+      - "dev"
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+
+jobs:
+  build:
+    runs-on: windows-2019
+    continue-on-error: false
+    env:
+      SOLUTION_FILE: BetterHI3Launcher.sln
+      BUILD_CONFIG: ${{ inputs.configuration || 'Debug' }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+      - name: Build app
+        run: msbuild $env:SOLUTION_FILE -p:Configuration=$env:BUILD_CONFIG
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BetterHI3Launcher.exe
+          path: bin\${{ matrix.configuration }}\BetterHI3Launcher.exe
+          compression-level: 0
+          overwrite: true
