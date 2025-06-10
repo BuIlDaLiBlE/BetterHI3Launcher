@@ -17,6 +17,7 @@ jobs:
     uses: ./.github/workflows/build.yml
   sign:
     needs: build
+	runs-on: ubuntu-latest
     env:
       SIGNPATH_ARTIFACT_SLUG: initial
       SIGNING_POLICY_SLUG: ""
