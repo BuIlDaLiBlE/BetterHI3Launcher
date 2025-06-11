@@ -25,7 +25,7 @@ You can save and use it wherever you want, it's that simple!
 ## Compatibility
 Of course, a 64-bit version of Windows is required since the game also requires it. The launcher is tested to work on modern versions of Windows (10 and 11).
 
-Windows 8.1 and 7 should technically work if .NET Framework 4.6.2 or newer is installed, however they are no longer supported by Microsoft so I may not accept bug reports from these versions of Windows.
+Windows 8.1 and 7 should technically work if .NET Framework 4.8 or newer is installed, however they are no longer supported by Microsoft so I may not accept bug reports from these versions of Windows.
 
 ## Is this safe?
 I started this project to help fellow Captains have a better experience with the game. Since the release in January of 2021 there have been no cases of banned accounts.
