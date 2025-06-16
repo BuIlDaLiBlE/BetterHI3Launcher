@@ -127,6 +127,7 @@
     <Compile Include="Modules\LauncherUpdate.cs" />
     <Compile Include="Modules\LegacyBox.cs" />
     <Compile Include="Modules\Shared.cs" />
+    <Compile Include="Utility\BpUtility.cs" />
     <Compile Include="Utility\DownloadProgressEvents.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Attributes\*.cs" />
     <Compile Include="Utility\Hi3Helper.Http\Class\Event\*.cs" />
@@ -138,21 +139,20 @@
     <Compile Include="Utility\Hi3Helper.Http\HttpMulti.cs" />
     <Compile Include="Utility\Hi3Helper.EncTool\mhyEncTool.cs" />
     <Compile Include="Utility\Hi3Helper.EncTool\XORFileStream.cs" />
-    <Compile Include="Utility\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
-    <Compile Include="Utility\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
-    <Compile Include="Utility\PartialZip\Exceptions\PartialZipParsingException.cs" />
-    <Compile Include="Utility\PartialZip\Exceptions\PartialZipUnsupportedCompressionException.cs" />
-    <Compile Include="Utility\PartialZip\Models\CentralDirectoryHeader.cs" />
-    <Compile Include="Utility\PartialZip\Models\EndOfCentralDirectory.cs" />
-    <Compile Include="Utility\PartialZip\Models\EndOfCentralDirectory64.cs" />
-    <Compile Include="Utility\PartialZip\Models\EndOfCentralDirectoryLocator64.cs" />
-    <Compile Include="Utility\PartialZip\Models\ExtendedInformationExtraField64.cs" />
-    <Compile Include="Utility\PartialZip\Models\LocalFileHeader.cs" />
-    <Compile Include="Utility\PartialZip\Models\PartialZipInfo.cs" />
-    <Compile Include="Utility\PartialZip\PartialZipDownloader.cs" />
-    <Compile Include="Utility\PartialZip\Services\DeflateService.cs" />
-    <Compile Include="Utility\PartialZip\Services\HttpService.cs" />
-    <Compile Include="Utility\BpUtility.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Exceptions\PartialZipFileNotFoundException.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Exceptions\PartialZipNotSupportedException.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Exceptions\PartialZipParsingException.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Exceptions\PartialZipUnsupportedCompressionException.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Models\CentralDirectoryHeader.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Models\EndOfCentralDirectory.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Models\EndOfCentralDirectory64.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Models\EndOfCentralDirectoryLocator64.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Models\ExtendedInformationExtraField64.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Models\LocalFileHeader.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Models\PartialZipInfo.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\PartialZipDownloader.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Services\DeflateService.cs" />
+    <Compile Include="Utility\PartialZip\PartialZip\Services\HttpService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
