@@ -11,7 +11,6 @@ on:
         options:
           - Debug
           - Release
-  push: 
 
 jobs:
   build:

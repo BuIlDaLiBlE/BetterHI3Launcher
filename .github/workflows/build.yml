@@ -20,6 +20,14 @@ on:
         options:
           - Debug
           - Release
+  push:
+    branches-ignore:
+      - master
+    paths-ignore:
+      - "**.md"
+      - "**.txt"
+      - "**.html"
+      - ".gitignore"
 
 jobs:
   build:
