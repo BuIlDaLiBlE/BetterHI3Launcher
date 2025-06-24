@@ -394,7 +394,7 @@ namespace BetterHI3Launcher
 				AnnouncementBox.Visibility = Visibility.Collapsed;
 
 				var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
-				if(key == null || (int)key.GetValue("Release") < 394802)
+				if(key == null || (int)key.GetValue("Release") < 528040)
 				{
 					MessageBox.Show(App.TextStrings["msgbox_net_version_old_msg"], App.TextStrings["msgbox_start_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 					Application.Current.Shutdown();

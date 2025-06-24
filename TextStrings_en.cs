@@ -170,7 +170,7 @@ namespace BetterHI3Launcher
 			TextStrings.Add("msgbox_move_wrong_drive_type_msg", "Cannot move to selected device.");
 			TextStrings.Add("msgbox_net_error_msg", "An error occurred while connecting to server:\n{0}");
 			TextStrings.Add("msgbox_net_error_title", "Network error");
-			TextStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.6.1 or newer to be installed.");
+			TextStrings.Add("msgbox_net_version_old_msg", "This launcher requires .NET Framework 4.8 or newer to be installed.");
 			TextStrings.Add("msgbox_no_game_dir_msg", "Game directory cannot be found.\nTry reinstalling the game.");
 			TextStrings.Add("msgbox_no_game_dir_title", "No game directory");
 			TextStrings.Add("msgbox_no_game_exe_msg", "Game executable cannot be found.\nWould you like to reset the installation information?");

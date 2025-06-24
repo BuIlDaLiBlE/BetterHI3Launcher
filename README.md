@@ -25,13 +25,15 @@ You can save and use it wherever you want, it's that simple!
 ## Compatibility
 Of course, a 64-bit version of Windows is required since the game also requires it. The launcher is tested to work on modern versions of Windows (10 and 11).
 
-Windows 8.1 and 7 should technically work if .NET Framework 4.6.2 or newer is installed, however they are no longer supported by Microsoft so I may not accept bug reports from these versions of Windows.
+Windows 8.1 and 7 should technically work if .NET Framework 4.8 or newer is installed, however they are no longer supported by Microsoft so I may not accept bug reports from these versions of Windows.
 
 ## Is this safe?
 I started this project to help fellow Captains have a better experience with the game. Since the release in January of 2021 there have been no cases of banned accounts.
 After all, this is just an app that downloads the game and has some helpful utilities. Though it's probably a good idea to keep in mind that this project is not affiliated with HoYoverse in any way and they reserve the final say.
 
-Ultimately it is for you to decide whether to trust the project or not. The launcher's code is open source, so you're more than welcome to examine it. On that note...
+In addition, this app does not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. In regards to code signing, I cannot thank the [SignPath.io](https://about.signpath.io) project enough for providing free code signing certificate by SignPath Foundation.
+
+Ultimately it is for you to decide whether to trust the project or not. The launcher's code is open source and the binary is signed, so you're more than welcome to take a look at it. On that note...
 
 ## How can I contribute? 
 Great question! This project is mainly supported by the main developer (@BuIlDaLiBlE) alone, so I'd love to hear your feedback. You can [open an issue](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/issues/new/choose) to report a bug/suggest something or you can directly contribute with [pull requests](https://github.com/BuIlDaLiBlE/BetterHI3Launcher/pulls).
@@ -51,3 +53,6 @@ That's it, you're done! Please be ready to answer if there happens to be somethi
 After I verify your submission and implement it I will list your name in the "About" page of the launcher as a token of gratitude. (´｡• ᵕ •｡`)
 
 Translations may need updating in the future as I keep adding and changing things so it would be a huge help if you subscribe to the issue so that you can receive notifications whenever I will be needing more help (won't be very often, I promise!). Thank you in advance!
+
+## Special thanks
+To @neon-nyan for generous contribution and maintenance of [Hi3Helper.Http](https://github.com/CollapseLauncher/Hi3Helper.Http) - the parallel downloader

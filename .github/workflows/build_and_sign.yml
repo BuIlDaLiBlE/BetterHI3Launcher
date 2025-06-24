@@ -1,0 +1,56 @@
+name: Build & Sign
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: Configuration
+        required: true
+        type: choice
+        default: Release
+        options:
+          - Debug
+          - Release
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      configuration: ${{ inputs.configuration || 'Debug' }}
+  sign:
+    needs: build
+    runs-on: windows-latest
+    env:
+      BUILD_CONFIG: ${{ inputs.configuration || 'Debug' }}
+      PROJECT_SLUG: BetterHI3Launcher
+      SIGNPATH_ARTIFACT_SLUG: initial
+      SIGNING_POLICY_SLUG: ""
+    steps:
+      - name: Set environment variables
+        run: |
+          if($env:GITHUB_REF_NAME -eq "master")
+          {
+            echo "SIGNING_POLICY_SLUG=release" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+          }
+          else
+          {
+            echo "SIGNING_POLICY_SLUG=test" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+          }
+      - name: Sign artifact
+        uses: signpath/github-action-submit-signing-request@v1.1
+        with:
+          api-token: "${{ secrets.SIGNPATH_API_TOKEN }}"
+          organization-id: "${{ secrets.SIGNPATH_ORG_ID }}"
+          project-slug: "${{ env.PROJECT_SLUG }}"
+          signing-policy-slug: "${{ env.SIGNING_POLICY_SLUG }}"
+          artifact-configuration-slug: "${{ env.SIGNPATH_ARTIFACT_SLUG }}"
+          github-artifact-id: ${{ needs.build.outputs.artifact_id }}
+          output-artifact-directory: bin-signed\${{ env.BUILD_CONFIG }}
+
+      - name: Upload signed artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BetterHI3Launcher
+          path: bin-signed\${{ env.BUILD_CONFIG }}\BetterHI3Launcher.exe
+          compression-level: 9
+          overwrite: true
