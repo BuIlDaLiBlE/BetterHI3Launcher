@@ -941,7 +941,8 @@ namespace BetterHI3Launcher
 			{
 				if(item.GetType() == typeof(MenuItem))
 				{
-					if(item.Header.ToString() == App.TextStrings["contextmenu_web_profile"] ||
+					if(item.Header.ToString() == App.TextStrings["contextmenu_open_screenshots_dir"] ||
+					   item.Header.ToString() == App.TextStrings["contextmenu_web_profile"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_feedback"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_changelog"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_language"] ||
