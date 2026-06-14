@@ -18,6 +18,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
 using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -43,7 +44,9 @@ namespace BetterHI3Launcher
 		public static RoutedCommand AboutCommand = new RoutedCommand();
 
 		public LocalVersionInfo LocalVersionInfo = null;
-		public dynamic OnlineVersionInfo, OnlineRepairInfo, HYPGamePackageData;
+        public DynamicJson HYPGamePackageData;
+
+        public dynamic OnlineVersionInfo, OnlineRepairInfo;
 		public dynamic GameGraphicSettings, GameScreenSettings;
 		LauncherStatus _status;
 		HI3Server _gameserver;
@@ -1117,8 +1120,8 @@ namespace BetterHI3Launcher
 									continue;
 								}
 
-								long free_space_recommended = (long)HYPGamePackageData.main.major.game_pkgs[0].decompressed_size;
-								string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData.main.major.game_pkgs[0].size))}" +
+								long free_space_recommended = (long)HYPGamePackageData["main"]["major"]["game_pkgs"][0]["decompressed_size"];
+								string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData["main"]["major"]["game_pkgs"][0]["size"]))}" +
 									$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(free_space_recommended), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}" +
 									$"\n{string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath)}";
 								if(new DialogWindow(App.TextStrings["msgbox_install_title"], install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
@@ -1164,7 +1167,7 @@ namespace BetterHI3Launcher
 						return;
 					}
 					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
-					if(game_install_drive.TotalFreeSpace < (long)HYPGamePackageData.main.major.game_pkgs[0].decompressed_size)
+					if(game_install_drive.TotalFreeSpace < HYPGamePackageData["main"]["major"]["game_pkgs"][0]["decompressed_size"])
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{
@@ -1292,10 +1295,10 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				string url = HYPGamePackageData.pre_download.major.game_pkgs[0].url.ToString();
+				string url = HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["url"].ToString();
 				string title = BpUtility.GetFileNameFromUrl(url);
 				long size;
-				string md5 = HYPGamePackageData.pre_download.major.game_pkgs[0].md5.ToString().ToUpper();
+				string md5 = HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["md5"].ToString()?.ToUpper();
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
@@ -1309,12 +1312,12 @@ namespace BetterHI3Launcher
 					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
 					string pre_install_message = $"{App.TextStrings["msgbox_pre_install_msg"]}" +
 						$"\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}" +
-						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData.pre_download.major.game_pkgs[0].size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
+						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["size"]), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
 					if(new DialogWindow(App.TextStrings["label_pre_install"], pre_install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
-					if(game_install_drive.TotalFreeSpace < (long)HYPGamePackageData.pre_download.major.game_pkgs[0].decompressed_size)
+					if(game_install_drive.TotalFreeSpace < HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["decompressed_size"])
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{

@@ -62,7 +62,7 @@ namespace BetterHI3Launcher
 							var data = parser.ReadFile(game_config_ini_file);
 							if(data["General"]["game_version"] != null)
 							{
-								if(data["General"]["game_version"] == HYPGamePackageData.main.major.version.ToString())
+								if(data["General"]["game_version"] == HYPGamePackageData["main"]["major"]["version"].ToString())
 								{
 									(LocalVersionInfo.GameInfo ??= new GameInfo()).IsInstalled = true;
 								}
@@ -88,7 +88,7 @@ namespace BetterHI3Launcher
 							PatchDownload = false;
 							if(game_needs_update == 2 && Mirror == HI3Mirror.miHoYo)
 							{
-								var url = HYPGamePackageData.main.patches[PatchDownloadInt].game_pkgs[0].url.ToString();
+								var url = HYPGamePackageData["main"]["patches"][PatchDownloadInt]["game_pkgs"][0]["url"].ToString();
 								GameArchiveName = BpUtility.GetFileNameFromUrl(url);
 								GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
 								PatchDownload = true;
@@ -150,9 +150,9 @@ namespace BetterHI3Launcher
 						{
 							Dispatcher.Invoke(() =>
 							{
-								if(HYPGamePackageData.pre_download.major != null)
+								if(HYPGamePackageData["pre_download"]["major"] != default)
 								{
-									var path = Path.Combine(GameInstallPath, BpUtility.GetFileNameFromUrl(HYPGamePackageData.pre_download.major.game_pkgs[0].url.ToString()));
+									var path = Path.Combine(GameInstallPath, BpUtility.GetFileNameFromUrl(HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["url"].ToString()));
 									if(File.Exists(path))
 									{
 										PreloadButton.Visibility = Visibility.Collapsed;
@@ -234,13 +234,14 @@ namespace BetterHI3Launcher
 					FetchHYPGamePackageData();
 				}
 
-				string online_game_version_str = HYPGamePackageData.main.major.version.ToString();
+				string online_game_version_str = HYPGamePackageData["main"]["major"]["version"].ToString();
 				StructVersion online_game_version = new(online_game_version_str);
-				if(online_game_version > local_game_version)
+				if(local_game_version != online_game_version &&
+                   local_game_version < online_game_version)
 				{
-					for(var i = 0; i < HYPGamePackageData.main.patches.Count; i++)
+					for(var i = 0; i < HYPGamePackageData["main"]["patches"].Node?.AsArray().Count; i++)
 					{
-						if(HYPGamePackageData.main.patches[i].version == local_game_version.ToString())
+						if(HYPGamePackageData["main"]["patches"][i]["version"].ToString() == local_game_version.ToString())
 						{
 							PatchDownloadInt = i;
 							return 2;
@@ -523,13 +524,13 @@ namespace BetterHI3Launcher
 					
 					if(!PatchDownload)
 					{
-						url = HYPGamePackageData.main.major.game_pkgs[0].url.ToString();
-						md5 = HYPGamePackageData.main.major.game_pkgs[0].md5.ToString();
+						url = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString();
+						md5 = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["md5"].ToString();
 					}
 					else
 					{
-						url = HYPGamePackageData.main.patches[PatchDownloadInt].game_pkgs[0].url.ToString();
-						md5 = HYPGamePackageData.main.patches[PatchDownloadInt].game_pkgs[0].md5.ToString();
+						url = HYPGamePackageData["main"]["patches"][PatchDownloadInt]["game_pkgs"][0]["url"].ToString();
+						md5 = HYPGamePackageData["main"]["patches"][PatchDownloadInt]["game_pkgs"][0]["md5"].ToString();
 					}
 				}
 				else
@@ -562,8 +563,8 @@ namespace BetterHI3Launcher
 					}
 					title = metadata.downloadUrl;
 					url = metadata.downloadUrl;
-					md5 = HYPGamePackageData.main.major.game_pkgs[0].md5.ToString();
-					if((DateTimeOffset)metadata.modifiedDate < (DateTimeOffset)HYPGamePackageData.main.major.game_pkgs[0].last_modified)
+					md5 = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["md5"].ToString();
+					if((DateTimeOffset)metadata.modifiedDate < HYPGamePackageData["main"]["major"]["game_pkgs"][0]["last_modified"])
 					{
 						Status = LauncherStatus.Error;
 						Log("The selected mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
@@ -750,7 +751,7 @@ namespace BetterHI3Launcher
 
 				if(!PatchDownload)
 				{
-					string verStr = HYPGamePackageData.main.major.version.ToString();
+					string verStr = HYPGamePackageData["main"]["major"]["version"].ToString();
 					game_info.Version = verStr;
 				}
 				else

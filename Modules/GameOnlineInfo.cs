@@ -5,6 +5,8 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json.Nodes;
+using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -42,23 +44,23 @@ namespace BetterHI3Launcher
 					using(var data = new MemoryStream())
 					{
 						web_response.GetResponseStream().CopyTo(data);
-						var HYPResourceDataResponse = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
-						if(HYPResourceDataResponse.retcode == 0)
+						JsonNode? HYPResourceDataResponse = JsonNode.Parse(data.ToArray());
+						if (HYPResourceDataResponse["retcode"].GetValue<int>() == 0)
 						{
-							if(HYPResourceDataResponse.data != null)
+							if(HYPResourceDataResponse["data"] != null)
 							{
-								if(HYPResourceDataResponse.data.game_packages.Count > 0)
+								if(HYPResourceDataResponse["data"]["game_packages"]?.AsArray().Count > 0)
 								{
-									HYPGamePackageData = HYPResourceDataResponse.data.game_packages[0];
-									if(!HYPGamePackageData.game.biz.ToString().Contains("bh3"))
+									HYPGamePackageData = DynamicJson.Parse(HYPResourceDataResponse["data"]["game_packages"][0]?.ToJsonString() ?? "");
+									if (!(HYPGamePackageData["game"]["biz"].ToString()?.Contains("bh3") ?? false))
 									{
-										throw new HttpRequestException($"HYP response does not contain data about Honkai Impact 3rd, got biz: {HYPGamePackageData.game.biz.ToString()}");
+										throw new HttpRequestException($"HYP response does not contain data about Honkai Impact 3rd, got biz: {HYPGamePackageData["game"]["biz"].ToString()}");
 									}
-									if(HYPGamePackageData.main.major.game_pkgs.Count == 0)
+									if(HYPGamePackageData["main"]["major"]["game_pkgs"].Node?.AsArray().Count == 0)
 									{
 										throw new HttpRequestException("HYP game archive data is missing in response");
 									}
-									GameArchiveName = BpUtility.GetFileNameFromUrl(HYPGamePackageData.main.major.game_pkgs[0].url.ToString());
+									GameArchiveName = BpUtility.GetFileNameFromUrl(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString());
 								}
 								else
 								{
@@ -72,15 +74,15 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse.message.ToString()}");
+							throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse["message"]}");
 						}
 					}
 				}
 
-				web_request = BpUtility.CreateWebRequest(HYPGamePackageData.main.major.game_pkgs[0].url.ToString(), "HEAD", timeout);
+				web_request = BpUtility.CreateWebRequest(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString(), "HEAD", timeout);
 				using(var web_response = (HttpWebResponse)web_request.GetResponse())
 				{
-					HYPGamePackageData.main.major.game_pkgs[0].last_modified = (DateTimeOffset)web_response.LastModified;
+                    HYPGamePackageData["main"]["major"]["game_pkgs"][0].TrySetValue("last_modified", (DateTimeOffset)web_response.LastModified);
 				}
 			}
 			int attempts = 6;
@@ -112,7 +114,7 @@ namespace BetterHI3Launcher
 			Dispatcher.Invoke(() =>
 			{
 				GameNameText.Text = GameFullName;
-				GameVersionText.Text = HYPGamePackageData.main.major.version.ToString();
+				GameVersionText.Text = HYPGamePackageData["main"]["major"]["version"];
 			});
 		}
 
