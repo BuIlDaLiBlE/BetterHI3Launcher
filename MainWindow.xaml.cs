@@ -956,7 +956,7 @@ namespace BetterHI3Launcher
 							start_info.Arguments = LocalVersionInfo.LaunchOptions ?? "";
 
 							var process = Process.Start(start_info);
-							process.EnableRaisingEvents = true;
+                            process.EnableRaisingEvents = true;
 							process.Exited += new EventHandler((object s1, EventArgs ea1) =>
 							{
 								processes = Process.GetProcessesByName("BH3");
