@@ -240,8 +240,9 @@ namespace BetterHI3Launcher
                    local_game_version < online_game_version)
 				{
 					for(var i = 0; i < HYPGamePackageData["main"]["patches"].Node?.AsArray().Count; i++)
-					{
-						if(HYPGamePackageData["main"]["patches"][i]["version"].ToString() == local_game_version.ToString())
+                    {
+                        StructVersion onlineVersion = HYPGamePackageData["main"]["patches"][i]["version"];
+                        if (onlineVersion == local_game_version)
 						{
 							PatchDownloadInt = i;
 							return 2;
