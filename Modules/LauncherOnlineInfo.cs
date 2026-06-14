@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using BetterHI3Launcher.Utility;
@@ -96,7 +97,7 @@ namespace BetterHI3Launcher
 			}
 			if(App.Announcements.Count > 0)
 			{
-				Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
+				Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.FirstOrDefault());});
 			}
 			else
 			{
@@ -104,11 +105,11 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private void ShowAnnouncement(dynamic announcement)
+		private void ShowAnnouncement(DynamicJson announcement)
 		{
 			LegacyBoxActive = true;
-			AnnouncementBoxTitleTextBlock.Text = announcement.content.title;
-			TextBlockExt.SetFormattedText(AnnouncementBoxMessageTextBlock, announcement.content.text.ToString());
+			AnnouncementBoxTitleTextBlock.Text = announcement["content"]["title"];
+			TextBlockExt.SetFormattedText(AnnouncementBoxMessageTextBlock, announcement["content"]["text"].ToString());
 			AnnouncementBox.Visibility = Visibility.Visible;
 			FlashMainWindow();
 		}

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 using SevenZip;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using BetterHI3Launcher.Utility;
+using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -23,14 +23,14 @@ namespace BetterHI3Launcher
 		public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
 		public static readonly string LauncherTranslationsFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-translations.json");
 		public static string UserAgent = $"BetterHI3Launcher/v{LocalLauncherVersion.ToString("F")}";
-		public static List<string> UserAgentComment = new List<string>();
+		public static List<string> UserAgentComment = [];
 		public static string LauncherExeName, LauncherPath, LauncherArchivePath, LauncherLanguage;
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();
 		public static readonly string OSLanguage = CultureInfo.CurrentUICulture.ToString();
 		public static string[] CommandLineArgs = Environment.GetCommandLineArgs();
-		public static List<string> SeenAnnouncements = new List<string>();
-		public static JArray Announcements = new JArray();
-		public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
+		public static List<string> SeenAnnouncements = [];
+        public static List<DynamicJson> Announcements = [];
+        public static RegistryKey LauncherRegKey = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Bp\Better HI3 Launcher");
 		public static bool DisableAutoUpdate, DisableLogging, DisableTranslations, DisableSounds, AdvancedFeatures, NeedsUpdate;
 		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
 		public static bool Starting = true;

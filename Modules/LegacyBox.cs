@@ -635,11 +635,13 @@ namespace BetterHI3Launcher
 			LegacyBoxActive = false;
 			AnnouncementBox.Visibility = Visibility.Collapsed;
 			bool do_not_show_next_time = (bool)AnnouncementBoxDoNotShowCheckbox.IsChecked;
-			if(do_not_show_next_time)
+
+            DynamicJson firstAnnouncement = App.Announcements.FirstOrDefault();
+            if (do_not_show_next_time)
 			{
 				try
 				{
-					App.SeenAnnouncements.Add(App.Announcements.First["id"].ToString());
+					App.SeenAnnouncements.Add(firstAnnouncement["id"]);
 					BpUtility.WriteToRegistry("SeenAnnouncements", string.Join(",", App.SeenAnnouncements), RegistryValueKind.String);
 				}
 				catch(Exception ex)
@@ -648,10 +650,10 @@ namespace BetterHI3Launcher
 				}
 			}
 			AnnouncementBoxDoNotShowCheckbox.IsChecked = false;
-			App.Announcements.Remove(App.Announcements.First);
+			App.Announcements.Remove(firstAnnouncement);
 			if(App.Announcements.Count > 0)
 			{
-				ShowAnnouncement(App.Announcements.First);
+				ShowAnnouncement(App.Announcements.FirstOrDefault());
 			}
 			else
 			{
