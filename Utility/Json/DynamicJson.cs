@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -114,15 +115,15 @@ public partial struct DynamicJson
 		}
 	}
 
-    /// <summary>
-    /// Tries to set the value of a property in the current JSON object. If the current node is not an object, it throws an <see cref="InvalidOperationException"/>.
-    /// </summary>
-    /// <typeparam name="T">The type generic of the value</typeparam>
-    /// <param name="propertyName">A property name to be used for setting the property value.</param>
-    /// <param name="value">The value to set for the property.</param>
-    /// <returns><see langword="true"/> if the value was successfully set.</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public bool TrySetValue<T>(string propertyName, T value)
+	/// <summary>
+	/// Tries to set the value of a property in the current JSON object. If the current node is not an object, it throws an <see cref="InvalidOperationException"/>.
+	/// </summary>
+	/// <typeparam name="T">The type generic of the value</typeparam>
+	/// <param name="propertyName">A property name to be used for setting the property value.</param>
+	/// <param name="value">The value to set for the property.</param>
+	/// <returns><see langword="true"/> if the value was successfully set.</returns>
+	/// <exception cref="InvalidOperationException"></exception>
+	public bool TrySetValue<T>(string propertyName, T value)
 	{
 		if (Node is not JsonObject nodeAsObject)
 		{
@@ -137,33 +138,43 @@ public partial struct DynamicJson
 	/// Create a new <see cref="JsonObject"/> node inside current <see cref="Parent"/> node.
 	/// </summary>
 	/// <param name="propertyName">A property name to be used for the new property <see cref="JsonNode"/>.</param>
+	/// <param name="result">The <see cref="DynamicJson"/> representing the newly created object.</param>
 	/// <returns><see langword="true"/> if the property successfully created. <see langword="false"/> if the property already exists.</returns>
 	/// <exception cref="InvalidOperationException"></exception>
-	public bool TryCreateObject(string propertyName)
+	public bool TryCreateObject(string propertyName, out DynamicJson result)
 	{
+		Unsafe.SkipInit(out result);
 		if (Node is not JsonObject parentAsObject)
 		{
 			throw new InvalidOperationException("Parent is null or not an object");
 		}
 
 		JsonObject node = new(_nodeOptions);
-		return parentAsObject.TryAdd(propertyName, node);
+		bool isExist = parentAsObject.TryAdd(propertyName, node);
+		result = new DynamicJson(parentAsObject[propertyName], parentAsObject, _nodeOptions);
+
+		return isExist;
 	}
 
 	/// <summary>
 	/// Create a new <see cref="JsonArray"/> node inside current <see cref="Parent"/> node.
 	/// </summary>
 	/// <param name="propertyName">A property name to be used for the new property <see cref="JsonNode"/>.</param>
+	/// <param name="result">The <see cref="DynamicJson"/> representing the newly created array.</param>
 	/// <returns><see langword="true"/> if the property successfully created. <see langword="false"/> if the property already exists.</returns>
 	/// <exception cref="InvalidOperationException"></exception>
-	public bool TryCreateArray(string propertyName)
+	public bool TryCreateArray(string propertyName, out DynamicJson result)
 	{
-		if (Node is not JsonObject nodeAsObject)
+		Unsafe.SkipInit(out result);
+		if (Node is not JsonObject parentAsObject)
 		{
 			throw new InvalidOperationException("Parent is null or not an object");
 		}
 
 		JsonArray node = new(_nodeOptions);
-		return nodeAsObject.TryAdd(propertyName, node);
+		bool isExist = parentAsObject.TryAdd(propertyName, node);
+		result = new DynamicJson(parentAsObject[propertyName], parentAsObject, _nodeOptions);
+
+		return isExist;
 	}
 }

@@ -45,8 +45,8 @@ namespace BetterHI3Launcher
 
 		public LocalVersionInfo LocalVersionInfo = null;
         public DynamicJson HYPGamePackageData, OnlineVersionInfo, OnlineRepairInfo;
-		public dynamic GameGraphicSettings, GameScreenSettings;
-		LauncherStatus _status;
+		public DynamicJson GameGraphicSettings, GameScreenSettings;
+        LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
 		Http httpclient;

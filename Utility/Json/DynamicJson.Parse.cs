@@ -72,4 +72,33 @@ public partial struct DynamicJson
 		JsonNode? jsonNode = await JsonNode.ParseAsync(jsonStream, nodeOptions, documentOptions, token);
 		return new DynamicJson(jsonNode, null, nodeOptions.Value);
 	}
+
+	/// <summary>
+	/// Creates a blank <see cref="DynamicJson"/> instance of the specified type <typeparamref name="T"/>. The type must be either <see cref="JsonObject"/> or <see cref="JsonArray"/>.
+	/// </summary>
+	/// <typeparam name="T">The type of JSON node to create. Must be either <see cref="JsonObject"/> or <see cref="JsonArray"/>.</typeparam>
+	/// <param name="nodeOptions">The options to use when creating the JSON node.</param>
+	/// <param name="documentOptions">The options to use when creating the JSON document.</param>
+	/// <returns>A <see cref="DynamicJson"/> instance representing the created JSON node.</returns>
+	/// <exception cref="InvalidOperationException"/>
+	public static DynamicJson CreateBlank<T>(JsonNodeOptions? nodeOptions = null, JsonDocumentOptions documentOptions = default)
+		where T : JsonNode
+	{
+		JsonNode node;
+		if (typeof(T) == typeof(JsonObject))
+		{
+			node = new JsonObject(nodeOptions);
+		}
+		else if (typeof(T) == typeof(JsonArray))
+		{
+			node = new JsonArray(nodeOptions);
+		}
+		else
+		{
+			throw new InvalidOperationException("Unsupported JsonNode type");
+		}
+
+		nodeOptions ??= new JsonNodeOptions();
+		return new DynamicJson(node, null, nodeOptions.Value);
+	}
 }

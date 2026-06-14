@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Shell;
 using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility.Json;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using PartialZip;
 
 namespace BetterHI3Launcher
@@ -65,9 +65,9 @@ namespace BetterHI3Launcher
 					Log("Verifying game files...");
 					if(App.AdvancedFeatures) Log($"Repair data game version: {OnlineRepairInfo["game_version"]}");
 					await Task.Run(() =>
-                    {
-                        int names_count = OnlineRepairInfo["files"]["names"].Node?.AsArray().Count ?? 0;
-                        for (int i = 0; i < names_count; i++)
+					{
+						int names_count = OnlineRepairInfo["files"]["names"].Node?.AsArray().Count ?? 0;
+						for (int i = 0; i < names_count; i++)
 						{
 							string name = OnlineRepairInfo["files"]["names"][i].ToString() ?? "";
 							string md5 = OnlineRepairInfo["files"]["hashes"][i].ToString()?.ToUpper();
@@ -341,22 +341,79 @@ namespace BetterHI3Launcher
 						!x.DirectoryName.Contains("ThirdPartyNotice") &&
 						!x.DirectoryName.Contains("Video")
 						).ToList();
-						dynamic json = new ExpandoObject();
-						json.repair_info = new ExpandoObject();
-						json.repair_info.game_version = HYPGamePackageData["main"]["major"]["version"].ToString();
-						json.repair_info.mirrors = string.Empty;
-						json.repair_info.zip_urls = Array.Empty<string>();
-						json.repair_info.files = new ExpandoObject();
-						json.repair_info.files.names = new dynamic[files.Count];
-						json.repair_info.files.hashes = new dynamic[files.Count];
-						json.repair_info.files.sizes = new dynamic[files.Count];
+
+						// Notes for BuIl:
+						// By default, DynamicJson.this[] indexer only supports read-only access.
+						// To write values into it, you need to use the TrySetValue and TryCreateObject/TryCreateArray
+						// methods (see the docs on each method for more details). Here's an example of how to
+						// construct a new JSON structure (read-write mode) using DynamicJson.
+						// 
+						// - neon-nyan ;)
+
+						// -> $ // Creates a new "root" object node
+						DynamicJson json = DynamicJson.CreateBlank<JsonObject>();
+
+						// -> $.repair_info // Creates a new "repair_info" object node
+						json.TryCreateObject("repair_info", out DynamicJson repair_info);
+
+						// -> $.repair_info.game_version // Sets and add "game_version" property and sets its value
+						repair_info.TrySetValue("game_version", HYPGamePackageData["main"]["major"]["version"].ToString());
+
+						// -> $.repair_info.mirrors // Sets and add "mirrors" property and sets its value
+						repair_info.TrySetValue("mirrors", string.Empty);
+
+						// -> $.repair_info.zip_urls[] // Creates a new "zip_urls" array node
+						repair_info.TryCreateArray("zip_urls", out DynamicJson zip_urls);
+
+						// -> $.repair_info.files // Creates a new "files" object node
+						repair_info.TryCreateObject("files", out DynamicJson files_json);
+
+						// -> $.repair_info.files.names[] // Creates a new "names" array node
+						files_json.TryCreateArray("names", out DynamicJson names);
+
+						// -> $.repair_info.files.hashes[] // Creates a new "hashes" array node
+						files_json.TryCreateArray("hashes", out DynamicJson hashes);
+
+						// -> $.repair_info.files.sizes[] // Creates a new "sizes" array node
+						files_json.TryCreateArray("sizes", out DynamicJson sizes);
+
+						// In the end, the above codes will generate a JSON structure like this:
+						// {
+						//   "repair_info": {
+						//     "game_version": "x.x.x",
+						//     "mirrors": "",
+						//     "zip_urls": [],
+						//     "files": {
+						//       "names": [],
+						//       "hashes": [],
+						//       "sizes": []
+						//     }
+						//   }
+						// }
+
+						// Exposes these nodes:
+						// - $.repair_info.files.names[]
+						// - $.repair_info.files.hashes[]
+						// - $.repair_info.files.sizes[]
+						JsonArray namesNode = names.Node as JsonArray;
+						JsonArray hashesNode = hashes.Node as JsonArray;
+						JsonArray sizesNode = sizes.Node as JsonArray;
+
+						int filesCount = files.Count;
 						await Task.Run(() =>
 						{
-							for(int i = 0; i < files.Count; i++)
+							for(int i = 0; i < filesCount; i++)
 							{
-								json.repair_info.files.names[i] = files[i].FullName.Replace($"{GameInstallPath}\\", string.Empty).Replace("\\", "/");
-								json.repair_info.files.hashes[i] = BpUtility.CalculateMD5(files[i].FullName);
-								json.repair_info.files.sizes[i] = files[i].Length;
+								string name = files[i].FullName
+													  .Replace($"{GameInstallPath}\\", string.Empty)
+													  .Replace("\\", "/");
+
+								string hash = BpUtility.CalculateMD5(files[i].FullName);
+								long fileSize = files[i].Length;
+
+								namesNode?.Add(name);
+								hashesNode?.Add(hash);
+								sizesNode?.Add(fileSize);
 								Dispatcher.Invoke(() =>
 								{
 									ProgressText.Text = string.Format(App.TextStrings["progresstext_generating_hash"], i + 1, files.Count);
@@ -364,9 +421,10 @@ namespace BetterHI3Launcher
 									ProgressBar.Value = progress;
 									TaskbarItemInfo.ProgressValue = progress;
 								});
-								Log($"Added: {json.repair_info.files.names[i]}");
+								Log($"Added: {name}");
 							}
-							File.WriteAllText(dialog.FileName, JsonConvert.SerializeObject(json));
+
+							File.WriteAllText(dialog.FileName, json.Node.ToJsonString());
 							Log($"Saved JSON: {dialog.FileName}");
 						});
 						ProgressText.Text = string.Empty;
@@ -449,9 +507,11 @@ namespace BetterHI3Launcher
 					}
 				}
 				Log($"Setting FPS limit to {fps_limit}...");
-				GameGraphicSettings.TargetFrameRateForInLevel = fps_limit;
-				GameGraphicSettings.TargetFrameRateForOthers = fps_limit;
-				var value_after = Encoding.UTF8.GetBytes($"{JsonConvert.SerializeObject(GameGraphicSettings)}\0");
+				GameGraphicSettings.TrySetValue("TargetFrameRateForInLevel", fps_limit);
+				GameGraphicSettings.TrySetValue("TargetFrameRateForOthers", fps_limit);
+
+				string json = GameGraphicSettings.Node?.ToJsonString();
+				var value_after = Encoding.UTF8.GetBytes($"{json}\0");
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
 				key.SetValue("GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519", value_after, RegistryValueKind.Binary);
 				key.Close();
@@ -505,10 +565,12 @@ namespace BetterHI3Launcher
 				string is_fullscreen = fullscreen ? "enabled" : "disabled";
 				is_fullscreen = fullscreen ? App.TextStrings["enabled"].ToLower() : App.TextStrings["disabled"].ToLower();
 				Log($"Setting game resolution to {width}x{height}, fullscreen {is_fullscreen}...");
-				GameScreenSettings.height = height;
-				GameScreenSettings.width = width;
-				GameScreenSettings.isfullScreen = fullscreen;
-				var value_after = Encoding.UTF8.GetBytes($"{JsonConvert.SerializeObject(GameScreenSettings)}\0");
+				GameScreenSettings.TrySetValue("height", height);
+				GameScreenSettings.TrySetValue("width", width);
+				GameScreenSettings.TrySetValue("isfullScreen", fullscreen);
+
+				string json = GameScreenSettings.Node?.ToJsonString();
+				var value_after = Encoding.UTF8.GetBytes($"{json}\0");
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
 				key.SetValue("GENERAL_DATA_V2_ScreenSettingData_h1916288658", value_after, RegistryValueKind.Binary);
 				string sm_fullscreen = "Screenmanager Is Fullscreen mode_h3981298716";
