@@ -1,9 +1,4 @@
-﻿using Hi3Helper.Http;
-using IniParser;
-using IniParser.Model;
-using Microsoft.Win32;
-using SevenZip;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,6 +13,11 @@ using System.Windows.Media.Imaging;
 using BetterHI3Launcher.Config;
 using BetterHI3Launcher.Utility;
 using BetterHI3Launcher.Utility.Json;
+using Hi3Helper.Http;
+using IniParser;
+using IniParser.Model;
+using Microsoft.Win32;
+using SevenZip;
 using JsonSerializerNew = System.Text.Json.JsonSerializer;
 
 namespace BetterHI3Launcher

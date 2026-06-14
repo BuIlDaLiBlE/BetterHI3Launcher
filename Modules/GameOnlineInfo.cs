@@ -1,10 +1,10 @@
-﻿using BetterHI3Launcher.Config;
-using BetterHI3Launcher.Utility.Json;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json.Nodes;
+using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {

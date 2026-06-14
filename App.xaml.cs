@@ -35,7 +35,7 @@ namespace BetterHI3Launcher
 		public static bool FirstLaunch = LauncherRegKey.GetValue("LauncherVersion") == null ? true : false;
 		public static bool Starting = true;
 		public static readonly int ParallelDownloadSessions = 4;
-		public static Dictionary<string, string> TextStrings = new Dictionary<string, string>();
+		public static Dictionary<string, string> TextStrings = new();
 		public static Mutex Mutex = null;
 		private static readonly string AssemblyTempPath = Path.GetDirectoryName(typeof(ArchiveFileInfo).Assembly.GetFile("sevenzipsharp.dll").Name);
 

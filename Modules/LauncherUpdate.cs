@@ -1,11 +1,11 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Windows;
 using System.Windows.Shell;
 using BetterHI3Launcher.Utility;
+using Microsoft.Win32;
 
 namespace BetterHI3Launcher
 {

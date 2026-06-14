@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using BetterHI3Launcher.Utility.Json;
+using Microsoft.Win32;
 using JsonSerializerNew = System.Text.Json.JsonSerializer;
 
 namespace BetterHI3Launcher

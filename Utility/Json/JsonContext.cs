@@ -1,5 +1,5 @@
-using BetterHI3Launcher.Config;
 using System.Text.Json.Serialization;
+using BetterHI3Launcher.Config;
 
 namespace BetterHI3Launcher.Utility.Json;
 

@@ -1,7 +1,4 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json;
-using PartialZip;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
@@ -13,6 +10,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Shell;
 using BetterHI3Launcher.Config;
+using Microsoft.Win32;
+using Newtonsoft.Json;
+using PartialZip;
 
 namespace BetterHI3Launcher
 {
