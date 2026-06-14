@@ -9,20 +9,18 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>12</LangVersion>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Assets\Images\Icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RootNamespace>BetterHI3Launcher</RootNamespace>
 
-    <!-- Do not remove. These attributes are necessary so the new format won't auto-generate them (and causes compile issue :/) -->
-    <!-- Advice for BuIl: I think we can move all the attributes to this project files instead -->
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <!-- Assembly Information -->
+    <ApplicationIcon>Assets\Images\Icon.ico</ApplicationIcon>
+    <AssemblyTitle>Better HI3 Launcher</AssemblyTitle>
+    <ProductName>Better HI3 Launcher</ProductName>
+    <Company>Bp</Company>
+    <Authors>$(Company)</Authors>
+    <Version>1.6</Version>
+    <ProductVersion>$(Version)</ProductVersion>
+    <Copyright>Copyright (c) $(Company), under The "Unlicense" License</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
