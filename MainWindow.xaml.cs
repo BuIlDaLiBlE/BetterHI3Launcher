@@ -291,7 +291,7 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				Log($"BetterHI3Launcher v{App.LocalLauncherVersion}", false);
+				Log($"BetterHI3Launcher v{App.LocalLauncherVersion.ToString("F")}", false);
 				Log($"Working directory: {App.LauncherRootPath}");
 				Log($"OS version: {App.OSVersion}");
 				Log($"OS language: {App.OSLanguage}");
@@ -374,7 +374,7 @@ namespace BetterHI3Launcher
 				ChangelogBoxMessageTextBlock.Text = App.TextStrings["changelogbox_1_msg"];
 				ChangelogBoxOKButton.Content = App.TextStrings["button_ok"];
 				AboutBoxTitleTextBlock.Text = App.TextStrings["contextmenu_about"];
-				AboutBoxAppNameTextBlock.Text += $" v{App.LocalLauncherVersion}";
+				AboutBoxAppNameTextBlock.Text += $" v{App.LocalLauncherVersion.ToString("F")}";
 				AboutBoxMessageTextBlock.Text = $"{App.TextStrings["aboutbox_msg"]}\n\nMade by Bp (BuIlDaLiBlE production).";
 				AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
 				AboutBoxOKButton.Content = App.TextStrings["button_ok"];
