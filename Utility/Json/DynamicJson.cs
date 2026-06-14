@@ -115,15 +115,15 @@ public partial struct DynamicJson
 		}
 	}
 
-    /// <summary>
-    /// Tries to set the value of a property in the current JSON object. If the current node is not an object, it throws an <see cref="InvalidOperationException"/>.
-    /// </summary>
-    /// <typeparam name="T">The type generic of the value</typeparam>
-    /// <param name="propertyName">A property name to be used for setting the property value.</param>
-    /// <param name="value">The value to set for the property.</param>
-    /// <returns><see langword="true"/> if the value was successfully set.</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public bool TrySetValue<T>(string propertyName, T value)
+	/// <summary>
+	/// Tries to set the value of a property in the current JSON object. If the current node is not an object, it throws an <see cref="InvalidOperationException"/>.
+	/// </summary>
+	/// <typeparam name="T">The type generic of the value</typeparam>
+	/// <param name="propertyName">A property name to be used for setting the property value.</param>
+	/// <param name="value">The value to set for the property.</param>
+	/// <returns><see langword="true"/> if the value was successfully set.</returns>
+	/// <exception cref="InvalidOperationException"></exception>
+	public bool TrySetValue<T>(string propertyName, T value)
 	{
 		if (Node is not JsonObject nodeAsObject)
 		{
