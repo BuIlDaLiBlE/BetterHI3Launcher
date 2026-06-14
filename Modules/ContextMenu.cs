@@ -456,7 +456,7 @@ namespace BetterHI3Launcher
 			{
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 				string value = "GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519";
-				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
+				if(key == null || key.GetValue(value) is not byte[] value_before || key.GetValueKind(value) != RegistryValueKind.Binary)
 				{
 					try
 					{
@@ -468,18 +468,17 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
-				var value_before = key.GetValue(value);
-				var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])value_before));
-				if(json == null)
+				var json = DynamicJson.Parse(value_before);
+				if(json == default)
 				{
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
 				key.Close();
 				FPSInputBox.Visibility = Visibility.Visible;
-				if(json.TargetFrameRateForInLevel != null)
+				if (json["TargetFrameRateForInLevel"] != default)
 				{
-					FPSLimitInputBoxTextBox.Text = json.TargetFrameRateForInLevel;
+					FPSLimitInputBoxTextBox.Text = json["TargetFrameRateForInLevel"];
 				}
 				else
 				{
@@ -509,7 +508,7 @@ namespace BetterHI3Launcher
 			{
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
 				string value = "GENERAL_DATA_V2_ScreenSettingData_h1916288658";
-				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
+				if(key == null || key.GetValue(value) is not byte[] value_before || key.GetValueKind(value) != RegistryValueKind.Binary)
 				{
 					try
 					{
@@ -521,9 +520,8 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
-				var value_before = key.GetValue(value);
-				var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])value_before));
-				if(json == null)
+				var json = DynamicJson.Parse(value_before);
+				if(json == default)
 				{
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
@@ -531,25 +529,25 @@ namespace BetterHI3Launcher
 				key.Close();
 				ResolutionInputBox.Visibility = Visibility.Visible;
 
-				if(json.width != null)
+				if (json["width"] != default)
 				{
-					ResolutionInputBoxWidthTextBox.Text = json.width;
+					ResolutionInputBoxWidthTextBox.Text = json["width"];
 				}
 				else
 				{
 					ResolutionInputBoxWidthTextBox.Text = "720";
 				}
-				if(json.height != null)
+				if(json["height"] != default)
 				{
-					ResolutionInputBoxHeightTextBox.Text = json.height;
+					ResolutionInputBoxHeightTextBox.Text = json["height"];
 				}
 				else
 				{
 					ResolutionInputBoxHeightTextBox.Text = "480";
 				}
-				if(json.isfullScreen != null)
+				if(json["isfullScreen"] != default)
 				{
-					ResolutionInputBoxFullscreenCheckbox.IsChecked = json.isfullScreen;
+					ResolutionInputBoxFullscreenCheckbox.IsChecked = json["isfullScreen"];
 				}
 				else
 				{
@@ -991,10 +989,10 @@ namespace BetterHI3Launcher
 			{
 				try
 				{
-					var json = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(App.LauncherTranslationsFile));
-					foreach(var kvp in json[lang])
+					var json = DynamicJson.Parse(File.ReadAllText(App.LauncherTranslationsFile));
+					foreach(var kvp in json[lang].EnumerateObject())
 					{
-						App.TextStrings[kvp.Name] = kvp.Value.ToString();
+						App.TextStrings[kvp.Key] = kvp.Value.ToString();
 					}
 					App.LauncherLanguage = lang;
 				}
