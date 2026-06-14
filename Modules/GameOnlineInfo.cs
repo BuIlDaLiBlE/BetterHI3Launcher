@@ -44,8 +44,8 @@ namespace BetterHI3Launcher
 					using(var data = new MemoryStream())
 					{
 						web_response.GetResponseStream().CopyTo(data);
-						JsonNode? HYPResourceDataResponse = JsonNode.Parse(data.ToArray());
-						if (HYPResourceDataResponse["retcode"].GetValue<int>() == 0)
+						JsonNode HYPResourceDataResponse = JsonNode.Parse(data.ToArray());
+						if (HYPResourceDataResponse?["retcode"]?.GetValue<int>() == 0)
 						{
 							if(HYPResourceDataResponse["data"] != null)
 							{
@@ -74,7 +74,7 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse["message"]}");
+							throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse?["message"]}");
 						}
 					}
 				}
