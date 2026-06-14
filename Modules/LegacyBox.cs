@@ -249,7 +249,7 @@ namespace BetterHI3Launcher
 					Status = LauncherStatus.Ready;
 				}
 
-				if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version)
+				if(OnlineRepairInfo.game_version != LocalVersionInfo.GameInfo?.Version)
 				{
 					if(App.AdvancedFeatures)
 					{
@@ -295,7 +295,7 @@ namespace BetterHI3Launcher
 				{
 					InitialDirectory = App.LauncherRootPath,
 					Filter = "JSON|*.json",
-					FileName = $"bh3_files_{server}_{LocalVersionInfo.game_info.version}.json"
+					FileName = $"bh3_files_{server}_{LocalVersionInfo.GameInfo?.Version.ToString("N")}.json"
 				};
 				if(dialog.ShowDialog() == true)
 				{

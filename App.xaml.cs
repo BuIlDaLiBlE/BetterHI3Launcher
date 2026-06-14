@@ -9,19 +9,20 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using BetterHI3Launcher.Utility;
 
 namespace BetterHI3Launcher
 {
 	public partial class App : Application
 	{
-		public static readonly LauncherVersion LocalLauncherVersion = new LauncherVersion("1.6.20250624.0");
+		public static readonly StructVersion LocalLauncherVersion = new("1.6.20250624.0");
 		public static readonly string LauncherRootPath = AppDomain.CurrentDomain.BaseDirectory;
 		public static readonly string LocalLowPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low";
 		public static readonly string LauncherDataPath = Path.Combine(LocalLowPath, @"Bp\Better HI3 Launcher");
 		public static readonly string LauncherBackgroundsPath = Path.Combine(LauncherDataPath, "Backgrounds");
 		public static readonly string LauncherLogFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-latest.log");
 		public static readonly string LauncherTranslationsFile = Path.Combine(LauncherDataPath, "BetterHI3Launcher-translations.json");
-		public static string UserAgent = $"BetterHI3Launcher/v{LocalLauncherVersion}";
+		public static string UserAgent = $"BetterHI3Launcher/v{LocalLauncherVersion.ToString("F")}";
 		public static List<string> UserAgentComment = new List<string>();
 		public static string LauncherExeName, LauncherPath, LauncherArchivePath, LauncherLanguage;
 		public static readonly string OSVersion = BpUtility.GetWindowsVersion();

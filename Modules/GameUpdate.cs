@@ -7,7 +7,6 @@ using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -17,7 +16,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using System.Windows.Shell;
+using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility;
+using BetterHI3Launcher.Utility.Json;
+using JsonSerializerNew = System.Text.Json.JsonSerializer;
 
 namespace BetterHI3Launcher
 {
@@ -44,12 +46,13 @@ namespace BetterHI3Launcher
 						FetchOnlineVersionInfo();
 					}
 
-					if(App.LauncherRegKey.GetValue(RegistryVersionInfo) != null)
+					if(App.LauncherRegKey.GetValue(RegistryVersionInfo) is byte[] registryLocalVersionInfoBytes)
 					{
-						LocalVersionInfo = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])App.LauncherRegKey.GetValue(RegistryVersionInfo)));
-						GameInstallPath = LocalVersionInfo.game_info.install_path.ToString();
-						var game_config_ini_file = Path.Combine(GameInstallPath, "config.ini");
-						if(File.Exists(game_config_ini_file))
+						LocalVersionInfo = JsonSerializerNew.Deserialize(registryLocalVersionInfoBytes, JsonParseContext.Default.LocalVersionInfo);
+						GameInstallPath = LocalVersionInfo.GameInfo?.InstallPath ?? string.Empty;
+						if(!string.IsNullOrEmpty(GameInstallPath) &&
+                           Path.Combine(GameInstallPath, "config.ini") is var game_config_ini_file &&
+                           File.Exists(game_config_ini_file))
 						{
 							var parser = new FileIniDataParser();
 							parser.Parser.Configuration.AllowDuplicateKeys = true;
@@ -61,12 +64,12 @@ namespace BetterHI3Launcher
 							{
 								if(data["General"]["game_version"] == HYPGamePackageData.main.major.version.ToString())
 								{
-									LocalVersionInfo.game_info.installed = true;
+									(LocalVersionInfo.GameInfo ??= new GameInfo()).IsInstalled = true;
 								}
-								LocalVersionInfo.game_info.version = data["General"]["game_version"];
+								(LocalVersionInfo.GameInfo ??= new GameInfo()).Version = new StructVersion(data["General"]["game_version"]);
 							}
 						}
-						var local_game_version = new GameVersion(LocalVersionInfo.game_info.version.ToString());
+						var local_game_version = new StructVersion(LocalVersionInfo.GameInfo?.Version.ToString() ?? "0.0.0");
 						game_needs_update = GameVersionUpdateCheck(local_game_version);
 						GameArchivePath = Path.Combine(GameInstallPath, GameArchiveName);
 						GameExePath = Path.Combine(GameInstallPath, GameExeName);
@@ -93,7 +96,7 @@ namespace BetterHI3Launcher
 							Log("The game requires an update!");
 							Status = LauncherStatus.UpdateAvailable;
 						}
-						else if(LocalVersionInfo.game_info.installed == false)
+						else if(LocalVersionInfo.GameInfo?.IsInstalled ?? false)
 						{
 							DownloadPaused = true;
 							Status = LauncherStatus.UpdateAvailable;
@@ -127,7 +130,7 @@ namespace BetterHI3Launcher
 						}
 						if(Status == LauncherStatus.UpdateAvailable)
 						{
-							if(!(bool)LocalVersionInfo.game_info.installed)
+							if(!(LocalVersionInfo.GameInfo?.IsInstalled ?? false))
 							{
 								DownloadPaused = true;
 								Dispatcher.Invoke(() =>
@@ -222,7 +225,7 @@ namespace BetterHI3Launcher
 			});
 		}
 
-		private int GameVersionUpdateCheck(GameVersion local_game_version)
+		private int GameVersionUpdateCheck(StructVersion local_game_version)
 		{
 			if(LocalVersionInfo != null)
 			{
@@ -230,8 +233,10 @@ namespace BetterHI3Launcher
 				{
 					FetchHYPGamePackageData();
 				}
-				var online_game_version = new GameVersion(HYPGamePackageData.main.major.version.ToString());
-				if(online_game_version.IsNewerThan(local_game_version))
+
+                string online_game_version_str = HYPGamePackageData.main.major.version.ToString();
+                StructVersion online_game_version = new(online_game_version_str);
+				if(online_game_version > local_game_version)
 				{
 					for(var i = 0; i < HYPGamePackageData.main.patches.Count; i++)
 					{
@@ -739,22 +744,21 @@ namespace BetterHI3Launcher
 				{
 					game_config_ini_data = ini_parser.ReadFile(game_config_ini_file);
 				}
-				var version_info = LocalVersionInfo;
-				if(version_info == null)
-				{
-					version_info = new ExpandoObject();
-					version_info.game_info = new ExpandoObject();
-				}
+
+                LocalVersionInfo version_info = LocalVersionInfo ??= new LocalVersionInfo();
+                GameInfo game_info = LocalVersionInfo.GameInfo ??= new GameInfo();
+
 				if(!PatchDownload)
-				{
-					version_info.game_info.version = HYPGamePackageData.main.major.version.ToString();
+                {
+                    string verStr = HYPGamePackageData.main.major.version.ToString();
+                    game_info.Version = verStr;
 				}
 				else
 				{
-					version_info.game_info.version = LocalVersionInfo.game_info.version.ToString();
+					game_info.Version = LocalVersionInfo.GameInfo.Version.ToString();
 				}
-				version_info.game_info.install_path = GameInstallPath;
-				version_info.game_info.installed = is_installed;
+                game_info.InstallPath = GameInstallPath;
+                game_info.IsInstalled = is_installed;
 
 				if(new DirectoryInfo(GameInstallPath).Parent == null)
 				{
@@ -767,7 +771,7 @@ namespace BetterHI3Launcher
 					{
 						if(game_config_ini_data["General"]["game_version"] != null)
 						{
-							version_info.game_info.version = game_config_ini_data["General"]["game_version"];
+                            game_info.Version = game_config_ini_data["General"]["game_version"].AsSpan();
 						}
 						else
 						{
@@ -778,7 +782,7 @@ namespace BetterHI3Launcher
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_existing_no_local_version_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{
-							version_info.game_info.version = new GameVersion().ToString();
+                            game_info.Version = default;
 						}
 					}
 					if(key != null)
@@ -797,7 +801,7 @@ namespace BetterHI3Launcher
 							game_config_ini_data = new IniData();
 						}
 						game_config_ini_data.Configuration.AssigmentSpacer = string.Empty;
-						game_config_ini_data["General"]["game_version"] = version_info.game_info.version;
+						game_config_ini_data["General"]["game_version"] = game_info.Version.ToString("N");
 						ini_parser.WriteFile(game_config_ini_file, game_config_ini_data, new UTF8Encoding(false));
 					}
 					catch(Exception ex)

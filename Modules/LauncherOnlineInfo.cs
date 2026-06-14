@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using BetterHI3Launcher.Utility;
 
 namespace BetterHI3Launcher
 {
@@ -76,8 +77,9 @@ namespace BetterHI3Launcher
 						announcements = announcements.announcements;
 						foreach(dynamic announcement in announcements)
 						{
-							string min_launcher_version = announcement.min_version.ToString();
-							if(!new LauncherVersion(min_launcher_version).IsNewerThan(App.LocalLauncherVersion) && DateTime.Compare(DateTime.UtcNow, new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)announcement.relevant_until)) < 0 && !App.SeenAnnouncements.Contains(announcement.id.ToString()))
+							string min_launcher_version_str = announcement.min_version.ToString();
+							StructVersion min_launcher_version = new(min_launcher_version_str);
+							if(!(min_launcher_version > App.LocalLauncherVersion) && DateTime.Compare(DateTime.UtcNow, new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)announcement.relevant_until)) < 0 && !App.SeenAnnouncements.Contains(announcement.id.ToString()))
 							{
 								App.Announcements.Add(announcement);
 							}

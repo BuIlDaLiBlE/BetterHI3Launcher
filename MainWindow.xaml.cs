@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
+using BetterHI3Launcher.Config;
 
 namespace BetterHI3Launcher
 {
@@ -40,7 +41,9 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
-		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, HYPGamePackageData;
+
+		public LocalVersionInfo LocalVersionInfo = null;
+		public dynamic OnlineVersionInfo, OnlineRepairInfo, HYPGamePackageData;
 		public dynamic GameGraphicSettings, GameScreenSettings;
 		LauncherStatus _status;
 		HI3Server _gameserver;
@@ -949,12 +952,10 @@ namespace BetterHI3Launcher
 							var start_info = new ProcessStartInfo(GameExePath);
 							start_info.WorkingDirectory = GameInstallPath;
 							start_info.UseShellExecute = true;
-							try
-							{
-								start_info.Arguments = LocalVersionInfo.launch_options.ToString();
-							}catch{}
+							start_info.Arguments = LocalVersionInfo.LaunchOptions ?? "";
+
 							var process = Process.Start(start_info);
-							process.EnableRaisingEvents = true;
+                            process.EnableRaisingEvents = true;
 							process.Exited += new EventHandler((object s1, EventArgs ea1) =>
 							{
 								processes = Process.GetProcessesByName("BH3");
@@ -1006,49 +1007,31 @@ namespace BetterHI3Launcher
 								// Normal HYP
 								foreach(string hyp_version in hyp_versions)
 								{
-									try
+									foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}")?.GetSubKeyNames() ?? [])
 									{
-										foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}").GetSubKeyNames())
+										string path = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}")?.GetValue("GameInstallPath")?.ToString().Replace("/", @"\");
+										if(!string.IsNullOrEmpty(path))
 										{
-											try
-											{
-												string path = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString().Replace("/", @"\");
-												if(!string.IsNullOrEmpty(path))
-												{
-													possible_paths.Add(path);
-												}
-											}catch{}
+											possible_paths.Add(path);
 										}
-									}catch{}
+									}
 								}
 								// So called "standalone" HYP, e.g. Epic, Google
-								try
+                                foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone")?.GetSubKeyNames() ?? [])
 								{
-									foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone").GetSubKeyNames())
+									foreach(string game_id in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global")?.GetSubKeyNames() ?? [])
 									{
-										try
+										foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}")?.GetSubKeyNames() ?? [])
 										{
-											foreach(string game_id in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global").GetSubKeyNames())
+											var game_reg_name_key = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}\{game_reg_name}");
+											string path = game_reg_name_key.GetValue("GameInstallPath").ToString().Replace("/", @"\");
+											if(!string.IsNullOrEmpty(path))
 											{
-												try
-												{
-													foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}").GetSubKeyNames())
-													{
-														try
-														{
-															var game_reg_name_key = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}\{game_reg_name}");
-															string path = game_reg_name_key.GetValue("GameInstallPath").ToString().Replace("/", @"\");
-															if(!string.IsNullOrEmpty(path))
-															{
-																possible_paths.Add(path);
-															}
-														}catch{}
-													}
-												}catch{}
+												possible_paths.Add(path);
 											}
-										}catch{}
+										}
 									}
-								}catch{}
+								}
 							}
 							foreach(string path in possible_paths)
 							{
@@ -1171,7 +1154,7 @@ namespace BetterHI3Launcher
 				}
 				case LauncherStatus.UpdateAvailable:
 				{
-					if((bool)LocalVersionInfo.game_info.installed && !File.Exists(GameExePath))
+					if((LocalVersionInfo.GameInfo?.IsInstalled ?? false) && !File.Exists(GameExePath))
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
@@ -1497,7 +1480,7 @@ namespace BetterHI3Launcher
 				}
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(LocalVersionInfo != null && LocalVersionInfo.game_info.installed == false)
+				if(LocalVersionInfo is { GameInfo.IsInstalled: false })
 				{
 					ResetVersionInfo();
 				}
@@ -1568,7 +1551,7 @@ namespace BetterHI3Launcher
 				}
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(LocalVersionInfo.game_info.installed == false)
+				if(LocalVersionInfo is { GameInfo.IsInstalled: false })
 				{
 					ResetVersionInfo();
 				}

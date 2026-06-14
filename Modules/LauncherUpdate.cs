@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Windows;
 using System.Windows.Shell;
+using BetterHI3Launcher.Utility;
 
 namespace BetterHI3Launcher
 {
@@ -12,23 +13,17 @@ namespace BetterHI3Launcher
 	{
 		private bool LauncherUpdateCheck()
 		{
-			var OnlineLauncherVersion = new LauncherVersion(OnlineVersionInfo.launcher_info.version.ToString());
-			if(OnlineLauncherVersion.IsNewerThan(App.LocalLauncherVersion))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
+			string OnlineLauncherVersionString = OnlineVersionInfo.launcher_info.version.ToString();
+            var OnlineLauncherVersion = new StructVersion(OnlineLauncherVersionString);
+            return OnlineLauncherVersion > App.LocalLauncherVersion;
+        }
 
 		private void LauncherLocalVersionCheck()
 		{
 			#if !DEBUG
 			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
 			{
-				if(new LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
+				if(App.LocalLauncherVersion > new StructVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString()))
 				{
 					LegacyBoxActive = true;
 					ChangelogBox.Visibility = Visibility.Visible;

@@ -14,6 +14,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
+using BetterHI3Launcher.Utility.Json;
+using JsonSerializerNew = System.Text.Json.JsonSerializer;
 
 namespace BetterHI3Launcher
 {
@@ -165,7 +167,7 @@ namespace BetterHI3Launcher
 				{
 					Log("success!", false);
 					OnlineRepairInfo = OnlineRepairInfo.repair_info;
-					if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version && !App.AdvancedFeatures)
+					if(OnlineRepairInfo.game_version != LocalVersionInfo.GameInfo?.Version && !App.AdvancedFeatures)
 					{
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
@@ -581,7 +583,7 @@ namespace BetterHI3Launcher
 				var dialog = new DialogWindow(App.TextStrings["contextmenu_custom_launch_options"], App.TextStrings["msgbox_custom_launch_options_msg"], DialogWindow.DialogType.CustomLaunchOptions);
 				try
 				{
-					dialog.CustomLaunchOptionsTextBox.Text = LocalVersionInfo.launch_options.ToString().Trim();
+					dialog.CustomLaunchOptionsTextBox.Text = LocalVersionInfo.LaunchOptions?.Trim() ?? "";
 				}catch{}
 				if(dialog.ShowDialog() == false)
 				{
@@ -590,14 +592,14 @@ namespace BetterHI3Launcher
 				string launch_options = dialog.CustomLaunchOptionsTextBox.Text.Trim();
 				if(string.IsNullOrEmpty(launch_options))
 				{
-					LocalVersionInfo.Remove("launch_options");
+					LocalVersionInfo.LaunchOptions = null;
 				}
 				else
 				{
-					LocalVersionInfo.launch_options = launch_options;
+					LocalVersionInfo.LaunchOptions = launch_options;
 				}
 				Log("Saving launch options...");
-				BpUtility.WriteToRegistry(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(LocalVersionInfo)), RegistryValueKind.Binary);
+				BpUtility.WriteToRegistry(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonSerializerNew.Serialize(LocalVersionInfo, JsonParseContext.Default.LocalVersionInfo)), RegistryValueKind.Binary);
 				Log("success!", false);
 			}
 			catch(Exception ex)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Shell;
 using Hi3Helper.Http;
 
 namespace BetterHI3Launcher
