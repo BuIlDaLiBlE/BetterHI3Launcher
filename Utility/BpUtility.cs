@@ -6,9 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Media;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +23,9 @@ namespace BetterHI3Launcher
 {
 	public class BpUtility
 	{
+		public static HttpClient SharedHttpClient = new(new HttpClientHandler { AllowAutoRedirect = true }, false);
+		public static HttpClient SharedHttpClientNoRedirect = new(new HttpClientHandler { AllowAutoRedirect = false }, false);
+
 		public static void StartProcess(string proccess, string arguments, string workingDir, bool useShellExec)
 		{
 			var startInfo = new ProcessStartInfo(proccess, arguments);
@@ -193,10 +199,8 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
-				using(FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
-				{
-					stream.Close();
-				}
+				using FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+				stream.Close();
 			}
 			catch(FileNotFoundException)
 			{
@@ -209,14 +213,44 @@ namespace BetterHI3Launcher
 			return false;
 		}
 
-		public static HttpWebRequest CreateWebRequest(string url, string method = "GET", int timeout = 10000)
+		public static async Task<HttpResponseMessage> CreateWebRequestAsync(
+			string           url,
+			HttpMethod       method        = null,
+			int              timeoutMs     = 10000,
+			bool             allowRedirect = false,
+			RangeHeaderValue range         = null)
 		{
-			var webRequest = (HttpWebRequest)WebRequest.Create(url);
-			webRequest.Method = method;
-			webRequest.UserAgent = App.UserAgent;
-			webRequest.Headers.Add("Accept-Language", App.LauncherLanguage);
-			webRequest.Timeout = timeout;
-			return webRequest;
+			method ??= HttpMethod.Get;
+			HttpRequestMessage request = new(method, url);
+			request.Headers.TryAddWithoutValidation("User-Agent", App.UserAgent);
+			request.Headers.TryAddWithoutValidation("Accept-Language", App.LauncherLanguage);
+			if (range != null)
+			{
+				request.Headers.Range = range;
+			}
+
+			using CancellationTokenSource cts = new(timeoutMs);
+			return await (allowRedirect ? SharedHttpClient : SharedHttpClientNoRedirect).SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+		}
+
+		public static HttpResponseMessage CreateWebRequest(
+			string           url,
+			HttpMethod       method        = null,
+			int              timeoutMs     = 10000,
+			bool             allowRedirect = false,
+			RangeHeaderValue range         = null)
+		{
+			method ??= HttpMethod.Get;
+			HttpRequestMessage request = new(method, url);
+			request.Headers.TryAddWithoutValidation("User-Agent", App.UserAgent);
+			request.Headers.TryAddWithoutValidation("Accept-Language", App.LauncherLanguage);
+			if (range != null)
+			{
+				request.Headers.Range = range;
+			}
+
+			using CancellationTokenSource cts = new(timeoutMs);
+			return (allowRedirect ? SharedHttpClient : SharedHttpClientNoRedirect).SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token).Result;
 		}
 
 		public static void WriteToRegistry(string name, dynamic value, RegistryValueKind valueKind = RegistryValueKind.Unknown)
@@ -400,14 +434,9 @@ namespace BetterHI3Launcher
 		}
 
 		private long GetContentLength()
-		{
-			var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
-			request.Method = "HEAD";
-			request.UserAgent = App.UserAgent;
-			request.Headers.Add("Accept-Language", App.LauncherLanguage);
-
-			using(var response = request.GetResponse())
-				return response.ContentLength;
+        {
+            using HttpResponseMessage response = BpUtility.CreateWebRequest(_sourceUrl, HttpMethod.Head);
+            return response.Content.Headers.ContentLength ?? 0;
 		}
 
 		private async Task Start(long range)
@@ -419,33 +448,22 @@ namespace BetterHI3Launcher
 				//file has been found in folder destination and is already fully downloaded 
 				return;
 
-			var request = (HttpWebRequest)WebRequest.Create(_sourceUrl);
-			request.UserAgent = App.UserAgent;
-			request.Headers.Add("Accept-Language", App.LauncherLanguage);
-			request.AddRange(range);
+			using HttpResponseMessage response = await BpUtility.CreateWebRequestAsync(_sourceUrl, HttpMethod.Get, range: new RangeHeaderValue(range, null));
+			using Stream responseStream = await response.Content.ReadAsStreamAsync();
+			using FileStream fs = new(_destination, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+			byte[] buffer = new byte[_chunkSize];
 
-			using(var response = await request.GetResponseAsync())
+			while (_allowedToRun)
 			{
-				using(var responseStream = response.GetResponseStream())
-				{
-					using(var fs = new FileStream(_destination, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-					{
-						while(_allowedToRun)
-						{
-							var buffer = new byte[_chunkSize];
-							var bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+				int bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+				if (bytesRead == 0) break;
 
-							if(bytesRead == 0) break;
-
-							await fs.WriteAsync(buffer, 0, bytesRead);
-							BytesWritten += bytesRead;
-							_progress?.Report((double)BytesWritten / ContentLength);
-						}
-
-						await fs.FlushAsync();
-					}
-				}
+				await fs.WriteAsync(buffer, 0, bytesRead);
+				BytesWritten += bytesRead;
+				_progress?.Report((double)BytesWritten / ContentLength);
 			}
+
+			await fs.FlushAsync();
 		}
 
 		public Task Start()

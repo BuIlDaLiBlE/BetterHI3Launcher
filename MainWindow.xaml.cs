@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -1302,10 +1302,9 @@ namespace BetterHI3Launcher
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
-				var web_request = BpUtility.CreateWebRequest(url, "HEAD");
-				using(var web_response = (HttpWebResponse) web_request.GetResponse())
+				using(HttpResponseMessage web_response = await BpUtility.CreateWebRequestAsync(url, HttpMethod.Head))
 				{
-					size = web_response.ContentLength;
+					size = web_response.Content.Headers.ContentLength ?? 0;
 				}
 				if(Directory.GetFiles(GameInstallPath, $"{title}_tmp.*").Length == 0)
 				{

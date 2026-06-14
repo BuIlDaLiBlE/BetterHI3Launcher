@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility.Json;
 using System;
 using System.Dynamic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json.Nodes;
-using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -36,56 +35,8 @@ namespace BetterHI3Launcher
 					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.jp.ToString();
 					break;
 			}
-			void Get(int timeout)
-			{
-				var web_request = BpUtility.CreateWebRequest(url, "GET", timeout);
-				using(var web_response = (HttpWebResponse)web_request.GetResponse())
-				{
-					using(var data = new MemoryStream())
-					{
-						web_response.GetResponseStream().CopyTo(data);
-						JsonNode HYPResourceDataResponse = JsonNode.Parse(data.ToArray());
-						if (HYPResourceDataResponse?["retcode"]?.GetValue<int>() == 0)
-						{
-							if(HYPResourceDataResponse["data"] != null)
-							{
-								if(HYPResourceDataResponse["data"]["game_packages"]?.AsArray().Count > 0)
-								{
-									HYPGamePackageData = DynamicJson.Parse(HYPResourceDataResponse["data"]["game_packages"][0]?.ToJsonString() ?? "");
-									if (!(HYPGamePackageData["game"]["biz"].ToString()?.Contains("bh3") ?? false))
-									{
-										throw new HttpRequestException($"HYP response does not contain data about Honkai Impact 3rd, got biz: {HYPGamePackageData["game"]["biz"].ToString()}");
-									}
-									if(HYPGamePackageData["main"]["major"]["game_pkgs"].Node?.AsArray().Count == 0)
-									{
-										throw new HttpRequestException("HYP game archive data is missing in response");
-									}
-									GameArchiveName = BpUtility.GetFileNameFromUrl(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString());
-								}
-								else
-								{
-									throw new HttpRequestException("HYP game data is missing in response");
-								}
-							}
-							else
-							{
-								throw new HttpRequestException("HYP data is missing in response");
-							}
-						}
-						else
-						{
-							throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse?["message"]}");
-						}
-					}
-				}
 
-				web_request = BpUtility.CreateWebRequest(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString(), "HEAD", timeout);
-				using(var web_response = (HttpWebResponse)web_request.GetResponse())
-				{
-                    HYPGamePackageData["main"]["major"]["game_pkgs"][0].TrySetValue("last_modified", (DateTimeOffset)web_response.LastModified);
-				}
-			}
-			int attempts = 6;
+            int attempts = 6;
 			int timeout_add = 2500;
 			for(int i = 0; i < attempts; i++)
 			{
@@ -116,9 +67,60 @@ namespace BetterHI3Launcher
 				GameNameText.Text = GameFullName;
 				GameVersionText.Text = HYPGamePackageData["main"]["major"]["version"];
 			});
-		}
+            return;
 
-		private dynamic FetchFileMetadata(string url)
+            void Get(int timeout)
+            {
+                using(HttpResponseMessage web_response = BpUtility.CreateWebRequest(url, HttpMethod.Get, timeout))
+                {
+					using (Stream web_response_stream = web_response.Content.ReadAsStreamAsync().Result)
+                    {
+                        JsonNode HYPResourceDataResponse = JsonNode.Parse(web_response_stream);
+                        if (HYPResourceDataResponse?["retcode"]?.GetValue<int>() == 0)
+                        {
+                            if(HYPResourceDataResponse["data"] != null)
+                            {
+                                if(HYPResourceDataResponse["data"]["game_packages"]?.AsArray().Count > 0)
+                                {
+                                    HYPGamePackageData = DynamicJson.Parse(HYPResourceDataResponse["data"]["game_packages"][0]?.ToJsonString() ?? "");
+                                    if (!(HYPGamePackageData["game"]["biz"].ToString()?.Contains("bh3") ?? false))
+                                    {
+                                        throw new HttpRequestException($"HYP response does not contain data about Honkai Impact 3rd, got biz: {HYPGamePackageData["game"]["biz"].ToString()}");
+                                    }
+                                    if(HYPGamePackageData["main"]["major"]["game_pkgs"].Node?.AsArray().Count == 0)
+                                    {
+                                        throw new HttpRequestException("HYP game archive data is missing in response");
+                                    }
+                                    GameArchiveName = BpUtility.GetFileNameFromUrl(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString());
+                                }
+                                else
+                                {
+                                    throw new HttpRequestException("HYP game data is missing in response");
+                                }
+                            }
+                            else
+                            {
+                                throw new HttpRequestException("HYP data is missing in response");
+                            }
+                        }
+                        else
+                        {
+                            throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse?["message"]}");
+                        }
+                    }
+                }
+
+                using (var web_response =
+                       BpUtility.CreateWebRequest(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString(),
+                                                  HttpMethod.Head,
+                                                  timeout))
+                {
+                    HYPGamePackageData["main"]["major"]["game_pkgs"][0].TrySetValue("last_modified", web_response.Content.Headers.LastModified ?? default);
+                }
+            }
+        }
+
+		private FileMetadata FetchFileMetadata(string url)
 		{
 			if(string.IsNullOrEmpty(url))
 			{
@@ -126,41 +128,18 @@ namespace BetterHI3Launcher
 			}
 
 			try
-			{
-				var web_request = BpUtility.CreateWebRequest(url, "HEAD");
-				web_request.AllowAutoRedirect = false;
-				using(var web_response = (HttpWebResponse)web_request.GetResponse())
-				{
-					dynamic metadata = new ExpandoObject();
-					bool is_redirect = false;
-					switch(web_response.StatusCode)
-					{
-						case HttpStatusCode.Moved:
-						case HttpStatusCode.Found:
-						case HttpStatusCode.SeeOther:
-						case HttpStatusCode.TemporaryRedirect:
-							is_redirect = true;
-							metadata.downloadUrl = web_response.Headers["Location"].ToString();
-							break;
-						default:
-							metadata.downloadUrl = url;
-							metadata.modifiedDate = web_response.LastModified;
-							metadata.fileSize = web_response.ContentLength;
-							break;
-					}
-					metadata.title = BpUtility.GetFileNameFromUrl(metadata.downloadUrl);
-					if(is_redirect)
-					{
-						var web_request_redirect = BpUtility.CreateWebRequest(metadata.downloadUrl, "HEAD");
-						using(var web_response_redirect = (HttpWebResponse)web_request_redirect.GetResponse())
-						{
-							metadata.modifiedDate = web_response_redirect.LastModified;
-							metadata.fileSize = web_response_redirect.ContentLength;
-						}
-					}
-					return metadata;
-				}
-			}
+            {
+                using HttpResponseMessage webResponse = BpUtility.CreateWebRequest(url, HttpMethod.Head);
+                webResponse.EnsureSuccessStatusCode();
+
+                return new FileMetadata
+                {
+                    DownloadUrl = url,
+                    ModifiedDate = webResponse.Content.Headers.LastModified ?? default,
+                    FileSize = webResponse.Content.Headers.ContentLength ?? 0,
+                    Title = BpUtility.GetFileNameFromUrl(url)
+                };
+            }
 			catch(WebException ex)
 			{
 				Status = LauncherStatus.Error;

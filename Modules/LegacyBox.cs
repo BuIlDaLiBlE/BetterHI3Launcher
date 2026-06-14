@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Shell;
+using BetterHI3Launcher.Config;
 
 namespace BetterHI3Launcher
 {
@@ -156,8 +157,8 @@ namespace BetterHI3Launcher
 											}
 											else if(urls[j].Contains("www.mediafire.com"))
 											{
-												var metadata = FetchFileMetadata(urls[j]);
-												url = metadata.downloadUrl.ToString();
+												FileMetadata metadata = FetchFileMetadata(urls[j]);
+												url = metadata.DownloadUrl;
 											}
 											else
 											{

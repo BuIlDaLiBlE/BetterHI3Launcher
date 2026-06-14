@@ -2,14 +2,13 @@
 using IniParser;
 using IniParser.Model;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -325,18 +324,16 @@ namespace BetterHI3Launcher
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
 				string background_image_url;
 				string background_image_md5;
-				var web_request = BpUtility.CreateWebRequest(url, "GET", 30000);
-				using(var web_response = (HttpWebResponse)web_request.GetResponse())
+				using(HttpResponseMessage web_response = BpUtility.CreateWebRequest(url, HttpMethod.Get, 30000))
 				{
-					using(var data = new MemoryStream())
-					{
-						web_response.GetResponseStream().CopyTo(data);
-						var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString(data.ToArray()));
-						if(json.retcode == 0)
+					using(Stream data = web_response.Content.ReadAsStreamAsync().Result)
+                    {
+                        DynamicJson json = DynamicJson.Parse(data);
+						if (json["retcode"].ToInt() == 0)
 						{
-							if(json.data != null && json.data.game_info_list != null && json.data.game_info_list.Count > 0)
+							if(json["data"] != default && json["data"]["game_info_list"] != default && json["data"]["game_info_list"].Node?.AsArray().Count > 0)
 							{
-								background_image_url = json.data.game_info_list[0].backgrounds[0].background.url.ToString();
+								background_image_url = json["data"]["game_info_list"][0]["backgrounds"][0]["background"]["url"];
 							}
 							else
 							{
@@ -347,7 +344,7 @@ namespace BetterHI3Launcher
 						}
 						else
 						{
-							Log($"Failed to fetch background image info: {json.message.ToString()}", true, 2);
+							Log($"Failed to fetch background image info: {json["message"]}", true, 2);
 							BackgroundImageDownloading = false;
 							return;
 						}
@@ -536,7 +533,7 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-					dynamic metadata = null;
+                    FileMetadata metadata = null;
 					switch(Server)
 					{
 						case HI3Server.GLB:
@@ -562,10 +559,10 @@ namespace BetterHI3Launcher
 					{
 						return;
 					}
-					title = metadata.downloadUrl;
-					url = metadata.downloadUrl;
+					title = metadata.DownloadUrl;
+					url = metadata.DownloadUrl;
 					md5 = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["md5"].ToString();
-					if((DateTimeOffset)metadata.modifiedDate < HYPGamePackageData["main"]["major"]["game_pkgs"][0]["last_modified"])
+					if(metadata.ModifiedDate < HYPGamePackageData["main"]["major"]["game_pkgs"][0]["last_modified"])
 					{
 						Status = LauncherStatus.Error;
 						Log("The selected mirror is outdated! Please use HoYoverse mirror for the time being.", true, 1);
