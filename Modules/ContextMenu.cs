@@ -468,7 +468,8 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
-				var json = DynamicJson.Parse(value_before);
+
+				var json = DynamicJson.Parse(value_before.AsSpan());
 				if(json == default)
 				{
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
@@ -520,7 +521,7 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
-				var json = DynamicJson.Parse(value_before);
+				var json = DynamicJson.Parse(value_before.AsSpan());
 				if(json == default)
 				{
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();

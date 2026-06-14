@@ -38,9 +38,32 @@ public partial struct DynamicJson
 	/// <param name="documentOptions">The options to use when parsing the JSON document.</param>
 	/// <returns>A <see cref="DynamicJson"/> instance representing the root element of the JSON document.</returns>
 	public static DynamicJson Parse(ReadOnlyMemory<byte> jsonMemory, JsonNodeOptions? nodeOptions = null, JsonDocumentOptions documentOptions = default)
+		=> Parse(jsonMemory.Span, nodeOptions, documentOptions);
+
+    /// <summary>
+    /// Parses a JSON string from a <see cref="ReadOnlySpan{byte}"/> and returns a <see cref="DynamicJson"/> instance representing the root element of the JSON document.
+    /// </summary>
+    /// <param name="jsonSpan">The JSON string to parse.</param>
+    /// <param name="nodeOptions">The options to use when parsing the JSON nodes.</param>
+    /// <param name="documentOptions">The options to use when parsing the JSON document.</param>
+    /// <returns>A <see cref="DynamicJson"/> instance representing the root element of the JSON document.</returns>
+    public static DynamicJson Parse(ReadOnlySpan<byte> jsonSpan, JsonNodeOptions? nodeOptions = null, JsonDocumentOptions documentOptions = default)
 	{
 		nodeOptions ??= new JsonNodeOptions();
-		JsonNode? jsonNode = JsonNode.Parse(jsonMemory.Span, nodeOptions, documentOptions);
+
+		int offsetCheck = jsonSpan.Length - 1;
+		if (jsonSpan.IsEmpty)
+        {
+            throw new ArgumentNullException(nameof(jsonSpan));
+        }
+
+		// HACK: Try trim \0 at the end of the buffer.
+		while (offsetCheck >= 0 && jsonSpan[offsetCheck] == 0)
+		{
+			offsetCheck--;
+		}
+
+        JsonNode? jsonNode = JsonNode.Parse(jsonSpan.Slice(0, offsetCheck + 1), nodeOptions, documentOptions);
 		return new DynamicJson(jsonNode, null, nodeOptions.Value);
 	}
 
