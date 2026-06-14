@@ -23,12 +23,6 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-
-    <!-- TODO: Confirm to BuIl if these are no longer being used -->
-    <SignManifests>false</SignManifests>
-    <SignAssembly>false</SignAssembly>
-    <ManifestCertificateThumbprint>ED52B84CCFE6E7402C6C9080D4EFDA99FB93825C</ManifestCertificateThumbprint>
-    <ManifestKeyFile>BetterHI3Launcher_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
