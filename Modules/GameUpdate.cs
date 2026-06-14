@@ -791,7 +791,7 @@ namespace BetterHI3Launcher
 					}
 				}
 				Log("Writing game version info...");
-				BpUtility.WriteToRegistry(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(version_info)), RegistryValueKind.Binary);
+				BpUtility.WriteToRegistry(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonSerializerNew.Serialize(version_info, JsonParseContext.Default.LocalVersionInfo)), RegistryValueKind.Binary);
 				if(is_installed)
 				{
 					try
