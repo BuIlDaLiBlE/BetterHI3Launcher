@@ -76,7 +76,7 @@ namespace BetterHI3Launcher
 
 						Log($"Game version: {local_game_version}");
 						Log($"Game directory: {GameInstallPath}");
-						if(new DirectoryInfo(GameInstallPath).Parent == null)
+						if(string.IsNullOrEmpty(GameInstallPath) || new DirectoryInfo(GameInstallPath).Parent == null)
 						{
 							Log("Game directory is unsafe, resetting version info...", true, 2);
 							ResetVersionInfo();
@@ -96,7 +96,7 @@ namespace BetterHI3Launcher
 							Log("The game requires an update!");
 							Status = LauncherStatus.UpdateAvailable;
 						}
-						else if(LocalVersionInfo.GameInfo?.IsInstalled ?? false)
+						else if(!(LocalVersionInfo.GameInfo?.IsInstalled ?? false))
 						{
 							DownloadPaused = true;
 							Status = LauncherStatus.UpdateAvailable;
