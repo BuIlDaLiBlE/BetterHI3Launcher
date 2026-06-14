@@ -1,6 +1,5 @@
 ﻿using AssetsTools.NET.Extra;
 using Hi3Helper.EncTool;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -194,39 +193,37 @@ namespace BetterHI3Launcher
 								throw new NotSupportedException("This server is not supported.");
 						}
 
-						using(var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info_url))))
-						{
-							using(var xor_stream = new XORStream(stream))
-							{
-								var data_lines = GetPackageVersion(xor_stream).Split(new string[]{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
-								var data_entries = new List<dynamic>();
-								foreach(string line in data_lines)
-								{
-									if(line.StartsWith("{") && line.EndsWith("}"))
-									{
-										var json = JsonConvert.DeserializeObject<dynamic>(line);
-										data_entries.Add(json);
-									}
-								}
-								if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
-								data = JsonConvert.SerializeObject(data_entries);
-								foreach(CacheDataProperties file in JsonConvert.DeserializeObject<List<CacheDataProperties>>(data))
-								{
-									if(FilterRegion(file.N, game_language) > 0)
-									{
-										cache_files.Add(new CacheDataPropertiesHi3Mirror
-										{
-											N = file.N,
-											CRC = file.CRC,
-											CS = file.CS,
-											IsNecessary = file.DLM == 1,
-											Type = cache_type
-										});
-									}
-								}
-							}
-						}
-					}
+                        using var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info_url)));
+                        using var xor_stream = new XORStream(stream);
+                        var data_lines = GetPackageVersion(xor_stream).Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
+                        var data_entries = new List<DynamicJson>();
+                        foreach(string line in data_lines)
+                        {
+                            if(line.StartsWith("{") && line.EndsWith("}"))
+                            {
+                                var json = DynamicJson.Parse(line);
+                                data_entries.Add(json);
+                            }
+                        }
+
+                        if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
+
+                        foreach(DynamicJson file in data_entries)
+                        {
+                            string filename = file["N"];
+							if (FilterRegion(filename, game_language) > 0)
+                            {
+                                cache_files.Add(new CacheDataPropertiesHi3Mirror
+                                {
+                                    N = filename,
+                                    CRC = file["CRC"],
+                                    CS = file["CS"],
+                                    IsNecessary = file["DLM"].ToInt() == 1,
+                                    Type = cache_type
+                                });
+                            }
+                        }
+                    }
 				});
 				Log("success!", false);
 			}
