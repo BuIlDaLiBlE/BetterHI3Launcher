@@ -285,7 +285,7 @@ namespace BetterHI3Launcher
 								lang = "en-us";
 								break;
 						}
-						url = string.Format(OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.global.ToString(), lang);
+						url = string.Format(OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["launcher_content"]["global"], lang);
 						break;
 					case HI3Server.SEA:
 						switch(App.LauncherLanguage)
@@ -306,19 +306,19 @@ namespace BetterHI3Launcher
 								lang = "en-us";
 								break;
 						}
-						url = string.Format(OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.os.ToString(), lang);
+						url = string.Format(OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["launcher_content"]["os"], lang);
 						break;
 					case HI3Server.CN:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.cn.ToString();
+						url = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["launcher_content"]["cn"];
 						break;
 					case HI3Server.TW:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.tw.ToString();
+						url = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["launcher_content"]["tw"];
 						break;
 					case HI3Server.KR:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.kr.ToString();
+						url = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["launcher_content"]["kr"];
 						break;
 					case HI3Server.JP:
-						url = OnlineVersionInfo.game_info.mirror.mihoyo.launcher_content.jp.ToString();
+						url = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["launcher_content"]["jp"];
 						break;
 				}
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
@@ -522,37 +522,39 @@ namespace BetterHI3Launcher
 					
 					if(!PatchDownload)
 					{
-						url = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString();
-						md5 = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["md5"].ToString();
+						url = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"];
+						md5 = HYPGamePackageData["main"]["major"]["game_pkgs"][0]["md5"];
 					}
 					else
 					{
-						url = HYPGamePackageData["main"]["patches"][PatchDownloadInt]["game_pkgs"][0]["url"].ToString();
-						md5 = HYPGamePackageData["main"]["patches"][PatchDownloadInt]["game_pkgs"][0]["md5"].ToString();
+						url = HYPGamePackageData["main"]["patches"][PatchDownloadInt]["game_pkgs"][0]["url"];
+						md5 = HYPGamePackageData["main"]["patches"][PatchDownloadInt]["game_pkgs"][0]["md5"];
 					}
 				}
 				else
 				{
                     FileMetadata metadata = null;
-					switch(Server)
+                    DynamicJson game_archive = OnlineVersionInfo["game_info"]["mirror"]["bpnetwork"]["game_archive"];
+
+                    switch (Server)
 					{
 						case HI3Server.GLB:
-							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.global.ToString());
+							metadata = FetchFileMetadata(game_archive["global"]);
 							break;
 						case HI3Server.SEA:
-							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.os.ToString());
+							metadata = FetchFileMetadata(game_archive["os"]);
 							break;
 						case HI3Server.CN:
-							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.cn.ToString());
+							metadata = FetchFileMetadata(game_archive["cn"]);
 							break;
 						case HI3Server.TW:
-							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.tw.ToString());
+							metadata = FetchFileMetadata(game_archive["tw"]);
 							break;
 						case HI3Server.KR:
-							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.kr.ToString());
+							metadata = FetchFileMetadata(game_archive["kr"]);
 							break;
 						case HI3Server.JP:
-							metadata = FetchFileMetadata(OnlineVersionInfo.game_info.mirror.bpnetwork.game_archive.jp.ToString());
+							metadata = FetchFileMetadata(game_archive["jp"]);
 							break;
 					}
 					if(metadata == null)

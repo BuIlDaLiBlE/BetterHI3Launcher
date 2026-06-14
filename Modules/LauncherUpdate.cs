@@ -13,7 +13,7 @@ namespace BetterHI3Launcher
 	{
 		private bool LauncherUpdateCheck()
 		{
-			string OnlineLauncherVersionString = OnlineVersionInfo.launcher_info.version.ToString();
+			string OnlineLauncherVersionString = OnlineVersionInfo["launcher_info"]["version"];
             var OnlineLauncherVersion = new StructVersion(OnlineLauncherVersionString);
             return OnlineLauncherVersion > App.LocalLauncherVersion;
         }
@@ -67,12 +67,12 @@ namespace BetterHI3Launcher
 			{
 				tracker.NewFile();
 				var eta_calc = new ETACalculator();
-				var download = new DownloadPauseable(OnlineVersionInfo.launcher_info.url.ToString(), App.LauncherArchivePath);
+				var download = new DownloadPauseable(OnlineVersionInfo["launcher_info"]["url"], App.LauncherArchivePath);
 				download.Start();
 				while(!download.Done)
 				{
 					tracker.SetProgress(download.BytesWritten, download.ContentLength);
-					eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+					eta_calc.Update((float)download.BytesWritten / download.ContentLength);
 					Dispatcher.Invoke(() =>
 					{
 						var progress = tracker.GetProgress();
@@ -116,9 +116,9 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
-				string translations_url = OnlineVersionInfo.launcher_info.translations.url.ToString();
-				string translations_md5 = OnlineVersionInfo.launcher_info.translations.md5.ToString().ToUpper();
-				string translations_version = OnlineVersionInfo.launcher_info.translations.version;
+				string translations_url = OnlineVersionInfo["launcher_info"]["translations"]["url"];
+				string translations_md5 = OnlineVersionInfo["launcher_info"]["translations"]["md5"].ToString()?.ToUpper();
+				string translations_version = OnlineVersionInfo["launcher_info"]["translations"]["version"];
 				bool Validate()
 				{
 					if(File.Exists(App.LauncherTranslationsFile))

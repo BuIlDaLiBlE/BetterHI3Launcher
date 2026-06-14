@@ -44,9 +44,7 @@ namespace BetterHI3Launcher
 		public static RoutedCommand AboutCommand = new RoutedCommand();
 
 		public LocalVersionInfo LocalVersionInfo = null;
-        public DynamicJson HYPGamePackageData;
-
-        public dynamic OnlineVersionInfo, OnlineRepairInfo;
+        public DynamicJson HYPGamePackageData, OnlineVersionInfo, OnlineRepairInfo;
 		public dynamic GameGraphicSettings, GameScreenSettings;
 		LauncherStatus _status;
 		HI3Server _gameserver;
@@ -505,7 +503,7 @@ namespace BetterHI3Launcher
 				OptionsContextMenu.Items.Add(CM_Web_Profile);
 				OptionsContextMenu.Items.Add(new Separator());
 				var CM_Feedback = new MenuItem{Header = App.TextStrings["contextmenu_feedback"], InputGestureText = "Ctrl+F"};
-				CM_Feedback.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.feedback.ToString(), null, App.LauncherRootPath, true);
+				CM_Feedback.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo["launcher_info"]["links"]["feedback"], null, App.LauncherRootPath, true);
 				OptionsContextMenu.Items.Add(CM_Feedback);
 				var CM_Changelog = new MenuItem{Header = App.TextStrings["contextmenu_changelog"], InputGestureText = "Ctrl+C"};
 				CM_Changelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
@@ -570,7 +568,7 @@ namespace BetterHI3Launcher
 				CM_Language.Items.Add(CM_Language_Vietnamese);
 				CM_Language.Items.Add(new Separator());
 				var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
-				CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.language_contribute.ToString(), null, App.LauncherRootPath, true);
+				CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo["launcher_info"]["links"]["language_contribute"], null, App.LauncherRootPath, true);
 				CM_Language.Items.Add(CM_Language_Contribute);
 				OptionsContextMenu.Items.Add(CM_Language);
 				var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"], InputGestureText = "Ctrl+A"};
@@ -771,7 +769,7 @@ namespace BetterHI3Launcher
 
 					if(!App.NeedsUpdate)
 					{
-						if(BpUtility.CalculateMD5(App.LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
+						if(BpUtility.CalculateMD5(App.LauncherPath) != OnlineVersionInfo["launcher_info"]["exe_md5"].ToString()?.ToUpper())
 						{
 							Log($"Launcher integrity error, attempting self-repair...", true, 1);
 							App.NeedsUpdate = true;
@@ -783,7 +781,7 @@ namespace BetterHI3Launcher
 						Status = LauncherStatus.Working;
 						DownloadLauncherUpdate();
 						Log("Validating update...");
-						string md5 = OnlineVersionInfo.launcher_info.md5.ToString().ToUpper();
+						string md5 = OnlineVersionInfo["launcher_info"]["md5"].ToString()?.ToUpper();
 						string actual_md5 = BpUtility.CalculateMD5(App.LauncherArchivePath);
 						if(actual_md5 != md5)
 						{
@@ -1537,7 +1535,7 @@ namespace BetterHI3Launcher
 				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
-			if(!(bool)OnlineVersionInfo.game_info.mirror.bpnetwork.available && index == 1)
+			if(!OnlineVersionInfo["game_info"]["mirror"]["bpnetwork"]["available"] && index == 1)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();

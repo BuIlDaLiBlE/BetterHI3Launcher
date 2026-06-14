@@ -63,20 +63,21 @@ namespace BetterHI3Launcher
 					long corrupted_files_size = 0;
 
 					Log("Verifying game files...");
-					if(App.AdvancedFeatures) Log($"Repair data game version: {OnlineRepairInfo.game_version}");
+					if(App.AdvancedFeatures) Log($"Repair data game version: {OnlineRepairInfo["game_version"]}");
 					await Task.Run(() =>
-					{
-						for(int i = 0; i < OnlineRepairInfo.files.names.Count; i++)
+                    {
+                        int names_count = OnlineRepairInfo["files"]["names"].Node?.AsArray().Count ?? 0;
+                        for (int i = 0; i < names_count; i++)
 						{
-							string name = OnlineRepairInfo.files.names[i].ToString();
-							string md5 = OnlineRepairInfo.files.hashes[i].ToString().ToUpper();
-							long size = OnlineRepairInfo.files.sizes[i];
+							string name = OnlineRepairInfo["files"]["names"][i].ToString() ?? "";
+							string md5 = OnlineRepairInfo["files"]["hashes"][i].ToString()?.ToUpper();
+							long size = OnlineRepairInfo["files"]["sizes"][i];
 							string path = Path.Combine(GameInstallPath, name);
 
 							Dispatcher.Invoke(() =>
 							{
-								ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, OnlineRepairInfo.files.names.Count);
-								var progress = (i + 1f) / OnlineRepairInfo.files.names.Count;
+								ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, names_count);
+								var progress = (i + 1f) / names_count;
 								ProgressBar.Value = progress;
 								TaskbarItemInfo.ProgressValue = progress;
 							});
@@ -112,7 +113,7 @@ namespace BetterHI3Launcher
 						FlashMainWindow();
 						if(new DialogWindow(App.TextStrings["contextmenu_repair"], string.Format(App.TextStrings["msgbox_repair_3_msg"], corrupted_files.Count, BpUtility.ToBytesCount(corrupted_files_size)), DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
-							string[] urls = OnlineRepairInfo.zip_urls.ToObject<string[]>();
+							string[] urls = [.. OnlineRepairInfo["zip_urls"].EnumerateArray().Select(x => x.ToString())];
 							int repaired_files = 0;
 							bool abort = false;
 
@@ -250,7 +251,7 @@ namespace BetterHI3Launcher
 					Status = LauncherStatus.Ready;
 				}
 
-				if(OnlineRepairInfo.game_version != LocalVersionInfo.GameInfo?.Version)
+				if(OnlineRepairInfo["game_version"].ToStructVersion() != LocalVersionInfo.GameInfo?.Version)
 				{
 					if(App.AdvancedFeatures)
 					{
@@ -558,7 +559,7 @@ namespace BetterHI3Launcher
 		{
 			LegacyBoxActive = false;
 			AboutBox.Visibility = Visibility.Collapsed;
-			BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.github.ToString(), null, App.LauncherRootPath, true);
+			BpUtility.StartProcess(OnlineVersionInfo["launcher_info"]["links"]["github"], null, App.LauncherRootPath, true);
 		}
 
 		private void AboutBoxCloseButton_Click(object sender, RoutedEventArgs e)

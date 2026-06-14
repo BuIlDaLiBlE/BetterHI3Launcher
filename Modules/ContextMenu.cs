@@ -161,13 +161,13 @@ namespace BetterHI3Launcher
 				var web_client = new BpWebClient();
 				await Task.Run(() =>
 				{
-					OnlineRepairInfo = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"{OnlineVersionInfo.launcher_info.links.repair.ToString()}={server}"));
+					OnlineRepairInfo = DynamicJson.Parse(web_client.DownloadString($"{OnlineVersionInfo["launcher_info"]["links"]["repair"]}={server}"));
 				});
-				if(OnlineRepairInfo.status == "success")
+				if (OnlineRepairInfo["status"] == "success")
 				{
 					Log("success!", false);
-					OnlineRepairInfo = OnlineRepairInfo.repair_info;
-					if(OnlineRepairInfo.game_version != LocalVersionInfo.GameInfo?.Version && !App.AdvancedFeatures)
+					OnlineRepairInfo = OnlineRepairInfo["repair_info"];
+					if(OnlineRepairInfo["game_version"].ToStructVersion() != LocalVersionInfo.GameInfo?.Version && !App.AdvancedFeatures)
 					{
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
@@ -179,7 +179,7 @@ namespace BetterHI3Launcher
 						Dispatcher.Invoke(() =>
 						{
 							RepairBox.Visibility = Visibility.Visible;
-							RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+							RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo["mirrors"], OnlineVersionInfo["game_info"]["mirror"]["maintainer"].ToString());
 						});
 						LegacyBoxActive = true;
 					}
@@ -187,8 +187,8 @@ namespace BetterHI3Launcher
 				else
 				{
 					Status = LauncherStatus.Error;
-					Log($"Failed to fetch repair data: {OnlineRepairInfo.status_message}", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], OnlineRepairInfo.status_message)).ShowDialog();
+					Log($"Failed to fetch repair data: {OnlineRepairInfo["status_message"]}", true, 1);
+					new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], OnlineRepairInfo["status_message"])).ShowDialog();
 				}
 			}
 			catch(Exception ex)

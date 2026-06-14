@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shell;
+using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -94,7 +95,7 @@ namespace BetterHI3Launcher
 
 		private string CalculateCRC(string path, string hash_salt)
 		{
-			byte[] salt = new mhyEncTool(hash_salt, OnlineVersionInfo.game_info.mirror.mihoyo.master_key.ToString()).GetSalt();
+			byte[] salt = new mhyEncTool(hash_salt, OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["master_key"]).GetSalt();
 			using(FileStream stream = new FileStream(path, FileMode.Open))
 			{
 				byte[] hash = new HMACSHA1(salt).ComputeHash(stream);
@@ -113,26 +114,28 @@ namespace BetterHI3Launcher
 			var web_client = new BpWebClient();
 
 			try
-			{
-				switch((int)Server)
+            {
+                DynamicJson game_cache = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["game_cache"];
+                DynamicJson game_cache_info = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["game_cache_info"];
+                switch ((int)Server)
 				{
 					case 0:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.global.ToString();
+						data_url = game_cache["global"];
 						break;
 					case 1:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.os.ToString();
+						data_url = game_cache["os"];
 						break;
 					case 2:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.cn.ToString();
+						data_url = game_cache["cn"];
 						break;
 					case 3:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.tw.ToString();
+						data_url = game_cache["tw"];
 						break;
 					case 4:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.kr.ToString();
+						data_url = game_cache["kr"];
 						break;
 					case 5:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.jp.ToString();
+						data_url = game_cache["jp"];
 						break;
 					default:
 						throw new NotSupportedException("This server is not supported.");
@@ -165,32 +168,33 @@ namespace BetterHI3Launcher
 								break;
 						}
 
-						dynamic data_info;
-						switch((int)Server)
+						string data_info_url;
+
+                        switch ((int)Server)
 						{
 							case 0:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.global[i].ToString();
+								data_info_url = game_cache_info["global"][i].ToString();
 								break;
 							case 1:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.os[i].ToString();
+								data_info_url = game_cache_info["os"][i].ToString();
 								break;
 							case 2:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.cn[i].ToString();
+								data_info_url = game_cache_info["cn"][i].ToString();
 								break;
 							case 3:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.tw[i].ToString();
+								data_info_url = game_cache_info["tw"][i].ToString();
 								break;
 							case 4:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.kr[i].ToString();
+								data_info_url = game_cache_info["kr"][i].ToString();
 								break;
 							case 5:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.jp[i].ToString();
+								data_info_url = game_cache_info["jp"][i].ToString();
 								break;
 							default:
 								throw new NotSupportedException("This server is not supported.");
 						}
 
-						using(var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info))))
+						using(var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info_url))))
 						{
 							using(var xor_stream = new XORStream(stream))
 							{

@@ -1,7 +1,6 @@
 ﻿using BetterHI3Launcher.Config;
 using BetterHI3Launcher.Utility.Json;
 using System;
-using System.Dynamic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -14,25 +13,27 @@ namespace BetterHI3Launcher
 		private void FetchHYPGamePackageData()
 		{
 			string url = null;
-			switch(Server)
+            DynamicJson resource_info = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["resource_info"];
+
+            switch (Server)
 			{
 				case HI3Server.GLB:
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.global.ToString();
+					url = resource_info["global"];
 					break;
 				case HI3Server.SEA:
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.os.ToString();
+					url = resource_info["os"];
 					break;
 				case HI3Server.CN:
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.cn.ToString();
+					url = resource_info["cn"];
 					break;
 				case HI3Server.TW:
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.tw.ToString();
+					url = resource_info["tw"];
 					break;
 				case HI3Server.KR:
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.kr.ToString();
+					url = resource_info["kr"];
 					break;
 				case HI3Server.JP:
-					url = OnlineVersionInfo.game_info.mirror.mihoyo.resource_info.jp.ToString();
+					url = resource_info["jp"];
 					break;
 			}
 
