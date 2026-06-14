@@ -478,19 +478,11 @@ namespace BetterHI3Launcher
 				FPSInputBox.Visibility = Visibility.Visible;
 				if(json.TargetFrameRateForInLevel != null)
 				{
-					CombatFPSInputBoxTextBox.Text = json.TargetFrameRateForInLevel;
+					FPSLimitInputBoxTextBox.Text = json.TargetFrameRateForInLevel;
 				}
 				else
 				{
-					CombatFPSInputBoxTextBox.Text = "60";
-				}
-				if(json.TargetFrameRateForOthers != null)
-				{
-					MenuFPSInputBoxTextBox.Text = json.TargetFrameRateForOthers;
-				}
-				else
-				{
-					MenuFPSInputBoxTextBox.Text = "60";
+					FPSLimitInputBoxTextBox.Text = "60";
 				}
 				GameGraphicSettings = json;
 				LegacyBoxActive = true;
@@ -949,7 +941,8 @@ namespace BetterHI3Launcher
 			{
 				if(item.GetType() == typeof(MenuItem))
 				{
-					if(item.Header.ToString() == App.TextStrings["contextmenu_web_profile"] ||
+					if(item.Header.ToString() == App.TextStrings["contextmenu_open_screenshots_dir"] ||
+					   item.Header.ToString() == App.TextStrings["contextmenu_web_profile"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_feedback"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_changelog"] ||
 					   item.Header.ToString() == App.TextStrings["contextmenu_language"] ||

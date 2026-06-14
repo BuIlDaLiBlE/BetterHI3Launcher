@@ -23,9 +23,10 @@ namespace BetterHI3Launcher
 	public partial class MainWindow : Window
 	{
 		public static readonly string miHoYoPath = Path.Combine(App.LocalLowPath, "miHoYo");
+		public static readonly string GameExeName = "BH3.exe";
 		public static string GameInstallPath, GameCachePath, GameRegistryPath, GameArchivePath, GameArchiveTempPath, GameExePath;
 		public static string RegistryVersionInfo;
-		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameExeName, GameInstallRegistryName, GameHYPName;
+		public static string GameWebProfileURL, GameFullName, GameArchiveName, GameInstallRegistryName;
 		public static bool DownloadPaused, PatchDownload, PreloadDownload, BackgroundImageDownloading, LegacyBoxActive, ActionAbort;
 		public static int PatchDownloadInt;
 		public static RoutedCommand DownloadCacheCommand = new RoutedCommand();
@@ -39,7 +40,7 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
-		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, miHoYoVersionInfo;
+		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, HYPGamePackageData;
 		public dynamic GameGraphicSettings, GameScreenSettings;
 		LauncherStatus _status;
 		HI3Server _gameserver;
@@ -193,43 +194,37 @@ namespace BetterHI3Launcher
 					case HI3Server.GLB:
 						RegistryVersionInfo = "VersionInfoGlobal";
 						GameFullName = "Honkai Impact 3rd";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_global";
+						GameInstallRegistryName = "bh3_globalglb_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.SEA:
 						RegistryVersionInfo = "VersionInfoSEA";
 						GameFullName = "Honkai Impact 3";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_os";
+						GameInstallRegistryName = "bh3_globaloverseas_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.CN:
 						RegistryVersionInfo = "VersionInfoCN";
 						GameFullName = "崩坏3";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_cn";
+						GameInstallRegistryName = "bh3_cn";
 						GameWebProfileURL = "https://user.mihoyo.com";
 						break;
 					case HI3Server.TW:
 						RegistryVersionInfo = "VersionInfoTW";
 						GameFullName = "崩壊3rd";
-						GameInstallRegistryName = "崩壞3rd";
-						GameHYPName = "bh3_tw";
+						GameInstallRegistryName = "bh3_globalasia_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.KR:
 						RegistryVersionInfo = "VersionInfoKR";
 						GameFullName = "붕괴3rd";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_kr";
+						GameInstallRegistryName = "bh3_globalkr_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 					case HI3Server.JP:
 						RegistryVersionInfo = "VersionInfoJP";
 						GameFullName = "崩壊3rd";
-						GameInstallRegistryName = GameFullName;
-						GameHYPName = "bh3_jp";
+						GameInstallRegistryName = "bh3_globaljp_official";
 						GameWebProfileURL = "https://account.hoyoverse.com";
 						break;
 				}
@@ -363,8 +358,7 @@ namespace BetterHI3Launcher
 				RepairBoxNoButton.Content = App.TextStrings["button_no"];
 				RepairBoxGenerateButton.Content = App.TextStrings["button_generate"];
 				FPSInputBoxTitleTextBlock.Text = App.TextStrings["fpsinputbox_title"];
-				CombatFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_combatfps"];
-				MenuFPSInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_menufps"];
+				FPSLimitInputBoxTextBlock.Text = App.TextStrings["fpsinputbox_label_fps_limit"];
 				FPSInputBoxOKButton.Content = App.TextStrings["button_confirm"];
 				FPSInputBoxCancelButton.Content = App.TextStrings["button_cancel"];
 				ResolutionInputBoxTitleTextBlock.Text = App.TextStrings["resolutioninputbox_title"];
@@ -400,7 +394,7 @@ namespace BetterHI3Launcher
 				AnnouncementBox.Visibility = Visibility.Collapsed;
 
 				var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full");
-				if(key == null || (int)key.GetValue("Release") < 394802)
+				if(key == null || (int)key.GetValue("Release") < 528040)
 				{
 					MessageBox.Show(App.TextStrings["msgbox_net_version_old_msg"], App.TextStrings["msgbox_start_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 					Application.Current.Shutdown();
@@ -456,7 +450,7 @@ namespace BetterHI3Launcher
 				}
 				try
 				{
-					FetchmiHoYoVersionInfo();
+					FetchHYPGamePackageData();
 				}
 				catch(Exception ex)
 				{
@@ -1000,36 +994,61 @@ namespace BetterHI3Launcher
 					{
 						try
 						{
-							var possible_paths = new List<string>
+							var possible_paths = new HashSet<string>
 							{
 								App.LauncherRootPath,
 								Environment.ExpandEnvironmentVariables("%ProgramW6432%")
 							};
-							string[] game_reg_names = {"Honkai Impact 3rd", "Honkai Impact 3", "崩坏3", "崩壞3rd", "붕괴3rd", "崩壊3rd"};
-							foreach(string game_reg_name in game_reg_names)
+							string[] game_company_names = {"miHoYo", "Cognosphere"};
+							string[] hyp_versions = {"1_0", "1_1"};
+							foreach(string game_company_name in game_company_names)
 							{
-								try
-								{
-									string path = CheckForExistingGameDirectory(Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{game_reg_name}").GetValue("InstallPath").ToString());
-									if(!string.IsNullOrEmpty(path))
-									{
-										possible_paths.Add(path);
-									}
-								}catch{}
-							}
-							foreach(string hyp_version in Registry.CurrentUser.OpenSubKey(@"SOFTWARE\miHoYo\HYP").GetSubKeyNames())
-							{
-								foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\miHoYo\HYP\{hyp_version}").GetSubKeyNames())
+								// Normal HYP
+								foreach(string hyp_version in hyp_versions)
 								{
 									try
 									{
-										string path = CheckForExistingGameDirectory(Registry.CurrentUser.OpenSubKey($@"SOFTWARE\miHoYo\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString());
-										if(!string.IsNullOrEmpty(path))
+										foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}").GetSubKeyNames())
 										{
-											possible_paths.Add(path);
+											try
+											{
+												string path = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString().Replace("/", @"\");
+												if(!string.IsNullOrEmpty(path))
+												{
+													possible_paths.Add(path);
+												}
+											}catch{}
 										}
 									}catch{}
 								}
+								// So called "standalone" HYP, e.g. Epic, Google
+								try
+								{
+									foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone").GetSubKeyNames())
+									{
+										try
+										{
+											foreach(string game_id in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global").GetSubKeyNames())
+											{
+												try
+												{
+													foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}").GetSubKeyNames())
+													{
+														try
+														{
+															var game_reg_name_key = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}\{game_reg_name}");
+															string path = game_reg_name_key.GetValue("GameInstallPath").ToString().Replace("/", @"\");
+															if(!string.IsNullOrEmpty(path))
+															{
+																possible_paths.Add(path);
+															}
+														}catch{}
+													}
+												}catch{}
+											}
+										}catch{}
+									}
+								}catch{}
 							}
 							foreach(string path in possible_paths)
 							{
@@ -1115,8 +1134,8 @@ namespace BetterHI3Launcher
 									continue;
 								}
 
-								long free_space_recommended = (long)miHoYoVersionInfo.size + (long)miHoYoVersionInfo.game.latest.size;
-								string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.size))}" +
+								long free_space_recommended = (long)HYPGamePackageData.main.major.game_pkgs[0].decompressed_size;
+								string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData.main.major.game_pkgs[0].size))}" +
 									$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(free_space_recommended), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}" +
 									$"\n{string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath)}";
 								if(new DialogWindow(App.TextStrings["msgbox_install_title"], install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
@@ -1162,7 +1181,7 @@ namespace BetterHI3Launcher
 						return;
 					}
 					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
-					if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.game.latest.size)
+					if(game_install_drive.TotalFreeSpace < (long)HYPGamePackageData.main.major.game_pkgs[0].decompressed_size)
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{
@@ -1290,10 +1309,10 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				string url = miHoYoVersionInfo.pre_download_game.latest.path.ToString();
+				string url = HYPGamePackageData.pre_download.major.game_pkgs[0].url.ToString();
 				string title = BpUtility.GetFileNameFromUrl(url);
 				long size;
-				string md5 = miHoYoVersionInfo.pre_download_game.latest.md5.ToString().ToUpper();
+				string md5 = HYPGamePackageData.pre_download.major.game_pkgs[0].md5.ToString().ToUpper();
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
@@ -1307,12 +1326,12 @@ namespace BetterHI3Launcher
 					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
 					string pre_install_message = $"{App.TextStrings["msgbox_pre_install_msg"]}" +
 						$"\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}" +
-						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount((long)miHoYoVersionInfo.game.latest.size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
+						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData.pre_download.major.game_pkgs[0].size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
 					if(new DialogWindow(App.TextStrings["label_pre_install"], pre_install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
-					if(game_install_drive.TotalFreeSpace < (long)miHoYoVersionInfo.pre_download_game.latest.size)
+					if(game_install_drive.TotalFreeSpace < (long)HYPGamePackageData.pre_download.major.game_pkgs[0].decompressed_size)
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{

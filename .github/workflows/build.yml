@@ -1,0 +1,55 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      configuration:
+        required: true
+        type: string
+        default: Debug
+    outputs:
+      artifact_id:
+        value: ${{ jobs.build.outputs.artifact_id }}
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: Configuration
+        required: true
+        type: choice
+        default: Debug
+        options:
+          - Debug
+          - Release
+  push:
+    branches-ignore:
+      - master
+    paths-ignore:
+      - "**.md"
+      - "**.txt"
+      - "**.html"
+      - ".gitignore"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      SOLUTION_FILE: BetterHI3Launcher.sln
+      BUILD_CONFIG: ${{ inputs.configuration || 'Debug' }}
+    outputs:
+      artifact_id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+      - name: Build app
+        run: msbuild -r -p:Configuration=$env:BUILD_CONFIG $env:SOLUTION_FILE
+      - id: upload-unsigned-artifact
+        name: Upload unsigned artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BetterHI3Launcher
+          path: bin\${{ env.BUILD_CONFIG }}\BetterHI3Launcher.exe
+          compression-level: 9

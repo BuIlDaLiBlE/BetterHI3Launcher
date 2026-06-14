@@ -769,12 +769,8 @@
 					<StackPanel>
 						<TextBlock Name="FPSInputBoxTitleTextBlock" Margin="25,5,25,5" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
 						<DockPanel Height="26" Margin="100,5">
-							<TextBlock Name="CombatFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-							<TextBox Name="CombatFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
-						</DockPanel>
-						<DockPanel Height="26" Margin="100,5">
-							<TextBlock Name="MenuFPSInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
-							<TextBox Name="MenuFPSInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
+							<TextBlock Name="FPSLimitInputBoxTextBlock" Margin="25,5,25,0" FontFamily="{DynamicResource Font}" FontWeight="Bold" FontSize="15" TextAlignment="Center"/>
+							<TextBox Name="FPSLimitInputBoxTextBox" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="25" MaxLength="3" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" TextAlignment="Center" PreviewTextInput="FPSInputBoxTextBox_PreviewTextInput" DataObject.Pasting="FPSInputBoxTextBox_Pasting"/>
 						</DockPanel>
 						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 							<Button Name="FPSInputBoxOKButton" Style="{DynamicResource WhiteButtonStyle}" Click="FPSInputBoxOKButton_Click"/>
