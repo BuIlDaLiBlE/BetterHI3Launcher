@@ -64,43 +64,42 @@ namespace BetterHI3Launcher
 
 					Log("Verifying game files...");
 					if(App.AdvancedFeatures) Log($"Repair data game version: {OnlineRepairInfo["game_version"]}");
-					await Task.Run(() =>
-					{
-						int names_count = OnlineRepairInfo["files"]["names"].Node?.AsArray().Count ?? 0;
-						for (int i = 0; i < names_count; i++)
-						{
-							string name = OnlineRepairInfo["files"]["names"][i].ToString() ?? "";
-							string md5 = OnlineRepairInfo["files"]["hashes"][i].ToString()?.ToUpper();
-							long size = OnlineRepairInfo["files"]["sizes"][i];
-							string path = Path.Combine(GameInstallPath, name);
 
-							Dispatcher.Invoke(() =>
+					int names_count = OnlineRepairInfo["files"]["names"].Node?.AsArray().Count ?? 0;
+					for (int i = 0; i < names_count; i++)
+					{
+						string name = OnlineRepairInfo["files"]["names"][i].ToString() ?? "";
+						string md5 = OnlineRepairInfo["files"]["hashes"][i].ToString()?.ToUpper();
+						long size = OnlineRepairInfo["files"]["sizes"][i];
+						string path = Path.Combine(GameInstallPath, name);
+
+						Dispatcher.Invoke(() =>
+						{
+							ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, names_count);
+							var progress = (i + 1f) / names_count;
+							ProgressBar.Value = progress;
+							TaskbarItemInfo.ProgressValue = progress;
+						});
+						if (!File.Exists(path) || await BpUtility.CalculateMD5Async(path) != md5)
+						{
+							if (File.Exists(path))
 							{
-								ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, names_count);
-								var progress = (i + 1f) / names_count;
-								ProgressBar.Value = progress;
-								TaskbarItemInfo.ProgressValue = progress;
-							});
-							if(!File.Exists(path) || BpUtility.CalculateMD5(path) != md5)
-							{
-								if(File.Exists(path))
-								{
-									Log($"File corrupted: {name}");
-								}
-								else
-								{
-									Log($"File missing: {name}");
-								}
-								corrupted_files.Add(name);
-								corrupted_file_hashes.Add(md5);
-								corrupted_files_size += size;
+								Log($"File corrupted: {name}");
 							}
 							else
 							{
-								if(App.AdvancedFeatures) Log($"File OK: {name}");
+								Log($"File missing: {name}");
 							}
+							corrupted_files.Add(name);
+							corrupted_file_hashes.Add(md5);
+							corrupted_files_size += size;
 						}
-					});
+						else
+						{
+							if (App.AdvancedFeatures) Log($"File OK: {name}");
+						}
+					}
+
 					ProgressText.Text = string.Empty;
 					ProgressBar.Visibility = Visibility.Collapsed;
 					ProgressBar.Value = 0;
@@ -123,86 +122,83 @@ namespace BetterHI3Launcher
 							ProgressBar.IsIndeterminate = false;
 							TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 
-							await Task.Run(async () =>
+							if (urls.Length == 0)
 							{
-								if(urls.Length == 0)
-								{
-									throw new InvalidOperationException("No download URLs are present in repair data.");
-								}
-								for(int i = 0; i < corrupted_files.Count; i++)
-								{
-									string path = Path.Combine(GameInstallPath, corrupted_files[i]);
+								throw new InvalidOperationException("No download URLs are present in repair data.");
+							}
+							for (int i = 0; i < corrupted_files.Count; i++)
+							{
+								string path = Path.Combine(GameInstallPath, corrupted_files[i]);
 
-									if(ActionAbort)
+								if (ActionAbort)
+								{
+									Log("Task cancelled");
+									ActionAbort = false;
+									break;
+								}
+								Dispatcher.Invoke(() =>
+								{
+									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, corrupted_files.Count);
+									var progress = (i + 1f) / corrupted_files.Count;
+									ProgressBar.Value = progress;
+									TaskbarItemInfo.ProgressValue = progress;
+								});
+								for (int j = 0; j < urls.Length; j++)
+								{
+									string url = null;
+
+									try
 									{
-										Log("Task cancelled");
-										ActionAbort = false;
+										if (string.IsNullOrEmpty(urls[j]))
+										{
+											throw new NullReferenceException($"Download URL with index {j} is empty.");
+										}
+										else if (urls[j].Contains("www.mediafire.com"))
+										{
+											FileMetadata metadata = FetchFileMetadata(urls[j]);
+											url = metadata.DownloadUrl;
+										}
+										else
+										{
+											url = urls[j];
+										}
+
+										Directory.CreateDirectory(Path.GetDirectoryName(path));
+										await PartialZipDownloader.DownloadFile(url, corrupted_files[i], path);
+										Dispatcher.Invoke(() => { ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, corrupted_files.Count); });
+										if (!File.Exists(path) || await BpUtility.CalculateMD5Async(path) != corrupted_file_hashes[i])
+										{
+											Log($"Failed to repair file {corrupted_files[i]}", true, 1);
+										}
+										else
+										{
+											Log($"Repaired file {corrupted_files[i]}");
+											repaired_files++;
+										}
 										break;
 									}
-									Dispatcher.Invoke(() =>
+									catch (Exception ex)
 									{
-										ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, corrupted_files.Count);
-										var progress = (i + 1f) / corrupted_files.Count;
-										ProgressBar.Value = progress;
-										TaskbarItemInfo.ProgressValue = progress;
-									});
-									for(int j = 0; j < urls.Length; j++)
-									{
-										string url = null;
-
-										try
+										if (j == urls.Length - 1)
 										{
-											if(string.IsNullOrEmpty(urls[j]))
+											Status = LauncherStatus.Error;
+											Log($"Failed to download file [{corrupted_files[i]}] ({url}): {ex.Message}\nNo more mirrors available!", true, 1);
+											Dispatcher.Invoke(() =>
 											{
-												throw new NullReferenceException($"Download URL with index {j} is empty.");
-											}
-											else if(urls[j].Contains("www.mediafire.com"))
-											{
-												FileMetadata metadata = FetchFileMetadata(urls[j]);
-												url = metadata.DownloadUrl;
-											}
-											else
-											{
-												url = urls[j];
-											}
-
-											Directory.CreateDirectory(Path.GetDirectoryName(path));
-											await PartialZipDownloader.DownloadFile(url, corrupted_files[i], path);
-											Dispatcher.Invoke(() => {ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, corrupted_files.Count);});
-											if(!File.Exists(path) || BpUtility.CalculateMD5(path) != corrupted_file_hashes[i])
-											{
-												Log($"Failed to repair file {corrupted_files[i]}", true, 1);
-											}
-											else
-											{
-												Log($"Repaired file {corrupted_files[i]}");
-												repaired_files++;
-											}
-											break;
+												new DialogWindow(App.TextStrings["msgbox_generic_error_title"], App.TextStrings["msgbox_generic_error_msg"]).ShowDialog();
+												LaunchButton.Content = App.TextStrings["button_launch"];
+											});
+											Status = LauncherStatus.Ready;
+											abort = true;
+											return;
 										}
-										catch(Exception ex)
+										else
 										{
-											if(j == urls.Length - 1)
-											{
-												Status = LauncherStatus.Error;
-												Log($"Failed to download file [{corrupted_files[i]}] ({url}): {ex.Message}\nNo more mirrors available!", true, 1);
-												Dispatcher.Invoke(() =>
-												{
-													new DialogWindow(App.TextStrings["msgbox_generic_error_title"], App.TextStrings["msgbox_generic_error_msg"]).ShowDialog();
-													LaunchButton.Content = App.TextStrings["button_launch"];
-												});
-												Status = LauncherStatus.Ready;
-												abort = true;
-												return;
-											}
-											else
-											{
-												Log($"Failed to download file [{corrupted_files[i]}] ({url}): {ex.Message}\nAttempting to download from another mirror...", true, 2);
-											}
+											Log($"Failed to download file [{corrupted_files[i]}] ({url}): {ex.Message}\nAttempting to download from another mirror...", true, 2);
 										}
 									}
 								}
-							});
+							}
 							Dispatcher.Invoke(() =>
 							{
 								LaunchButton.Content = App.TextStrings["button_launch"];
@@ -400,33 +396,30 @@ namespace BetterHI3Launcher
 						JsonArray sizesNode = sizes.Node as JsonArray;
 
 						int filesCount = files.Count;
-						await Task.Run(() =>
+						for (int i = 0; i < filesCount; i++)
 						{
-							for(int i = 0; i < filesCount; i++)
+							string name = files[i].FullName
+												  .Replace($"{GameInstallPath}\\", string.Empty)
+												  .Replace("\\", "/");
+
+							string hash = await BpUtility.CalculateMD5Async(files[i].FullName);
+							long fileSize = files[i].Length;
+
+							namesNode?.Add(name);
+							hashesNode?.Add(hash);
+							sizesNode?.Add(fileSize);
+							Dispatcher.Invoke(() =>
 							{
-								string name = files[i].FullName
-													  .Replace($"{GameInstallPath}\\", string.Empty)
-													  .Replace("\\", "/");
+								ProgressText.Text = string.Format(App.TextStrings["progresstext_generating_hash"], i + 1, files.Count);
+								var progress = (i + 1f) / files.Count;
+								ProgressBar.Value = progress;
+								TaskbarItemInfo.ProgressValue = progress;
+							});
+							Log($"Added: {name}");
+						}
 
-								string hash = BpUtility.CalculateMD5(files[i].FullName);
-								long fileSize = files[i].Length;
-
-								namesNode?.Add(name);
-								hashesNode?.Add(hash);
-								sizesNode?.Add(fileSize);
-								Dispatcher.Invoke(() =>
-								{
-									ProgressText.Text = string.Format(App.TextStrings["progresstext_generating_hash"], i + 1, files.Count);
-									var progress = (i + 1f) / files.Count;
-									ProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-								});
-								Log($"Added: {name}");
-							}
-
-							File.WriteAllText(dialog.FileName, json.Node.ToJsonString());
-							Log($"Saved JSON: {dialog.FileName}");
-						});
+						File.WriteAllText(dialog.FileName, json.Node.ToJsonString());
+						Log($"Saved JSON: {dialog.FileName}");
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;

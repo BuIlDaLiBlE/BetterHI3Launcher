@@ -20,8 +20,7 @@ namespace BetterHI3Launcher
 			string version_info = null;
 			void Get(int timeout)
 			{
-				var web_client = new BpWebClient{Timeout = timeout};
-				version_info = web_client.DownloadString(version_info_url);
+				version_info = Extension.GetHttpStringResponse(version_info_url, timeout);
 			}
 			int attempts = 6;
 			int timeout_add = 2500;
@@ -70,8 +69,7 @@ namespace BetterHI3Launcher
 			{
 				await Task.Run(() =>
 				{
-					var web_client = new BpWebClient();
-					DynamicJson announcements = DynamicJson.Parse(web_client.DownloadString($"{OnlineVersionInfo["launcher_info"]["links"]["announcements"]}&lang={App.LauncherLanguage}"));
+					DynamicJson announcements = DynamicJson.Parse(Extension.GetHttpStringResponse($"{OnlineVersionInfo["launcher_info"]["links"]["announcements"]}&lang={App.LauncherLanguage}", 30000) ?? "{}");
 					if(announcements["status"] == "success")
 					{
 						announcements = announcements["announcements"];
@@ -127,14 +125,13 @@ namespace BetterHI3Launcher
 			{
 				void Get(int timeout)
 				{
-					var web_client = new BpWebClient {Timeout = timeout};
 					if(App.LauncherLanguage == "ru")
 					{
-						changelog = web_client.DownloadString(OnlineVersionInfo["launcher_info"]["links"]["changelog"]["ru"]);
+						changelog = Extension.GetHttpStringResponse(OnlineVersionInfo["launcher_info"]["links"]["changelog"]["ru"], timeout);
 					}
 					else
 					{
-						changelog = web_client.DownloadString(OnlineVersionInfo["launcher_info"]["links"]["changelog"]["en"]);
+						changelog = Extension.GetHttpStringResponse(OnlineVersionInfo["launcher_info"]["links"]["changelog"]["en"], timeout);
 					}
 				}
 				try

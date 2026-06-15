@@ -92,16 +92,11 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
 
-  <!-- Exclude unnecessary files from Hi3Helper.Http submodule -->
+  <!-- Exclude unnecessary files from Hi3Helper.* submodules -->
   <ItemGroup>
-    <None Remove="Utility\Hi3Helper.Http\LICENSE" />
-    <None Remove="Utility\Hi3Helper.Http\.*" />
-    <None Remove="Utility\Hi3Helper.Http\README*" />
-    <None Remove="Utility\Hi3Helper.Http\packages.*" />
-    <None Remove="Utility\Hi3Helper.Http\Test\**" />
-    <Page Remove="Utility\Hi3Helper.Http\Test\**" />
-    <Compile Remove="Utility\Hi3Helper.Http\Test\**" />
-    <EmbeddedResource Remove="Utility\Hi3Helper.Http\Test\**" />
+    <None Remove="Hi3Helper.*\**" />
+    <Compile Remove="Hi3Helper.*\**" />
+    <EmbeddedResource Remove="Hi3Helper.*\**" />
   </ItemGroup>
 
   <!-- Embedded Files (including ones from Fody) -->
@@ -112,6 +107,11 @@
   <ItemGroup>
     <Resource Include="Assets\Fonts\**" />
     <Resource Include="Assets\Images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Hi3Helper.Http\Hi3Helper.Http.Universal.csproj" />
+    <ProjectReference Include="Hi3Helper.Sophon\Hi3Helper.Sophon.Universal.csproj" />
   </ItemGroup>
 
   <ItemGroup>

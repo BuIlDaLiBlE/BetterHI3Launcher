@@ -1,7 +1,4 @@
-﻿using Hi3Helper.Http;
-using Microsoft.Win32;
-using SevenZip;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -18,7 +15,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
 using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility;
 using BetterHI3Launcher.Utility.Json;
+using Hi3Helper.Http.Legacy;
+using Microsoft.Win32;
+using SevenZip;
 
 namespace BetterHI3Launcher
 {
@@ -1189,7 +1190,7 @@ namespace BetterHI3Launcher
 					if(new DialogWindow(App.TextStrings["msgbox_abort_title"], $"{App.TextStrings["msgbox_abort_2_msg"]}\n{App.TextStrings["msgbox_abort_3_msg"]}", DialogWindow.DialogType.Question).ShowDialog() == true)
 					{
 						token.Cancel();
-						httpclient.DeleteMultisessionFiles(httpprop.Out, httpprop.Thread);
+						Http.DeleteMultisessionFiles(httpprop.Out, httpprop.Thread);
 						try{Directory.Delete(Path.GetDirectoryName(GameArchiveTempPath));}catch{}
 						DownloadPaused = false;
 						Log("Download cancelled");
@@ -1300,7 +1301,7 @@ namespace BetterHI3Launcher
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
-				using(HttpResponseMessage web_response = await BpUtility.CreateWebRequestAsync(url, HttpMethod.Head))
+				using(HttpResponseMessage web_response = await Extension.CreateHttpRequestAsync(url, HttpMethod.Head))
 				{
 					size = web_response.Content.Headers.ContentLength ?? 0;
 				}

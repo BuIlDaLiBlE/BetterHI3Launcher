@@ -159,8 +159,7 @@ namespace BetterHI3Launcher
 						{
 							Log("Downloading translations...");
 							Directory.CreateDirectory(App.LauncherDataPath);
-							var web_client = new BpWebClient();
-							web_client.DownloadFile(translations_url, App.LauncherTranslationsFile);
+                            Extension.DownloadFile(translations_url, App.LauncherTranslationsFile);
 							try
 							{
 								BpUtility.WriteToRegistry("TranslationsVersion", translations_version);

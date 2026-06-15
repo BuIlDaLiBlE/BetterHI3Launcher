@@ -61,67 +61,232 @@ public partial struct DynamicJson
 	/// Convert the JSON value to a byte (<see cref="byte"/>).
 	/// </summary>
 	public byte ToByte()
-		=> (Node as JsonValue)?.TryGetValue(out byte result) == true ? result : (byte)0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out byte result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 byte.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a signed byte (<see cref="sbyte"/>).
 	/// </summary>
 	public sbyte ToSByte()
-		=> (Node as JsonValue)?.TryGetValue(out sbyte result) == true ? result : (sbyte)0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out sbyte result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 sbyte.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to an unsigned short (<see cref="ushort"/>).
 	/// </summary>
 	public ushort ToUShort()
-		=> (Node as JsonValue)?.TryGetValue(out ushort result) == true ? result : (ushort)0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out ushort result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 ushort.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a signed short (short).
 	/// </summary>
 	public short ToShort()
-		=> (Node as JsonValue)?.TryGetValue(out short result) == true ? result : (short)0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out short result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 short.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to an unsigned integer (<see cref="uint"/>).
 	/// </summary>
 	public uint ToUInt()
-		=> (Node as JsonValue)?.TryGetValue(out uint result) == true ? result : 0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out uint result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 uint.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a signed integer (<see cref="int"/>).
 	/// </summary>
 	public int ToInt()
-		=> (Node as JsonValue)?.TryGetValue(out int result) == true ? result : 0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out int result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 int.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to an unsigned long (<see cref="ulong"/>).
 	/// </summary>
 	public ulong ToULong()
-		=> (Node as JsonValue)?.TryGetValue(out ulong result) == true ? result : 0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out ulong result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 ulong.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a signed long (<see cref="long"/>).
 	/// </summary>
 	public long ToLong()
-		=> (Node as JsonValue)?.TryGetValue(out long result) == true ? result : 0;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out long result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 long.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a single-precision floating-point number (<see cref="float"/>).
 	/// </summary>
 	public float ToFloat()
-		=> (Node as JsonValue)?.TryGetValue(out float result) == true ? result : 0f;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out float result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 float.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a double-precision floating-point number (<see cref="double"/>).
 	/// </summary>
 	public double ToDouble()
-		=> (Node as JsonValue)?.TryGetValue(out double result) == true ? result : 0d;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out double result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 double.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a decimal number (<see cref="decimal"/>).
 	/// </summary>
 	public decimal ToDecimal()
-		=> (Node as JsonValue)?.TryGetValue(out decimal result) == true ? result : 0m;
+	{
+		if (Node is not JsonValue asJsonValue)
+		{
+			return 0;
+		}
+
+		if (asJsonValue.TryGetValue(out decimal result) ||
+			(asJsonValue.GetValueKind() == JsonValueKind.String &&
+			 asJsonValue.TryGetValue(out string? strValue) &&
+			 decimal.TryParse(strValue, out result)))
+		{
+			return result;
+		}
+
+		return 0;
+	}
 
 	/// <summary>
 	/// Convert the JSON value to a <see cref="DateTime"/>. If the conversion fails, it returns the default value of <see cref="DateTime"/> (January 1, 0001, 00:00:00).

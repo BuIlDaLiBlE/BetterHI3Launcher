@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using SevenZip;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -10,6 +8,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using BetterHI3Launcher.Utility;
 using BetterHI3Launcher.Utility.Json;
+using Microsoft.Win32;
+using SevenZip;
 
 namespace BetterHI3Launcher
 {
