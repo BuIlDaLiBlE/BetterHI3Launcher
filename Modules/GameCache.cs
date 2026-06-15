@@ -381,7 +381,7 @@ namespace BetterHI3Launcher
                         // Run in parallel (CPU goes boom)
                         try
                         {
-                            await cache_files.Index().ParallelForeachAsync(CacheFileRepairWorkerAsync, token: cts.Token);
+                            await bad_files.Index().ParallelForeachAsync(CacheFileRepairWorkerAsync, token: cts.Token);
                         }
                         catch (OperationCanceledException)
                         {
