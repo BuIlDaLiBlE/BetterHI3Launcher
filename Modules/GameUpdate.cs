@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -324,30 +323,27 @@ namespace BetterHI3Launcher
 				Directory.CreateDirectory(App.LauncherBackgroundsPath);
 				string background_image_url;
 				string background_image_md5;
-				using(HttpResponseMessage web_response = BpUtility.CreateWebRequest(url, HttpMethod.Get, 30000))
+				using(Stream data = Extension.GetHttpStreamResponse(url ?? "", 30000))
 				{
-					using(Stream data = web_response.Content.ReadAsStreamAsync().Result)
+					DynamicJson json = DynamicJson.Parse(data);
+					if (json["retcode"].ToInt() == 0)
 					{
-						DynamicJson json = DynamicJson.Parse(data);
-						if (json["retcode"].ToInt() == 0)
+						if(json["data"] != default && json["data"]["game_info_list"] != default && json["data"]["game_info_list"].Node?.AsArray().Count > 0)
 						{
-							if(json["data"] != default && json["data"]["game_info_list"] != default && json["data"]["game_info_list"].Node?.AsArray().Count > 0)
-							{
-								background_image_url = json["data"]["game_info_list"][0]["backgrounds"][0]["background"]["url"];
-							}
-							else
-							{
-								Log("Background image info is missing!", true, 2);
-								BackgroundImageDownloading = false;
-								return;
-							}
+							background_image_url = json["data"]["game_info_list"][0]["backgrounds"][0]["background"]["url"];
 						}
 						else
 						{
-							Log($"Failed to fetch background image info: {json["message"]}", true, 2);
+							Log("Background image info is missing!", true, 2);
 							BackgroundImageDownloading = false;
 							return;
 						}
+					}
+					else
+					{
+						Log($"Failed to fetch background image info: {json["message"]}", true, 2);
+						BackgroundImageDownloading = false;
+						return;
 					}
 				}
 				string background_image_name = BpUtility.GetFileNameFromUrl(background_image_url);
@@ -387,8 +383,7 @@ namespace BetterHI3Launcher
 						{
 							Log("Downloading background image...");
 							Directory.CreateDirectory(App.LauncherDataPath);
-							var web_client = new BpWebClient();
-							web_client.DownloadFile(background_image_url, background_image_path);
+                            Extension.DownloadFile(background_image_url, background_image_path);
 							Log("success!", false);
 						}
 						if(Validate())
@@ -625,87 +620,85 @@ namespace BetterHI3Launcher
 					{
 						return;
 					}
-					await Task.Run(() =>
-					{
-						Log("Validating game archive...");
-						Status = LauncherStatus.Verifying;
-						string actual_md5 = BpUtility.CalculateMD5(GameArchiveTempPath);
-						if(actual_md5 == md5)
-						{
-							if(!File.Exists(GameArchivePath))
-							{
-								File.Move(GameArchiveTempPath, GameArchivePath);
-							}
-							else if(File.Exists(GameArchivePath) && size != 0 && new FileInfo(GameArchivePath).Length != size)
-							{
-								DeleteFile(GameArchivePath);
-								File.Move(GameArchiveTempPath, GameArchivePath);
-							}
-							Log("success!", false);
-						}
-						else
-						{
-							Status = LauncherStatus.Error;
-							Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}.\nThis is most likely caused by a corrupted download. Please check your storage device for errors and use a stable Internet connection.", true, 1);
-							DeleteFile(GameArchiveTempPath);
-							abort = true;
-							Dispatcher.Invoke(() => {new DialogWindow(App.TextStrings["msgbox_verify_error_title"], App.TextStrings["msgbox_verify_error_1_msg"]).ShowDialog();});
-							Status = LauncherStatus.Ready;
-							GameUpdateCheck();
-						}
-						if(abort)
-						{
-							return;
-						}
-						uint skipped_files = 0;
-						using(var archive = new SevenZipExtractor(GameArchivePath))
-						{
-							uint unpacked_count = 0;
-							uint total_count = archive.FilesCount;
 
-							Log("Unpacking game archive...");
-							Status = LauncherStatus.Unpacking;
-							archive.FileExtractionFinished += (sender, args) =>
-							{
-								double progress = (unpacked_count + 1f) / total_count;
-								unpacked_count++;
-								Dispatcher.Invoke(() =>
-								{
-									DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_count, total_count, $"{progress * 100:0.00}");
-									DownloadProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-								});
-							};
-							try
-							{
-								archive.ExtractArchive(GameInstallPath);
-							}
-							catch(IOException)
-							{
-								throw;
-							}
-							catch(Exception ex)
-							{
-								Log($"Failed to unpack file №{unpacked_count + 1}: {ex.Message}", true, 1);
-								skipped_files++;
-								total_count--;
-							}
+					Log("Validating game archive...");
+					Status = LauncherStatus.Verifying;
+					string actual_md5 = await BpUtility.CalculateMD5Async(GameArchiveTempPath);
+					if (actual_md5 == md5)
+					{
+						if (!File.Exists(GameArchivePath))
+						{
+							File.Move(GameArchiveTempPath, GameArchivePath);
 						}
-						if(skipped_files > 0)
+						else if (File.Exists(GameArchivePath) && size != 0 && new FileInfo(GameArchivePath).Length != size)
 						{
 							DeleteFile(GameArchivePath);
-							throw new SevenZipArchiveException("Game archive is corrupted, please download again");
+							File.Move(GameArchiveTempPath, GameArchivePath);
 						}
 						Log("success!", false);
-						DeleteFile(GameArchivePath);
-						Dispatcher.Invoke(() => 
+					}
+					else
+					{
+						Status = LauncherStatus.Error;
+						Log($"Validation failed. Expected MD5: {md5}, got MD5: {actual_md5}.\nThis is most likely caused by a corrupted download. Please check your storage device for errors and use a stable Internet connection.", true, 1);
+						DeleteFile(GameArchiveTempPath);
+						abort = true;
+						Dispatcher.Invoke(() => { new DialogWindow(App.TextStrings["msgbox_verify_error_title"], App.TextStrings["msgbox_verify_error_1_msg"]).ShowDialog(); });
+						Status = LauncherStatus.Ready;
+						GameUpdateCheck();
+					}
+					if (abort)
+					{
+						return;
+					}
+					uint skipped_files = 0;
+					using (var archive = new SevenZipExtractor(GameArchivePath))
+					{
+						uint unpacked_count = 0;
+						uint total_count = archive.FilesCount;
+
+						Log("Unpacking game archive...");
+						Status = LauncherStatus.Unpacking;
+						archive.FileExtractionFinished += (sender, args) =>
 						{
-							PatchDownload = false;
-							WriteVersionInfo(false, true);
-							Log("Successfully installed the game");
-							FlashMainWindow();
-							GameUpdateCheck();
-						});
+							double progress = (unpacked_count + 1f) / total_count;
+							unpacked_count++;
+							Dispatcher.Invoke(() =>
+							{
+								DownloadProgressText.Text = string.Format(App.TextStrings["progresstext_unpacking_2"], unpacked_count, total_count, $"{progress * 100:0.00}");
+								DownloadProgressBar.Value = progress;
+								TaskbarItemInfo.ProgressValue = progress;
+							});
+						};
+						try
+						{
+							await archive.ExtractArchiveAsync(GameInstallPath);
+						}
+						catch (IOException)
+						{
+							throw;
+						}
+						catch (Exception ex)
+						{
+							Log($"Failed to unpack file №{unpacked_count + 1}: {ex.Message}", true, 1);
+							skipped_files++;
+							total_count--;
+						}
+					}
+					if (skipped_files > 0)
+					{
+						DeleteFile(GameArchivePath);
+						throw new SevenZipArchiveException("Game archive is corrupted, please download again");
+					}
+					Log("success!", false);
+					DeleteFile(GameArchivePath);
+					Dispatcher.Invoke(() =>
+					{
+						PatchDownload = false;
+						WriteVersionInfo(false, true);
+						Log("Successfully installed the game");
+						FlashMainWindow();
+						GameUpdateCheck();
 					});
 				}
 				catch(Exception ex)

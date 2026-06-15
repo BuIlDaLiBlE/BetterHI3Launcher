@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BetterHI3Launcher.Utility;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -16,16 +18,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Microsoft.Win32;
 using ProgressItem = System.Collections.Generic.KeyValuePair<long, float>;
 
 namespace BetterHI3Launcher
 {
 	public class BpUtility
 	{
-		public static HttpClient SharedHttpClient = new(new HttpClientHandler { AllowAutoRedirect = true }, false);
-		public static HttpClient SharedHttpClientNoRedirect = new(new HttpClientHandler { AllowAutoRedirect = false }, false);
-
 		public static void StartProcess(string proccess, string arguments, string workingDir, bool useShellExec)
 		{
 			var startInfo = new ProcessStartInfo(proccess, arguments);
@@ -61,13 +59,18 @@ namespace BetterHI3Launcher
 		// https://stackoverflow.com/a/10520086
 		public static string CalculateMD5(string filename)
 		{
-			using(var md5 = MD5.Create())
-			{
-				using(var stream = File.OpenRead(filename))
-				{
-					return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
-				}
-			}
+			using MD5 md5 = MD5.Create();
+			using FileStream stream = File.OpenRead(filename);
+
+			return md5.CalculateHashCore(stream);
+		}
+
+		public static async Task<string> CalculateMD5Async(string filename, CancellationToken token = default)
+		{
+			using MD5 md5 = MD5.Create();
+			using FileStream stream = File.OpenRead(filename);
+
+			return await md5.CalculateHashAsyncCore(stream, token);
 		}
 
 		// https://stackoverflow.com/a/49535675
@@ -213,45 +216,9 @@ namespace BetterHI3Launcher
 			return false;
 		}
 
-		public static async Task<HttpResponseMessage> CreateWebRequestAsync(
-			string           url,
-			HttpMethod       method        = null,
-			int              timeoutMs     = 10000,
-			bool             allowRedirect = false,
-			RangeHeaderValue range         = null)
-		{
-			method ??= HttpMethod.Get;
-			HttpRequestMessage request = new(method, url);
-			request.Headers.TryAddWithoutValidation("User-Agent", App.UserAgent);
-			request.Headers.TryAddWithoutValidation("Accept-Language", App.LauncherLanguage);
-			if (range != null)
-			{
-				request.Headers.Range = range;
-			}
-
-			using CancellationTokenSource cts = new(timeoutMs);
-			return await (allowRedirect ? SharedHttpClient : SharedHttpClientNoRedirect).SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
-		}
-
-		public static HttpResponseMessage CreateWebRequest(
-			string           url,
-			HttpMethod       method        = null,
-			int              timeoutMs     = 10000,
-			bool             allowRedirect = false,
-			RangeHeaderValue range         = null)
-		{
-			method ??= HttpMethod.Get;
-			HttpRequestMessage request = new(method, url);
-			request.Headers.TryAddWithoutValidation("User-Agent", App.UserAgent);
-			request.Headers.TryAddWithoutValidation("Accept-Language", App.LauncherLanguage);
-			if (range != null)
-			{
-				request.Headers.Range = range;
-			}
-
-			using CancellationTokenSource cts = new(timeoutMs);
-			return (allowRedirect ? SharedHttpClient : SharedHttpClientNoRedirect).SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token).Result;
-		}
+#nullable enable
+		
+#nullable restore
 
 		public static void WriteToRegistry(string name, dynamic value, RegistryValueKind valueKind = RegistryValueKind.Unknown)
 		{
@@ -435,7 +402,7 @@ namespace BetterHI3Launcher
 
 		private long GetContentLength()
 		{
-			using HttpResponseMessage response = BpUtility.CreateWebRequest(_sourceUrl, HttpMethod.Head);
+			using HttpResponseMessage response = Extension.CreateHttpRequest(_sourceUrl, HttpMethod.Head);
 			return response.Content.Headers.ContentLength ?? 0;
 		}
 
@@ -448,8 +415,7 @@ namespace BetterHI3Launcher
 				//file has been found in folder destination and is already fully downloaded 
 				return;
 
-			using HttpResponseMessage response = await BpUtility.CreateWebRequestAsync(_sourceUrl, HttpMethod.Get, range: new RangeHeaderValue(range, null));
-			using Stream responseStream = await response.Content.ReadAsStreamAsync();
+			using Stream responseStream = await Extension.GetHttpStreamResponseAsync(_sourceUrl, range: new RangeHeaderValue(range, null));
 			using FileStream fs = new(_destination, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
 			byte[] buffer = new byte[_chunkSize];
 
@@ -478,6 +444,7 @@ namespace BetterHI3Launcher
 		}
 	}
 
+	[Obsolete("BpWebClient is obsolete. Use BpUtility.CreateWebRequest/Async instead.")]
 	public class BpWebClient : WebClient
 	{
 		public int Timeout {get; set;}

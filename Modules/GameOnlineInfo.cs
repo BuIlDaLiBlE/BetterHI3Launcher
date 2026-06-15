@@ -1,10 +1,11 @@
-﻿using System;
+﻿using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility;
+using BetterHI3Launcher.Utility.Json;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json.Nodes;
-using BetterHI3Launcher.Config;
-using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -72,49 +73,46 @@ namespace BetterHI3Launcher
 
 			void Get(int timeout)
 			{
-				using(HttpResponseMessage web_response = BpUtility.CreateWebRequest(url, HttpMethod.Get, timeout))
+				using (Stream web_response_stream = Extension.GetHttpStreamResponse(url))
 				{
-					using (Stream web_response_stream = web_response.Content.ReadAsStreamAsync().Result)
+					JsonNode HYPResourceDataResponse = JsonNode.Parse(web_response_stream);
+					if (HYPResourceDataResponse?["retcode"]?.GetValue<int>() == 0)
 					{
-						JsonNode HYPResourceDataResponse = JsonNode.Parse(web_response_stream);
-						if (HYPResourceDataResponse?["retcode"]?.GetValue<int>() == 0)
+						if(HYPResourceDataResponse["data"] != null)
 						{
-							if(HYPResourceDataResponse["data"] != null)
+							if(HYPResourceDataResponse["data"]["game_packages"]?.AsArray().Count > 0)
 							{
-								if(HYPResourceDataResponse["data"]["game_packages"]?.AsArray().Count > 0)
+								HYPGamePackageData = DynamicJson.Parse(HYPResourceDataResponse["data"]["game_packages"][0]?.ToJsonString() ?? "");
+								if (!(HYPGamePackageData["game"]["biz"].ToString()?.Contains("bh3") ?? false))
 								{
-									HYPGamePackageData = DynamicJson.Parse(HYPResourceDataResponse["data"]["game_packages"][0]?.ToJsonString() ?? "");
-									if (!(HYPGamePackageData["game"]["biz"].ToString()?.Contains("bh3") ?? false))
-									{
-										throw new HttpRequestException($"HYP response does not contain data about Honkai Impact 3rd, got biz: {HYPGamePackageData["game"]["biz"].ToString()}");
-									}
-									if(HYPGamePackageData["main"]["major"]["game_pkgs"].Node?.AsArray().Count == 0)
-									{
-										throw new HttpRequestException("HYP game archive data is missing in response");
-									}
-									GameArchiveName = BpUtility.GetFileNameFromUrl(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString());
+									throw new HttpRequestException($"HYP response does not contain data about Honkai Impact 3rd, got biz: {HYPGamePackageData["game"]["biz"].ToString()}");
 								}
-								else
+								if(HYPGamePackageData["main"]["major"]["game_pkgs"].Node?.AsArray().Count == 0)
 								{
-									throw new HttpRequestException("HYP game data is missing in response");
+									throw new HttpRequestException("HYP game archive data is missing in response");
 								}
+								GameArchiveName = BpUtility.GetFileNameFromUrl(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString());
 							}
 							else
 							{
-								throw new HttpRequestException("HYP data is missing in response");
+								throw new HttpRequestException("HYP game data is missing in response");
 							}
 						}
 						else
 						{
-							throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse?["message"]}");
+							throw new HttpRequestException("HYP data is missing in response");
 						}
+					}
+					else
+					{
+						throw new HttpRequestException($"HYP response error: {HYPResourceDataResponse?["message"]}");
 					}
 				}
 
 				using (var web_response =
-					   BpUtility.CreateWebRequest(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString(),
-												  HttpMethod.Head,
-												  timeout))
+                       Extension.CreateHttpRequest(HYPGamePackageData["main"]["major"]["game_pkgs"][0]["url"].ToString() ?? "",
+                                                  HttpMethod.Head,
+                                                  timeout))
 				{
 					HYPGamePackageData["main"]["major"]["game_pkgs"][0].TrySetValue("last_modified", web_response.Content.Headers.LastModified ?? default);
 				}
@@ -130,7 +128,7 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				using HttpResponseMessage webResponse = BpUtility.CreateWebRequest(url, HttpMethod.Head);
+				using HttpResponseMessage webResponse = Extension.CreateHttpRequest(url, HttpMethod.Head);
 				webResponse.EnsureSuccessStatusCode();
 
 				return new FileMetadata

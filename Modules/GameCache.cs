@@ -1,15 +1,17 @@
-﻿using System;
+﻿using AssetsTools.NET.Extra;
+using BetterHI3Launcher.Utility.Json;
+using Hi3Helper.EncTool;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shell;
-using AssetsTools.NET.Extra;
-using BetterHI3Launcher.Utility.Json;
-using Hi3Helper.EncTool;
+using BetterHI3Launcher.Utility;
 
 namespace BetterHI3Launcher
 {
@@ -92,14 +94,14 @@ namespace BetterHI3Launcher
 			return manager.GetTypeInstance(assets, asset).GetBaseField().Get("m_Script").GetValue().AsString();
 		}
 
-		private string CalculateCRC(string path, string hash_salt)
+		private async Task<string> CalculateCRCAsync(string path, string hash_salt, CancellationToken token = default)
 		{
 			byte[] salt = new mhyEncTool(hash_salt, OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["master_key"]).GetSalt();
-			using(FileStream stream = new FileStream(path, FileMode.Open))
-			{
-				byte[] hash = new HMACSHA1(salt).ComputeHash(stream);
-				return BitConverter.ToString(hash).Replace("-", string.Empty);
-			}
+
+			using HMACSHA1 hasher = new(salt);
+			using FileStream stream = File.OpenRead(path);
+
+			return await hasher.CalculateHashAsyncCore(stream, token);
 		}
 
 		private async void DownloadGameCache(string game_language)
@@ -109,7 +111,6 @@ namespace BetterHI3Launcher
 
 			List<CacheDataPropertiesHi3Mirror> cache_files, bad_files;
 			CacheType cache_type;
-			var web_client = new BpWebClient();
 
 			try
 			{
@@ -142,88 +143,90 @@ namespace BetterHI3Launcher
 				cache_files = new List<CacheDataPropertiesHi3Mirror>();
 				bad_files = new List<CacheDataPropertiesHi3Mirror>();
 
-				await Task.Run(() =>
+
+				for (int i = 0; i < 3; i++)
 				{
-					for(int i = 0; i < 3; i++)
+					// Classify data type as per i
+					// 0 or _	: Data and AI/Btree cache
+					// 1		: Resources/Event cache
+					// 2		: Btree/Ai cache
+					switch (i)
 					{
-						// Classify data type as per i
-						// 0 or _	: Data and AI/Btree cache
-						// 1		: Resources/Event cache
-						// 2		: Btree/Ai cache
-						switch(i)
+						case 0:
+							cache_type = CacheType.Data;
+							break;
+						case 1:
+							cache_type = CacheType.Event;
+							break;
+						case 2:
+							cache_type = CacheType.Ai;
+							break;
+						default:
+							cache_type = CacheType.Unknown;
+							break;
+					}
+
+					string data_info_url;
+
+					switch ((int)Server)
+					{
+						case 0:
+							data_info_url = game_cache_info["global"][i].ToString();
+							break;
+						case 1:
+							data_info_url = game_cache_info["os"][i].ToString();
+							break;
+						case 2:
+							data_info_url = game_cache_info["cn"][i].ToString();
+							break;
+						case 3:
+							data_info_url = game_cache_info["tw"][i].ToString();
+							break;
+						case 4:
+							data_info_url = game_cache_info["kr"][i].ToString();
+							break;
+						case 5:
+							data_info_url = game_cache_info["jp"][i].ToString();
+							break;
+						default:
+							throw new NotSupportedException("This server is not supported.");
+					}
+
+					using var remoteStream = await Extension.GetHttpStreamResponseAsync(data_info_url);
+					using var stream = new MemoryStream();
+					using var xor_stream = new XORStream(stream);
+					await remoteStream.CopyToAsync(stream);
+					stream.Position = 0;
+
+					var data_lines = GetPackageVersion(xor_stream).Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
+					var data_entries = new List<DynamicJson>();
+					foreach (string line in data_lines)
+					{
+						if (line.StartsWith("{") && line.EndsWith("}"))
 						{
-							case 0:
-								cache_type = CacheType.Data;
-								break;
-							case 1:
-								cache_type = CacheType.Event;
-								break;
-							case 2:
-								cache_type = CacheType.Ai;
-								break;
-							default:
-								cache_type = CacheType.Unknown;
-								break;
-						}
-
-						string data_info_url;
-
-						switch ((int)Server)
-						{
-							case 0:
-								data_info_url = game_cache_info["global"][i].ToString();
-								break;
-							case 1:
-								data_info_url = game_cache_info["os"][i].ToString();
-								break;
-							case 2:
-								data_info_url = game_cache_info["cn"][i].ToString();
-								break;
-							case 3:
-								data_info_url = game_cache_info["tw"][i].ToString();
-								break;
-							case 4:
-								data_info_url = game_cache_info["kr"][i].ToString();
-								break;
-							case 5:
-								data_info_url = game_cache_info["jp"][i].ToString();
-								break;
-							default:
-								throw new NotSupportedException("This server is not supported.");
-						}
-
-						using var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info_url)));
-						using var xor_stream = new XORStream(stream);
-						var data_lines = GetPackageVersion(xor_stream).Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
-						var data_entries = new List<DynamicJson>();
-						foreach(string line in data_lines)
-						{
-							if(line.StartsWith("{") && line.EndsWith("}"))
-							{
-								var json = DynamicJson.Parse(line);
-								data_entries.Add(json);
-							}
-						}
-
-						if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
-
-						foreach(DynamicJson file in data_entries)
-						{
-							string filename = file["N"];
-							if (FilterRegion(filename, game_language) > 0)
-							{
-								cache_files.Add(new CacheDataPropertiesHi3Mirror
-								{
-									N = filename,
-									CRC = file["CRC"],
-									CS = file["CS"],
-									IsNecessary = file["DLM"].ToInt() == 1,
-									Type = cache_type
-								});
-							}
+							var json = DynamicJson.Parse(line);
+							data_entries.Add(json);
 						}
 					}
-				});
+
+					if (cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
+
+					foreach (DynamicJson file in data_entries)
+					{
+						string filename = file["N"];
+						if (FilterRegion(filename, game_language) > 0)
+						{
+							cache_files.Add(new CacheDataPropertiesHi3Mirror
+							{
+								N = filename,
+								CRC = file["CRC"],
+								CS = file["CS"],
+								IsNecessary = file["DLM"].ToInt() == 1,
+								Type = cache_type
+							});
+						}
+					}
+				}
 				Log("success!", false);
 			}
 			catch(WebException ex)
@@ -251,66 +254,64 @@ namespace BetterHI3Launcher
 				ProgressBar.IsIndeterminate = false;
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 				Log("Verifying game cache...");
-				await Task.Run(() =>
+
+				for (int i = 0; i < cache_files.Count; i++)
 				{
-					for(int i = 0; i < cache_files.Count; i++)
+					var name = $"{NormalizePath(cache_files[i].N)}_{cache_files[i].CRC}.unity3d";
+
+					// Combine Path and assign their own path
+					// If none of them assigned as Unknown type, throw an exception.
+					switch (cache_files[i].Type)
 					{
-						var name = $"{NormalizePath(cache_files[i].N)}_{cache_files[i].CRC}.unity3d";
+						case CacheType.Data:
+							path = Path.Combine(GameCachePath, "Data", name);
+							break;
+						case CacheType.Ai:
+						case CacheType.Event:
+							path = Path.Combine(GameCachePath, "Resources", name);
+							break;
+						default:
+							throw new Exception("Unknown cache file data type");
+					}
+					var file = new FileInfo(path);
 
-						// Combine Path and assign their own path
-						// If none of them assigned as Unknown type, throw an exception.
-						switch(cache_files[i].Type)
-						{
-							case CacheType.Data:
-								path = Path.Combine(GameCachePath, "Data", name);
-								break;
-							case CacheType.Ai:
-							case CacheType.Event:
-								path = Path.Combine(GameCachePath, "Resources", name);
-								break;
-							default:
-								throw new Exception("Unknown cache file data type");
-						}
-						var file = new FileInfo(path);
+					Dispatcher.Invoke(() =>
+					{
+						ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, cache_files.Count);
+						var progress = (i + 1f) / cache_files.Count;
+						ProgressBar.Value = progress;
+						TaskbarItemInfo.ProgressValue = progress;
+					});
 
-						Dispatcher.Invoke(() =>
+					if (file.Exists)
+					{
+						if (await CalculateCRCAsync(file.FullName, hash_salt) == cache_files[i].CRC)
 						{
-							ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, cache_files.Count);
-							var progress = (i + 1f) / cache_files.Count;
-							ProgressBar.Value = progress;
-							TaskbarItemInfo.ProgressValue = progress;
-						});
-
-						if(file.Exists)
-						{
-							if(CalculateCRC(file.FullName, hash_salt) == cache_files[i].CRC)
-							{
-								if(App.AdvancedFeatures) Log($"File OK: {path}");
-							}
-							else
-							{
-								bad_files.Add(cache_files[i]);
-								Log($"File corrupted: {path}");
-							}
-							useless_files.RemoveAll(x => x.FullName == path);
+							if (App.AdvancedFeatures) Log($"File OK: {path}");
 						}
 						else
 						{
-							if(cache_files[i].IsNecessary)
-							{
-								bad_files.Add(cache_files[i]);
-								Log($"File missing: {path}");
-							}
+							bad_files.Add(cache_files[i]);
+							Log($"File corrupted: {path}");
+						}
+						useless_files.RemoveAll(x => x.FullName == path);
+					}
+					else
+					{
+						if (cache_files[i].IsNecessary)
+						{
+							bad_files.Add(cache_files[i]);
+							Log($"File missing: {path}");
 						}
 					}
+				}
 
-					foreach(var useless_file in useless_files)
-					{
-						Log($"Useless file: {useless_file.FullName}");
-					}
+				foreach (var useless_file in useless_files)
+				{
+					Log($"Useless file: {useless_file.FullName}");
+				}
 
-					bad_files_size = bad_files.Sum(x => x.CS);
-				});
+				bad_files_size = bad_files.Sum(x => x.CS);
 
 				ProgressText.Text = string.Empty;
 				ProgressBar.Visibility = Visibility.Collapsed;
@@ -363,60 +364,54 @@ namespace BetterHI3Launcher
 						ProgressBar.IsIndeterminate = false;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 
-						await Task.Run(async () =>
+						for (int i = 0; i < bad_files.Count; i++)
 						{
-							for(int i = 0; i < bad_files.Count; i++)
+							if (ActionAbort)
 							{
-								if(ActionAbort)
-								{
-									Log("Task cancelled");
-									ActionAbort = false;
-									break;
-								}
-
-								path = $"{NormalizePath(bad_files[i].N)}_{bad_files[i].CRC}.unity3d";
-								switch(bad_files[i].Type)
-								{
-									case CacheType.Data:
-										path = Path.Combine(GameCachePath, "Data", path);
-										break;
-									case CacheType.Ai:
-									case CacheType.Event:
-										path = Path.Combine(GameCachePath, "Resources", path);
-										break;
-								}
-
-								url = string.Format(data_url, ReturnCacheTypeEnum(bad_files[i].Type), $"{bad_files[i].N}_{bad_files[i].CRC}");
-								Log($"Downloading from {url}...");
-								Dispatcher.Invoke(() =>
-								{
-									ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, bad_files.Count);
-									var progress = (i + 1f) / bad_files.Count;
-									ProgressBar.Value = progress;
-									TaskbarItemInfo.ProgressValue = progress;
-								});
-
-								try
-								{
-									Directory.CreateDirectory(Path.GetDirectoryName(path));
-									await web_client.DownloadFileTaskAsync(new Uri(url), path);
-									var md5 = CalculateCRC(path, hash_salt);
-									if(File.Exists(path) && md5 != bad_files[i].CRC)
-									{
-										throw new CryptographicException("Verification failed");
-									}
-									else
-									{
-										Log("success!", false);
-										downloaded_files++;
-									}
-								}
-								catch(Exception ex)
-								{
-									Log($"Failed to download file [{bad_files[i].N}_{bad_files[i].CRC}] ({url}): {ex.Message}", true, 1);
-								}
+								Log("Task cancelled");
+								ActionAbort = false;
+								break;
 							}
-						});
+
+							path = $"{NormalizePath(bad_files[i].N)}_{bad_files[i].CRC}.unity3d";
+							switch (bad_files[i].Type)
+							{
+								case CacheType.Data:
+									path = Path.Combine(GameCachePath, "Data", path);
+									break;
+								case CacheType.Ai:
+								case CacheType.Event:
+									path = Path.Combine(GameCachePath, "Resources", path);
+									break;
+							}
+
+							url = string.Format(data_url, ReturnCacheTypeEnum(bad_files[i].Type), $"{bad_files[i].N}_{bad_files[i].CRC}");
+							Log($"Downloading from {url}...");
+							Dispatcher.Invoke(() =>
+							{
+								ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, bad_files.Count);
+								var progress = (i + 1f) / bad_files.Count;
+								ProgressBar.Value = progress;
+								TaskbarItemInfo.ProgressValue = progress;
+							});
+
+							try
+							{
+								await Extension.DownloadFileAsync(url, path);
+								var md5 = await CalculateCRCAsync(path, hash_salt);
+								if (File.Exists(path) && md5 != bad_files[i].CRC)
+								{
+									throw new CryptographicException("Verification failed");
+								}
+
+								Log("success!", false);
+								downloaded_files++;
+							}
+							catch (Exception ex)
+							{
+								Log($"Failed to download file [{bad_files[i].N}_{bad_files[i].CRC}] ({url}): {ex.Message}", true, 1);
+							}
+						}
 
 						Dispatcher.Invoke(() =>
 						{

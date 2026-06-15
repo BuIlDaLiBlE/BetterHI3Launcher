@@ -1,4 +1,7 @@
-﻿using System;
+﻿using BetterHI3Launcher.Utility;
+using BetterHI3Launcher.Utility.Json;
+using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,8 +15,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
-using BetterHI3Launcher.Utility.Json;
-using Microsoft.Win32;
 using JsonSerializerNew = System.Text.Json.JsonSerializer;
 
 namespace BetterHI3Launcher
@@ -157,11 +158,9 @@ namespace BetterHI3Launcher
 					default:
 						throw new NotSupportedException("This server is not supported.");
 				}
-				var web_client = new BpWebClient();
-				await Task.Run(() =>
-				{
-					OnlineRepairInfo = DynamicJson.Parse(web_client.DownloadString($"{OnlineVersionInfo["launcher_info"]["links"]["repair"]}={server}"));
-				});
+
+				using Stream online_repair_stream = await Extension.GetHttpStreamResponseAsync($"{OnlineVersionInfo["launcher_info"]["links"]["repair"]}={server}");
+				OnlineRepairInfo = await DynamicJson.ParseAsync(online_repair_stream);
 				if (OnlineRepairInfo["status"] == "success")
 				{
 					Log("success!", false);

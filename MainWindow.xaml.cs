@@ -1,4 +1,7 @@
-﻿using Hi3Helper.Http;
+﻿using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility;
+using BetterHI3Launcher.Utility.Json;
+using Hi3Helper.Http;
 using Microsoft.Win32;
 using SevenZip;
 using System;
@@ -17,8 +20,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
-using BetterHI3Launcher.Config;
-using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -1300,7 +1301,7 @@ namespace BetterHI3Launcher
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
-				using(HttpResponseMessage web_response = await BpUtility.CreateWebRequestAsync(url, HttpMethod.Head))
+				using(HttpResponseMessage web_response = await Extension.CreateHttpRequestAsync(url, HttpMethod.Head))
 				{
 					size = web_response.Content.Headers.ContentLength ?? 0;
 				}
