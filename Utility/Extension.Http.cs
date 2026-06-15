@@ -115,12 +115,12 @@ public static partial class Extension
 	}
 
 	public static async Task DownloadFileAsync(
-		string url,
-		string path,
-		int timeoutMs = 10000,
-		RangeHeaderValue? range = null,
-		CancellationToken token = default)
-	{
+        string            url,
+        string            path,
+        int               timeoutMs = 10000,
+        RangeHeaderValue? range     = null,
+        CancellationToken token     = default)
+    {
 		if (Path.GetDirectoryName(path) is { } pathDir)
 		{
 			Directory.CreateDirectory(pathDir);

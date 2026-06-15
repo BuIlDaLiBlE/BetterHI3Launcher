@@ -143,7 +143,6 @@ namespace BetterHI3Launcher
 				cache_files = new List<CacheDataPropertiesHi3Mirror>();
 				bad_files = new List<CacheDataPropertiesHi3Mirror>();
 
-
 				for (int i = 0; i < 3; i++)
 				{
 					// Classify data type as per i
@@ -240,9 +239,6 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				string path;
-				string url;
-
 				Directory.CreateDirectory(GameCachePath);
 				var existing_files = new DirectoryInfo(GameCachePath).GetFiles("*", SearchOption.AllDirectories).Where(x => x.DirectoryName.Contains(@"Data\data") || x.DirectoryName.Contains("Resources")).ToList();
 				var useless_files = existing_files;
@@ -255,13 +251,20 @@ namespace BetterHI3Launcher
 				TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 				Log("Verifying game cache...");
 
-				for (int i = 0; i < cache_files.Count; i++)
-				{
-					var name = $"{NormalizePath(cache_files[i].N)}_{cache_files[i].CRC}.unity3d";
+                // Run in parallel (CPU goes boom)
+                await cache_files.Index().ParallelForeachAsync(CacheFileCheckWorkerAsync);
+
+				async ValueTask CacheFileCheckWorkerAsync((int Index, CacheDataPropertiesHi3Mirror Item) ctx, CancellationToken localToken)
+                {
+                    string path;
+                    CacheDataPropertiesHi3Mirror cacheFile = ctx.Item;
+					int index = ctx.Index;
+
+					string name = $"{NormalizePath(cacheFile.N)}_{cacheFile.CRC}.unity3d";
 
 					// Combine Path and assign their own path
 					// If none of them assigned as Unknown type, throw an exception.
-					switch (cache_files[i].Type)
+					switch (cacheFile.Type)
 					{
 						case CacheType.Data:
 							path = Path.Combine(GameCachePath, "Data", name);
@@ -273,34 +276,43 @@ namespace BetterHI3Launcher
 						default:
 							throw new Exception("Unknown cache file data type");
 					}
-					var file = new FileInfo(path);
 
 					Dispatcher.Invoke(() =>
-					{
-						ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], i + 1, cache_files.Count);
-						var progress = (i + 1f) / cache_files.Count;
-						ProgressBar.Value = progress;
-						TaskbarItemInfo.ProgressValue = progress;
-					});
+                    {
+                        ProgressText.Text = string.Format(App.TextStrings["progresstext_verifying_file"], index + 1, cache_files.Count);
+                        float progress = (index + 1f) / cache_files.Count;
+                        ProgressBar.Value = progress;
+                        TaskbarItemInfo.ProgressValue = progress;
+                    });
 
-					if (file.Exists)
+					if (File.Exists(path))
 					{
-						if (await CalculateCRCAsync(file.FullName, hash_salt) == cache_files[i].CRC)
+						if (await CalculateCRCAsync(path, hash_salt, localToken) == cacheFile.CRC)
 						{
 							if (App.AdvancedFeatures) Log($"File OK: {path}");
 						}
 						else
 						{
-							bad_files.Add(cache_files[i]);
+                            lock (bad_files)
+                            {
+                                bad_files.Add(cacheFile);
+                            }
 							Log($"File corrupted: {path}");
 						}
-						useless_files.RemoveAll(x => x.FullName == path);
+
+                        lock (useless_files)
+                        {
+                            useless_files.RemoveAll(x => x.FullName == path);
+                        }
 					}
 					else
 					{
-						if (cache_files[i].IsNecessary)
-						{
-							bad_files.Add(cache_files[i]);
+						if (cacheFile.IsNecessary)
+                        {
+                            lock (bad_files)
+                            {
+                                bad_files.Add(cacheFile);
+                            }
 							Log($"File missing: {path}");
 						}
 					}
@@ -364,54 +376,83 @@ namespace BetterHI3Launcher
 						ProgressBar.IsIndeterminate = false;
 						TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
 
-						for (int i = 0; i < bad_files.Count; i++)
-						{
-							if (ActionAbort)
-							{
-								Log("Task cancelled");
-								ActionAbort = false;
-								break;
-							}
+                        using CancellationTokenSource cts = new();
 
-							path = $"{NormalizePath(bad_files[i].N)}_{bad_files[i].CRC}.unity3d";
-							switch (bad_files[i].Type)
-							{
-								case CacheType.Data:
-									path = Path.Combine(GameCachePath, "Data", path);
-									break;
-								case CacheType.Ai:
-								case CacheType.Event:
-									path = Path.Combine(GameCachePath, "Resources", path);
-									break;
-							}
+                        // Run in parallel (CPU goes boom)
+                        try
+                        {
+                            await cache_files.Index().ParallelForeachAsync(CacheFileRepairWorkerAsync, token: cts.Token);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                        }
 
-							url = string.Format(data_url, ReturnCacheTypeEnum(bad_files[i].Type), $"{bad_files[i].N}_{bad_files[i].CRC}");
-							Log($"Downloading from {url}...");
-							Dispatcher.Invoke(() =>
-							{
-								ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], i + 1, bad_files.Count);
-								var progress = (i + 1f) / bad_files.Count;
-								ProgressBar.Value = progress;
-								TaskbarItemInfo.ProgressValue = progress;
-							});
+                        async ValueTask CacheFileRepairWorkerAsync(
+                            (int Index, CacheDataPropertiesHi3Mirror Item) ctx,
+                            CancellationToken localToken)
+                        {
+                            CacheDataPropertiesHi3Mirror cacheFile = ctx.Item;
+                            int index = ctx.Index;
 
-							try
-							{
-								await Extension.DownloadFileAsync(url, path);
-								var md5 = await CalculateCRCAsync(path, hash_salt);
-								if (File.Exists(path) && md5 != bad_files[i].CRC)
-								{
-									throw new CryptographicException("Verification failed");
-								}
+                            if (cts.IsCancellationRequested)
+                            {
+                                return;
+                            }
 
-								Log("success!", false);
-								downloaded_files++;
-							}
-							catch (Exception ex)
-							{
-								Log($"Failed to download file [{bad_files[i].N}_{bad_files[i].CRC}] ({url}): {ex.Message}", true, 1);
-							}
-						}
+                            if (Volatile.Read(ref ActionAbort))
+                            {
+                                if (!cts.IsCancellationRequested)
+                                {
+									cts.Cancel();
+                                }
+
+                                Log("Task cancelled");
+								Volatile.Write(ref ActionAbort, false);
+                                return;
+                            }
+
+                            string path = $"{NormalizePath(cacheFile.N)}_{cacheFile.CRC}.unity3d";
+                            switch (cacheFile.Type)
+                            {
+                                case CacheType.Data:
+                                    path = Path.Combine(GameCachePath, "Data", path);
+                                    break;
+                                case CacheType.Ai:
+                                case CacheType.Event:
+                                    path = Path.Combine(GameCachePath, "Resources", path);
+                                    break;
+                            }
+
+                            string url = string.Format(data_url, ReturnCacheTypeEnum(cacheFile.Type), $"{cacheFile.N}_{cacheFile.CRC}");
+                            Dispatcher.Invoke(() =>
+                            {
+                                ProgressText.Text = string.Format(App.TextStrings["progresstext_downloading_file"], index + 1, bad_files.Count);
+                                var progress = (index + 1f) / bad_files.Count;
+                                ProgressBar.Value = progress;
+                                TaskbarItemInfo.ProgressValue = progress;
+                            });
+
+                            try
+                            {
+                                await Extension.DownloadFileAsync(url, path, token: localToken);
+                                var md5 = await CalculateCRCAsync(path, hash_salt, localToken);
+                                if (File.Exists(path) && md5 != cacheFile.CRC)
+                                {
+                                    throw new CryptographicException("Verification failed");
+                                }
+
+                                Log($"Downloading from {url}...success!");
+                                Interlocked.Increment(ref downloaded_files);
+                            }
+                            catch (OperationCanceledException)
+                            {
+								// ignore
+                            }
+                            catch (Exception ex)
+                            {
+                                Log($"Failed to download file [{cacheFile.N}_{cacheFile.CRC}] ({url}): {ex.Message}", true, 1);
+                            }
+                        }
 
 						Dispatcher.Invoke(() =>
 						{
