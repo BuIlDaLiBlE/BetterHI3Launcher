@@ -1,9 +1,7 @@
-[submodule "Hi3Helper.Http"]
-	path = Utility/Hi3Helper.Http
-	url = https://github.com/CollapseLauncher/Hi3Helper.Http
-	branch = main
-
 [submodule "PartialZip"]
 	path = Utility/PartialZip
 	url = https://github.com/BuIlDaLiBlE/PartialZip
 	branch = master
+[submodule "Hi3Helper.Http"]
+	path = Hi3Helper.Http
+	url = https://github.com/CollapseLauncher/Hi3Helper.Http

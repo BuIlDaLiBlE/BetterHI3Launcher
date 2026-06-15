@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using BetterHI3Launcher.Config;
 using BetterHI3Launcher.Utility;
 using BetterHI3Launcher.Utility.Json;
-using Hi3Helper.Http;
+using Hi3Helper.Http.Legacy;
 using IniParser;
 using IniParser.Model;
 using Microsoft.Win32;

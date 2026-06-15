@@ -1,6 +1,4 @@
-﻿using BetterHI3Launcher.Utility;
-using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,6 +16,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using BetterHI3Launcher.Utility;
+using Microsoft.Win32;
 using ProgressItem = System.Collections.Generic.KeyValuePair<long, float>;
 
 namespace BetterHI3Launcher

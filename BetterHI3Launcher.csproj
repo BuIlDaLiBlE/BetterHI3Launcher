@@ -94,14 +94,9 @@
 
   <!-- Exclude unnecessary files from Hi3Helper.Http submodule -->
   <ItemGroup>
-    <None Remove="Utility\Hi3Helper.Http\LICENSE" />
-    <None Remove="Utility\Hi3Helper.Http\.*" />
-    <None Remove="Utility\Hi3Helper.Http\README*" />
-    <None Remove="Utility\Hi3Helper.Http\packages.*" />
-    <None Remove="Utility\Hi3Helper.Http\Test\**" />
-    <Page Remove="Utility\Hi3Helper.Http\Test\**" />
-    <Compile Remove="Utility\Hi3Helper.Http\Test\**" />
-    <EmbeddedResource Remove="Utility\Hi3Helper.Http\Test\**" />
+    <None Remove="Hi3Helper.Http\**" />
+    <Compile Remove="Hi3Helper.Http\**" />
+    <EmbeddedResource Remove="Hi3Helper.Http\**" />
   </ItemGroup>
 
   <!-- Embedded Files (including ones from Fody) -->
@@ -112,6 +107,10 @@
   <ItemGroup>
     <Resource Include="Assets\Fonts\**" />
     <Resource Include="Assets\Images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Hi3Helper.Http\Hi3Helper.Http.Universal.csproj" />
   </ItemGroup>
 
   <ItemGroup>

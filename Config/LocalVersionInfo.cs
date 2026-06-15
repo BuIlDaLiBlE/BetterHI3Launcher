@@ -1,6 +1,6 @@
-﻿using BetterHI3Launcher.Utility;
+﻿using System.Text.Json.Serialization;
+using BetterHI3Launcher.Utility;
 using BetterHI3Launcher.Utility.Json.Converter;
-using System.Text.Json.Serialization;
 
 #nullable enable
 namespace BetterHI3Launcher.Config;

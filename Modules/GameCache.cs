@@ -1,7 +1,4 @@
-﻿using AssetsTools.NET.Extra;
-using BetterHI3Launcher.Utility.Json;
-using Hi3Helper.EncTool;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shell;
+using AssetsTools.NET.Extra;
 using BetterHI3Launcher.Utility;
+using BetterHI3Launcher.Utility.Json;
+using Hi3Helper.EncTool;
 
 namespace BetterHI3Launcher
 {
