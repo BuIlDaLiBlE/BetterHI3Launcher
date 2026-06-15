@@ -92,11 +92,11 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
 
-  <!-- Exclude unnecessary files from Hi3Helper.Http submodule -->
+  <!-- Exclude unnecessary files from Hi3Helper.* submodules -->
   <ItemGroup>
-    <None Remove="Hi3Helper.Http\**" />
-    <Compile Remove="Hi3Helper.Http\**" />
-    <EmbeddedResource Remove="Hi3Helper.Http\**" />
+    <None Remove="Hi3Helper.*\**" />
+    <Compile Remove="Hi3Helper.*\**" />
+    <EmbeddedResource Remove="Hi3Helper.*\**" />
   </ItemGroup>
 
   <!-- Embedded Files (including ones from Fody) -->
@@ -111,6 +111,7 @@
 
   <ItemGroup>
     <ProjectReference Include="Hi3Helper.Http\Hi3Helper.Http.Universal.csproj" />
+    <ProjectReference Include="Hi3Helper.Sophon\Hi3Helper.Sophon.Universal.csproj" />
   </ItemGroup>
 
   <ItemGroup>

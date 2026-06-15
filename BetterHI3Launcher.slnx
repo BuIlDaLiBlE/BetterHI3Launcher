@@ -8,4 +8,7 @@
   <Project Path="Hi3Helper.Http/Hi3Helper.Http.Universal.csproj">
     <Platform Project="x64" />
   </Project>
+  <Project Path="Hi3Helper.Sophon/Hi3Helper.Sophon.Universal.csproj">
+    <Platform Project="x64" />
+  </Project>
 </Solution>
