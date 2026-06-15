@@ -236,12 +236,12 @@ namespace BetterHI3Launcher
 				string online_game_version_str = HYPGamePackageData["main"]["major"]["version"].ToString();
 				StructVersion online_game_version = new(online_game_version_str);
 				if(local_game_version != online_game_version &&
-                   local_game_version < online_game_version)
+				   local_game_version < online_game_version)
 				{
 					for(var i = 0; i < HYPGamePackageData["main"]["patches"].Node?.AsArray().Count; i++)
-                    {
-                        StructVersion onlineVersion = HYPGamePackageData["main"]["patches"][i]["version"];
-                        if (onlineVersion == local_game_version)
+					{
+						StructVersion onlineVersion = HYPGamePackageData["main"]["patches"][i]["version"];
+						if (onlineVersion == local_game_version)
 						{
 							PatchDownloadInt = i;
 							return 2;
@@ -327,8 +327,8 @@ namespace BetterHI3Launcher
 				using(HttpResponseMessage web_response = BpUtility.CreateWebRequest(url, HttpMethod.Get, 30000))
 				{
 					using(Stream data = web_response.Content.ReadAsStreamAsync().Result)
-                    {
-                        DynamicJson json = DynamicJson.Parse(data);
+					{
+						DynamicJson json = DynamicJson.Parse(data);
 						if (json["retcode"].ToInt() == 0)
 						{
 							if(json["data"] != default && json["data"]["game_info_list"] != default && json["data"]["game_info_list"].Node?.AsArray().Count > 0)
@@ -533,10 +533,10 @@ namespace BetterHI3Launcher
 				}
 				else
 				{
-                    FileMetadata metadata = null;
-                    DynamicJson game_archive = OnlineVersionInfo["game_info"]["mirror"]["bpnetwork"]["game_archive"];
+					FileMetadata metadata = null;
+					DynamicJson game_archive = OnlineVersionInfo["game_info"]["mirror"]["bpnetwork"]["game_archive"];
 
-                    switch (Server)
+					switch (Server)
 					{
 						case HI3Server.GLB:
 							metadata = FetchFileMetadata(game_archive["global"]);

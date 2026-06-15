@@ -14,9 +14,9 @@ namespace BetterHI3Launcher
 		private bool LauncherUpdateCheck()
 		{
 			string OnlineLauncherVersionString = OnlineVersionInfo["launcher_info"]["version"];
-            var OnlineLauncherVersion = new StructVersion(OnlineLauncherVersionString);
-            return OnlineLauncherVersion > App.LocalLauncherVersion;
-        }
+			var OnlineLauncherVersion = new StructVersion(OnlineLauncherVersionString);
+			return OnlineLauncherVersion > App.LocalLauncherVersion;
+		}
 
 		private void LauncherLocalVersionCheck()
 		{

@@ -434,9 +434,9 @@ namespace BetterHI3Launcher
 		}
 
 		private long GetContentLength()
-        {
-            using HttpResponseMessage response = BpUtility.CreateWebRequest(_sourceUrl, HttpMethod.Head);
-            return response.Content.Headers.ContentLength ?? 0;
+		{
+			using HttpResponseMessage response = BpUtility.CreateWebRequest(_sourceUrl, HttpMethod.Head);
+			return response.Content.Headers.ContentLength ?? 0;
 		}
 
 		private async Task Start(long range)

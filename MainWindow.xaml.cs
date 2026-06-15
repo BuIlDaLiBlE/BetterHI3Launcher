@@ -44,9 +44,9 @@ namespace BetterHI3Launcher
 		public static RoutedCommand AboutCommand = new RoutedCommand();
 
 		public LocalVersionInfo LocalVersionInfo = null;
-        public DynamicJson HYPGamePackageData, OnlineVersionInfo, OnlineRepairInfo;
+		public DynamicJson HYPGamePackageData, OnlineVersionInfo, OnlineRepairInfo;
 		public DynamicJson GameGraphicSettings, GameScreenSettings;
-        LauncherStatus _status;
+		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
 		Http httpclient;
@@ -956,7 +956,7 @@ namespace BetterHI3Launcher
 							start_info.Arguments = LocalVersionInfo.LaunchOptions ?? "";
 
 							var process = Process.Start(start_info);
-                            process.EnableRaisingEvents = true;
+							process.EnableRaisingEvents = true;
 							process.Exited += new EventHandler((object s1, EventArgs ea1) =>
 							{
 								processes = Process.GetProcessesByName("BH3");
@@ -1018,7 +1018,7 @@ namespace BetterHI3Launcher
 									}
 								}
 								// So called "standalone" HYP, e.g. Epic, Google
-                                foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone")?.GetSubKeyNames() ?? [])
+								foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone")?.GetSubKeyNames() ?? [])
 								{
 									foreach(string game_id in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global")?.GetSubKeyNames() ?? [])
 									{

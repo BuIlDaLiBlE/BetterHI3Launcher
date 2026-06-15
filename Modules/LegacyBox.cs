@@ -636,8 +636,8 @@ namespace BetterHI3Launcher
 			AnnouncementBox.Visibility = Visibility.Collapsed;
 			bool do_not_show_next_time = (bool)AnnouncementBoxDoNotShowCheckbox.IsChecked;
 
-            DynamicJson firstAnnouncement = App.Announcements.FirstOrDefault();
-            if (do_not_show_next_time)
+			DynamicJson firstAnnouncement = App.Announcements.FirstOrDefault();
+			if (do_not_show_next_time)
 			{
 				try
 				{
