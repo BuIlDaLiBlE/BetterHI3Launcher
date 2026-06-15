@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BetterHI3Launcher": {
+      "commandName": "Project",
+      "commandLineArgs": "NOUPDATE ADVANCED"
+    }
+  }
+}

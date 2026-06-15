@@ -1,7 +1,4 @@
-﻿using AssetsTools.NET.Extra;
-using Hi3Helper.EncTool;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +7,9 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shell;
+using AssetsTools.NET.Extra;
+using BetterHI3Launcher.Utility.Json;
+using Hi3Helper.EncTool;
 
 namespace BetterHI3Launcher
 {
@@ -94,7 +94,7 @@ namespace BetterHI3Launcher
 
 		private string CalculateCRC(string path, string hash_salt)
 		{
-			byte[] salt = new mhyEncTool(hash_salt, OnlineVersionInfo.game_info.mirror.mihoyo.master_key.ToString()).GetSalt();
+			byte[] salt = new mhyEncTool(hash_salt, OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["master_key"]).GetSalt();
 			using(FileStream stream = new FileStream(path, FileMode.Open))
 			{
 				byte[] hash = new HMACSHA1(salt).ComputeHash(stream);
@@ -106,7 +106,6 @@ namespace BetterHI3Launcher
 		{
 			string hash_salt = string.Empty;
 			string data_url;
-			string data;
 
 			List<CacheDataPropertiesHi3Mirror> cache_files, bad_files;
 			CacheType cache_type;
@@ -114,25 +113,27 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				switch((int)Server)
+				DynamicJson game_cache = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["game_cache"];
+				DynamicJson game_cache_info = OnlineVersionInfo["game_info"]["mirror"]["mihoyo"]["game_cache_info"];
+				switch ((int)Server)
 				{
 					case 0:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.global.ToString();
+						data_url = game_cache["global"];
 						break;
 					case 1:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.os.ToString();
+						data_url = game_cache["os"];
 						break;
 					case 2:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.cn.ToString();
+						data_url = game_cache["cn"];
 						break;
 					case 3:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.tw.ToString();
+						data_url = game_cache["tw"];
 						break;
 					case 4:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.kr.ToString();
+						data_url = game_cache["kr"];
 						break;
 					case 5:
-						data_url = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache.jp.ToString();
+						data_url = game_cache["jp"];
 						break;
 					default:
 						throw new NotSupportedException("This server is not supported.");
@@ -165,61 +166,60 @@ namespace BetterHI3Launcher
 								break;
 						}
 
-						dynamic data_info;
-						switch((int)Server)
+						string data_info_url;
+
+						switch ((int)Server)
 						{
 							case 0:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.global[i].ToString();
+								data_info_url = game_cache_info["global"][i].ToString();
 								break;
 							case 1:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.os[i].ToString();
+								data_info_url = game_cache_info["os"][i].ToString();
 								break;
 							case 2:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.cn[i].ToString();
+								data_info_url = game_cache_info["cn"][i].ToString();
 								break;
 							case 3:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.tw[i].ToString();
+								data_info_url = game_cache_info["tw"][i].ToString();
 								break;
 							case 4:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.kr[i].ToString();
+								data_info_url = game_cache_info["kr"][i].ToString();
 								break;
 							case 5:
-								data_info = OnlineVersionInfo.game_info.mirror.mihoyo.game_cache_info.jp[i].ToString();
+								data_info_url = game_cache_info["jp"][i].ToString();
 								break;
 							default:
 								throw new NotSupportedException("This server is not supported.");
 						}
 
-						using(var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info))))
+						using var stream = new MemoryStream(web_client.DownloadData(new Uri(data_info_url)));
+						using var xor_stream = new XORStream(stream);
+						var data_lines = GetPackageVersion(xor_stream).Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
+						var data_entries = new List<DynamicJson>();
+						foreach(string line in data_lines)
 						{
-							using(var xor_stream = new XORStream(stream))
+							if(line.StartsWith("{") && line.EndsWith("}"))
 							{
-								var data_lines = GetPackageVersion(xor_stream).Split(new string[]{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
-								var data_entries = new List<dynamic>();
-								foreach(string line in data_lines)
+								var json = DynamicJson.Parse(line);
+								data_entries.Add(json);
+							}
+						}
+
+						if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
+
+						foreach(DynamicJson file in data_entries)
+						{
+							string filename = file["N"];
+							if (FilterRegion(filename, game_language) > 0)
+							{
+								cache_files.Add(new CacheDataPropertiesHi3Mirror
 								{
-									if(line.StartsWith("{") && line.EndsWith("}"))
-									{
-										var json = JsonConvert.DeserializeObject<dynamic>(line);
-										data_entries.Add(json);
-									}
-								}
-								if(cache_type == CacheType.Data) hash_salt = data_lines.FirstOrDefault();
-								data = JsonConvert.SerializeObject(data_entries);
-								foreach(CacheDataProperties file in JsonConvert.DeserializeObject<List<CacheDataProperties>>(data))
-								{
-									if(FilterRegion(file.N, game_language) > 0)
-									{
-										cache_files.Add(new CacheDataPropertiesHi3Mirror
-										{
-											N = file.N,
-											CRC = file.CRC,
-											CS = file.CS,
-											IsNecessary = file.DLM == 1,
-											Type = cache_type
-										});
-									}
-								}
+									N = filename,
+									CRC = file["CRC"],
+									CS = file["CS"],
+									IsNecessary = file["DLM"].ToInt() == 1,
+									Type = cache_type
+								});
 							}
 						}
 					}

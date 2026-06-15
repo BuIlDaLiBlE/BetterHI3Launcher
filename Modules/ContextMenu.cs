@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +12,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
+using BetterHI3Launcher.Utility.Json;
+using Microsoft.Win32;
+using JsonSerializerNew = System.Text.Json.JsonSerializer;
 
 namespace BetterHI3Launcher
 {
@@ -159,13 +160,13 @@ namespace BetterHI3Launcher
 				var web_client = new BpWebClient();
 				await Task.Run(() =>
 				{
-					OnlineRepairInfo = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"{OnlineVersionInfo.launcher_info.links.repair.ToString()}={server}"));
+					OnlineRepairInfo = DynamicJson.Parse(web_client.DownloadString($"{OnlineVersionInfo["launcher_info"]["links"]["repair"]}={server}"));
 				});
-				if(OnlineRepairInfo.status == "success")
+				if (OnlineRepairInfo["status"] == "success")
 				{
 					Log("success!", false);
-					OnlineRepairInfo = OnlineRepairInfo.repair_info;
-					if(OnlineRepairInfo.game_version != LocalVersionInfo.game_info.version && !App.AdvancedFeatures)
+					OnlineRepairInfo = OnlineRepairInfo["repair_info"];
+					if(OnlineRepairInfo["game_version"].ToStructVersion() != LocalVersionInfo.GameInfo?.Version && !App.AdvancedFeatures)
 					{
 						ProgressText.Text = string.Empty;
 						ProgressBar.Visibility = Visibility.Collapsed;
@@ -177,7 +178,7 @@ namespace BetterHI3Launcher
 						Dispatcher.Invoke(() =>
 						{
 							RepairBox.Visibility = Visibility.Visible;
-							RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo.mirrors, OnlineVersionInfo.game_info.mirror.maintainer.ToString());
+							RepairBoxMessageTextBlock.Text = string.Format(App.TextStrings["repairbox_msg"], OnlineRepairInfo["mirrors"], OnlineVersionInfo["game_info"]["mirror"]["maintainer"].ToString());
 						});
 						LegacyBoxActive = true;
 					}
@@ -185,8 +186,8 @@ namespace BetterHI3Launcher
 				else
 				{
 					Status = LauncherStatus.Error;
-					Log($"Failed to fetch repair data: {OnlineRepairInfo.status_message}", true, 1);
-					new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], OnlineRepairInfo.status_message)).ShowDialog();
+					Log($"Failed to fetch repair data: {OnlineRepairInfo["status_message"]}", true, 1);
+					new DialogWindow(App.TextStrings["msgbox_net_error_title"], string.Format(App.TextStrings["msgbox_net_error_msg"], OnlineRepairInfo["status_message"])).ShowDialog();
 				}
 			}
 			catch(Exception ex)
@@ -455,7 +456,7 @@ namespace BetterHI3Launcher
 			{
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath);
 				string value = "GENERAL_DATA_V2_PersonalGraphicsSettingV2_h3480068519";
-				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
+				if(key == null || key.GetValue(value) is not byte[] value_before || key.GetValueKind(value) != RegistryValueKind.Binary)
 				{
 					try
 					{
@@ -467,18 +468,18 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
-				var value_before = key.GetValue(value);
-				var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])value_before));
-				if(json == null)
+
+				var json = DynamicJson.Parse(value_before.AsSpan());
+				if(json == default)
 				{
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
 				key.Close();
 				FPSInputBox.Visibility = Visibility.Visible;
-				if(json.TargetFrameRateForInLevel != null)
+				if (json["TargetFrameRateForInLevel"] != default)
 				{
-					FPSLimitInputBoxTextBox.Text = json.TargetFrameRateForInLevel;
+					FPSLimitInputBoxTextBox.Text = json["TargetFrameRateForInLevel"];
 				}
 				else
 				{
@@ -508,7 +509,7 @@ namespace BetterHI3Launcher
 			{
 				var key = Registry.CurrentUser.OpenSubKey(GameRegistryPath, true);
 				string value = "GENERAL_DATA_V2_ScreenSettingData_h1916288658";
-				if(key == null || key.GetValue(value) == null || key.GetValueKind(value) != RegistryValueKind.Binary)
+				if(key == null || key.GetValue(value) is not byte[] value_before || key.GetValueKind(value) != RegistryValueKind.Binary)
 				{
 					try
 					{
@@ -520,9 +521,8 @@ namespace BetterHI3Launcher
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
 				}
-				var value_before = key.GetValue(value);
-				var json = JsonConvert.DeserializeObject<dynamic>(Encoding.UTF8.GetString((byte[])value_before));
-				if(json == null)
+				var json = DynamicJson.Parse(value_before.AsSpan());
+				if(json == default)
 				{
 					new DialogWindow(App.TextStrings["msgbox_registry_error_title"], $"{App.TextStrings["msgbox_registry_empty_1_msg"]}\n{App.TextStrings["msgbox_registry_empty_3_msg"]}").ShowDialog();
 					return;
@@ -530,25 +530,25 @@ namespace BetterHI3Launcher
 				key.Close();
 				ResolutionInputBox.Visibility = Visibility.Visible;
 
-				if(json.width != null)
+				if (json["width"] != default)
 				{
-					ResolutionInputBoxWidthTextBox.Text = json.width;
+					ResolutionInputBoxWidthTextBox.Text = json["width"];
 				}
 				else
 				{
 					ResolutionInputBoxWidthTextBox.Text = "720";
 				}
-				if(json.height != null)
+				if(json["height"] != default)
 				{
-					ResolutionInputBoxHeightTextBox.Text = json.height;
+					ResolutionInputBoxHeightTextBox.Text = json["height"];
 				}
 				else
 				{
 					ResolutionInputBoxHeightTextBox.Text = "480";
 				}
-				if(json.isfullScreen != null)
+				if(json["isfullScreen"] != default)
 				{
-					ResolutionInputBoxFullscreenCheckbox.IsChecked = json.isfullScreen;
+					ResolutionInputBoxFullscreenCheckbox.IsChecked = json["isfullScreen"];
 				}
 				else
 				{
@@ -581,7 +581,7 @@ namespace BetterHI3Launcher
 				var dialog = new DialogWindow(App.TextStrings["contextmenu_custom_launch_options"], App.TextStrings["msgbox_custom_launch_options_msg"], DialogWindow.DialogType.CustomLaunchOptions);
 				try
 				{
-					dialog.CustomLaunchOptionsTextBox.Text = LocalVersionInfo.launch_options.ToString().Trim();
+					dialog.CustomLaunchOptionsTextBox.Text = LocalVersionInfo.LaunchOptions?.Trim() ?? "";
 				}catch{}
 				if(dialog.ShowDialog() == false)
 				{
@@ -590,14 +590,14 @@ namespace BetterHI3Launcher
 				string launch_options = dialog.CustomLaunchOptionsTextBox.Text.Trim();
 				if(string.IsNullOrEmpty(launch_options))
 				{
-					LocalVersionInfo.Remove("launch_options");
+					LocalVersionInfo.LaunchOptions = null;
 				}
 				else
 				{
-					LocalVersionInfo.launch_options = launch_options;
+					LocalVersionInfo.LaunchOptions = launch_options;
 				}
 				Log("Saving launch options...");
-				BpUtility.WriteToRegistry(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(LocalVersionInfo)), RegistryValueKind.Binary);
+				BpUtility.WriteToRegistry(RegistryVersionInfo, Encoding.UTF8.GetBytes(JsonSerializerNew.Serialize(LocalVersionInfo, JsonParseContext.Default.LocalVersionInfo)), RegistryValueKind.Binary);
 				Log("success!", false);
 			}
 			catch(Exception ex)
@@ -990,10 +990,10 @@ namespace BetterHI3Launcher
 			{
 				try
 				{
-					var json = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(App.LauncherTranslationsFile));
-					foreach(var kvp in json[lang])
+					var json = DynamicJson.Parse(File.ReadAllText(App.LauncherTranslationsFile));
+					foreach(var kvp in json[lang].EnumerateObject())
 					{
-						App.TextStrings[kvp.Name] = kvp.Value.ToString();
+						App.TextStrings[kvp.Key] = kvp.Value.ToString();
 					}
 					App.LauncherLanguage = lang;
 				}

@@ -1,10 +1,11 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Windows;
 using System.Windows.Shell;
+using BetterHI3Launcher.Utility;
+using Microsoft.Win32;
 
 namespace BetterHI3Launcher
 {
@@ -12,15 +13,9 @@ namespace BetterHI3Launcher
 	{
 		private bool LauncherUpdateCheck()
 		{
-			var OnlineLauncherVersion = new LauncherVersion(OnlineVersionInfo.launcher_info.version.ToString());
-			if(OnlineLauncherVersion.IsNewerThan(App.LocalLauncherVersion))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			string OnlineLauncherVersionString = OnlineVersionInfo["launcher_info"]["version"];
+			var OnlineLauncherVersion = new StructVersion(OnlineLauncherVersionString);
+			return OnlineLauncherVersion > App.LocalLauncherVersion;
 		}
 
 		private void LauncherLocalVersionCheck()
@@ -28,7 +23,7 @@ namespace BetterHI3Launcher
 			#if !DEBUG
 			if(App.LauncherRegKey != null && App.LauncherRegKey.GetValue("LauncherVersion") != null)
 			{
-				if(new LauncherVersion(App.LocalLauncherVersion.ToString()).IsNewerThan(new LauncherVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString())))
+				if(App.LocalLauncherVersion > new StructVersion(App.LauncherRegKey.GetValue("LauncherVersion").ToString()))
 				{
 					LegacyBoxActive = true;
 					ChangelogBox.Visibility = Visibility.Visible;
@@ -72,12 +67,12 @@ namespace BetterHI3Launcher
 			{
 				tracker.NewFile();
 				var eta_calc = new ETACalculator();
-				var download = new DownloadPauseable(OnlineVersionInfo.launcher_info.url.ToString(), App.LauncherArchivePath);
+				var download = new DownloadPauseable(OnlineVersionInfo["launcher_info"]["url"], App.LauncherArchivePath);
 				download.Start();
 				while(!download.Done)
 				{
 					tracker.SetProgress(download.BytesWritten, download.ContentLength);
-					eta_calc.Update((float)download.BytesWritten / (float)download.ContentLength);
+					eta_calc.Update((float)download.BytesWritten / download.ContentLength);
 					Dispatcher.Invoke(() =>
 					{
 						var progress = tracker.GetProgress();
@@ -121,9 +116,9 @@ namespace BetterHI3Launcher
 		{
 			try
 			{
-				string translations_url = OnlineVersionInfo.launcher_info.translations.url.ToString();
-				string translations_md5 = OnlineVersionInfo.launcher_info.translations.md5.ToString().ToUpper();
-				string translations_version = OnlineVersionInfo.launcher_info.translations.version;
+				string translations_url = OnlineVersionInfo["launcher_info"]["translations"]["url"];
+				string translations_md5 = OnlineVersionInfo["launcher_info"]["translations"]["md5"].ToString()?.ToUpper();
+				string translations_version = OnlineVersionInfo["launcher_info"]["translations"]["version"];
 				bool Validate()
 				{
 					if(File.Exists(App.LauncherTranslationsFile))

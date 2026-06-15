@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using BetterHI3Launcher.Utility;
+using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -43,20 +45,20 @@ namespace BetterHI3Launcher
 					}
 				}
 			}
-			OnlineVersionInfo = JsonConvert.DeserializeObject<dynamic>(version_info);
-			if(OnlineVersionInfo.status == "success")
+			OnlineVersionInfo = DynamicJson.Parse(version_info);
+			if (OnlineVersionInfo["status"] == "success")
 			{
-				OnlineVersionInfo = OnlineVersionInfo.launcher_status;
-				App.LauncherExeName = OnlineVersionInfo.launcher_info.name;
+				OnlineVersionInfo = OnlineVersionInfo["launcher_status"];
+				App.LauncherExeName = OnlineVersionInfo["launcher_info"]["name"];
 				App.LauncherPath = Path.Combine(App.LauncherRootPath, App.LauncherExeName);
-				App.LauncherArchivePath = Path.Combine(App.LauncherRootPath, BpUtility.GetFileNameFromUrl(OnlineVersionInfo.launcher_info.url.ToString()));
+				App.LauncherArchivePath = Path.Combine(App.LauncherRootPath, BpUtility.GetFileNameFromUrl(OnlineVersionInfo["launcher_info"]["url"]));
 			}
 			else
 			{
 				Status = LauncherStatus.Error;
 				Dispatcher.Invoke(() =>
 				{
-					MessageBox.Show(string.Format(App.TextStrings["msgbox_net_error_msg"], OnlineVersionInfo.status_message), App.TextStrings["msgbox_net_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
+					MessageBox.Show(string.Format(App.TextStrings["msgbox_net_error_msg"], OnlineVersionInfo["status_message"]), App.TextStrings["msgbox_net_error_title"], MessageBoxButton.OK, MessageBoxImage.Error);
 					Application.Current.Shutdown();
 				});
 			}
@@ -69,15 +71,15 @@ namespace BetterHI3Launcher
 				await Task.Run(() =>
 				{
 					var web_client = new BpWebClient();
-					dynamic announcements;
-					announcements = JsonConvert.DeserializeObject<dynamic>(web_client.DownloadString($"{OnlineVersionInfo.launcher_info.links.announcements.ToString()}&lang={App.LauncherLanguage}"));
-					if(announcements.status == "success")
+					DynamicJson announcements = DynamicJson.Parse(web_client.DownloadString($"{OnlineVersionInfo["launcher_info"]["links"]["announcements"]}&lang={App.LauncherLanguage}"));
+					if(announcements["status"] == "success")
 					{
-						announcements = announcements.announcements;
-						foreach(dynamic announcement in announcements)
+						announcements = announcements["announcements"];
+						foreach(DynamicJson announcement in announcements.EnumerateArray())
 						{
-							string min_launcher_version = announcement.min_version.ToString();
-							if(!new LauncherVersion(min_launcher_version).IsNewerThan(App.LocalLauncherVersion) && DateTime.Compare(DateTime.UtcNow, new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)announcement.relevant_until)) < 0 && !App.SeenAnnouncements.Contains(announcement.id.ToString()))
+							string min_launcher_version_str = announcement["min_version"];
+							StructVersion min_launcher_version = new(min_launcher_version_str);
+							if(!(min_launcher_version > App.LocalLauncherVersion) && DateTime.Compare(DateTime.UtcNow, new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(announcement["relevant_until"])) < 0 && !App.SeenAnnouncements.Contains(announcement["id"].ToString()))
 							{
 								App.Announcements.Add(announcement);
 							}
@@ -85,7 +87,7 @@ namespace BetterHI3Launcher
 					}
 					else
 					{
-						Log($"Failed to fetch announcements: {announcements.status_message}", true, 2);
+						Log($"Failed to fetch announcements: {announcements["status_message"]}", true, 2);
 					}
 				});
 			}
@@ -95,7 +97,7 @@ namespace BetterHI3Launcher
 			}
 			if(App.Announcements.Count > 0)
 			{
-				Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.First);});
+				Dispatcher.Invoke(() => {ShowAnnouncement(App.Announcements.FirstOrDefault());});
 			}
 			else
 			{
@@ -103,11 +105,11 @@ namespace BetterHI3Launcher
 			}
 		}
 
-		private void ShowAnnouncement(dynamic announcement)
+		private void ShowAnnouncement(DynamicJson announcement)
 		{
 			LegacyBoxActive = true;
-			AnnouncementBoxTitleTextBlock.Text = announcement.content.title;
-			TextBlockExt.SetFormattedText(AnnouncementBoxMessageTextBlock, announcement.content.text.ToString());
+			AnnouncementBoxTitleTextBlock.Text = announcement["content"]["title"];
+			TextBlockExt.SetFormattedText(AnnouncementBoxMessageTextBlock, announcement["content"]["text"].ToString());
 			AnnouncementBox.Visibility = Visibility.Visible;
 			FlashMainWindow();
 		}
@@ -128,11 +130,11 @@ namespace BetterHI3Launcher
 					var web_client = new BpWebClient {Timeout = timeout};
 					if(App.LauncherLanguage == "ru")
 					{
-						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.links.changelog.ru.ToString());
+						changelog = web_client.DownloadString(OnlineVersionInfo["launcher_info"]["links"]["changelog"]["ru"]);
 					}
 					else
 					{
-						changelog = web_client.DownloadString(OnlineVersionInfo.launcher_info.links.changelog.en.ToString());
+						changelog = web_client.DownloadString(OnlineVersionInfo["launcher_info"]["links"]["changelog"]["en"]);
 					}
 				}
 				try

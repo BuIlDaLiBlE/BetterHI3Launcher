@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +17,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
+using BetterHI3Launcher.Config;
+using BetterHI3Launcher.Utility.Json;
 
 namespace BetterHI3Launcher
 {
@@ -40,8 +42,10 @@ namespace BetterHI3Launcher
 		public static RoutedCommand ToggleLogCommand = new RoutedCommand();
 		public static RoutedCommand ToggleSoundsCommand = new RoutedCommand();
 		public static RoutedCommand AboutCommand = new RoutedCommand();
-		public dynamic LocalVersionInfo, OnlineVersionInfo, OnlineRepairInfo, HYPGamePackageData;
-		public dynamic GameGraphicSettings, GameScreenSettings;
+
+		public LocalVersionInfo LocalVersionInfo = null;
+		public DynamicJson HYPGamePackageData, OnlineVersionInfo, OnlineRepairInfo;
+		public DynamicJson GameGraphicSettings, GameScreenSettings;
 		LauncherStatus _status;
 		HI3Server _gameserver;
 		HI3Mirror _downloadmirror;
@@ -288,7 +292,7 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				Log($"BetterHI3Launcher v{App.LocalLauncherVersion}", false);
+				Log($"BetterHI3Launcher v{App.LocalLauncherVersion.ToString("F")}", false);
 				Log($"Working directory: {App.LauncherRootPath}");
 				Log($"OS version: {App.OSVersion}");
 				Log($"OS language: {App.OSLanguage}");
@@ -371,7 +375,7 @@ namespace BetterHI3Launcher
 				ChangelogBoxMessageTextBlock.Text = App.TextStrings["changelogbox_1_msg"];
 				ChangelogBoxOKButton.Content = App.TextStrings["button_ok"];
 				AboutBoxTitleTextBlock.Text = App.TextStrings["contextmenu_about"];
-				AboutBoxAppNameTextBlock.Text += $" v{App.LocalLauncherVersion}";
+				AboutBoxAppNameTextBlock.Text += $" v{App.LocalLauncherVersion.ToString("F")}";
 				AboutBoxMessageTextBlock.Text = $"{App.TextStrings["aboutbox_msg"]}\n\nMade by Bp (BuIlDaLiBlE production).";
 				AboutBoxGitHubButton.Content = App.TextStrings["button_github"];
 				AboutBoxOKButton.Content = App.TextStrings["button_ok"];
@@ -499,7 +503,7 @@ namespace BetterHI3Launcher
 				OptionsContextMenu.Items.Add(CM_Web_Profile);
 				OptionsContextMenu.Items.Add(new Separator());
 				var CM_Feedback = new MenuItem{Header = App.TextStrings["contextmenu_feedback"], InputGestureText = "Ctrl+F"};
-				CM_Feedback.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.feedback.ToString(), null, App.LauncherRootPath, true);
+				CM_Feedback.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo["launcher_info"]["links"]["feedback"], null, App.LauncherRootPath, true);
 				OptionsContextMenu.Items.Add(CM_Feedback);
 				var CM_Changelog = new MenuItem{Header = App.TextStrings["contextmenu_changelog"], InputGestureText = "Ctrl+C"};
 				CM_Changelog.Click += (sender, e) => CM_Changelog_Click(sender, e);
@@ -564,7 +568,7 @@ namespace BetterHI3Launcher
 				CM_Language.Items.Add(CM_Language_Vietnamese);
 				CM_Language.Items.Add(new Separator());
 				var CM_Language_Contribute = new MenuItem{Header = App.TextStrings["contextmenu_language_contribute"]};
-				CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo.launcher_info.links.language_contribute.ToString(), null, App.LauncherRootPath, true);
+				CM_Language_Contribute.Click += (sender, e) => BpUtility.StartProcess(OnlineVersionInfo["launcher_info"]["links"]["language_contribute"], null, App.LauncherRootPath, true);
 				CM_Language.Items.Add(CM_Language_Contribute);
 				OptionsContextMenu.Items.Add(CM_Language);
 				var CM_About = new MenuItem{Header = App.TextStrings["contextmenu_about"], InputGestureText = "Ctrl+A"};
@@ -765,7 +769,7 @@ namespace BetterHI3Launcher
 
 					if(!App.NeedsUpdate)
 					{
-						if(BpUtility.CalculateMD5(App.LauncherPath) != OnlineVersionInfo.launcher_info.exe_md5.ToString().ToUpper())
+						if(BpUtility.CalculateMD5(App.LauncherPath) != OnlineVersionInfo["launcher_info"]["exe_md5"].ToString()?.ToUpper())
 						{
 							Log($"Launcher integrity error, attempting self-repair...", true, 1);
 							App.NeedsUpdate = true;
@@ -777,7 +781,7 @@ namespace BetterHI3Launcher
 						Status = LauncherStatus.Working;
 						DownloadLauncherUpdate();
 						Log("Validating update...");
-						string md5 = OnlineVersionInfo.launcher_info.md5.ToString().ToUpper();
+						string md5 = OnlineVersionInfo["launcher_info"]["md5"].ToString()?.ToUpper();
 						string actual_md5 = BpUtility.CalculateMD5(App.LauncherArchivePath);
 						if(actual_md5 != md5)
 						{
@@ -949,10 +953,8 @@ namespace BetterHI3Launcher
 							var start_info = new ProcessStartInfo(GameExePath);
 							start_info.WorkingDirectory = GameInstallPath;
 							start_info.UseShellExecute = true;
-							try
-							{
-								start_info.Arguments = LocalVersionInfo.launch_options.ToString();
-							}catch{}
+							start_info.Arguments = LocalVersionInfo.LaunchOptions ?? "";
+
 							var process = Process.Start(start_info);
 							process.EnableRaisingEvents = true;
 							process.Exited += new EventHandler((object s1, EventArgs ea1) =>
@@ -1006,49 +1008,31 @@ namespace BetterHI3Launcher
 								// Normal HYP
 								foreach(string hyp_version in hyp_versions)
 								{
-									try
+									foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}")?.GetSubKeyNames() ?? [])
 									{
-										foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}").GetSubKeyNames())
+										string path = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}")?.GetValue("GameInstallPath")?.ToString().Replace("/", @"\");
+										if(!string.IsNullOrEmpty(path))
 										{
-											try
-											{
-												string path = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\{hyp_version}\{game_reg_name}").GetValue("GameInstallPath").ToString().Replace("/", @"\");
-												if(!string.IsNullOrEmpty(path))
-												{
-													possible_paths.Add(path);
-												}
-											}catch{}
+											possible_paths.Add(path);
 										}
-									}catch{}
+									}
 								}
 								// So called "standalone" HYP, e.g. Epic, Google
-								try
+								foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone")?.GetSubKeyNames() ?? [])
 								{
-									foreach(string hyp_standalone_version in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone").GetSubKeyNames())
+									foreach(string game_id in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global")?.GetSubKeyNames() ?? [])
 									{
-										try
+										foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}")?.GetSubKeyNames() ?? [])
 										{
-											foreach(string game_id in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global").GetSubKeyNames())
+											var game_reg_name_key = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}\{game_reg_name}");
+											string path = game_reg_name_key.GetValue("GameInstallPath").ToString().Replace("/", @"\");
+											if(!string.IsNullOrEmpty(path))
 											{
-												try
-												{
-													foreach(string game_reg_name in Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}").GetSubKeyNames())
-													{
-														try
-														{
-															var game_reg_name_key = Registry.CurrentUser.OpenSubKey($@"SOFTWARE\{game_company_name}\HYP\standalone\{hyp_standalone_version}\bh3_global\{game_id}\{game_reg_name}");
-															string path = game_reg_name_key.GetValue("GameInstallPath").ToString().Replace("/", @"\");
-															if(!string.IsNullOrEmpty(path))
-															{
-																possible_paths.Add(path);
-															}
-														}catch{}
-													}
-												}catch{}
+												possible_paths.Add(path);
 											}
-										}catch{}
+										}
 									}
-								}catch{}
+								}
 							}
 							foreach(string path in possible_paths)
 							{
@@ -1134,8 +1118,8 @@ namespace BetterHI3Launcher
 									continue;
 								}
 
-								long free_space_recommended = (long)HYPGamePackageData.main.major.game_pkgs[0].decompressed_size;
-								string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData.main.major.game_pkgs[0].size))}" +
+								long free_space_recommended = (long)HYPGamePackageData["main"]["major"]["game_pkgs"][0]["decompressed_size"];
+								string install_message = $"{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData["main"]["major"]["game_pkgs"][0]["size"]))}" +
 									$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(free_space_recommended), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}" +
 									$"\n{string.Format(App.TextStrings["msgbox_install_4_msg"], GameInstallPath)}";
 								if(new DialogWindow(App.TextStrings["msgbox_install_title"], install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
@@ -1171,7 +1155,7 @@ namespace BetterHI3Launcher
 				}
 				case LauncherStatus.UpdateAvailable:
 				{
-					if((bool)LocalVersionInfo.game_info.installed && !File.Exists(GameExePath))
+					if((LocalVersionInfo.GameInfo?.IsInstalled ?? false) && !File.Exists(GameExePath))
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_no_game_exe_title"], App.TextStrings["msgbox_no_game_exe_msg"], DialogWindow.DialogType.Question).ShowDialog() == true)
 						{
@@ -1181,7 +1165,7 @@ namespace BetterHI3Launcher
 						return;
 					}
 					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
-					if(game_install_drive.TotalFreeSpace < (long)HYPGamePackageData.main.major.game_pkgs[0].decompressed_size)
+					if(game_install_drive.TotalFreeSpace < HYPGamePackageData["main"]["major"]["game_pkgs"][0]["decompressed_size"])
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{
@@ -1309,29 +1293,28 @@ namespace BetterHI3Launcher
 
 			try
 			{
-				string url = HYPGamePackageData.pre_download.major.game_pkgs[0].url.ToString();
+				string url = HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["url"].ToString();
 				string title = BpUtility.GetFileNameFromUrl(url);
 				long size;
-				string md5 = HYPGamePackageData.pre_download.major.game_pkgs[0].md5.ToString().ToUpper();
+				string md5 = HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["md5"].ToString()?.ToUpper();
 				string path = Path.Combine(GameInstallPath, title);
 				string tmp_path = $"{path}_tmp";
 
-				var web_request = BpUtility.CreateWebRequest(url, "HEAD");
-				using(var web_response = (HttpWebResponse) web_request.GetResponse())
+				using(HttpResponseMessage web_response = await BpUtility.CreateWebRequestAsync(url, HttpMethod.Head))
 				{
-					size = web_response.ContentLength;
+					size = web_response.Content.Headers.ContentLength ?? 0;
 				}
 				if(Directory.GetFiles(GameInstallPath, $"{title}_tmp.*").Length == 0)
 				{
 					var game_install_drive = DriveInfo.GetDrives().Where(x => x.Name == Path.GetPathRoot(GameInstallPath).ToUpper() && x.IsReady).FirstOrDefault();
 					string pre_install_message = $"{App.TextStrings["msgbox_pre_install_msg"]}" +
 						$"\n{string.Format(App.TextStrings["msgbox_install_2_msg"], BpUtility.ToBytesCount(size))}" +
-						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount((long)HYPGamePackageData.pre_download.major.game_pkgs[0].size), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
+						$"\n{string.Format(App.TextStrings["msgbox_install_3_msg"], BpUtility.ToBytesCount(HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["size"]), BpUtility.ToBytesCount(game_install_drive.TotalFreeSpace))}";
 					if(new DialogWindow(App.TextStrings["label_pre_install"], pre_install_message, DialogWindow.DialogType.Question).ShowDialog() == false)
 					{
 						return;
 					}
-					if(game_install_drive.TotalFreeSpace < (long)HYPGamePackageData.pre_download.major.game_pkgs[0].decompressed_size)
+					if(game_install_drive.TotalFreeSpace < HYPGamePackageData["pre_download"]["major"]["game_pkgs"][0]["decompressed_size"])
 					{
 						if(new DialogWindow(App.TextStrings["msgbox_install_title"], App.TextStrings["msgbox_install_little_space_msg"], DialogWindow.DialogType.Question).ShowDialog() == false)
 						{
@@ -1497,7 +1480,7 @@ namespace BetterHI3Launcher
 				}
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(LocalVersionInfo != null && LocalVersionInfo.game_info.installed == false)
+				if(LocalVersionInfo is { GameInfo.IsInstalled: false })
 				{
 					ResetVersionInfo();
 				}
@@ -1552,7 +1535,7 @@ namespace BetterHI3Launcher
 				MirrorDropdown.SelectedIndex = (int)Mirror;
 				return;
 			}
-			if(!(bool)OnlineVersionInfo.game_info.mirror.bpnetwork.available && index == 1)
+			if(!OnlineVersionInfo["game_info"]["mirror"]["bpnetwork"]["available"] && index == 1)
 			{
 				MirrorDropdown.SelectedIndex = 0;
 				new DialogWindow(App.TextStrings["label_mirror"], App.TextStrings["msgbox_feature_not_available_msg"]).ShowDialog();
@@ -1568,7 +1551,7 @@ namespace BetterHI3Launcher
 				}
 				DownloadPaused = false;
 				DeleteFile(GameArchiveTempPath);
-				if(LocalVersionInfo.game_info.installed == false)
+				if(LocalVersionInfo is { GameInfo.IsInstalled: false })
 				{
 					ResetVersionInfo();
 				}

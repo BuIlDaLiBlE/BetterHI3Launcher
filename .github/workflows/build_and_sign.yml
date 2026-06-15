@@ -25,6 +25,7 @@ jobs:
       PROJECT_SLUG: BetterHI3Launcher
       SIGNPATH_ARTIFACT_SLUG: initial
       SIGNING_POLICY_SLUG: ""
+      TARGET_FRAMEWORK: net48
     steps:
       - name: Set environment variables
         run: |
@@ -51,6 +52,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BetterHI3Launcher
-          path: bin-signed\${{ env.BUILD_CONFIG }}\BetterHI3Launcher.exe
+          path: bin-signed\${{ env.BUILD_CONFIG }}\${{ env.TARGET_FRAMEWORK }}\BetterHI3Launcher.exe
           compression-level: 9
           overwrite: true
